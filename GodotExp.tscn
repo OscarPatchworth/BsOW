@@ -1,4 +1,9 @@
-[gd_scene load_steps=5 format=3 uid="uid://dp1qeccnucfgp"]
+[gd_scene load_steps=10 format=3 uid="uid://dp1qeccnucfgp"]
+
+[ext_resource type="Script" path="res://camera_3d.gd" id="1_6jpp0"]
+[ext_resource type="Texture2D" uid="uid://bn8wfhbs1omgo" path="res://TempTextures/third_person_controller_assets/textures/grids/Dark/texture_08.png" id="1_g3s7m"]
+[ext_resource type="PackedScene" uid="uid://ty2bm3kxr1dp" path="res://TempTextures/box.tscn" id="2_yont3"]
+[ext_resource type="Script" path="res://cam_gimbal.gd" id="3_og5xy"]
 
 [sub_resource type="ProceduralSkyMaterial" id="ProceduralSkyMaterial_hufr3"]
 sky_horizon_color = Color(0.64625, 0.65575, 0.67075, 1)
@@ -13,8 +18,12 @@ sky = SubResource("Sky_f0lcc")
 tonemap_mode = 2
 glow_enabled = true
 
-[sub_resource type="PlaneMesh" id="PlaneMesh_e2doj"]
+[sub_resource type="PlaneMesh" id="PlaneMesh_7rme7"]
 size = Vector2(30, 30)
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_t8tx4"]
+albedo_texture = ExtResource("1_g3s7m")
+uv1_triplanar = true
 
 [node name="Node3D" type="Node3D"]
 
@@ -22,11 +31,24 @@ size = Vector2(30, 30)
 environment = SubResource("Environment_1qj3v")
 
 [node name="DirectionalLight3D" type="DirectionalLight3D" parent="."]
-transform = Transform3D(-0.866025, -0.433013, 0.25, 0, 0.5, 0.866025, -0.5, 0.75, -0.433013, 0, 0, 0)
+transform = Transform3D(-0.866025, -0.433013, 0.25, 0, 0.5, 0.866025, -0.5, 0.75, -0.433013, 0, 10.0957, 0)
 shadow_enabled = true
 
-[node name="Camera3D" type="Camera3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, 0.882488, 0.470334, 0, -0.470334, 0.882488, 0, 0.677842, 1.7343)
-
 [node name="MeshInstance3D" type="MeshInstance3D" parent="."]
-mesh = SubResource("PlaneMesh_e2doj")
+mesh = SubResource("PlaneMesh_7rme7")
+surface_material_override/0 = SubResource("StandardMaterial3D_t8tx4")
+
+[node name="Box" parent="." instance=ExtResource("2_yont3")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2, 0.5, -4)
+
+[node name="CamGimbal" type="Node3D" parent="." node_paths=PackedStringArray("target")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 2, 0)
+script = ExtResource("3_og5xy")
+target = NodePath("../Box")
+zoom_speed = 0.1
+
+[node name="InnerGimbal" type="Node3D" parent="CamGimbal"]
+
+[node name="Camera3D" type="Camera3D" parent="CamGimbal/InnerGimbal"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 4)
+script = ExtResource("1_6jpp0")
