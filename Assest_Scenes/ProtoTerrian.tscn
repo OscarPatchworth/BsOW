@@ -1,0 +1,5 @@
+[gd_scene load_steps=2 format=3 uid="uid://boa1w0iv5s7oy"]
+
+[ext_resource type="PackedScene" uid="uid://bble45d7i3dt2" path="res://Models/Blender_Imports/ProtoTerrian.blend" id="1_imfri"]
+
+[node name="ProtoTerrian" instance=ExtResource("1_imfri")]

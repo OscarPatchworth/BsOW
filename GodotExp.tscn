@@ -1,9 +1,10 @@
-[gd_scene load_steps=10 format=3 uid="uid://dp1qeccnucfgp"]
+[gd_scene load_steps=11 format=3 uid="uid://dp1qeccnucfgp"]
 
-[ext_resource type="Script" path="res://camera_3d.gd" id="1_6jpp0"]
-[ext_resource type="Texture2D" uid="uid://bn8wfhbs1omgo" path="res://TempTextures/third_person_controller_assets/textures/grids/Dark/texture_08.png" id="1_g3s7m"]
-[ext_resource type="PackedScene" uid="uid://ty2bm3kxr1dp" path="res://TempTextures/box.tscn" id="2_yont3"]
-[ext_resource type="Script" path="res://cam_gimbal.gd" id="3_og5xy"]
+[ext_resource type="Script" path="res://Scripts/camera_3d.gd" id="1_6jpp0"]
+[ext_resource type="Texture2D" uid="uid://bn8wfhbs1omgo" path="res://Textures/TempTextures/third_person_controller_assets/textures/grids/Dark/texture_08.png" id="1_g3s7m"]
+[ext_resource type="PackedScene" uid="uid://ty2bm3kxr1dp" path="res://Textures/TempTextures/box.tscn" id="2_yont3"]
+[ext_resource type="Script" path="res://Scripts/cam_gimbal.gd" id="3_og5xy"]
+[ext_resource type="PackedScene" uid="uid://boa1w0iv5s7oy" path="res://Assest_Scenes/ProtoTerrian.tscn" id="5_q8e3n"]
 
 [sub_resource type="ProceduralSkyMaterial" id="ProceduralSkyMaterial_hufr3"]
 sky_horizon_color = Color(0.64625, 0.65575, 0.67075, 1)
@@ -52,3 +53,5 @@ zoom_speed = 0.1
 [node name="Camera3D" type="Camera3D" parent="CamGimbal/InnerGimbal"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 4)
 script = ExtResource("1_6jpp0")
+
+[node name="ProtoTerrian" parent="." instance=ExtResource("5_q8e3n")]
