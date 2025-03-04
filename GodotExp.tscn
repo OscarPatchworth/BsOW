@@ -40,18 +40,20 @@ mesh = SubResource("PlaneMesh_7rme7")
 surface_material_override/0 = SubResource("StandardMaterial3D_t8tx4")
 
 [node name="Box" parent="." instance=ExtResource("2_yont3")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2, 0.5, -4)
+transform = Transform3D(0.999863, 0, 0.0165799, 0, 1, 0, -0.0165799, 0, 0.999863, 2, 0.5, -4)
 
 [node name="CamGimbal" type="Node3D" parent="." node_paths=PackedStringArray("target")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 2, 0)
 script = ExtResource("3_og5xy")
-target = NodePath("../Box")
+target = NodePath("../ProtoTerrian")
 zoom_speed = 0.1
 
 [node name="InnerGimbal" type="Node3D" parent="CamGimbal"]
 
 [node name="Camera3D" type="Camera3D" parent="CamGimbal/InnerGimbal"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 4)
+current = true
 script = ExtResource("1_6jpp0")
 
 [node name="ProtoTerrian" parent="." instance=ExtResource("5_q8e3n")]
+transform = Transform3D(0.738126, 0, -0.674663, 0, 1, 0, 0.674663, 0, 0.738126, 6.45203, 0, 0)

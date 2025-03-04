@@ -1,5 +1,19 @@
-[gd_scene load_steps=2 format=3 uid="uid://boa1w0iv5s7oy"]
+[gd_scene load_steps=4 format=3 uid="uid://boa1w0iv5s7oy"]
 
 [ext_resource type="PackedScene" uid="uid://bble45d7i3dt2" path="res://Models/Blender_Imports/ProtoTerrian.blend" id="1_imfri"]
+[ext_resource type="Material" uid="uid://u55i2wp3iqjv" path="res://Materials/Terrian_Base.tres" id="2_e00ic"]
+[ext_resource type="Material" uid="uid://wyt2weyuhn7" path="res://Materials/Terrian_Plasma.tres" id="3_l28gu"]
 
-[node name="ProtoTerrian" instance=ExtResource("1_imfri")]
+[node name="Node3D" type="Node3D"]
+
+[node name="ProtoTerrian" parent="." instance=ExtResource("1_imfri")]
+
+[node name="baseHex" parent="ProtoTerrian" index="0"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.000234604, 0.506388, 0.00418377)
+surface_material_override/0 = ExtResource("2_e00ic")
+
+[node name="biomeHex" parent="ProtoTerrian" index="1"]
+material_override = ExtResource("3_l28gu")
+surface_material_override/0 = ExtResource("3_l28gu")
+
+[editable path="ProtoTerrian"]
