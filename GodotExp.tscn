@@ -1,10 +1,11 @@
-[gd_scene load_steps=11 format=3 uid="uid://dp1qeccnucfgp"]
+[gd_scene load_steps=12 format=3 uid="uid://dp1qeccnucfgp"]
 
 [ext_resource type="Script" path="res://Scripts/camera_3d.gd" id="1_6jpp0"]
 [ext_resource type="Texture2D" uid="uid://bn8wfhbs1omgo" path="res://Textures/TempTextures/third_person_controller_assets/textures/grids/Dark/texture_08.png" id="1_g3s7m"]
 [ext_resource type="PackedScene" uid="uid://ty2bm3kxr1dp" path="res://Textures/TempTextures/box.tscn" id="2_yont3"]
 [ext_resource type="PackedScene" uid="uid://b5iwd2wrea8pk" path="res://Assest_Scenes/proto_terrian.tscn" id="3_dr08r"]
 [ext_resource type="Script" path="res://Scripts/cam_gimbal.gd" id="3_og5xy"]
+[ext_resource type="PackedScene" uid="uid://csjp0fs12pgui" path="res://Assest_Scenes/is_placeable_box.tscn" id="5_lmwb0"]
 [ext_resource type="Script" path="res://Scripts/user_controler.gd" id="6_ju1sv"]
 
 [sub_resource type="ProceduralSkyMaterial" id="ProceduralSkyMaterial_hufr3"]
@@ -57,6 +58,7 @@ transform = Transform3D(0.999863, 0, 0.0165799, 0, 1, 0, -0.0165799, 0, 0.999863
 transform = Transform3D(0.999862, 0, -0.0165799, 0, 1, 0, 0.0165799, 0, 0.999862, -2.0636, -0.5, 3.95508)
 script = ExtResource("6_ju1sv")
 terrianHex = ExtResource("3_dr08r")
+checkPlacementObj = ExtResource("5_lmwb0")
 cam = NodePath("../CamGimbal/InnerGimbal/Camera3D")
 
 [node name="CamGimbal" type="Node3D" parent="Player" node_paths=PackedStringArray("target")]
