@@ -15,7 +15,7 @@ uv1_triplanar = true
 [node name="isPlaceableBox" type="Node3D"]
 script = ExtResource("1_5udi3")
 isCollidingMaterial = ExtResource("2_vxif1")
-IsOpenMaterial = ExtResource("1_nelum")
+isOpenMaterial = ExtResource("1_nelum")
 
 [node name="MeshInstance3D" type="MeshInstance3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.5, 0)

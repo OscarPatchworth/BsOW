@@ -49,7 +49,8 @@ func spawnCheckPlaceable() -> void:
 	if result: #if hits valid position
 		CheckPlaceable = checkPlacementObj.instantiate()
 		owner.add_child(CheckPlaceable)
-		CheckPlaceable.position = result["position"]		
+		CheckPlaceable.position = result["position"]
+		CheckPlaceable.position.y = CheckPlaceable.position.y +0.1
 #		
 func raycatIslnad() -> Dictionary:
 	#Get cam and world space init
@@ -81,5 +82,6 @@ func moveToMousePos(obj: Node3D) -> void:
 	var result = raycastPlaceable()
 	if result and obj: #if hits valid position
 		obj.position = result["position"]	
+		CheckPlaceable.position.y = CheckPlaceable.position.y +0.1
 #	
 #

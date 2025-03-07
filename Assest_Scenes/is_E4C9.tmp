@@ -1,0 +1,37 @@
+[gd_scene load_steps=7 format=3 uid="uid://csjp0fs12pgui"]
+
+[ext_resource type="Script" path="res://Scripts/is_placeable_box.gd" id="1_5udi3"]
+[ext_resource type="Texture2D" uid="uid://cvvwuxrt0xnbi" path="res://Textures/TempTextures/third_person_controller_assets/textures/grids/Green/texture_13.png" id="1_nelum"]
+[ext_resource type="Texture2D" uid="uid://ntuycylqfvn6" path="res://Textures/TempTextures/third_person_controller_assets/textures/grids/Red/texture_13.png" id="2_vxif1"]
+
+[sub_resource type="BoxMesh" id="BoxMesh_ub32l"]
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_370yc"]
+albedo_texture = ExtResource("1_nelum")
+uv1_triplanar = true
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_cltmq"]
+
+[node name="isPlaceableBox" type="Node3D"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.2, 0)
+script = ExtResource("1_5udi3")
+isCollidingMaterial = ExtResource("2_vxif1")
+isOpenMaterial = ExtResource("1_nelum")
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.5, 0)
+layers = 3
+mesh = SubResource("BoxMesh_ub32l")
+surface_material_override/0 = SubResource("StandardMaterial3D_370yc")
+
+[node name="Area3D" type="Area3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.5, 0)
+collision_layer = 2
+collision_mask = 3
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Area3D"]
+transform = Transform3D(1.1, 0, 0, 0, 1.1, 0, 0, 0, 1.1, 0, 0, 0)
+shape = SubResource("BoxShape3D_cltmq")
+
+[connection signal="body_entered" from="Area3D" to="." method="_on_area_3d_body_entered"]
+[connection signal="body_exited" from="Area3D" to="." method="_on_area_3d_body_exited"]
