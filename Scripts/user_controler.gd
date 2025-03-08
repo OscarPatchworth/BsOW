@@ -1,8 +1,9 @@
 extends Node3D
 
 @export var terrianHex: PackedScene
-@export var checkPlacementObj: PackedScene
+#@export var checkPlacementObj: PackedScene
 @export var cam: Camera3D
+@export var checkPlaceable: Node3D
 var mouse = Vector2()
 
 #Get cam and world space init
@@ -13,26 +14,27 @@ var mouseRayStart
 var mouseRayEnd
 
 #
-var CheckPlaceable
-
+var isPlaceable : bool
 #
 const RAY_LENGTH = 100
 
+func _ready() -> void:
+	isPlaceable = false
+	
+
 # Called every frame. 'delta' is the elapsed time since the previous frame.
 func _process(delta: float) -> void:
-	if CheckPlaceable:
-		moveToMousePos(CheckPlaceable)
-
+	if checkPlaceable:
+		moveToMousePos(checkPlaceable)
+	
 
 func _input(event: InputEvent) -> void:
-	if event.is_action_released("left_click") and !raycatIslnad():
+	if event.is_action_released("left_click") and !raycatIslnad() and isPlaceable:
 		spawnTerrian()
-	elif event.is_action_pressed("shifting") and !raycatIslnad() and !CheckPlaceable:
-		spawnCheckPlaceable()
-	elif event.is_action_released("shifting") and CheckPlaceable:
-		CheckPlaceable.queue_free()
-		CheckPlaceable = null
-		print(CheckPlaceable)
+	elif event.is_action_pressed("shifting") and !raycatIslnad():
+		checkPlaceable.show()
+	elif event.is_action_released("shifting"):
+		checkPlaceable.hide()
 
 
 
@@ -44,13 +46,6 @@ func spawnTerrian() -> void:
 		owner.add_child(newHex)
 		newHex.position = result["position"]		
 #
-func spawnCheckPlaceable() -> void:
-	var result = raycastPlaceable()
-	if result: #if hits valid position
-		CheckPlaceable = checkPlacementObj.instantiate()
-		owner.add_child(CheckPlaceable)
-		CheckPlaceable.position = result["position"]
-		CheckPlaceable.position.y = CheckPlaceable.position.y +0.1
 #		
 func raycatIslnad() -> Dictionary:
 	#Get cam and world space init
@@ -82,6 +77,13 @@ func moveToMousePos(obj: Node3D) -> void:
 	var result = raycastPlaceable()
 	if result and obj: #if hits valid position
 		obj.position = result["position"]	
-		CheckPlaceable.position.y = CheckPlaceable.position.y +0.1
-#	
+		obj.position.y = obj.position.y +0.1
+#
+func updateIsPlaceable(isNotColliding: bool) -> void:
+	isPlaceable = isNotColliding
+#
+func _on_canPlace_exited(emitter):
+	print("emitterH")
+	isPlaceable = true
+	print("emitterH")
 #

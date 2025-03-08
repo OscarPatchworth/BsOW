@@ -1,4 +1,4 @@
-[gd_scene load_steps=12 format=3 uid="uid://dp1qeccnucfgp"]
+[gd_scene load_steps=13 format=3 uid="uid://dp1qeccnucfgp"]
 
 [ext_resource type="Script" path="res://Scripts/camera_3d.gd" id="1_6jpp0"]
 [ext_resource type="Texture2D" uid="uid://bn8wfhbs1omgo" path="res://Textures/TempTextures/third_person_controller_assets/textures/grids/Dark/texture_08.png" id="1_g3s7m"]
@@ -7,6 +7,7 @@
 [ext_resource type="Script" path="res://Scripts/cam_gimbal.gd" id="3_og5xy"]
 [ext_resource type="PackedScene" uid="uid://csjp0fs12pgui" path="res://Assest_Scenes/is_placeable_box.tscn" id="5_lmwb0"]
 [ext_resource type="Script" path="res://Scripts/user_controler.gd" id="6_ju1sv"]
+[ext_resource type="Script" path="res://ply_data_store.gd" id="8_jbgbn"]
 
 [sub_resource type="ProceduralSkyMaterial" id="ProceduralSkyMaterial_hufr3"]
 sky_horizon_color = Color(0.64625, 0.65575, 0.67075, 1)
@@ -52,14 +53,17 @@ transform = Transform3D(1, 0, -7.45058e-09, 0, 1, 0, 7.45058e-09, 0, 1, 0, 0, 0)
 transform = Transform3D(0.999863, 0, 0.0165799, 0, 1, 0, -0.0165799, 0, 0.999863, 2, 0.5, -4)
 
 [node name="Player" type="Node3D" parent="."]
-transform = Transform3D(0.999863, 0, 0.0165799, 0, 1, 0, -0.0165799, 0, 0.999863, 2, 0.5, -4)
+transform = Transform3D(0.999863, 0, 0.0165799, 0, 1, 0, -0.0165799, 0, 0.999863, 0, 0, 0)
 
-[node name="UserControler" type="Node3D" parent="Player" node_paths=PackedStringArray("cam")]
-transform = Transform3D(0.999862, 0, -0.0165799, 0, 1, 0, 0.0165799, 0, 0.999862, -2.0636, -0.5, 3.95508)
+[node name="isPlaceableBox" parent="Player" instance=ExtResource("5_lmwb0")]
+transform = Transform3D(1, 0, -1.86265e-09, 0, 1, 0, 1.86265e-09, 0, 1, 0, 0, 0)
+
+[node name="UserControler" type="Node3D" parent="Player" node_paths=PackedStringArray("cam", "checkPlaceable")]
+transform = Transform3D(0.999862, 0, -0.0165799, 0, 1, 0, 0.0165799, 0, 0.999862, 0, 0, 0)
 script = ExtResource("6_ju1sv")
 terrianHex = ExtResource("3_dr08r")
-checkPlacementObj = ExtResource("5_lmwb0")
 cam = NodePath("../CamGimbal/InnerGimbal/Camera3D")
+checkPlaceable = NodePath("../isPlaceableBox")
 
 [node name="CamGimbal" type="Node3D" parent="Player" node_paths=PackedStringArray("target")]
 transform = Transform3D(0.999862, 0, -0.0165799, 0, 1, 0, 0.0165799, 0, 0.999862, -2.06604, 1.5, 3.96629)
@@ -73,3 +77,6 @@ zoom_speed = 0.1
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 4)
 current = true
 script = ExtResource("1_6jpp0")
+
+[node name="PlyDataStore" type="Node3D" parent="Player"]
+script = ExtResource("8_jbgbn")
