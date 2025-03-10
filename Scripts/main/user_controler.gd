@@ -1,10 +1,12 @@
 extends Node3D
 
-@export var terrianHex: PackedScene
+@export var biomeHex: PackedScene
 #@export var checkPlacementObj: PackedScene
 @export var cam: Camera3D
 @export var checkPlaceable: Node3D
 var mouse = Vector2()
+
+signal biome_placed
 
 #Get cam and world space init
 var space_state
@@ -12,11 +14,11 @@ var mousepos
 #Get raycast points
 var mouseRayStart 
 var mouseRayEnd
-
-#
-var isPlaceable : bool
 #
 const RAY_LENGTH = 100
+#
+var isPlaceable : bool
+
 
 func _ready() -> void:
 	isPlaceable = false
@@ -42,9 +44,10 @@ func _input(event: InputEvent) -> void:
 func spawnTerrian() -> void:
 	var result = raycastPlaceable()
 	if result: #if hits valid position
-		var newHex = terrianHex.instantiate()
+		var newHex = biomeHex.instantiate()
 		owner.add_child(newHex)
-		newHex.position = result["position"]		
+		newHex.position = result["position"]
+		emit_signal("biome_placed")		
 #
 #		
 func raycatIslnad() -> Dictionary:
@@ -77,13 +80,8 @@ func moveToMousePos(obj: Node3D) -> void:
 	var result = raycastPlaceable()
 	if result and obj: #if hits valid position
 		obj.position = result["position"]	
-		obj.position.y = obj.position.y +0.1
+		#obj.position.y = obj.position.y +0.1
 #
 func updateIsPlaceable(isNotColliding: bool) -> void:
 	isPlaceable = isNotColliding
-#
-func _on_canPlace_exited(emitter):
-	print("emitterH")
-	isPlaceable = true
-	print("emitterH")
 #

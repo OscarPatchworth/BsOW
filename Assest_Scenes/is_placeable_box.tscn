@@ -1,6 +1,6 @@
 [gd_scene load_steps=7 format=3 uid="uid://csjp0fs12pgui"]
 
-[ext_resource type="Script" path="res://Scripts/is_placeable_box.gd" id="1_5udi3"]
+[ext_resource type="Script" path="res://Scripts/main/is_placeable_box.gd" id="1_5udi3"]
 [ext_resource type="Texture2D" uid="uid://cvvwuxrt0xnbi" path="res://Textures/TempTextures/third_person_controller_assets/textures/grids/Green/texture_13.png" id="1_nelum"]
 [ext_resource type="Texture2D" uid="uid://ntuycylqfvn6" path="res://Textures/TempTextures/third_person_controller_assets/textures/grids/Red/texture_13.png" id="2_vxif1"]
 
@@ -10,12 +10,15 @@
 albedo_texture = ExtResource("1_nelum")
 uv1_triplanar = true
 
-[sub_resource type="BoxShape3D" id="BoxShape3D_cltmq"]
+[sub_resource type="CylinderShape3D" id="CylinderShape3D_4d1n6"]
+height = 1.0
+radius = 0.8
 
 [node name="isPlaceableBox" type="Node3D"]
+transform = Transform3D(2.1, 0, 0, 0, 2.1, 0, 0, 0, 2.1, 0, 0, 0)
 script = ExtResource("1_5udi3")
-isCollidingMaterial = ExtResource("2_vxif1")
-isOpenMaterial = ExtResource("1_nelum")
+validPlacementMaterial = ExtResource("1_nelum")
+invalidPlacementMaterial = ExtResource("2_vxif1")
 
 [node name="MeshInstance3D" type="MeshInstance3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.5, 0)
@@ -29,8 +32,8 @@ collision_layer = 2
 collision_mask = 3
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="Area3D"]
-transform = Transform3D(1.1, 0, 0, 0, 1.1, 0, 0, 0, 1.1, 0, 0, 0)
-shape = SubResource("BoxShape3D_cltmq")
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.3, 0)
+shape = SubResource("CylinderShape3D_4d1n6")
 
 [connection signal="body_entered" from="Area3D" to="." method="_on_area_3d_body_entered"]
 [connection signal="body_exited" from="Area3D" to="." method="_on_area_3d_body_exited"]

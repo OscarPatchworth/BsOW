@@ -4,12 +4,12 @@ importer="scene"
 importer_version=1
 type="PackedScene"
 uid="uid://brqjgcvfcqyjn"
-path="res://.godot/imported/ProtoTerrian.glb-f6b151af681d9e3bf831bac8186a4fd3.scn"
+path="res://.godot/imported/ProtoTerrian.glb-dd39fb7df102077ae11b8b892d28fd89.scn"
 
 [deps]
 
-source_file="res://Models/Blender_Imports/ProtoTerrian.glb"
-dest_files=["res://.godot/imported/ProtoTerrian.glb-f6b151af681d9e3bf831bac8186a4fd3.scn"]
+source_file="res://Terrian/Models/Blender_Imports/ProtoTerrian.glb"
+dest_files=["res://.godot/imported/ProtoTerrian.glb-dd39fb7df102077ae11b8b892d28fd89.scn"]
 
 [params]
 

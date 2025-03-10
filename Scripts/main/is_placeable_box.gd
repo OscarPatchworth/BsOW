@@ -1,25 +1,25 @@
 extends Node3D
 
 @onready var mesh = $MeshInstance3D
-@export var isCollidingMaterial: Texture
-@export var isOpenMaterial: Texture
+@export var validPlacementMaterial: Texture
+@export var invalidPlacementMaterial: Texture
 @onready var Ply := $"../UserControler"
 
 # Called when the node enters the scene tree for the first time.
 func _ready() -> void:
-	changeMaterial(isOpenMaterial)
+	changeMaterial(invalidPlacementMaterial)
 	
 # Called every frame. 'delta' is the elapsed time since the previous frame.
 func _process(delta: float) -> void:
 	pass
 	
 func _on_area_3d_body_entered(body: Node3D) -> void:
-	changeMaterial(isCollidingMaterial)
+	changeMaterial(validPlacementMaterial)
 	Ply.updateIsPlaceable(false)
 	
 
 func _on_area_3d_body_exited(body: Node3D) -> void:
-	changeMaterial(isOpenMaterial)
+	changeMaterial(invalidPlacementMaterial)
 	Ply.updateIsPlaceable(true)
 	
 func changeMaterial(img: Texture) -> void:

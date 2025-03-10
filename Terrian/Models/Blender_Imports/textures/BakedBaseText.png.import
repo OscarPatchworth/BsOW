@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://q5jfe223dcoe"
-path="res://.godot/imported/BakedBaseText.png-b2c04e515fc606d7d2b347ce413e9cc6.ctex"
+uid="uid://bbngcu4ytnn7j"
+path="res://.godot/imported/BakedBaseText.png-3098152eadf04259cbb26e22d1adacd2.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://Models/Blender_Imports/textures/BakedBaseText.png"
-dest_files=["res://.godot/imported/BakedBaseText.png-b2c04e515fc606d7d2b347ce413e9cc6.ctex"]
+source_file="res://Terrian/Models/Blender_Imports/textures/BakedBaseText.png"
+dest_files=["res://.godot/imported/BakedBaseText.png-3098152eadf04259cbb26e22d1adacd2.ctex"]
 
 [params]
 
