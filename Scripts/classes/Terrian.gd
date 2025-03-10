@@ -18,14 +18,35 @@ class_name Terrian extends Node3D
 
 
 # Called when the node enters the scene tree for the first time.
-func _ready(currentBiome = dataStore.biomeType.Plasma) -> void:
-	match currentBiome:
-		dataStore.biomeType.Plasma:
-			
-			pass
+func _ready() -> void:
+	currentBiome = dataStore.biomeType.values().pick_random()
+	updateBiome()
+
+		
 		
 
 
 # Called every frame. 'delta' is the elapsed time since the previous frame.
 func _process(delta: float) -> void:
 	pass
+
+
+func updateBiome() -> void:
+	updateBiomeMaterial()
+
+func updateBiomeMaterial() -> void:
+	match currentBiome:
+		dataStore.biomeType.Plasma:
+			biomeMesh.set_surface_override_material(0, load(dataStore.PLASMA_MATERIAL))
+		dataStore.biomeType.Badlands:
+			biomeMesh.set_surface_override_material(0, load(dataStore.BADLANDS_MATERIAL))
+		dataStore.biomeType.Coast:
+			biomeMesh.set_surface_override_material(0, load(dataStore.COAST_MATERIAL))
+		dataStore.biomeType.Forest:	
+			biomeMesh.set_surface_override_material(0, load(dataStore.FOREST_MATERIAL))
+		dataStore.biomeType.Mount:
+			biomeMesh.set_surface_override_material(0, load(dataStore.MOUNT_MATERIAL))
+		dataStore.biomeType.Ocean:
+			biomeMesh.set_surface_override_material(0, load(dataStore.OCEAN_MATERIAL))
+		dataStore.biomeType.Plains:
+			biomeMesh.set_surface_override_material(0, load(dataStore.PLAINS_MATERIAL))
