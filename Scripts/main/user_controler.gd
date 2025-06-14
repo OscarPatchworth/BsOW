@@ -5,6 +5,7 @@ extends Node3D
 @export var cam: Camera3D
 @export var checkPlaceable: Node3D
 var mouse = Vector2()
+@onready var dataStore = $"../../Env/DataStore"
 
 signal biome_placed
 
@@ -47,6 +48,7 @@ func spawnTerrian() -> void:
 		var newHex = biomeHex.instantiate()
 		owner.add_child(newHex)
 		newHex.position = result["position"]
+		newHex.updateBiome(dataStore.nextbiome)
 		emit_signal("biome_placed")		
 #
 #		

@@ -21,14 +21,14 @@ const PLASMA_STLEBOX = "res://Terrian/Biomes/UI_Textures/PlasmaQueue.tres"
 
 
 #Biome UI Queue
-var nextbiome: biomeType
-var queuedbiome: biomeType
+@onready var nextbiome = biomeType.values().pick_random()
+@onready var queuedbiome = biomeType.values().pick_random()
 
 @onready var UIscript = $"../../UI/Control/Panel"
 
 # Called when the node enters the scene tree for the first time.
 func _ready() -> void:
-	pass # Replace with function body.
+	pass
 
 
 # Called every frame. 'delta' is the elapsed time since the previous frame.
@@ -37,7 +37,10 @@ func _process(delta: float) -> void:
 
 
 func _on_user_controler_biome_placed() -> void:
-	nextbiome = queuedbiome
-	queuedbiome = biomeType.values().pick_random()
+	updateQueuedBiomes()
 	UIscript.updated_biome_queue(nextbiome, queuedbiome)
 	pass # Replace with function body.
+
+func updateQueuedBiomes() -> void:
+	nextbiome = queuedbiome
+	queuedbiome = biomeType.values().pick_random()

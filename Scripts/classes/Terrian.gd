@@ -19,19 +19,16 @@ class_name Terrian extends Node3D
 
 # Called when the node enters the scene tree for the first time.
 func _ready() -> void:
-	currentBiome = dataStore.biomeType.values().pick_random()
-	updateBiome()
-
-		
-		
-
+	updateBiome(dataStore.biomeType.values().pick_random())
+	
 
 # Called every frame. 'delta' is the elapsed time since the previous frame.
 func _process(delta: float) -> void:
 	pass
 
 
-func updateBiome() -> void:
+func updateBiome(newBiome: int) -> void:
+	currentBiome = newBiome
 	updateBiomeMaterial()
 
 func updateBiomeMaterial() -> void:
