@@ -2,9 +2,9 @@
 
 [ext_resource type="Script" path="res://Scripts/main/data_store.gd" id="1_eofi0"]
 [ext_resource type="Texture2D" uid="uid://bn8wfhbs1omgo" path="res://Textures/TempTextures/third_person_controller_assets/textures/grids/Dark/texture_08.png" id="1_g3s7m"]
-[ext_resource type="Script" path="res://gravity.gd" id="2_2m5uj"]
+[ext_resource type="Script" path="res://Scripts/main/gravity.gd" id="2_2m5uj"]
 [ext_resource type="PackedScene" uid="uid://ty2bm3kxr1dp" path="res://Textures/TempTextures/box.tscn" id="2_yont3"]
-[ext_resource type="Script" path="res://settings_data.gd" id="3_0jhjv"]
+[ext_resource type="Script" path="res://Scripts/main/settings_data.gd" id="3_0jhjv"]
 [ext_resource type="PackedScene" uid="uid://b5iwd2wrea8pk" path="res://Assest_Scenes/proto_terrian.tscn" id="3_dr08r"]
 [ext_resource type="Script" path="res://Scripts/main/cam_gimbal.gd" id="3_og5xy"]
 [ext_resource type="PackedScene" uid="uid://csjp0fs12pgui" path="res://Assest_Scenes/is_placeable_box.tscn" id="5_lmwb0"]
@@ -50,7 +50,7 @@ script = ExtResource("1_eofi0")
 transform = Transform3D(-0.866025, -0.433013, 0.25, 0, 0.5, 0.866025, -0.5, 0.75, -0.433013, 0, 10.0957, 0)
 shadow_enabled = true
 
-[node name="Gravity" type="Node" parent="Env"]
+[node name="Gravity" type="Node" parent="Env" groups=["terrain"]]
 script = ExtResource("2_2m5uj")
 
 [node name="SettingsData" type="Node" parent="Env"]
