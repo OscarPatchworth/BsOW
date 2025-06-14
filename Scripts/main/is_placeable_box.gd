@@ -14,12 +14,12 @@ func _process(delta: float) -> void:
 	pass
 	
 func _on_area_3d_body_entered(body: Node3D) -> void:
-	changeMaterial(validPlacementMaterial)
+	changeMaterial(invalidPlacementMaterial)
 	Ply.updateIsPlaceable(false)
 	
 
 func _on_area_3d_body_exited(body: Node3D) -> void:
-	changeMaterial(invalidPlacementMaterial)
+	changeMaterial(validPlacementMaterial)
 	Ply.updateIsPlaceable(true)
 	
 func changeMaterial(img: Texture) -> void:

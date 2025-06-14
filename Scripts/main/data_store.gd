@@ -1,5 +1,9 @@
 extends Node3D
 
+###		BIOMES DATA		###
+###################################################################################################
+###################################################################################################
+###################################################################################################
 #BIOME TYPES
 enum biomeType {Badlands, Coast, Forest, Mount, Ocean, Plains, Plasma}
 #Biome Material Links
@@ -19,22 +23,11 @@ const OCEAN_STYLEBOX = "res://Terrian/Biomes/UI_Textures/OceanQueue.tres"
 const PLAINS_STYLEBOX = "res://Terrian/Biomes/UI_Textures/PlainsQueue.tres"
 const PLASMA_STLEBOX = "res://Terrian/Biomes/UI_Textures/PlasmaQueue.tres"
 
-
 #Biome UI Queue
 @onready var nextbiome = biomeType.values().pick_random()
 @onready var queuedbiome = biomeType.values().pick_random()
 
 @onready var UIscript = $"../../UI/Control/Panel"
-
-# Called when the node enters the scene tree for the first time.
-func _ready() -> void:
-	pass
-
-
-# Called every frame. 'delta' is the elapsed time since the previous frame.
-func _process(delta: float) -> void:
-	pass
-
 
 func _on_user_controler_biome_placed() -> void:
 	updateQueuedBiomes()

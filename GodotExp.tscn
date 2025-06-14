@@ -1,8 +1,10 @@
-[gd_scene load_steps=17 format=3 uid="uid://dp1qeccnucfgp"]
+[gd_scene load_steps=16 format=3 uid="uid://dp1qeccnucfgp"]
 
 [ext_resource type="Script" path="res://Scripts/main/data_store.gd" id="1_eofi0"]
 [ext_resource type="Texture2D" uid="uid://bn8wfhbs1omgo" path="res://Textures/TempTextures/third_person_controller_assets/textures/grids/Dark/texture_08.png" id="1_g3s7m"]
+[ext_resource type="Script" path="res://gravity.gd" id="2_2m5uj"]
 [ext_resource type="PackedScene" uid="uid://ty2bm3kxr1dp" path="res://Textures/TempTextures/box.tscn" id="2_yont3"]
+[ext_resource type="Script" path="res://settings_data.gd" id="3_0jhjv"]
 [ext_resource type="PackedScene" uid="uid://b5iwd2wrea8pk" path="res://Assest_Scenes/proto_terrian.tscn" id="3_dr08r"]
 [ext_resource type="Script" path="res://Scripts/main/cam_gimbal.gd" id="3_og5xy"]
 [ext_resource type="PackedScene" uid="uid://csjp0fs12pgui" path="res://Assest_Scenes/is_placeable_box.tscn" id="5_lmwb0"]
@@ -10,19 +12,6 @@
 [ext_resource type="Script" path="res://Scripts/main/ply_data_store.gd" id="8_jbgbn"]
 [ext_resource type="StyleBox" uid="uid://davru3uqkfrwq" path="res://Terrian/Biomes/UI_Textures/BadlandQueue.tres" id="9_ff70u"]
 [ext_resource type="Script" path="res://Scripts/main/queuedBiomeUI.gd" id="9_w476g"]
-
-[sub_resource type="ProceduralSkyMaterial" id="ProceduralSkyMaterial_hufr3"]
-sky_horizon_color = Color(0.64625, 0.65575, 0.67075, 1)
-ground_horizon_color = Color(0.64625, 0.65575, 0.67075, 1)
-
-[sub_resource type="Sky" id="Sky_f0lcc"]
-sky_material = SubResource("ProceduralSkyMaterial_hufr3")
-
-[sub_resource type="Environment" id="Environment_1qj3v"]
-background_mode = 2
-sky = SubResource("Sky_f0lcc")
-tonemap_mode = 2
-glow_enabled = true
 
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_tq0ia"]
 albedo_texture = ExtResource("1_g3s7m")
@@ -56,11 +45,16 @@ corner_radius_bottom_left = 50
 script = ExtResource("1_eofi0")
 
 [node name="WorldEnvironment" type="WorldEnvironment" parent="Env"]
-environment = SubResource("Environment_1qj3v")
 
 [node name="DirectionalLight3D" type="DirectionalLight3D" parent="Env"]
 transform = Transform3D(-0.866025, -0.433013, 0.25, 0, 0.5, 0.866025, -0.5, 0.75, -0.433013, 0, 10.0957, 0)
 shadow_enabled = true
+
+[node name="Gravity" type="Node" parent="Env"]
+script = ExtResource("2_2m5uj")
+
+[node name="SettingsData" type="Node" parent="Env"]
+script = ExtResource("3_0jhjv")
 
 [node name="Floor" type="Node3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.0259266, 0.260379, 0.171604)
