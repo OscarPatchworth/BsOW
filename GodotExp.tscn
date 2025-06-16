@@ -158,3 +158,5 @@ grow_vertical = 2
 theme_override_styles/panel = ExtResource("9_ff70u")
 
 [connection signal="biome_placed" from="Player/UserControler" to="Env/DataStore" method="_on_user_controler_biome_placed"]
+[connection signal="mouse_moved" from="Player/UserControler" to="Player/isPlaceableBox" method="_on_user_controler_mouse_moved"]
+[connection signal="is_terrian_placeable" from="Player/isPlaceableBox" to="Player/UserControler" method="_on_is_placeable_box_is_terrian_placeable"]

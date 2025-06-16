@@ -8,6 +8,7 @@ var mouse = Vector2()
 @onready var dataStore = $"../../Env/DataStore"
 
 signal biome_placed
+signal mouse_moved
 
 #Get cam and world space init
 var space_state
@@ -32,7 +33,7 @@ func _process(delta: float) -> void:
 	
 
 func _input(event: InputEvent) -> void:
-	if event.is_action_released("left_click") and !raycatIslnad() and isPlaceable:
+	if event.is_action_released("left_click") and !raycatIslnad() and (isPlaceable):
 		spawnTerrian()
 	elif event.is_action_pressed("shifting") and !raycatIslnad():
 		checkPlaceable.show()
@@ -83,7 +84,7 @@ func moveToMousePos(obj: Node3D) -> void:
 	if result and obj: #if hits valid position
 		obj.position = result["position"]	
 		#obj.position.y = obj.position.y +0.1
-#
-func updateIsPlaceable(isNotColliding: bool) -> void:
-	isPlaceable = isNotColliding
-#
+	mouse_moved.emit()
+	
+func _on_is_placeable_box_is_terrian_placeable(yn: bool) -> void:
+	isPlaceable = yn
