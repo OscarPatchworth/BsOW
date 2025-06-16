@@ -11,7 +11,8 @@ func getCelestialBodies() -> void:
 	pass
 	
 func newBody(body) -> void:
-	body.add_to_group("terrain")
+	if(body.is_class("Terrian")):
+		body.add_to_group("terrain")
 	if(gravitySettings == 0): # simple gravity
 		print("Simple Gravity")
 	elif(gravitySettings == 1): #  continuous gravity
@@ -29,3 +30,10 @@ func _ready() -> void:
 
 
 ##	Applied Force Equation => a = G(m2/r^2) . vector
+
+
+
+
+
+func _on_terrian_3d_ready() -> void:
+	pass # Replace with function body.

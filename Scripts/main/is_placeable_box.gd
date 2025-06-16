@@ -14,6 +14,7 @@ func _process(delta: float) -> void:
 	pass
 	
 func _on_area_3d_body_entered(body: Node3D) -> void:
+	print(self.get_node("Area3D").get_colliding_bodies())
 	changeMaterial(invalidPlacementMaterial)
 	Ply.updateIsPlaceable(false)
 	
