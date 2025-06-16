@@ -5,10 +5,10 @@
 [ext_resource type="Script" path="res://Scripts/main/gravity.gd" id="2_2m5uj"]
 [ext_resource type="PackedScene" uid="uid://ty2bm3kxr1dp" path="res://Textures/TempTextures/box.tscn" id="2_yont3"]
 [ext_resource type="Script" path="res://Scripts/main/settings_data.gd" id="3_0jhjv"]
-[ext_resource type="PackedScene" uid="uid://b5iwd2wrea8pk" path="res://Assest_Scenes/proto_terrian.tscn" id="3_dr08r"]
 [ext_resource type="Script" path="res://Scripts/main/cam_gimbal.gd" id="3_og5xy"]
 [ext_resource type="PackedScene" uid="uid://csjp0fs12pgui" path="res://Assest_Scenes/is_placeable_box.tscn" id="5_lmwb0"]
 [ext_resource type="Script" path="res://Scripts/main/user_controler.gd" id="6_ju1sv"]
+[ext_resource type="PackedScene" uid="uid://cx2xr4ku7fjji" path="res://Assest_Scenes/BaseTerrian.tscn" id="7_a5tmn"]
 [ext_resource type="Script" path="res://Scripts/main/ply_data_store.gd" id="8_jbgbn"]
 [ext_resource type="StyleBox" uid="uid://davru3uqkfrwq" path="res://Terrian/Biomes/UI_Textures/BadlandQueue.tres" id="9_ff70u"]
 [ext_resource type="Script" path="res://Scripts/main/queuedBiomeUI.gd" id="9_w476g"]
@@ -77,7 +77,7 @@ transform = Transform3D(0.999863, 0, 0.0165799, 0, 1, 0, -0.0165799, 0, 0.999863
 [node name="UserControler" type="Node3D" parent="Player" node_paths=PackedStringArray("cam", "checkPlaceable")]
 transform = Transform3D(0.999862, 0, -0.0165799, 0, 1, 0, 0.0165799, 0, 0.999862, 0, 0, 0)
 script = ExtResource("6_ju1sv")
-biomeHex = ExtResource("3_dr08r")
+biomeHex = ExtResource("7_a5tmn")
 cam = NodePath("../CamGimbal/InnerGimbal/Camera3D")
 checkPlaceable = NodePath("../isPlaceableBox")
 

@@ -4,17 +4,23 @@ extends Node3D
 @export var validPlacementMaterial: Texture
 @export var invalidPlacementMaterial: Texture
 @onready var Ply := $"../UserControler"
+@onready var rb = self.get_node("RigidBody3D")#rigidbody
 
 # Called when the node enters the scene tree for the first time.
 func _ready() -> void:
 	changeMaterial(invalidPlacementMaterial)
+	rb.set_contact_monitor(true)
+	#rb.set_use_continuous_collision_detection(true)
+	rb.set_max_contacts_reported(5)
 	
 # Called every frame. 'delta' is the elapsed time since the previous frame.
 func _process(delta: float) -> void:
+	if(rb.get_contact_count() != 0):
+		print(rb.get_contact_count())
 	pass
 	
 func _on_area_3d_body_entered(body: Node3D) -> void:
-	print(self.get_node("Area3D").get_colliding_bodies())
+	#print(rb.get_contact_count())
 	changeMaterial(invalidPlacementMaterial)
 	Ply.updateIsPlaceable(false)
 	

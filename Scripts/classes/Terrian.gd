@@ -3,6 +3,7 @@ class_name Terrian extends Node3D
 @onready var dataStore = load("res://Scripts/main/data_store.gd")
 @onready var terrianMesh = $baseHex
 @onready var biomeMesh = $biomeHex
+@onready var rb = self.get_node("RigidBody3D")#rigidbody
 
 @onready var currentBiome = dataStore.biomeType.Plasma
 
@@ -20,8 +21,9 @@ class_name Terrian extends Node3D
 # Called when the node enters the scene tree for the first time.
 func _ready() -> void:
 	updateBiome(dataStore.biomeType.values().pick_random())
+	rb.set_contact_monitor(true)
 	
-
+	
 # Called every frame. 'delta' is the elapsed time since the previous frame.
 func _process(delta: float) -> void:
 	pass
