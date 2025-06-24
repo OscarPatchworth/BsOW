@@ -12,7 +12,7 @@ extends Node3D
 @export var invert_x = false
 
 # zoom settings
-@export var max_zoom = 3.0
+@export var max_zoom = 3
 @export var min_zoom = 0.4
 @export_range(0.05, 1.0) var zoom_speed = 0.09
 
