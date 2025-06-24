@@ -5,6 +5,8 @@ extends Node
 var newBody: Node3D
 var nbRb: RigidBody3D
 
+@export var gravityImpulseTest = 15
+
 const gConst = 6.6743E-11
 var celestialBodies = [Terrian]
 
@@ -28,7 +30,9 @@ func newTerrianAdded() -> void:
 		print(newBody)
 	else:
 		pass
-	nbRb.apply_impulse(Vector3(0,10,0))
+	var pullTarget = Vector3.ZERO
+	var pullDirection = (pullTarget - nbRb.global_position).normalized()
+	nbRb.apply_impulse(pullDirection * gravityImpulseTest )
 	if(gravitySettings == 0): # simple gravity
 		pass
 	elif(gravitySettings == 1): #  continuous gravity

@@ -1,6 +1,6 @@
 class_name Terrian extends Node3D 
 
-@export var sleepingThreshold = 0.05
+@export var sleepingThreshold = 0.15
 @export var updateTimeInterval = 2/3
 
 @onready var dataStore = load("res://Scripts/main/data_store.gd")
@@ -43,6 +43,7 @@ func _physics_process(delta):
 	if(updateTimer > updateTimeInterval):
 		var velocity = rb.get_linear_velocity()
 		if(velocity.x < sleepingThreshold and velocity.y < sleepingThreshold and velocity.z < sleepingThreshold and raycastToGroud()):
+			rb.set_rotation(Vector3.ZERO)
 			rb.set_sleeping(true)
 		updateTimer = 0
 
