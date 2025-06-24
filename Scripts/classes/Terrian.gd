@@ -1,11 +1,17 @@
 class_name Terrian extends Node3D 
 
+@export var sleepingThreshold = 0.05
+@export var updateTimeInterval = 2/3
+
 @onready var dataStore = load("res://Scripts/main/data_store.gd")
-@onready var terrianMesh = $baseHex
-@onready var biomeMesh = $biomeHex
+#@onready var terrianMesh = $RigidBody3D/baseHex
+@onready var biomeMesh = $RigidBody3D/biomeHex
 @onready var rb = self.get_node("RigidBody3D")#rigidbody
 @onready var currentBiome = dataStore.biomeType.Plasma
 @onready var force: Vector3 = Vector3(2, 0, (0))
+
+@onready var updateTimer = 0
+
 #Terrian Has:
 #Biome 
 #Resources
@@ -21,9 +27,6 @@ class_name Terrian extends Node3D
 func _ready() -> void:
 	updateBiome(dataStore.biomeType.values().pick_random())
 	rb.set_contact_monitor(true)
-	var gravity_script = get_tree().get_first_node_in_group("gravity")
-	if(gravity_script):
-		gravity_script.newBody(self)
 	
 	
 	
@@ -32,7 +35,16 @@ func _process(delta: float) -> void:
 	#rb.add_constant_torque(force)
 	pass
 
+const RAY_LENGTH = 1000
 
+func _physics_process(delta):
+	updateTimer =+ delta
+	
+	if(updateTimer > updateTimeInterval):
+		var velocity = rb.get_linear_velocity()
+		if(velocity.x < sleepingThreshold and velocity.y < sleepingThreshold and velocity.z < sleepingThreshold and raycastToGroud()):
+			rb.set_sleeping(true)
+		updateTimer = 0
 
 func updateBiome(newBiome: int) -> void:
 	currentBiome = newBiome
@@ -54,3 +66,17 @@ func updateBiomeMaterial() -> void:
 			biomeMesh.set_surface_override_material(0, load(dataStore.OCEAN_MATERIAL))
 		dataStore.biomeType.Plains:
 			biomeMesh.set_surface_override_material(0, load(dataStore.PLAINS_MATERIAL))
+
+func raycastToGroud() -> bool:
+	var space_state = get_world_3d().direct_space_state
+	var rayStart = rb.global_position
+	var rayEnd = rb.global_position + (Vector3(0,-1,0) * 0.5)
+
+	var query = PhysicsRayQueryParameters3D.create(rayStart, rayEnd)
+	query.collide_with_areas = true
+	var result = space_state.intersect_ray(query)
+	
+	if result:
+		return true
+	else:
+		return false

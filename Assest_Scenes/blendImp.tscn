@@ -1,0 +1,7 @@
+[gd_scene load_steps=2 format=3 uid="uid://ctixtboxiqxaf"]
+
+[ext_resource type="PackedScene" uid="uid://b6jwi5nwlxsuu" path="res://Assest_Scenes/ProtoTerrian (2).blend" id="1_jbpp0"]
+
+[node name="BlendImp" type="Node3D"]
+
+[node name="ProtoTerrian (2)" parent="." instance=ExtResource("1_jbpp0")]
