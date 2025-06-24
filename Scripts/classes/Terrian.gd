@@ -4,9 +4,8 @@ class_name Terrian extends Node3D
 @onready var terrianMesh = $baseHex
 @onready var biomeMesh = $biomeHex
 @onready var rb = self.get_node("RigidBody3D")#rigidbody
-
 @onready var currentBiome = dataStore.biomeType.Plasma
-
+@onready var force: Vector3 = Vector3(2, 0, (0))
 #Terrian Has:
 #Biome 
 #Resources
@@ -22,11 +21,17 @@ class_name Terrian extends Node3D
 func _ready() -> void:
 	updateBiome(dataStore.biomeType.values().pick_random())
 	rb.set_contact_monitor(true)
+	var gravity_script = get_tree().get_first_node_in_group("gravity")
+	if(gravity_script):
+		gravity_script.newBody(self)
+	
 	
 	
 # Called every frame. 'delta' is the elapsed time since the previous frame.
 func _process(delta: float) -> void:
+	#rb.add_constant_torque(force)
 	pass
+
 
 
 func updateBiome(newBiome: int) -> void:

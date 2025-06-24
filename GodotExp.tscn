@@ -1,4 +1,4 @@
-[gd_scene load_steps=16 format=3 uid="uid://dp1qeccnucfgp"]
+[gd_scene load_steps=18 format=3 uid="uid://dp1qeccnucfgp"]
 
 [ext_resource type="Script" path="res://Scripts/main/data_store.gd" id="1_eofi0"]
 [ext_resource type="Texture2D" uid="uid://bn8wfhbs1omgo" path="res://Textures/TempTextures/third_person_controller_assets/textures/grids/Dark/texture_08.png" id="1_g3s7m"]
@@ -8,14 +8,22 @@
 [ext_resource type="Script" path="res://Scripts/main/cam_gimbal.gd" id="3_og5xy"]
 [ext_resource type="PackedScene" uid="uid://csjp0fs12pgui" path="res://Assest_Scenes/is_placeable_box.tscn" id="5_lmwb0"]
 [ext_resource type="Script" path="res://Scripts/main/user_controler.gd" id="6_ju1sv"]
-[ext_resource type="PackedScene" uid="uid://cx2xr4ku7fjji" path="res://Assest_Scenes/BaseTerrian.tscn" id="7_a5tmn"]
+[ext_resource type="PackedScene" uid="uid://b2kc3vd015y0" path="res://Assest_Scenes/terrian_hex.tscn" id="7_wnefj"]
 [ext_resource type="Script" path="res://Scripts/main/ply_data_store.gd" id="8_jbgbn"]
 [ext_resource type="StyleBox" uid="uid://davru3uqkfrwq" path="res://Terrian/Biomes/UI_Textures/BadlandQueue.tres" id="9_ff70u"]
 [ext_resource type="Script" path="res://Scripts/main/queuedBiomeUI.gd" id="9_w476g"]
 
-[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_tq0ia"]
+[sub_resource type="BoxShape3D" id="BoxShape3D_um3ki"]
+size = Vector3(60, 1, 60)
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_pnqqg"]
 albedo_texture = ExtResource("1_g3s7m")
+uv1_scale = Vector3(0.5, 0.5, 0.5)
 uv1_triplanar = true
+
+[sub_resource type="BoxMesh" id="BoxMesh_4y75s"]
+material = SubResource("StandardMaterial3D_pnqqg")
+size = Vector3(60, 1, 60)
 
 [sub_resource type="GDScript" id="GDScript_5t88j"]
 script/source = "extends Camera3D
@@ -50,20 +58,11 @@ script = ExtResource("1_eofi0")
 transform = Transform3D(-0.866025, -0.433013, 0.25, 0, 0.5, 0.866025, -0.5, 0.75, -0.433013, 0, 10.0957, 0)
 shadow_enabled = true
 
-[node name="Gravity" type="Node" parent="Env" groups=["terrain"]]
+[node name="Gravity" type="Node" parent="Env" groups=["gravity"]]
 script = ExtResource("2_2m5uj")
 
 [node name="SettingsData" type="Node" parent="Env"]
 script = ExtResource("3_0jhjv")
-
-[node name="Floor" type="Node3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.0259266, 0.260379, 0.171604)
-
-[node name="CSGBox3D" type="CSGBox3D" parent="Floor"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.5, 0)
-material_override = SubResource("StandardMaterial3D_tq0ia")
-use_collision = true
-size = Vector3(30, 0.5, 30)
 
 [node name="World_Objects" type="Node3D" parent="."]
 transform = Transform3D(1, 0, -7.45058e-09, 0, 1, 0, 7.45058e-09, 0, 1, 0, 0, 0)
@@ -71,13 +70,25 @@ transform = Transform3D(1, 0, -7.45058e-09, 0, 1, 0, 7.45058e-09, 0, 1, 0, 0, 0)
 [node name="Box" parent="World_Objects" instance=ExtResource("2_yont3")]
 transform = Transform3D(0.999863, 0, 0.0165799, 0, 1, 0, -0.0165799, 0, 0.999863, 2, 0.5, -4)
 
+[node name="Floor" type="Node3D" parent="World_Objects"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.5, 0)
+
+[node name="StaticBody3D" type="StaticBody3D" parent="World_Objects/Floor"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.1, 0)
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="World_Objects/Floor/StaticBody3D"]
+shape = SubResource("BoxShape3D_um3ki")
+
+[node name="Floor Mesh" type="MeshInstance3D" parent="World_Objects/Floor"]
+mesh = SubResource("BoxMesh_4y75s")
+
 [node name="Player" type="Node3D" parent="."]
 transform = Transform3D(0.999863, 0, 0.0165799, 0, 1, 0, -0.0165799, 0, 0.999863, 0, 0, 0)
 
 [node name="UserControler" type="Node3D" parent="Player" node_paths=PackedStringArray("cam", "checkPlaceable")]
 transform = Transform3D(0.999862, 0, -0.0165799, 0, 1, 0, 0.0165799, 0, 0.999862, 0, 0, 0)
 script = ExtResource("6_ju1sv")
-biomeHex = ExtResource("7_a5tmn")
+biomeHex = ExtResource("7_wnefj")
 cam = NodePath("../CamGimbal/InnerGimbal/Camera3D")
 checkPlaceable = NodePath("../isPlaceableBox")
 

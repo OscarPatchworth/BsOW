@@ -48,7 +48,9 @@ func spawnTerrian() -> void:
 	if result: #if hits valid position
 		var newHex = biomeHex.instantiate()
 		owner.add_child(newHex)
-		newHex.position = result["position"]
+		var newPos = result["position"]
+		newPos.y =+ 0.05
+		newHex.position = newPos
 		newHex.updateBiome(dataStore.nextbiome)
 		emit_signal("biome_placed")		
 #
