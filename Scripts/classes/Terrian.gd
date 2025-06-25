@@ -1,7 +1,8 @@
 class_name Terrian extends Node3D 
 
-@export var sleepingThreshold = 0.15
-@export var updateTimeInterval = 2/3
+@export var sleepingThresholdMin = 0.15
+@export var sleepingThresholdMax = 75
+@export var updateTimeInterval = 1/4 * 1000
 
 @onready var dataStore = load("res://Scripts/main/data_store.gd")
 #@onready var terrianMesh = $RigidBody3D/baseHex
@@ -42,9 +43,11 @@ func _physics_process(delta):
 	
 	if(updateTimer > updateTimeInterval):
 		var velocity = rb.get_linear_velocity()
-		if(velocity.x < sleepingThreshold and velocity.y < sleepingThreshold and velocity.z < sleepingThreshold and raycastToGroud()):
-			#rb.set_rotation(Vector3.ZERO)
+		if(velocity.x < sleepingThresholdMin and velocity.y < sleepingThresholdMin and velocity.z < sleepingThresholdMin and raycastToGroud()):
 			rb.set_sleeping(true)
+		if(velocity.x > sleepingThresholdMax or velocity.y > sleepingThresholdMax or velocity.z > sleepingThresholdMax):
+			self.remove_from_group("terrian")
+			self.queue_free()
 		updateTimer = 0
 
 func updateBiome(newBiome: int) -> void:
