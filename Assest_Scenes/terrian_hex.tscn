@@ -48,7 +48,8 @@ shadow_mesh = SubResource("ArrayMesh_bf687")
 
 [sub_resource type="CylinderShape3D" id="CylinderShape3D_ni25d"]
 margin = 5.0
-height = 0.45
+height = 0.4
+radius = 0.45
 
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_6gvn6"]
 resource_name = "Plasma"
@@ -118,15 +119,13 @@ mesh = SubResource("ArrayMesh_qkp10")
 skeleton = NodePath("")
 
 [node name="Area3D" type="Area3D" parent="RigidBody3D"]
-collision_layer = 3
-collision_mask = 3
+collision_layer = 2
+collision_mask = 2
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="RigidBody3D/Area3D"]
-transform = Transform3D(2.1, 0, 0, 0, 2.1, 0, 0, 0, 2.1, 0, -0.5, 0)
+transform = Transform3D(2.1, 0, 0, 0, 2.1, 0, 0, 0, 2.1, 0, 0, 0)
 shape = SubResource("CylinderShape3D_ni25d")
 
 [connection signal="body_entered" from="RigidBody3D" to="." method="_on_rigid_body_3d_body_entered"]
 [connection signal="body_entered" from="RigidBody3D/Area3D" to="." method="_on_area_3d_body_entered"]
 [connection signal="body_exited" from="RigidBody3D/Area3D" to="." method="_on_area_3d_body_exited"]
-[connection signal="child_entered_tree" from="RigidBody3D/Area3D/CollisionShape3D" to="." method="_on_collision_shape_3d_child_entered_tree"]
-[connection signal="child_exiting_tree" from="RigidBody3D/Area3D/CollisionShape3D" to="." method="_on_collision_shape_3d_child_exiting_tree"]

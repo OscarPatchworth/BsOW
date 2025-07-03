@@ -1,8 +1,8 @@
 class_name Terrian extends Node3D 
 
-@export var sleepingThresholdMin = 1
+@export var sleepingThresholdMin = 0.05
 @export var sleepingThresholdMax = 75
-@export var updateTimeInterval = 1/4 * 1000
+@export var updateTimeInterval = (1.0/15) 	
 
 @onready var dataStore = load("res://Scripts/main/data_store.gd")
 #@onready var terrianMesh = $RigidBody3D/baseHex
@@ -14,6 +14,8 @@ class_name Terrian extends Node3D
 @onready var force: Vector3 = Vector3(2, 0, (0))
 
 @onready var updateTimer = 0
+
+signal terrain_collision 
 
 #Terrian Has:
 #Biome 
@@ -28,40 +30,38 @@ class_name Terrian extends Node3D
 
 # Called when the node enters the scene tree for the first time.
 func _ready() -> void:
-	updateBiome(dataStore.biomeType.values().pick_random())
+	updateBiome(dataStore.biomeType.values().pick_random()) # Randomly pick a biome from the dataStore
+
+	#Enable collision detection
 	A3D.set_monitoring(true)
 	A3D.set_monitorable(true)	
 	A3D_Hits = 0
-	rb.set_freeze_mode(true)
+
+	#enable rb freeze mode
+	rb.set_freeze_mode(0)
 	rb.set_freeze_enabled(false)
-# Called every frame. 'delta' is the elapsed time since the previous frame.
-func _process(delta: float) -> void:
-	#rb.add_constant_torque(force)
-	pass
+
+
 
 const RAY_LENGTH = 1000
 
 func _physics_process(delta):
-	updateTimer =+ delta
-	
-	if(updateTimer > updateTimeInterval):
-		var velocity = rb.get_linear_velocity()
-		if velocity != Vector3.ZERO:
-			addDrag(delta)
-		if(!rb.is_sleeping() and velocity.x < sleepingThresholdMin and velocity.y < sleepingThresholdMin and velocity.z < sleepingThresholdMin and velocity != Vector3.ZERO):
-			#self.set_global_position(Vector3(self.get_global_position().x, 0, self.get_global_position().y))
-			rb.set_linear_velocity(Vector3.ZERO)
-			rb.set_sleeping(true)
-		elif(velocity.x > sleepingThresholdMax or velocity.y > sleepingThresholdMax or velocity.z > sleepingThresholdMax):
-			self.remove_from_group("terrian")
-			self.queue_free()
-		if A3D_Hits > 0:
-			rb.set_freeze_enabled(true)
-			print("Frozend")
-		else:
-			rb.set_freeze_enabled(false)
+	var velocity = rb.get_linear_velocity()
+
+	#if moving
+	if velocity != Vector3.ZERO: 
+		addDrag()
 		
-		updateTimer = 0
+		#If rb is moving slowly, set it to sleep
+		if(!rb.is_sleeping() and velocity.x < sleepingThresholdMin and velocity.y < sleepingThresholdMin and velocity.z < sleepingThresholdMin):
+			set_rb_sleep()
+
+		#If rb is moving too fast, delete it
+		elif(velocity.x > sleepingThresholdMax or velocity.y > sleepingThresholdMax or velocity.z > sleepingThresholdMax):
+			delete_self()
+	else:
+		rb.set_freeze_enabled(false)
+	
 	
 
 func updateBiome(newBiome: int) -> void:
@@ -85,7 +85,7 @@ func updateBiomeMaterial() -> void:
 		dataStore.biomeType.Plains:
 			biomeMesh.set_surface_override_material(0, load(dataStore.PLAINS_MATERIAL))
 
-func raycastToGroud() -> bool:
+func raycastToGround() -> bool:
 	var space_state = get_world_3d().direct_space_state
 	var rayStart = rb.global_position
 	var rayEnd = rb.global_position + (Vector3(0,-1,0) * 0.5)
@@ -99,15 +99,32 @@ func raycastToGroud() -> bool:
 	else:
 		return false
 
-func addDrag(delta) -> void:
-	rb.set_angular_velocity(rb.get_angular_velocity() * 0.01/1000 * delta)
-	rb.set_linear_velocity(rb.get_linear_velocity() * 0.0005/10000 * delta)
+func addDrag() -> void:
+	rb.set_angular_velocity(rb.get_angular_velocity() * 0.1)
+	rb.set_linear_velocity(rb.get_linear_velocity() * 0.7)
 	
+func set_rb_sleep() -> void:
+	if rb.is_sleeping():
+		return
+	rb.set_linear_velocity(Vector3.ZERO)
+	rb.set_sleeping(true)
 
 
-func _on_collision_shape_3d_child_entered_tree(node: Node) -> void:
-	A3D_Hits =+ 1
+func delete_self() -> void:
+	self.remove_from_group("terrian")
+	self.queue_free()
 
 
-func _on_collision_shape_3d_child_exiting_tree(node: Node) -> void:
-	A3D_Hits =- 1
+func _on_area_3d_body_entered(body: Node3D) -> void:
+	if(body != self.get_node("RigidBody3D")): # Ignore self collision
+		A3D_Hits += 1
+		terrain_collision.emit()
+	if A3D_Hits > 0:
+		print("collision Body: ", body.name)
+
+func _on_area_3d_body_exited(body: Node3D) -> void:
+	A3D_Hits -= 1
+	# If there are no more hits, unfreeze the rigid body
+	if A3D_Hits <= 0:
+		#rb.set_freeze_enabled(false)
+		pass
