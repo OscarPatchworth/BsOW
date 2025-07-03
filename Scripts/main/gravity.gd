@@ -54,9 +54,10 @@ func simpleG() -> void:
 		var celestPos = celestialBodies[i].get_child(0).global_position
 		var dist = sqrt((nbRb.global_position.x - celestPos.x)**2 + (nbRb.global_position.z - celestPos.z)**2 )
 		var pullDir = (celestialBodies[i].get_child(0).global_position - nbRb.global_position).normalized()
+		pullDir = Vector3(pullDir.x, 0, pullDir.z)
 		if dist < 0.6: dist = 0.6
-		gravityPull = (pullDir * 300) / ((dist)**2)
-		print(gravityPull)
+		gravityPull = (pullDir * 400) / ((dist)**2)
+		#print(gravityPull)
 		nbRb.add_constant_force(gravityPull)
 ##	Applied Force Equation => a = G(m2/r^2) . vector
 func _on_user_controler_biome_placed() -> void:

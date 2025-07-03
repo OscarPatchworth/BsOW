@@ -1,6 +1,6 @@
 class_name Terrian extends Node3D 
 
-@export var sleepingThresholdMin = 0.15
+@export var sleepingThresholdMin = 1
 @export var sleepingThresholdMax = 75
 @export var updateTimeInterval = 1/4 * 1000
 
@@ -8,6 +8,8 @@ class_name Terrian extends Node3D
 #@onready var terrianMesh = $RigidBody3D/baseHex
 @onready var biomeMesh = $RigidBody3D/biomeHex
 @onready var rb = self.get_node("RigidBody3D")#rigidbody
+@onready var A3D = rb.get_node("Area3D")
+@onready var A3D_Hits
 @onready var currentBiome = dataStore.biomeType.Plasma
 @onready var force: Vector3 = Vector3(2, 0, (0))
 
@@ -27,10 +29,11 @@ class_name Terrian extends Node3D
 # Called when the node enters the scene tree for the first time.
 func _ready() -> void:
 	updateBiome(dataStore.biomeType.values().pick_random())
-	rb.set_contact_monitor(true)
-	
-	
-	
+	A3D.set_monitoring(true)
+	A3D.set_monitorable(true)	
+	A3D_Hits = 0
+	rb.set_freeze_mode(true)
+	rb.set_freeze_enabled(false)
 # Called every frame. 'delta' is the elapsed time since the previous frame.
 func _process(delta: float) -> void:
 	#rb.add_constant_torque(force)
@@ -43,12 +46,23 @@ func _physics_process(delta):
 	
 	if(updateTimer > updateTimeInterval):
 		var velocity = rb.get_linear_velocity()
-		if(velocity.x < sleepingThresholdMin and velocity.y < sleepingThresholdMin and velocity.z < sleepingThresholdMin and raycastToGroud()):
+		if velocity != Vector3.ZERO:
+			addDrag(delta)
+		if(!rb.is_sleeping() and velocity.x < sleepingThresholdMin and velocity.y < sleepingThresholdMin and velocity.z < sleepingThresholdMin and velocity != Vector3.ZERO):
+			#self.set_global_position(Vector3(self.get_global_position().x, 0, self.get_global_position().y))
+			rb.set_linear_velocity(Vector3.ZERO)
 			rb.set_sleeping(true)
-		if(velocity.x > sleepingThresholdMax or velocity.y > sleepingThresholdMax or velocity.z > sleepingThresholdMax):
+		elif(velocity.x > sleepingThresholdMax or velocity.y > sleepingThresholdMax or velocity.z > sleepingThresholdMax):
 			self.remove_from_group("terrian")
 			self.queue_free()
+		if A3D_Hits > 0:
+			rb.set_freeze_enabled(true)
+			print("Frozend")
+		else:
+			rb.set_freeze_enabled(false)
+		
 		updateTimer = 0
+	
 
 func updateBiome(newBiome: int) -> void:
 	currentBiome = newBiome
@@ -84,3 +98,16 @@ func raycastToGroud() -> bool:
 		return true
 	else:
 		return false
+
+func addDrag(delta) -> void:
+	rb.set_angular_velocity(rb.get_angular_velocity() * 0.01/1000 * delta)
+	rb.set_linear_velocity(rb.get_linear_velocity() * 0.0005/10000 * delta)
+	
+
+
+func _on_collision_shape_3d_child_entered_tree(node: Node) -> void:
+	A3D_Hits =+ 1
+
+
+func _on_collision_shape_3d_child_exiting_tree(node: Node) -> void:
+	A3D_Hits =- 1
