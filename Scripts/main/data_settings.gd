@@ -3,12 +3,15 @@ extends Node
 ###		Settings Option Enums	###
 ###################################################################################################
 ###################################################################################################
-enum GravityTypes {SIMPLE, CONTINUOUS}
+enum GravityForceTypes {IMPULSE, CONSTANT, CONTINUOUS}
+enum GravityAffectedTerrian {NEW, ALL}
+
 
 ###		Settings Var values		###
 ###################################################################################################
 ###################################################################################################
-var gravity_type = GravityTypes.CONTINUOUS
+var gravity_type = GravityForceTypes.CONTINUOUS
+var gravity_affected = GravityAffectedTerrian.NEW
 
 
 func _on_gravity_ready() -> void:

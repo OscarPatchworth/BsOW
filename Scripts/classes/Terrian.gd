@@ -142,7 +142,7 @@ func _on_area_3d_body_entered(body: Node3D) -> void:
 		a3D_hits += 1
 		terrain_collision.emit()
 	if a3D_hits > 0:
-		print("collision Body: ", body.name)
+		pass
 
 
 func _on_area_3d_body_exited(body: Node3D) -> void:

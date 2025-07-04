@@ -8,6 +8,8 @@ const GRAVITY_CONST = 6.6743E-11
 var calc_gravity = false
 var num_Celestial_bodies = 0
 var active_celestial_collider
+var gravity_type
+var gravity_affected
 
 # Export Vars
 @export var gravity_impulse_test = 15
@@ -15,19 +17,20 @@ var active_celestial_collider
 # Dynamic Vars
 var new_body: Node3D
 var new_body_rb: RigidBody3D
-var gravity_pull = Vector3.ZERO
+var gravity_pull: Vector3
 var celestial_bodies = [Terrian]
 
 # OnReady Vars
-@onready var data_settings = load("res://Scripts/main/settings_data.gd")
-@onready var gravity_settings = $"../SettingsData".gravity_type
+@onready var data_settings = $"../SettingsData"
 @onready var center = $"../../World_Objects/Box"
 
-
 func _ready() -> void:
-	if(gravity_settings == 0): # simple gravity):
+	gravity_type = data_settings.gravity_type
+	gravity_affected = data_settings.gravity_affected
+
+	if(gravity_type == 0): # simple gravity):
 		print("Simple Gravity")
-	elif(gravity_settings == 1): # continuous gravity
+	elif(gravity_type == 1): # continuous gravity
 		print("continuous Gravity")
 	pass
 
@@ -38,7 +41,6 @@ func _process(delta: float) -> void:
 		num_Celestial_bodies = celestial_bodies.size()
 
 		newTerrianAdded()
-		print("New Terrian Added")
 
 		celestial_bodies = get_tree().get_nodes_in_group("terrian")
 		new_body_rb = celestial_bodies[celestial_bodies.size()-1].get_node("RigidBody3D")
@@ -50,7 +52,31 @@ func _process(delta: float) -> void:
 func _physics_process(delta: float) -> void:
 	if(calc_gravity and new_body_rb != null):
 		if !new_body_rb.is_sleeping():
-			simpleG()
+			if (gravity_affected == data_settings.GravityAffectedTerrian.NEW):
+				#print("Gravity Affects newbie")
+
+				for i in range(celestial_bodies.size()-1):
+					# calc_dir(self, target) -> V3
+					var pull_dir = calc_direction(new_body, celestial_bodies[i])
+					# calc_dist(self, target) -> float
+					var dist = calc_distance(new_body, celestial_bodies[i])
+					# apply_force(self, dir, dist)
+					gravity_pull = (7000 / (dist**2)) * pull_dir
+					new_body_rb.apply_force(gravity_pull)
+
+
+
+				pass
+			elif (gravity_affected == data_settings.GravityAffectedTerrian.ALL):
+				#print("Gravity Affects ALL stars")
+				
+				#for i in celtrial_bodies:
+					#for j in celtral_bodies:
+						# calc_dir(i, j) -> V3
+						# calc_dist(i, j) -> float
+						# apply_force(i, dir, dist)
+
+				pass
 
 
 func getcelestial_bodies() -> Array:
@@ -68,33 +94,25 @@ func newTerrianAdded() -> void:
 		pass
 
 
-##	Applied Force Equation => a = G(m2/r^2) . vector
-func _on_user_controler_biome_placed() -> void:
-	if(gravity_settings == 0): # simple gravity
-		pass
-	elif(gravity_settings == 1): #  continuous gravity
-		pass
-	
+func calc_direction(i: Terrian, j: Terrian) -> Vector3:
+	var pull_dir = (
+			j.get_node("RigidBody3D").global_position - i.get_node("RigidBody3D").global_position
+		).normalized()
+	pull_dir.y = 0
+	return pull_dir
 
-func simpleG() -> void:
-	# Calc & apply g-force from each Celest_body onto new_terrian
-	for i in range(celestial_bodies.size()-1):
-		gravity_pull = Vector3.ZERO #var pullTarget = Vector3.ZERO
 
-		#var pullDirection = (pullTarget - new_body_rb.global_position).normalized()
-		var pullDir = (celestial_bodies[i].get_node("RigidBody3D").global_position - new_body_rb.global_position).normalized()
-		pullDir.y = 0
+func calc_distance(i: Terrian, j: Terrian) -> float:
+	var i_celestial_pos = i.get_node("RigidBody3D").global_position
+	var j_celestial_pos = j.get_node("RigidBody3D").global_position
 
-		# Dist(m1, m2)
-		var celestPos = celestial_bodies[i].get_node("RigidBody3D").global_position
-		var dist = sqrt((new_body_rb.global_position.x - celestPos.x)**2 + (new_body_rb.global_position.z - celestPos.z)**2 )
-		if dist < 0.6: dist = 0.6
+	var dist = sqrt(
+		(i_celestial_pos.x - j_celestial_pos.x)**2 + (i_celestial_pos.z - j_celestial_pos.z)**2
+	)
 
-		# f(m1) = (m2 / dist^2) . pullDir
-		gravity_pull = (7000 / (dist**2)) * pullDir
-		new_body_rb.apply_force(gravity_pull)
+	if dist < 0.6: dist = 0.6
 
+	return dist
 
 func stop_calc_gravity() -> void:
 	calc_gravity = false
-	print("Gravity Calculation Stopped")
