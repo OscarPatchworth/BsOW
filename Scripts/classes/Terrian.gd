@@ -16,7 +16,7 @@ const RAY_LENGTH = 1000
 var a3D_hits
 
 # OnReady Vars
-@onready var data_store = load("res://Scripts/main/data_store.gd")
+@onready var data_store = load("res://Scripts/main/data_store_terrian.gd")
 @onready var biome_mesh = $RigidBody3D/biomeHex
 @onready var rb = self.get_node("RigidBody3D")
 @onready var a3D = rb.get_node("Area3D")

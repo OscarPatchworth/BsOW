@@ -3,13 +3,13 @@
 importer="scene"
 importer_version=1
 type="PackedScene"
-uid="uid://c8fi2uhovr0h5"
-path="res://.godot/imported/ProtoTerrian.fbx-06fad73436bb7c69bc60a0f83ceabc1e.scn"
+uid="uid://brqjgcvfcqyjn"
+path="res://.godot/imported/ProtoTerrian.glb-ed23710dced6307da3499d2acef30953.scn"
 
 [deps]
 
-source_file="res://Assest_Scenes/ProtoTerrian.fbx"
-dest_files=["res://.godot/imported/ProtoTerrian.fbx-06fad73436bb7c69bc60a0f83ceabc1e.scn"]
+source_file="res://Assest_Scenes/imports/Terrian/Models/Blender_Imports/ProtoTerrian.glb"
+dest_files=["res://.godot/imported/ProtoTerrian.glb-ed23710dced6307da3499d2acef30953.scn"]
 
 [params]
 
@@ -27,11 +27,10 @@ meshes/force_disable_compression=false
 skins/use_named_skins=true
 animation/import=true
 animation/fps=30
-animation/trimming=true
+animation/trimming=false
 animation/remove_immutable_tracks=true
 animation/import_rest_as_RESET=false
 import_script/path=""
 _subresources={}
-fbx/importer=0
-fbx/allow_geometry_helper_nodes=false
-fbx/embedded_image_handling=1
+gltf/naming_version=1
+gltf/embedded_image_handling=1
