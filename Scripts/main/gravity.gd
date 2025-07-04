@@ -54,8 +54,7 @@ func _physics_process(delta: float) -> void:
 		if !new_body_rb.is_sleeping():
 			if (gravity_affected == data_settings.GravityAffectedTerrian.NEW):
 				#print("Gravity Affects newbie")
-
-				for i in range(celestial_bodies.size()-1):
+				for i in range(celestial_bodies.size()):
 					# calc_dir(self, target) -> V3
 					var pull_dir = calc_direction(new_body, celestial_bodies[i])
 					# calc_dist(self, target) -> float
@@ -64,19 +63,18 @@ func _physics_process(delta: float) -> void:
 					gravity_pull = (7000 / (dist**2)) * pull_dir
 					new_body_rb.apply_force(gravity_pull)
 
-
-
-				pass
 			elif (gravity_affected == data_settings.GravityAffectedTerrian.ALL):
 				#print("Gravity Affects ALL stars")
 				
-				#for i in celtrial_bodies:
-					#for j in celtral_bodies:
-						# calc_dir(i, j) -> V3
-						# calc_dist(i, j) -> float
-						# apply_force(i, dir, dist)
-
-				pass
+				for i in range(celestial_bodies.size()):
+					for j in range(celestial_bodies.size()):
+						# calc_dir(self, target) -> V3
+						var pull_dir = calc_direction(celestial_bodies[i], celestial_bodies[j])
+						# calc_dist(self, target) -> float
+						var dist = calc_distance(celestial_bodies[i], celestial_bodies[j])
+						# apply_force(self, dir, dist)
+						gravity_pull = (7000 / (dist**2)) * pull_dir
+						celestial_bodies[i].get_node("RigidBody3D").apply_force(gravity_pull)
 
 
 func getcelestial_bodies() -> Array:
@@ -86,6 +84,9 @@ func getcelestial_bodies() -> Array:
 
 func newTerrianAdded() -> void:
 	if(getcelestial_bodies()):
+		if(new_body != null):
+			new_body.terrain_collision.disconnect(stop_calc_gravity)
+
 		new_body = celestial_bodies[celestial_bodies.size()-1]
 		new_body_rb = new_body.get_node("RigidBody3D")
 		calc_gravity = true
@@ -98,7 +99,7 @@ func calc_direction(i: Terrian, j: Terrian) -> Vector3:
 	var pull_dir = (
 			j.get_node("RigidBody3D").global_position - i.get_node("RigidBody3D").global_position
 		).normalized()
-	pull_dir.y = 0
+	pull_dir.y = -0.2
 	return pull_dir
 
 
@@ -116,3 +117,4 @@ func calc_distance(i: Terrian, j: Terrian) -> float:
 
 func stop_calc_gravity() -> void:
 	calc_gravity = false
+	print("new Body Collision")

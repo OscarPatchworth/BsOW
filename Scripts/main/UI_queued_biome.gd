@@ -6,7 +6,6 @@ extends Panel
 
 
 func updated_biome_queue(activeQueuedBiome: Variant, queuedBiome: Variant) -> void:
-	print(data_store.BiomeType.values().pick_random())
 	match  activeQueuedBiome:
 		data_store.BiomeType.BADLANDS:
 			active_queued_biome_UI.add_theme_stylebox_override("panel", load(data_store.BADLANDS_STYLEBOX))

@@ -58,7 +58,6 @@ func spawn_terrian() -> void:
 		var newPos = result["position"]
 		newPos.y =+ 0.1
 		newHex.position = newPos
-		print(data_store.name)
 		newHex.updateBiome(data_store.next_biome)
 		biome_placed.emit()		
 

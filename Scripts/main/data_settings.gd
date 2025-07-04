@@ -11,7 +11,7 @@ enum GravityAffectedTerrian {NEW, ALL}
 ###################################################################################################
 ###################################################################################################
 var gravity_type = GravityForceTypes.CONTINUOUS
-var gravity_affected = GravityAffectedTerrian.NEW
+var gravity_affected = GravityAffectedTerrian.ALL
 
 
 func _on_gravity_ready() -> void:
