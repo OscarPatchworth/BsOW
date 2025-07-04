@@ -1,12 +1,10 @@
 extends Node3D
 
-
 ###		BIOMES DATA		###
-###################################################################################################
-###################################################################################################
-###################################################################################################
+
+
 #BIOME TYPES
-enum biomeType {Badlands, Coast, Forest, Mount, Ocean, Plains, Plasma}
+enum BiomeType {BADLANDS, COAST, FOREST, MOUNT, OCEAN, PLAINS, PLASMA}
 #Biome Material Links
 const BADLANDS_MATERIAL = "res://Terrian/Biomes/Materials/Terrian_Badlands.tres"
 const COAST_MATERIAL = "res://Terrian/Biomes/Materials/Terrian_Coast.tres"
@@ -25,16 +23,16 @@ const PLAINS_STYLEBOX = "res://Terrian/Biomes/UI_Textures/PlainsQueue.tres"
 const PLASMA_STLEBOX = "res://Terrian/Biomes/UI_Textures/PlasmaQueue.tres"
 
 #Biome UI Queue
-@onready var nextbiome = biomeType.values().pick_random()
-@onready var queuedbiome = biomeType.values().pick_random()
+@onready var next_biome = BiomeType.values().pick_random()
+@onready var queued_biome = BiomeType.values().pick_random()
 
 @onready var UIscript = $"../../UI/Control/Panel"
 
 func _on_user_controler_biome_placed() -> void:
-	updateQueuedBiomes()
-	UIscript.updated_biome_queue(nextbiome, queuedbiome)
+	updatequeued_biomes()
+	UIscript.updated_biome_queue(next_biome, queued_biome)
 	pass # Replace with function body.
 
-func updateQueuedBiomes() -> void:
-	nextbiome = queuedbiome
-	queuedbiome = biomeType.values().pick_random()
+func updatequeued_biomes() -> void:
+	next_biome = queued_biome
+	queued_biome = BiomeType.values().pick_random()

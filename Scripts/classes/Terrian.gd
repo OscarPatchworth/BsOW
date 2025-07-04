@@ -1,21 +1,28 @@
-class_name Terrian extends Node3D 
+class_name Terrian # Class Name
+extends Node3D # Extends
 
-@export var sleepingThresholdMin = 0.05
-@export var sleepingThresholdMax = 75
-@export var updateTimeInterval = (1.0/15) 	
-
-@onready var dataStore = load("res://Scripts/main/data_store.gd")
-#@onready var terrianMesh = $RigidBody3D/baseHex
-@onready var biomeMesh = $RigidBody3D/biomeHex
-@onready var rb = self.get_node("RigidBody3D")#rigidbody
-@onready var A3D = rb.get_node("Area3D")
-@onready var A3D_Hits
-@onready var currentBiome = dataStore.biomeType.Plasma
-@onready var force: Vector3 = Vector3(2, 0, (0))
-
-@onready var updateTimer = 0
-
+# Signals
 signal terrain_collision 
+
+# Constants
+const RAY_LENGTH = 1000
+
+# Export Vars
+@export var sleeping_threshold_min = 0.05
+@export var sleeping_threshold_max = 75
+@export var update_time_interval = (1.0/15) 	
+
+# Dynamic Vars
+var a3D_hits
+
+# OnReady Vars
+@onready var data_store = load("res://Scripts/main/data_store.gd")
+@onready var biome_mesh = $RigidBody3D/biomeHex
+@onready var rb = self.get_node("RigidBody3D")
+@onready var a3D = rb.get_node("Area3D")
+@onready var current_biome = data_store.BiomeType.PLASMA
+@onready var border_size = 100
+
 
 #Terrian Has:
 #Biome 
@@ -27,70 +34,83 @@ signal terrain_collision
 #Units: [Units]
 
 
-
 # Called when the node enters the scene tree for the first time.
 func _ready() -> void:
-	updateBiome(dataStore.biomeType.values().pick_random()) # Randomly pick a biome from the dataStore
+	updateBiome(data_store.BiomeType.values().pick_random()) # Randomly pick a biome from the data_store
 
 	#Enable collision detection
-	A3D.set_monitoring(true)
-	A3D.set_monitorable(true)	
-	A3D_Hits = 0
+	a3D.set_monitoring(true)
+	a3D.set_monitorable(true)	
+	a3D_hits = 0
 
 	#enable rb freeze mode
 	rb.set_freeze_mode(0)
 	rb.set_freeze_enabled(false)
 
 
-
-const RAY_LENGTH = 1000
-
 func _physics_process(delta):
-	var velocity = rb.get_linear_velocity()
+	var rb_velocity = rb.get_linear_velocity()
+	var rb_position = rb.get_global_position()
 
 	#if moving
-	if velocity != Vector3.ZERO: 
+	if rb_velocity != Vector3.ZERO: 
 		addDrag()
 		
 		#If rb is moving slowly, set it to sleep
-		if(!rb.is_sleeping() and velocity.x < sleepingThresholdMin and velocity.y < sleepingThresholdMin and velocity.z < sleepingThresholdMin):
+		if(
+				!rb.is_sleeping() 
+				and rb_velocity.x < sleeping_threshold_min and rb_velocity.y < sleeping_threshold_min 
+				and rb_velocity.z < sleeping_threshold_min
+		):
 			set_rb_sleep()
 
 		#If rb is moving too fast, delete it
-		elif(velocity.x > sleepingThresholdMax or velocity.y > sleepingThresholdMax or velocity.z > sleepingThresholdMax):
+		elif(
+				rb_velocity.x > sleeping_threshold_max or rb_velocity.y > sleeping_threshold_max 
+				or rb_velocity.z > sleeping_threshold_max
+			):
 			delete_self()
+
+		elif(
+				rb_position.x > border_size or rb_position.x < -border_size or rb_position.z > border_size 
+				or rb_position.z < -border_size
+			):
+			delete_self()
+
 	else:
 		rb.set_freeze_enabled(false)
 	
-	
+
 
 func updateBiome(newBiome: int) -> void:
-	currentBiome = newBiome
+	current_biome = newBiome
 	updateBiomeMaterial()
 
+
 func updateBiomeMaterial() -> void:
-	match currentBiome:
-		dataStore.biomeType.Plasma:
-			biomeMesh.set_surface_override_material(0, load(dataStore.PLASMA_MATERIAL))
-		dataStore.biomeType.Badlands:
-			biomeMesh.set_surface_override_material(0, load(dataStore.BADLANDS_MATERIAL))
-		dataStore.biomeType.Coast:
-			biomeMesh.set_surface_override_material(0, load(dataStore.COAST_MATERIAL))
-		dataStore.biomeType.Forest:	
-			biomeMesh.set_surface_override_material(0, load(dataStore.FOREST_MATERIAL))
-		dataStore.biomeType.Mount:
-			biomeMesh.set_surface_override_material(0, load(dataStore.MOUNT_MATERIAL))
-		dataStore.biomeType.Ocean:
-			biomeMesh.set_surface_override_material(0, load(dataStore.OCEAN_MATERIAL))
-		dataStore.biomeType.Plains:
-			biomeMesh.set_surface_override_material(0, load(dataStore.PLAINS_MATERIAL))
+	match current_biome:
+		data_store.BiomeType.PLASMA:
+			biome_mesh.set_surface_override_material(0, load(data_store.PLASMA_MATERIAL))
+		data_store.BiomeType.BADLANDS:
+			biome_mesh.set_surface_override_material(0, load(data_store.BADLANDS_MATERIAL))
+		data_store.BiomeType.COAST:
+			biome_mesh.set_surface_override_material(0, load(data_store.COAST_MATERIAL))
+		data_store.BiomeType.FOREST:	
+			biome_mesh.set_surface_override_material(0, load(data_store.FOREST_MATERIAL))
+		data_store.BiomeType.MOUNT:
+			biome_mesh.set_surface_override_material(0, load(data_store.MOUNT_MATERIAL))
+		data_store.BiomeType.OCEAN:
+			biome_mesh.set_surface_override_material(0, load(data_store.OCEAN_MATERIAL))
+		data_store.BiomeType.PLAINS:
+			biome_mesh.set_surface_override_material(0, load(data_store.PLAINS_MATERIAL))
+
 
 func raycastToGround() -> bool:
 	var space_state = get_world_3d().direct_space_state
-	var rayStart = rb.global_position
-	var rayEnd = rb.global_position + (Vector3(0,-1,0) * 0.5)
+	var ray_start = rb.global_position
+	var ray_end = rb.global_position + (Vector3(0,-1,0) * 0.5)
 
-	var query = PhysicsRayQueryParameters3D.create(rayStart, rayEnd)
+	var query = PhysicsRayQueryParameters3D.create(ray_start, ray_end)
 	query.collide_with_areas = true
 	var result = space_state.intersect_ray(query)
 	
@@ -99,10 +119,12 @@ func raycastToGround() -> bool:
 	else:
 		return false
 
+
 func addDrag() -> void:
 	rb.set_angular_velocity(rb.get_angular_velocity() * 0.1)
 	rb.set_linear_velocity(rb.get_linear_velocity() * 0.7)
 	
+
 func set_rb_sleep() -> void:
 	if rb.is_sleeping():
 		return
@@ -117,14 +139,15 @@ func delete_self() -> void:
 
 func _on_area_3d_body_entered(body: Node3D) -> void:
 	if(body != self.get_node("RigidBody3D")): # Ignore self collision
-		A3D_Hits += 1
+		a3D_hits += 1
 		terrain_collision.emit()
-	if A3D_Hits > 0:
+	if a3D_hits > 0:
 		print("collision Body: ", body.name)
 
+
 func _on_area_3d_body_exited(body: Node3D) -> void:
-	A3D_Hits -= 1
+	a3D_hits -= 1
 	# If there are no more hits, unfreeze the rigid body
-	if A3D_Hits <= 0:
+	if a3D_hits <= 0:
 		#rb.set_freeze_enabled(false)
 		pass

@@ -3,12 +3,12 @@ extends Node
 ###		Settings Option Enums	###
 ###################################################################################################
 ###################################################################################################
-enum gravityTypes {simple, continuous}
+enum GravityTypes {SIMPLE, CONTINUOUS}
 
 ###		Settings Var values		###
 ###################################################################################################
 ###################################################################################################
-var gravityType = gravityTypes.continuous
+var gravity_type = GravityTypes.CONTINUOUS
 
 
 func _on_gravity_ready() -> void:

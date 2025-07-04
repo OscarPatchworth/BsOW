@@ -1,4 +1,4 @@
-[gd_scene load_steps=18 format=3 uid="uid://dp1qeccnucfgp"]
+[gd_scene load_steps=20 format=3 uid="uid://dp1qeccnucfgp"]
 
 [ext_resource type="Script" path="res://Scripts/main/data_store.gd" id="1_eofi0"]
 [ext_resource type="Texture2D" uid="uid://bn8wfhbs1omgo" path="res://Textures/TempTextures/third_person_controller_assets/textures/grids/Dark/texture_08.png" id="1_g3s7m"]
@@ -12,6 +12,8 @@
 [ext_resource type="Script" path="res://Scripts/main/ply_data_store.gd" id="8_jbgbn"]
 [ext_resource type="StyleBox" uid="uid://davru3uqkfrwq" path="res://Terrian/Biomes/UI_Textures/BadlandQueue.tres" id="9_ff70u"]
 [ext_resource type="Script" path="res://Scripts/main/queuedBiomeUI.gd" id="9_w476g"]
+[ext_resource type="Texture2D" uid="uid://bs8atlepclylh" path="res://Textures/TempTextures/third_person_controller_assets/textures/grids/Green/texture_02.png" id="11_r177d"]
+[ext_resource type="Texture2D" uid="uid://cgu4eqqbe8eyj" path="res://Textures/TempTextures/third_person_controller_assets/textures/grids/Red/texture_02.png" id="12_fiokd"]
 
 [sub_resource type="BoxShape3D" id="BoxShape3D_um3ki"]
 size = Vector3(60, 1, 60)
@@ -86,12 +88,12 @@ mesh = SubResource("BoxMesh_4y75s")
 [node name="Player" type="Node3D" parent="."]
 transform = Transform3D(0.999863, 0, 0.0165799, 0, 1, 0, -0.0165799, 0, 0.999863, 0, 0, 0)
 
-[node name="UserControler" type="Node3D" parent="Player" node_paths=PackedStringArray("cam", "checkPlaceable")]
+[node name="UserControler" type="Node3D" parent="Player" node_paths=PackedStringArray("cam", "check_terrain_paceable_sence")]
 transform = Transform3D(0.999862, 0, -0.0165799, 0, 1, 0, 0.0165799, 0, 0.999862, 0, 0, 0)
 script = ExtResource("6_ju1sv")
-biomeHex = ExtResource("7_wnefj")
+biome_hex = ExtResource("7_wnefj")
 cam = NodePath("../CamGimbal/InnerGimbal/Camera3D")
-checkPlaceable = NodePath("../isPlaceableBox")
+check_terrain_paceable_sence = NodePath("../isPlaceableBox")
 
 [node name="CamGimbal" type="Node3D" parent="Player" node_paths=PackedStringArray("target")]
 transform = Transform3D(0.999862, 0, -0.0165799, 0, 1, 0, 0.0165799, 0, 0.999862, -2.06604, 1.5, 3.96629)
@@ -111,6 +113,8 @@ script = SubResource("GDScript_5t88j")
 script = ExtResource("8_jbgbn")
 
 [node name="isPlaceableBox" parent="Player" instance=ExtResource("5_lmwb0")]
+valid_placement_material = ExtResource("11_r177d")
+invalid_placement_material = ExtResource("12_fiokd")
 
 [node name="UI" type="Node" parent="."]
 
@@ -171,6 +175,5 @@ grow_vertical = 2
 theme_override_styles/panel = ExtResource("9_ff70u")
 
 [connection signal="biome_placed" from="Player/UserControler" to="Env/DataStore" method="_on_user_controler_biome_placed"]
-[connection signal="biome_placed" from="Player/UserControler" to="Env/Gravity" method="_on_user_controler_biome_placed"]
 [connection signal="mouse_moved" from="Player/UserControler" to="Player/isPlaceableBox" method="_on_user_controler_mouse_moved"]
 [connection signal="is_terrian_placeable" from="Player/isPlaceableBox" to="Player/UserControler" method="_on_is_placeable_box_is_terrian_placeable"]

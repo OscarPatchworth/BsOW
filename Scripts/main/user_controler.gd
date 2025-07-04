@@ -1,92 +1,104 @@
 extends Node3D
 
-@export var biomeHex: PackedScene
-#@export var checkPlacementObj: PackedScene
-@export var cam: Camera3D
-@export var checkPlaceable: Node3D
-var mouse = Vector2()
-@onready var dataStore = $"../../Env/DataStore"
-
-signal biome_placed
+# signals
 signal mouse_moved
+signal biome_placed
 
+# enums
+
+# constants
+const RAY_LENGTH = 100
+
+# static variables
+
+# export variables
+@export var biome_hex: PackedScene
+@export var cam: Camera3D
+@export var check_terrain_paceable_sence: Node3D
+
+# remaining regular variables
+var mouse = Vector2()
 #Get cam and world space init
 var space_state
-var mousepos 
+var mouse_pos 
 #Get raycast points
-var mouseRayStart 
-var mouseRayEnd
-#
-const RAY_LENGTH = 100
-#
-var isPlaceable : bool
+var mouse_ray_start 
+var mouse_ray_end
+###
+var is_terrian_placeable : bool
+
+# @onready variables
+@onready var data_store = $"../../Env/DataStore"
 
 
 func _ready() -> void:
-	isPlaceable = false
+	is_terrian_placeable = false
 	
 
 # Called every frame. 'delta' is the elapsed time since the previous frame.
 func _process(delta: float) -> void:
-	if checkPlaceable:
-		moveToMousePos(checkPlaceable)
+	if check_terrain_paceable_sence:
+		move_to_mouse_pos(check_terrain_paceable_sence)
 	
 
 func _input(event: InputEvent) -> void:
-	if event.is_action_released("left_click") and !raycatIslnad() and (isPlaceable):
-		spawnTerrian()
-	elif event.is_action_pressed("shifting") and !raycatIslnad():
-		checkPlaceable.show()
+	if event.is_action_released("left_click") and !raycat_island() and (is_terrian_placeable):
+		spawn_terrian()
+	elif event.is_action_pressed("shifting") and !raycat_island():
+		check_terrain_paceable_sence.show()
 	elif event.is_action_released("shifting"):
-		checkPlaceable.hide()
+		check_terrain_paceable_sence.hide()
 
 
-
-#
-func spawnTerrian() -> void:
-	var result = raycastPlaceable()
+func spawn_terrian() -> void:
+	var result = raycast_placeable()
 	if result: #if hits valid position
-		var newHex = biomeHex.instantiate()
+		var newHex = biome_hex.instantiate()
 		owner.add_child(newHex)
 		var newPos = result["position"]
 		newPos.y =+ 0.1
 		newHex.position = newPos
-		newHex.updateBiome(dataStore.nextbiome)
-		emit_signal("biome_placed")		
-#
-#		
-func raycatIslnad() -> Dictionary:
+		print(data_store.name)
+		newHex.updateBiome(data_store.next_biome)
+		biome_placed.emit()		
+
+		
+func raycat_island() -> Dictionary:
 	#Get cam and world space init
-	initRaycastMousePos()
+	init_raycast_mouse_pos()
 	#Raycast layer 2 (the island block layer)
-	var query = PhysicsRayQueryParameters3D.create(mouseRayStart, mouseRayEnd, 2)
+	var query = PhysicsRayQueryParameters3D.create(mouse_ray_start, mouse_ray_end, 2)
 	query.collide_with_bodies = true
 	var result = space_state.intersect_ray(query)
 	return result
-#	
-func raycastPlaceable() -> Dictionary:
+
+
+func raycast_placeable() -> Dictionary:
 	#Get cam and world space init
-	initRaycastMousePos()
+	init_raycast_mouse_pos()
 	#Raycast layer 1 (the placement layer)
-	var query = PhysicsRayQueryParameters3D.create(mouseRayStart, mouseRayEnd, 1)
+	var query = PhysicsRayQueryParameters3D.create(mouse_ray_start, mouse_ray_end, 1)
 	query.collide_with_areas = true
 	var result = space_state.intersect_ray(query)
 	return result	
-#	
-func initRaycastMousePos() -> void:
+
+
+func init_raycast_mouse_pos() -> void:
 	#Get cam and world space init
 	space_state = get_world_3d().direct_space_state
-	mousepos = get_viewport().get_mouse_position()
+	mouse_pos = get_viewport().get_mouse_position()
 	#Get raycast points
-	mouseRayStart = cam.project_ray_origin(mousepos)
-	mouseRayEnd = mouseRayStart + cam.project_ray_normal(mousepos) * RAY_LENGTH
-#
-func moveToMousePos(obj: Node3D) -> void:
-	var result = raycastPlaceable()
+	mouse_ray_start = cam.project_ray_origin(mouse_pos)
+	mouse_ray_end = mouse_ray_start + cam.project_ray_normal(mouse_pos) * RAY_LENGTH
+
+
+func move_to_mouse_pos(obj: Node3D) -> void:
+	var result = raycast_placeable()
 	if result and obj: #if hits valid position
 		obj.position = result["position"]	
 		#obj.position.y = obj.position.y +0.1
 	mouse_moved.emit()
-	
+
+
 func _on_is_placeable_box_is_terrian_placeable(yn: bool) -> void:
-	isPlaceable = yn
+	is_terrian_placeable = yn

@@ -1,36 +1,45 @@
-extends Node3D
+extends Node3D # Extends
 
-@onready var mesh = $MeshInstance3D
-@export var validPlacementMaterial: Texture
-@export var invalidPlacementMaterial: Texture
-@onready var Ply := $"../UserControler"
-@onready var rb = self.get_node("RigidBody3D")#rigidbody
-@onready var A3D = self.get_node("Area3D")
-
-@onready var bodies_overlapping: int
-
+# signals
 signal is_terrian_placeable(yn: bool)
+
+# enums
+
+# constants
+
+# static variables
+
+# @export variables
+@export var valid_placement_material: Texture
+@export var invalid_placement_material: Texture
+
+# remaining regular variables
+var bodies_overlapping: int
+
+# @onready variables
+@onready var mesh = $MeshInstance3D
+@onready var player_node := $"../UserControler"
+@onready var rb = self.get_node("RigidBody3D")#rigidbody
+@onready var a3D = self.get_node("Area3D")
+
 
 # Called when the node enters the scene tree for the first time.
 func _ready() -> void:
-	changeMaterial(validPlacementMaterial)
+	changeMaterial(valid_placement_material)
 	is_terrian_placeable.emit(true)
 	
 	rb.set_contact_monitor(true)
 	rb.set_use_continuous_collision_detection(true)
 	rb.set_max_contacts_reported(5)
-	
-# Called every frame. 'delta' is the elapsed time since the previous frame.
-func _process(delta: float) -> void:
-	pass
-	
+
 func check_placeable() -> void:
 	if(bodies_overlapping == 0):
-		changeMaterial(validPlacementMaterial)
+		changeMaterial(valid_placement_material)
 		is_terrian_placeable.emit(true)	
 	else:
-		changeMaterial(invalidPlacementMaterial)
+		changeMaterial(invalid_placement_material)
 		is_terrian_placeable.emit(false)			
+
 
 func changeMaterial(img: Texture) -> void:
 	var material_one = mesh.get_surface_override_material(0)
