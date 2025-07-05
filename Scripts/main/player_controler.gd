@@ -48,12 +48,11 @@ func _process(delta: float) -> void:
 	
 
 func _input(event: InputEvent) -> void:
-	if event.is_action_released("left_click") and !raycat_island() and (is_terrian_placeable):
-		spawn_terrian()
-	elif event.is_action_pressed("shifting") and !raycat_island():
-		check_terrain_paceable_sence.show()
-	elif event.is_action_released("shifting"):
-		check_terrain_paceable_sence.hide()
+	match player_state:
+		PlayerStateMachine.INACTIVE:
+			pass
+		PlayerStateMachine.PLACING_TERRIAN:
+			input_placing_terrian(event)
 
 ###################################################################################################
 ###	State Machine Funcs
@@ -62,10 +61,12 @@ func _input(event: InputEvent) -> void:
 
 func switch_state_inactive() -> void:
 	check_terrain_paceable_sence.hide()
+	player_state = PlayerStateMachine.INACTIVE
 
 
 func switch_state_placing_terrian() -> void:
-	check_terrain_paceable_sence.hide()
+	check_terrain_paceable_sence.show()
+	player_state = PlayerStateMachine.PLACING_TERRIAN
 
 
 ### Update() states
@@ -73,6 +74,18 @@ func switch_state_placing_terrian() -> void:
 func update_placing_terrian() -> void:
 	if check_terrain_paceable_sence:
 		move_to_mouse_pos(check_terrain_paceable_sence)
+
+
+### Input() states
+
+func input_placing_terrian(event: InputEvent) -> void:
+	if event.is_action_released("left_click") and !raycat_island() and (is_terrian_placeable):
+		spawn_terrian()
+	elif event.is_action_pressed("shifting") and !raycat_island():
+		check_terrain_paceable_sence.show()
+	elif event.is_action_released("shifting"):
+		check_terrain_paceable_sence.hide()
+
 
 
 ###################################################################################################
@@ -126,6 +139,16 @@ func move_to_mouse_pos(obj: Node3D) -> void:
 		#obj.position.y = obj.position.y +0.1
 	mouse_moved.emit()
 
+###################################################################################################
+### Connected Signals
 
 func _on_is_placeable_box_is_terrian_placeable(yn: bool) -> void:
 	is_terrian_placeable = yn
+	
+
+func _on_starter_terrian_banner_mouse_entered() -> void:
+	switch_state_inactive()
+
+
+func _on_starter_terrian_banner_mouse_exited() -> void:
+	switch_state_placing_terrian()
