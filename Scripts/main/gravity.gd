@@ -63,8 +63,20 @@ func _physics_process(delta: float) -> void:
 					var dist = calc_distance(new_body, celestial_bodies[i])
 					# apply_force(self, dir, dist)
 					gravity_pull = (7000 / (dist**2)) * pull_dir
-					new_body_rb.apply_force(gravity_pull)
 
+					match gravity_type:
+						data_settings.GravityForceTypes.IMPULSE:
+							new_body_rb.apply_central_impulse(gravity_pull)
+							stop_calc_gravity()
+						data_settings.GravityForceTypes.CONSTANT:
+							new_body_rb.apply_central_force(gravity_pull)
+							stop_calc_gravity()
+						data_settings.GravityForceTypes.CONTINUOUS:
+							new_body_rb.apply_force(gravity_pull)
+
+
+					
+					
 		elif (gravity_affected == data_settings.GravityAffectedTerrian.ALL):
 			#print("Gravity Affects ALL stars")
 			
@@ -77,7 +89,16 @@ func _physics_process(delta: float) -> void:
 						var dist = calc_distance(celestial_bodies[i], celestial_bodies[j])
 						# apply_force(self, dir, dist)
 						gravity_pull = (7000 / (dist**2)) * pull_dir
-						celestial_bodies[i].get_node("RigidBody3D").apply_force(gravity_pull)
+
+						match gravity_type:
+							data_settings.GravityForceTypes.IMPULSE:
+								celestial_bodies[i].get_node("RigidBody3D").apply_central_impulse(gravity_pull)
+								stop_calc_gravity()
+							data_settings.GravityForceTypes.CONSTANT:
+								celestial_bodies[i].get_node("RigidBody3D").apply_central_force(gravity_pull)
+								stop_calc_gravity()
+							data_settings.GravityForceTypes.CONTINUOUS:
+								celestial_bodies[i].get_node("RigidBody3D").apply_force(gravity_pull)
 
 
 func get_celestial_bodies() -> Array:
