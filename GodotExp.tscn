@@ -118,7 +118,7 @@ invalid_placement_material = ExtResource("12_fiokd")
 
 [node name="UI" type="Node" parent="."]
 
-[node name="Control" type="Control" parent="UI"]
+[node name="NextBiomeDisplay" type="Control" parent="UI"]
 layout_mode = 3
 anchors_preset = 3
 anchor_left = 1.0
@@ -130,7 +130,7 @@ offset_top = -40.0
 grow_horizontal = 0
 grow_vertical = 0
 
-[node name="Panel" type="Panel" parent="UI/Control"]
+[node name="Panel" type="Panel" parent="UI/NextBiomeDisplay"]
 layout_mode = 1
 anchors_preset = 3
 anchor_left = 1.0
@@ -143,7 +143,7 @@ grow_horizontal = 0
 grow_vertical = 0
 script = ExtResource("9_w476g")
 
-[node name="QueuedBiome" type="Panel" parent="UI/Control/Panel"]
+[node name="QueuedBiome" type="Panel" parent="UI/NextBiomeDisplay/Panel"]
 unique_name_in_owner = true
 layout_mode = 1
 anchors_preset = 8
@@ -159,7 +159,7 @@ grow_horizontal = 2
 grow_vertical = 2
 theme_override_styles/panel = SubResource("StyleBoxFlat_dofb0")
 
-[node name="ActiveBiome" type="Panel" parent="UI/Control/Panel"]
+[node name="ActiveBiome" type="Panel" parent="UI/NextBiomeDisplay/Panel"]
 layout_mode = 1
 anchors_preset = 8
 anchor_left = 0.5
@@ -173,6 +173,32 @@ offset_bottom = 50.0
 grow_horizontal = 2
 grow_vertical = 2
 theme_override_styles/panel = ExtResource("9_ff70u")
+
+[node name="StarterBiomeDisplay" type="Control" parent="UI"]
+layout_mode = 3
+anchors_preset = 7
+anchor_left = 0.5
+anchor_top = 1.0
+anchor_right = 0.5
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 0
+
+[node name="Panel" type="Panel" parent="UI/StarterBiomeDisplay"]
+layout_mode = 1
+anchors_preset = 7
+anchor_left = 0.5
+anchor_top = 1.0
+anchor_right = 0.5
+anchor_bottom = 1.0
+offset_left = -1032.0
+offset_top = -302.0
+offset_right = -332.0
+offset_bottom = -202.0
+grow_horizontal = 2
+grow_vertical = 0
+rotation = -6.28319
+scale = Vector2(3, 3)
 
 [connection signal="biome_placed" from="Player/UserControler" to="Env/DataStore" method="_on_user_controler_biome_placed"]
 [connection signal="mouse_moved" from="Player/UserControler" to="Player/isPlaceableBox" method="_on_user_controler_mouse_moved"]

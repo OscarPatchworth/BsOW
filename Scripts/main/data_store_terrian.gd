@@ -28,7 +28,7 @@ const PLASMA_STLEBOX = "res://Textures/TempTextures/Materials/UI_Textures/Plasma
 @onready var next_biome = BiomeType.values().pick_random()
 @onready var queued_biome = BiomeType.values().pick_random()
 
-@onready var UIscript = $"../../UI/Control/Panel"
+@onready var UIscript = $"../../UI/NextBiomeDisplay/Panel"
 
 func _on_user_controler_biome_placed() -> void:
 	updatequeued_biomes()

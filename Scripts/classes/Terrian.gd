@@ -14,13 +14,15 @@ const RAY_LENGTH = 1000
 
 # Dynamic Vars
 var a3D_hits
+var current_biome
+var data_store
+var has_collided : bool
+var gravity_node
 
 # OnReady Vars
-@onready var data_store = load("res://Scripts/main/data_store_terrian.gd")
 @onready var biome_mesh = $RigidBody3D/biomeHex
 @onready var rb = self.get_node("RigidBody3D")
 @onready var a3D = rb.get_node("Area3D")
-@onready var current_biome = data_store.BiomeType.PLASMA
 @onready var border_size = 100
 
 
@@ -36,7 +38,6 @@ var a3D_hits
 
 # Called when the node enters the scene tree for the first time.
 func _ready() -> void:
-	updateBiome(data_store.BiomeType.values().pick_random()) # Randomly pick a biome from the data_store
 
 	#Enable collision detection
 	a3D.set_monitoring(true)
@@ -47,6 +48,13 @@ func _ready() -> void:
 	rb.set_freeze_mode(0)
 	rb.set_freeze_enabled(false)
 
+	data_store = self.get_node("../Env/DataStore/")
+	current_biome = data_store.BiomeType.PLASMA
+	updateBiome(data_store.BiomeType.values().pick_random()) # Randomly pick a biome from the data_store
+
+	has_collided = false
+	gravity_node = self.get_node("../Env/Gravity/")
+	gravity_node.reset_terrian_collision.connect(reset_collision)
 
 func _physics_process(delta):
 	var rb_velocity = rb.get_linear_velocity()
@@ -140,6 +148,7 @@ func delete_self() -> void:
 func _on_area_3d_body_entered(body: Node3D) -> void:
 	if(body != self.get_node("RigidBody3D")): # Ignore self collision
 		a3D_hits += 1
+		has_collided = true
 		terrain_collision.emit()
 	if a3D_hits > 0:
 		pass
@@ -151,3 +160,8 @@ func _on_area_3d_body_exited(body: Node3D) -> void:
 	if a3D_hits <= 0:
 		#rb.set_freeze_enabled(false)
 		pass
+
+
+func reset_collision() -> void:
+	has_collided = false
+	rb.set_sleeping(false)

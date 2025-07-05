@@ -1,6 +1,9 @@
 # Class Name
 extends Node # Extends
 
+# Signals
+signal reset_terrian_collision
+
 # Constants
 const GRAVITY_CONST = 6.6743E-11
 
@@ -51,8 +54,8 @@ func _process(delta: float) -> void:
 
 func _physics_process(delta: float) -> void:
 	if(calc_gravity and new_body_rb != null):
-		if !new_body_rb.is_sleeping():
-			if (gravity_affected == data_settings.GravityAffectedTerrian.NEW):
+		if (gravity_affected == data_settings.GravityAffectedTerrian.NEW):
+			if !new_body_rb.is_sleeping():
 				#print("Gravity Affects newbie")
 				for i in range(celestial_bodies.size()):
 					# calc_dir(self, target) -> V3
@@ -63,10 +66,11 @@ func _physics_process(delta: float) -> void:
 					gravity_pull = (7000 / (dist**2)) * pull_dir
 					new_body_rb.apply_force(gravity_pull)
 
-			elif (gravity_affected == data_settings.GravityAffectedTerrian.ALL):
-				#print("Gravity Affects ALL stars")
-				
-				for i in range(celestial_bodies.size()):
+		elif (gravity_affected == data_settings.GravityAffectedTerrian.ALL):
+			#print("Gravity Affects ALL stars")
+			
+			for i in range(celestial_bodies.size()):
+				if(not celestial_bodies[i].has_collided and not celestial_bodies[i].get_node("RigidBody3D").is_sleeping() ):
 					for j in range(celestial_bodies.size()):
 						# calc_dir(self, target) -> V3
 						var pull_dir = calc_direction(celestial_bodies[i], celestial_bodies[j])
@@ -86,6 +90,7 @@ func newTerrianAdded() -> void:
 	if(getcelestial_bodies()):
 		if(new_body != null):
 			new_body.terrain_collision.disconnect(stop_calc_gravity)
+			reset_terrian_collision.emit()
 
 		new_body = celestial_bodies[celestial_bodies.size()-1]
 		new_body_rb = new_body.get_node("RigidBody3D")
@@ -99,7 +104,7 @@ func calc_direction(i: Terrian, j: Terrian) -> Vector3:
 	var pull_dir = (
 			j.get_node("RigidBody3D").global_position - i.get_node("RigidBody3D").global_position
 		).normalized()
-	pull_dir.y = -0.2
+	pull_dir.y = 0
 	return pull_dir
 
 
@@ -117,4 +122,3 @@ func calc_distance(i: Terrian, j: Terrian) -> float:
 
 func stop_calc_gravity() -> void:
 	calc_gravity = false
-	print("new Body Collision")
