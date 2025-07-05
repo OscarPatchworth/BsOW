@@ -6,6 +6,8 @@ signal biome_placed
 
 # enums
 
+enum PlayerStateMachine {INACTIVE, PLACING_TERRIAN}
+
 # constants
 const RAY_LENGTH = 100
 
@@ -26,19 +28,23 @@ var mouse_ray_start
 var mouse_ray_end
 ###
 var is_terrian_placeable : bool
+var player_state: PlayerStateMachine
 
 # @onready variables
 @onready var data_store = $"../../Env/DataStore"
 
-
 func _ready() -> void:
+	player_state = PlayerStateMachine.PLACING_TERRIAN
 	is_terrian_placeable = false
 	
 
 # Called every frame. 'delta' is the elapsed time since the previous frame.
 func _process(delta: float) -> void:
-	if check_terrain_paceable_sence:
-		move_to_mouse_pos(check_terrain_paceable_sence)
+	match player_state:
+		PlayerStateMachine.INACTIVE:
+			pass
+		PlayerStateMachine.PLACING_TERRIAN:
+			update_placing_terrian()
 	
 
 func _input(event: InputEvent) -> void:
@@ -49,6 +55,28 @@ func _input(event: InputEvent) -> void:
 	elif event.is_action_released("shifting"):
 		check_terrain_paceable_sence.hide()
 
+###################################################################################################
+###	State Machine Funcs
+
+### Switching to states
+
+func switch_state_inactive() -> void:
+	check_terrain_paceable_sence.hide()
+
+
+func switch_state_placing_terrian() -> void:
+	check_terrain_paceable_sence.hide()
+
+
+### Update() states
+
+func update_placing_terrian() -> void:
+	if check_terrain_paceable_sence:
+		move_to_mouse_pos(check_terrain_paceable_sence)
+
+
+###################################################################################################
+###	custom Funcs
 
 func spawn_terrian() -> void:
 	var result = raycast_placeable()
