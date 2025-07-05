@@ -45,11 +45,10 @@ func _process(delta: float) -> void:
 
 		newTerrianAdded()
 
-		celestial_bodies = get_tree().get_nodes_in_group("terrian")
 		new_body_rb = celestial_bodies[celestial_bodies.size()-1].get_node("RigidBody3D")
 
 	else:
-		pass
+		celestial_bodies = get_tree().get_nodes_in_group("terrian")
 
 
 func _physics_process(delta: float) -> void:
@@ -81,13 +80,13 @@ func _physics_process(delta: float) -> void:
 						celestial_bodies[i].get_node("RigidBody3D").apply_force(gravity_pull)
 
 
-func getcelestial_bodies() -> Array:
+func get_celestial_bodies() -> Array:
 	celestial_bodies = get_tree().get_nodes_in_group("terrian")
 	return celestial_bodies
 	
 
 func newTerrianAdded() -> void:
-	if(getcelestial_bodies()):
+	if(get_celestial_bodies()):
 		if(new_body != null):
 			new_body.terrain_collision.disconnect(stop_calc_gravity)
 			reset_terrian_collision.emit()
