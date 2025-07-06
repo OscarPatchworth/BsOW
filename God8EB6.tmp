@@ -1,0 +1,281 @@
+[gd_scene load_steps=22 format=3 uid="uid://dp1qeccnucfgp"]
+
+[ext_resource type="Script" path="res://Scripts/main/data_store_terrian.gd" id="1_eofi0"]
+[ext_resource type="Texture2D" uid="uid://bn8wfhbs1omgo" path="res://Textures/TempTextures/third_person_controller_assets/textures/grids/Dark/texture_08.png" id="1_g3s7m"]
+[ext_resource type="Script" path="res://Scripts/main/gravity.gd" id="2_2m5uj"]
+[ext_resource type="PackedScene" uid="uid://ty2bm3kxr1dp" path="res://Textures/TempTextures/box.tscn" id="2_yont3"]
+[ext_resource type="Script" path="res://Scripts/main/data_settings.gd" id="3_0jhjv"]
+[ext_resource type="Script" path="res://Scripts/main/cam_gimbal.gd" id="3_og5xy"]
+[ext_resource type="PackedScene" uid="uid://csjp0fs12pgui" path="res://Assest_Scenes/is_placeable_box.tscn" id="5_lmwb0"]
+[ext_resource type="Script" path="res://Scripts/main/player_controler.gd" id="6_ju1sv"]
+[ext_resource type="PackedScene" uid="uid://b2kc3vd015y0" path="res://Assest_Scenes/terrian_hex.tscn" id="7_wnefj"]
+[ext_resource type="Script" path="res://Scripts/main/data_store_player.gd" id="8_jbgbn"]
+[ext_resource type="StyleBox" uid="uid://davru3uqkfrwq" path="res://Textures/UI_Textures/Panel/BadlandQueue.tres" id="9_ff70u"]
+[ext_resource type="Texture2D" uid="uid://bs8atlepclylh" path="res://Textures/TempTextures/third_person_controller_assets/textures/grids/Green/texture_02.png" id="11_r177d"]
+[ext_resource type="Texture2D" uid="uid://cgu4eqqbe8eyj" path="res://Textures/TempTextures/third_person_controller_assets/textures/grids/Red/texture_02.png" id="12_fiokd"]
+[ext_resource type="Script" path="res://Scripts/main/game_master.gd" id="13_xami0"]
+[ext_resource type="Theme" uid="uid://bi200u6dgup0j" path="res://Textures/Theames/Buttons/new_theme.tres" id="14_4j0qb"]
+[ext_resource type="Script" path="res://Scripts/UI/UI_queued_biome.gd" id="14_dfn7l"]
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_um3ki"]
+size = Vector3(60, 1, 60)
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_pnqqg"]
+albedo_texture = ExtResource("1_g3s7m")
+uv1_scale = Vector3(0.5, 0.5, 0.5)
+uv1_triplanar = true
+
+[sub_resource type="BoxMesh" id="BoxMesh_4y75s"]
+material = SubResource("StandardMaterial3D_pnqqg")
+size = Vector3(60, 1, 60)
+
+[sub_resource type="GDScript" id="GDScript_5t88j"]
+script/source = "extends Camera3D
+
+# Called when the node enters the scene tree for the first time.
+func _ready() -> void:
+	pass # Replace with function body.
+
+
+# Called every frame. 'delta' is the elapsed time since the previous frame.
+func _process(delta: float) -> void:
+	pass
+"
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_dofb0"]
+bg_color = Color(0.1332, 0.4366, 0.74, 1)
+corner_radius_top_left = 50
+corner_radius_top_right = 50
+corner_radius_bottom_right = 50
+corner_radius_bottom_left = 50
+
+[node name="Node3D" type="Node3D"]
+
+[node name="Env" type="Node3D" parent="."]
+
+[node name="WorldEnvironment" type="WorldEnvironment" parent="Env"]
+
+[node name="DirectionalLight3D" type="DirectionalLight3D" parent="Env"]
+transform = Transform3D(-0.866025, -0.433013, 0.25, 0, 0.5, 0.866025, -0.5, 0.75, -0.433013, 0, 10.0957, 0)
+shadow_enabled = true
+
+[node name="World_Objects" type="Node3D" parent="."]
+transform = Transform3D(1, 0, -7.45058e-09, 0, 1, 0, 7.45058e-09, 0, 1, 0, 0, 0)
+
+[node name="Box" parent="World_Objects" instance=ExtResource("2_yont3")]
+transform = Transform3D(0.999863, 0, 0.0165799, 0, 1, 0, -0.0165799, 0, 0.999863, 2, 0.5, -4)
+
+[node name="Floor" type="Node3D" parent="World_Objects"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.5, 0)
+
+[node name="StaticBody3D" type="StaticBody3D" parent="World_Objects/Floor"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.1, 0)
+collision_mask = 3
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="World_Objects/Floor/StaticBody3D"]
+shape = SubResource("BoxShape3D_um3ki")
+
+[node name="Floor Mesh" type="MeshInstance3D" parent="World_Objects/Floor"]
+mesh = SubResource("BoxMesh_4y75s")
+
+[node name="Player" type="Node3D" parent="."]
+transform = Transform3D(0.999863, 0, 0.0165799, 0, 1, 0, -0.0165799, 0, 0.999863, 0, 0, 0)
+
+[node name="UserControler" type="Node3D" parent="Player" node_paths=PackedStringArray("cam", "check_terrain_paceable_sence")]
+transform = Transform3D(0.999862, 0, -0.0165799, 0, 1, 0, 0.0165799, 0, 0.999862, 0, 0, 0)
+script = ExtResource("6_ju1sv")
+biome_hex = ExtResource("7_wnefj")
+cam = NodePath("../CamGimbal/InnerGimbal/Camera3D")
+check_terrain_paceable_sence = NodePath("../isPlaceableBox")
+
+[node name="CamGimbal" type="Node3D" parent="Player" node_paths=PackedStringArray("target")]
+transform = Transform3D(0.999862, 0, -0.0165799, 0, 1, 0, 0.0165799, 0, 0.999862, -2.06604, 1.5, 3.96629)
+script = ExtResource("3_og5xy")
+target = NodePath("../../World_Objects/Box")
+max_zoom = 5
+zoom_speed = 0.1
+
+[node name="InnerGimbal" type="Node3D" parent="Player/CamGimbal"]
+
+[node name="Camera3D" type="Camera3D" parent="Player/CamGimbal/InnerGimbal"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 4)
+current = true
+script = SubResource("GDScript_5t88j")
+
+[node name="PlyDataStore" type="Node3D" parent="Player"]
+script = ExtResource("8_jbgbn")
+
+[node name="isPlaceableBox" parent="Player" instance=ExtResource("5_lmwb0")]
+valid_placement_material = ExtResource("11_r177d")
+invalid_placement_material = ExtResource("12_fiokd")
+
+[node name="UI" type="Node" parent="."]
+
+[node name="StarterBiomeDisplay" type="Control" parent="UI"]
+layout_mode = 3
+anchors_preset = 7
+anchor_left = 0.5
+anchor_top = 1.0
+anchor_right = 0.5
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 0
+
+[node name="StarterTerrianBanner" type="Panel" parent="UI/StarterBiomeDisplay"]
+layout_mode = 1
+anchors_preset = 7
+anchor_left = 0.5
+anchor_top = 1.0
+anchor_right = 0.5
+anchor_bottom = 1.0
+offset_left = -1000.0
+offset_top = -250.0
+offset_right = 1000.0
+grow_horizontal = 2
+grow_vertical = 0
+theme = ExtResource("14_4j0qb")
+
+[node name="Button" type="Button" parent="UI/StarterBiomeDisplay/StarterTerrianBanner"]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_top = -50.0
+offset_right = 100.0
+offset_bottom = 50.0004
+grow_horizontal = 2
+grow_vertical = 2
+theme = ExtResource("14_4j0qb")
+
+[node name="Button2" type="Button" parent="UI/StarterBiomeDisplay/StarterTerrianBanner"]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -300.0
+offset_top = -50.0
+offset_right = -200.0
+offset_bottom = 50.0004
+grow_horizontal = 2
+grow_vertical = 2
+theme = ExtResource("14_4j0qb")
+
+[node name="Button3" type="Button" parent="UI/StarterBiomeDisplay/StarterTerrianBanner"]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = 300.0
+offset_top = -50.0
+offset_right = 400.0
+offset_bottom = 50.0004
+grow_horizontal = 2
+grow_vertical = 2
+theme = ExtResource("14_4j0qb")
+
+[node name="Button4" type="Button" parent="UI/StarterBiomeDisplay/StarterTerrianBanner"]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -600.0
+offset_top = -50.0
+offset_right = -500.0
+offset_bottom = 50.0004
+grow_horizontal = 2
+grow_vertical = 2
+theme = ExtResource("14_4j0qb")
+
+[node name="NextBiomeDisplay" type="Control" parent="UI"]
+z_index = 2
+layout_mode = 3
+anchors_preset = 3
+anchor_left = 1.0
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = -40.0
+offset_top = -40.0
+grow_horizontal = 0
+grow_vertical = 0
+
+[node name="Panel" type="Panel" parent="UI/NextBiomeDisplay"]
+layout_mode = 1
+anchors_preset = 3
+anchor_left = 1.0
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = -360.0
+offset_top = -180.0
+grow_horizontal = 0
+grow_vertical = 0
+script = ExtResource("14_dfn7l")
+
+[node name="QueuedBiome" type="Panel" parent="UI/NextBiomeDisplay/Panel"]
+unique_name_in_owner = true
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = 10.0
+offset_top = -70.0
+offset_right = 85.0
+offset_bottom = 5.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_dofb0")
+
+[node name="ActiveBiome" type="Panel" parent="UI/NextBiomeDisplay/Panel"]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -50.0
+offset_top = -50.0
+offset_right = 50.0
+offset_bottom = 50.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_styles/panel = ExtResource("9_ff70u")
+
+[node name="Data" type="Node" parent="."]
+
+[node name="Game_Master" type="Node" parent="Data"]
+script = ExtResource("13_xami0")
+
+[node name="Gravity" type="Node" parent="Data" groups=["gravity"]]
+script = ExtResource("2_2m5uj")
+
+[node name="SettingsData" type="Node" parent="Data"]
+script = ExtResource("3_0jhjv")
+
+[node name="DataStore" type="Node" parent="Data"]
+script = ExtResource("1_eofi0")
+
+[connection signal="biome_placed" from="Player/UserControler" to="Data/DataStore" method="_on_user_controler_biome_placed"]
+[connection signal="mouse_moved" from="Player/UserControler" to="Player/isPlaceableBox" method="_on_user_controler_mouse_moved"]
+[connection signal="is_terrian_placeable" from="Player/isPlaceableBox" to="Player/UserControler" method="_on_is_placeable_box_is_terrian_placeable"]
+[connection signal="hidden" from="UI/StarterBiomeDisplay" to="Player/UserControler" method="_on_starter_biome_display_hidden"]
+[connection signal="mouse_entered" from="UI/StarterBiomeDisplay/StarterTerrianBanner" to="Player/UserControler" method="_on_starter_terrian_banner_mouse_entered"]
+[connection signal="mouse_exited" from="UI/StarterBiomeDisplay/StarterTerrianBanner" to="Player/UserControler" method="_on_starter_terrian_banner_mouse_exited"]
+[connection signal="button_up" from="UI/StarterBiomeDisplay/StarterTerrianBanner/Button" to="Data/Game_Master" method="_on_button_button_up"]
+[connection signal="mouse_entered" from="UI/StarterBiomeDisplay/StarterTerrianBanner/Button" to="Player/UserControler" method="_on_button_mouse_entered"]
+[connection signal="button_up" from="UI/StarterBiomeDisplay/StarterTerrianBanner/Button2" to="Data/Game_Master" method="_on_button_button_up"]
+[connection signal="mouse_entered" from="UI/StarterBiomeDisplay/StarterTerrianBanner/Button2" to="Player/UserControler" method="_on_button_mouse_entered"]
+[connection signal="button_up" from="UI/StarterBiomeDisplay/StarterTerrianBanner/Button3" to="Data/Game_Master" method="_on_button_button_up"]
+[connection signal="mouse_entered" from="UI/StarterBiomeDisplay/StarterTerrianBanner/Button3" to="Player/UserControler" method="_on_button_mouse_entered"]
+[connection signal="button_up" from="UI/StarterBiomeDisplay/StarterTerrianBanner/Button4" to="Data/Game_Master" method="_on_button_button_up"]
+[connection signal="mouse_entered" from="UI/StarterBiomeDisplay/StarterTerrianBanner/Button4" to="Player/UserControler" method="_on_button_mouse_entered"]

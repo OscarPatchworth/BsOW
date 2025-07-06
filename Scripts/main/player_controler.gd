@@ -6,7 +6,7 @@ signal biome_placed
 
 # enums
 
-enum PlayerStateMachine {INACTIVE, PLACING_TERRIAN}
+enum PlayerStateMachine {INACTIVE, PLACE_STARTING_TERRIAN, PLACING_TERRIAN}
 
 # constants
 const RAY_LENGTH = 100
@@ -31,7 +31,7 @@ var is_terrian_placeable : bool
 var player_state: PlayerStateMachine
 
 # @onready variables
-@onready var data_store = $"../../Env/DataStore"
+@onready var data_store = $"../../Data/DataStore"
 
 func _ready() -> void:
 	player_state = PlayerStateMachine.PLACING_TERRIAN
@@ -45,6 +45,8 @@ func _process(delta: float) -> void:
 			pass
 		PlayerStateMachine.PLACING_TERRIAN:
 			update_placing_terrian()
+		PlayerStateMachine.PLACE_STARTING_TERRIAN:
+			update_place_starting_terrian()
 	
 
 func _input(event: InputEvent) -> void:
@@ -53,6 +55,8 @@ func _input(event: InputEvent) -> void:
 			pass
 		PlayerStateMachine.PLACING_TERRIAN:
 			input_placing_terrian(event)
+		PlayerStateMachine.PLACE_STARTING_TERRIAN:
+			pass
 
 ###################################################################################################
 ###	State Machine Funcs
@@ -68,10 +72,18 @@ func switch_state_placing_terrian() -> void:
 	check_terrain_paceable_sence.show()
 	player_state = PlayerStateMachine.PLACING_TERRIAN
 
+func switch_state_place_starting_terrian() -> void:
+	check_terrain_paceable_sence.hide()
+	player_state = PlayerStateMachine.PLACE_STARTING_TERRIAN
+
 
 ### Update() states
 
 func update_placing_terrian() -> void:
+	if check_terrain_paceable_sence:
+		move_to_mouse_pos(check_terrain_paceable_sence)
+
+func update_place_starting_terrian() -> void:
 	if check_terrain_paceable_sence:
 		move_to_mouse_pos(check_terrain_paceable_sence)
 
@@ -87,13 +99,23 @@ func input_placing_terrian(event: InputEvent) -> void:
 		check_terrain_paceable_sence.hide()
 
 
+func input_place_starting_terrian(event: InputEvent) -> void:
+	if event.is_action_released("left_click") and !raycat_island() and (is_terrian_placeable):
+		spawn_terrian()
+	elif event.is_action_pressed("shifting") and !raycat_island():
+		check_terrain_paceable_sence.show()
+	elif event.is_action_released("shifting"):
+		check_terrain_paceable_sence.hide()
+
+
 
 ###################################################################################################
 ###	custom Funcs
 
 func spawn_terrian() -> void:
 	var result = raycast_placeable()
-	if result: #if hits valid position
+	print(data_store.next_biome)
+	if result and data_store.next_biome != null: #if hits valid position
 		var newHex = biome_hex.instantiate()
 		owner.add_child(newHex)
 		var newPos = result["position"]
@@ -144,11 +166,19 @@ func move_to_mouse_pos(obj: Node3D) -> void:
 
 func _on_is_placeable_box_is_terrian_placeable(yn: bool) -> void:
 	is_terrian_placeable = yn
-	
+
 
 func _on_starter_terrian_banner_mouse_entered() -> void:
 	switch_state_inactive()
 
 
 func _on_starter_terrian_banner_mouse_exited() -> void:
+	switch_state_placing_terrian()
+
+
+func _on_button_mouse_entered() -> void:
+	switch_state_inactive()
+
+
+func _on_starter_biome_display_hidden() -> void:
 	switch_state_placing_terrian()

@@ -48,12 +48,12 @@ func _ready() -> void:
 	rb.set_freeze_mode(0)
 	rb.set_freeze_enabled(false)
 
-	data_store = self.get_node("../Env/DataStore/")
+	data_store = self.get_node("../Data/DataStore")
 	current_biome = data_store.BiomeType.PLASMA
 	updateBiome(data_store.BiomeType.values().pick_random()) # Randomly pick a biome from the data_store
 
 	has_collided = false
-	gravity_node = self.get_node("../Env/Gravity/")
+	gravity_node = self.get_node("../Data/Gravity")
 	gravity_node.reset_terrian_collision.connect(reset_collision)
 
 func _physics_process(delta):
