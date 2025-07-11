@@ -19,11 +19,9 @@ var data_store_terrian
 # Called when the node enters the scene tree for the first time.
 func _ready() -> void:
 	###	Get Refrences
-	ui_starting_display = self.get_node("/" + data_node_ref.UI_BIOMES_START)
+	ui_starting_display = get_node("/" + data_node_ref.UI_BIOMES_START)
 	ui_next_biome_display = get_node("/" + data_node_ref.UI_BIOME_DISPLAY)
-	data_store_terrian = self.get_node("/" + data_node_ref.DATA_TERRIAN)
-
-	print(ui_next_biome_display)
+	data_store_terrian = get_node("/" + data_node_ref.DATA_TERRIAN)
 
 	### Init State Machine
 	switch_state_start()

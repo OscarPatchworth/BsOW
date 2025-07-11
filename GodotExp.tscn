@@ -1,4 +1,4 @@
-[gd_scene load_steps=22 format=3 uid="uid://dp1qeccnucfgp"]
+[gd_scene load_steps=23 format=3 uid="uid://dp1qeccnucfgp"]
 
 [ext_resource type="Texture2D" uid="uid://bn8wfhbs1omgo" path="res://Textures/TempTextures/third_person_controller_assets/textures/grids/Dark/texture_08.png" id="1_g3s7m"]
 [ext_resource type="Script" path="res://Scripts/main/gravity.gd" id="2_2m5uj"]
@@ -11,6 +11,7 @@
 [ext_resource type="Script" path="res://Scripts/UI/btn_starting_terrian_banner.gd" id="11_g4p2o"]
 [ext_resource type="Texture2D" uid="uid://bs8atlepclylh" path="res://Textures/TempTextures/third_person_controller_assets/textures/grids/Green/texture_02.png" id="11_r177d"]
 [ext_resource type="Texture2D" uid="uid://cgu4eqqbe8eyj" path="res://Textures/TempTextures/third_person_controller_assets/textures/grids/Red/texture_02.png" id="12_fiokd"]
+[ext_resource type="Script" path="res://Scripts/main/game_master.gd" id="13_jtui5"]
 [ext_resource type="Theme" uid="uid://bi200u6dgup0j" path="res://Textures/Theames/Buttons/new_theme.tres" id="14_4j0qb"]
 [ext_resource type="Script" path="res://Scripts/UI/UI_queued_biome.gd" id="14_dfn7l"]
 [ext_resource type="Script" path="res://Scripts/data/data_settings.gd" id="14_gwi1l"]
@@ -254,6 +255,7 @@ theme_override_styles/panel = ExtResource("9_ff70u")
 [node name="Data" type="Node" parent="."]
 
 [node name="Game_Master" type="Node" parent="Data"]
+script = ExtResource("13_jtui5")
 
 [node name="Gravity" type="Node" parent="Data" groups=["gravity"]]
 script = ExtResource("2_2m5uj")
