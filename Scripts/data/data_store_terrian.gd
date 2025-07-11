@@ -48,7 +48,7 @@ var ui_script: Node
 func _ready() -> void:
 	ui_script = get_node("/" + data_node_ref.UI_BIOME_DISPLAY + "/Panel")
 
-	rand_queded_biomes()
+	#rand_queded_biomes()
 	pass
 
 
@@ -56,8 +56,9 @@ func _ready() -> void:
 func updatequeued_biomes() -> void:
 	next_biome = queued_biome
 	
-	var rnd = randi_range(1, BiomeType.size()-1)
-	queued_biome = rnd as BiomeType
+	if queued_biome != 0:
+		var rnd = randi_range(1, BiomeType.size()-1)
+		queued_biome = rnd as BiomeType
 
 
 func rand_queded_biomes() -> void:
@@ -67,6 +68,8 @@ func rand_queded_biomes() -> void:
 	rnd = randi_range(1, BiomeType.size()-1)
 	queued_biome = rnd as BiomeType
 
+func set_active_biome(biome_type: int) -> void:
+	next_biome = biome_type as BiomeType
 
 ###	Connected signals
 func _on_user_controler_biome_placed() -> void:

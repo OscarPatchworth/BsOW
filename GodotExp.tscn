@@ -195,6 +195,21 @@ grow_horizontal = 2
 grow_vertical = 2
 theme = ExtResource("14_4j0qb")
 
+[node name="Button5" type="Button" parent="UI/StarterBiomeDisplay/StarterTerrianBanner"]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -600.0
+offset_top = -50.0
+offset_right = -500.0
+offset_bottom = 50.0004
+grow_horizontal = 2
+grow_vertical = 2
+theme = ExtResource("14_4j0qb")
+
 [node name="NextBiomeDisplay" type="Control" parent="UI"]
 z_index = 2
 layout_mode = 3
@@ -284,3 +299,5 @@ script = ExtResource("18_8hc45")
 [connection signal="mouse_entered" from="UI/StarterBiomeDisplay/StarterTerrianBanner/Button3" to="Player/UserControler" method="_on_button_mouse_entered"]
 [connection signal="button_up" from="UI/StarterBiomeDisplay/StarterTerrianBanner/Button4" to="Data/Game_Master" method="_on_button_button_up"]
 [connection signal="mouse_entered" from="UI/StarterBiomeDisplay/StarterTerrianBanner/Button4" to="Player/UserControler" method="_on_button_mouse_entered"]
+[connection signal="button_up" from="UI/StarterBiomeDisplay/StarterTerrianBanner/Button5" to="Data/Game_Master" method="_on_button_button_up"]
+[connection signal="mouse_entered" from="UI/StarterBiomeDisplay/StarterTerrianBanner/Button5" to="Player/UserControler" method="_on_button_mouse_entered"]

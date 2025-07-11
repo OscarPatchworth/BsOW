@@ -19,6 +19,8 @@ const UI_BIOMES_START = "root/Node3D/UI/StarterBiomeDisplay"
 ### Player
 const PLAYER = "root/Node3D/Player"
 
+### Scripts
+const class_btn_terrian_select = "res://Scripts/classes/btn_terrian_select.gd"
 
 
 
