@@ -115,14 +115,16 @@ func input_place_starting_terrian(event: InputEvent) -> void:
 func spawn_terrian() -> void:
 	var result = raycast_placeable()
 	print(data_store.next_biome)
-	if result and data_store.next_biome != null: #if hits valid position
+	if result and data_store.next_biome != 0: #if hits valid position
 		var newHex = biome_hex.instantiate()
 		owner.add_child(newHex)
 		var newPos = result["position"]
 		newPos.y =+ 0.1
 		newHex.position = newPos
 		newHex.updateBiome(data_store.next_biome)
-		biome_placed.emit()		
+		biome_placed.emit()
+	else:
+		data_store.next_biome = 1				
 
 		
 func raycat_island() -> Dictionary:

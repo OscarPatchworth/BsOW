@@ -50,7 +50,6 @@ func _ready() -> void:
 
 	data_store = self.get_node("../Data/DataStore")
 	current_biome = data_store.BiomeType.PLASMA
-	updateBiome(data_store.BiomeType.values().pick_random()) # Randomly pick a biome from the data_store
 
 	has_collided = false
 	gravity_node = self.get_node("../Data/Gravity")
@@ -91,8 +90,11 @@ func _physics_process(delta):
 
 
 func updateBiome(newBiome: int) -> void:
-	current_biome = newBiome
-	updateBiomeMaterial()
+	if(current_biome):
+		current_biome = newBiome
+		updateBiomeMaterial()
+	else:
+		print(current_biome)
 
 
 func updateBiomeMaterial() -> void:
@@ -111,6 +113,8 @@ func updateBiomeMaterial() -> void:
 			biome_mesh.set_surface_override_material(0, load(data_store.OCEAN_MATERIAL))
 		data_store.BiomeType.PLAINS:
 			biome_mesh.set_surface_override_material(0, load(data_store.PLAINS_MATERIAL))
+		_:
+			pass
 
 
 func raycastToGround() -> bool:

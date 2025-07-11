@@ -6,7 +6,7 @@ extends Node
 
 # enums
 #BIOME TYPES
-enum BiomeType {BADLANDS, COAST, FOREST, MOUNT, OCEAN, PLAINS, PLASMA}
+enum BiomeType {NONE, BADLANDS, COAST, FOREST, MOUNT, OCEAN, PLAINS, PLASMA}
 
 # constants
 #Biome Material Links
@@ -44,14 +44,25 @@ var queued_biome: BiomeType
 
 ### Standard Methods
 
+func _ready() -> void:
+	rand_queded_biomes()
+
+
 ### Custom Mehtods
 func updatequeued_biomes() -> void:
 	next_biome = queued_biome
-	queued_biome = BiomeType.values().pick_random()
+	
+	var rnd = randi_range(1, BiomeType.size()-1)
+	queued_biome = rnd as BiomeType
+
 
 func rand_queded_biomes() -> void:
-	next_biome = BiomeType.values().pick_random()
-	queued_biome = BiomeType.values().pick_random()
+	var rnd = randi_range(1, BiomeType.size()-1)
+	next_biome = rnd as BiomeType
+	
+	rnd = randi_range(1, BiomeType.size()-1)
+	queued_biome = rnd as BiomeType
+
 
 ###	Connected signals
 func _on_user_controler_biome_placed() -> void:
