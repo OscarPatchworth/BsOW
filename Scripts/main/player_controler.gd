@@ -2,7 +2,7 @@ extends Node3D
 
 # signals
 signal mouse_moved
-signal biome_placed
+signal biome_placed(ply_state : PlayerStateMachine)
 
 # enums
 
@@ -33,9 +33,10 @@ var player_state: PlayerStateMachine
 # @onready variables
 @onready var data_node_ref = get_node("%DataNodeRefs")
 @onready var data_store = get_node("/" + data_node_ref.DATA_TERRIAN)
+@onready var game_master = get_node("/" + data_node_ref.GAME_MASTER)
 
 func _ready() -> void:
-	player_state = PlayerStateMachine.PLACING_TERRIAN
+	player_state = PlayerStateMachine.PLACE_STARTING_TERRIAN
 	is_terrian_placeable = false
 	
 
@@ -57,7 +58,7 @@ func _input(event: InputEvent) -> void:
 		PlayerStateMachine.PLACING_TERRIAN:
 			input_placing_terrian(event)
 		PlayerStateMachine.PLACE_STARTING_TERRIAN:
-			pass
+			input_place_starting_terrian(event)
 
 ###################################################################################################
 ###	State Machine Funcs
@@ -115,7 +116,6 @@ func input_place_starting_terrian(event: InputEvent) -> void:
 
 func spawn_terrian() -> void:
 	var result = raycast_placeable()
-	print(data_store.next_biome)
 	if result and data_store.next_biome != 0: #if hits valid position
 		var newHex = biome_hex.instantiate()
 		owner.add_child(newHex)
@@ -123,7 +123,7 @@ func spawn_terrian() -> void:
 		newPos.y =+ 0.1
 		newHex.position = newPos
 		newHex.updateBiome(data_store.next_biome)
-		biome_placed.emit()		
+		biome_placed.emit(player_state)		
 
 		
 func raycat_island() -> Dictionary:
@@ -174,7 +174,12 @@ func _on_starter_terrian_banner_mouse_entered() -> void:
 
 
 func _on_starter_terrian_banner_mouse_exited() -> void:
-	switch_state_placing_terrian()
+	if(game_master.game_state == game_master.GameState.START):
+		switch_state_place_starting_terrian()
+	elif (game_master.game_state == game_master.GameState.PLACE_TERRIAN):
+		switch_state_placing_terrian()
+	else:
+		switch_state_inactive()
 
 
 func _on_button_mouse_entered() -> void:

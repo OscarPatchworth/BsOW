@@ -12,6 +12,7 @@ var game_state: GameState
 var ui_starting_display
 var ui_next_biome_display
 var data_store_terrian
+var player_node
 
 # @onready variables
 @onready var data_node_ref = get_node("%DataNodeRefs")
@@ -22,6 +23,7 @@ func _ready() -> void:
 	ui_starting_display = get_node("/" + data_node_ref.UI_BIOMES_START)
 	ui_next_biome_display = get_node("/" + data_node_ref.UI_BIOME_DISPLAY)
 	data_store_terrian = get_node("/" + data_node_ref.DATA_TERRIAN)
+	player_node = get_node("/" + data_node_ref.PLAYER + "/UserControler")
 
 	### Init State Machine
 	switch_state_start()
@@ -65,3 +67,12 @@ func update_state_place_terrian():
 func _on_button_button_up() -> void:
 	#switch_state_place_terrian()
 	pass
+
+
+func _on_user_controler_biome_placed(ply_state: int) -> void:
+	if(ply_state == player_node.PlayerStateMachine.PLACE_STARTING_TERRIAN):
+		var terrian_btns = ui_starting_display.get_children()
+		for terrian_btn in terrian_btns:
+			pass
+	
+	pass # Replace with function body.

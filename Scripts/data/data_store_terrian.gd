@@ -72,7 +72,7 @@ func set_active_biome(biome_type: int) -> void:
 	next_biome = biome_type as BiomeType
 
 ###	Connected signals
-func _on_user_controler_biome_placed() -> void:
+func _on_user_controler_biome_placed(player_state) -> void:
 	updatequeued_biomes()
 	ui_script.updated_biome_queue(next_biome, queued_biome)
 	pass # Replace with function body.

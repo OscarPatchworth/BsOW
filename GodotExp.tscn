@@ -285,6 +285,7 @@ script = ExtResource("15_6nsda")
 unique_name_in_owner = true
 script = ExtResource("18_8hc45")
 
+[connection signal="biome_placed" from="Player/UserControler" to="Data/Game_Master" method="_on_user_controler_biome_placed"]
 [connection signal="biome_placed" from="Player/UserControler" to="Data/DataStoreTerrian" method="_on_user_controler_biome_placed"]
 [connection signal="mouse_moved" from="Player/UserControler" to="Player/isPlaceableBox" method="_on_user_controler_mouse_moved"]
 [connection signal="is_terrian_placeable" from="Player/isPlaceableBox" to="Player/UserControler" method="_on_is_placeable_box_is_terrian_placeable"]

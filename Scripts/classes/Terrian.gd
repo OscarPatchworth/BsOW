@@ -103,7 +103,7 @@ func updateBiome(newBiome: int) -> void:
 		current_biome = newBiome
 		updateBiomeMaterial()
 	else:
-		print(current_biome)
+		pass
 
 
 func updateBiomeMaterial() -> void:
