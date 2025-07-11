@@ -48,7 +48,7 @@ func _ready() -> void:
 	rb.set_freeze_mode(0)
 	rb.set_freeze_enabled(false)
 
-	data_store = self.get_node("../Data/DataStore")
+	data_store = self.get_node("../Data/DataStoreTerrian")
 	current_biome = data_store.BiomeType.PLASMA
 
 	has_collided = false

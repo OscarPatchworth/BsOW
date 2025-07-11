@@ -2,7 +2,7 @@ extends Panel
 
 @onready var active_queued_biome_UI = $ActiveBiome
 @onready var queued_biome_UI = %QueuedBiome
-@onready var data_store = $"../../../Data/DataStore"
+@onready var data_store = $"../../../Data/DataStoreTerrian"
 
 
 func updated_biome_queue(activeQueuedBiome: Variant, queuedBiome: Variant) -> void:

@@ -11,6 +11,7 @@ enum GameState {START, PLACE_TERRIAN}
 var game_state: GameState
 var ui_starting_display
 var ui_next_biome_display
+var data_store_terrian
 
 # @onready variables
 
@@ -20,6 +21,7 @@ func _ready() -> void:
 	###	Get Refrences
 	ui_starting_display = self.get_node("../../UI/StarterBiomeDisplay")
 	ui_next_biome_display = self.get_node("../../UI/NextBiomeDisplay")
+	data_store_terrian = self.get_node("../../Data/DataStoreTerrian")
 
 	### Init State Machine
 	switch_state_start()
@@ -39,6 +41,9 @@ func _process(delta: float) -> void:
 func switch_state_start():
 	game_state = GameState.START
 	ui_next_biome_display.hide()
+
+	data_store_terrian.next_biome = 0
+	data_store_terrian.queued_biome = 0
 
 
 func switch_state_place_terrian():

@@ -31,7 +31,7 @@ var is_terrian_placeable : bool
 var player_state: PlayerStateMachine
 
 # @onready variables
-@onready var data_store = $"../../Data/DataStore"
+@onready var data_store = $"../../Data/DataStoreTerrian"
 
 func _ready() -> void:
 	player_state = PlayerStateMachine.PLACING_TERRIAN
@@ -122,9 +122,7 @@ func spawn_terrian() -> void:
 		newPos.y =+ 0.1
 		newHex.position = newPos
 		newHex.updateBiome(data_store.next_biome)
-		biome_placed.emit()
-	else:
-		data_store.next_biome = 1				
+		biome_placed.emit()		
 
 		
 func raycat_island() -> Dictionary:

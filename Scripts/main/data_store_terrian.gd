@@ -45,7 +45,8 @@ var queued_biome: BiomeType
 ### Standard Methods
 
 func _ready() -> void:
-	rand_queded_biomes()
+	#rand_queded_biomes()
+	pass
 
 
 ### Custom Mehtods
