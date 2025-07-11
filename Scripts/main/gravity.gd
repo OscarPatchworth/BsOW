@@ -24,10 +24,12 @@ var gravity_pull: Vector3
 var celestial_bodies = [Terrian]
 
 # OnReady Vars
-@onready var data_settings = $"../SettingsData"
+@onready var data_node_ref = get_node("%DataNodeRefs")
+@onready var data_settings = get_node("/" + data_node_ref.DATA_SETTINGS)
 @onready var center = $"../../World_Objects/Box"
 
 func _ready() -> void:
+	
 	gravity_type = data_settings.gravity_type
 	gravity_affected = data_settings.gravity_affected
 

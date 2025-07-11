@@ -31,7 +31,8 @@ var is_terrian_placeable : bool
 var player_state: PlayerStateMachine
 
 # @onready variables
-@onready var data_store = $"../../Data/DataStoreTerrian"
+@onready var data_node_ref = get_node("%DataNodeRefs")
+@onready var data_store = get_node("/" + data_node_ref.DATA_TERRIAN)
 
 func _ready() -> void:
 	player_state = PlayerStateMachine.PLACING_TERRIAN

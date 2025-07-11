@@ -7,6 +7,11 @@ signal terrain_collision
 # Constants
 const RAY_LENGTH = 1000
 
+# static variables
+var data_store
+var gravity_node
+var data_node_ref
+
 # Export Vars
 @export var sleeping_threshold_min = 0.05
 @export var sleeping_threshold_max = 75
@@ -15,9 +20,8 @@ const RAY_LENGTH = 1000
 # Dynamic Vars
 var a3D_hits
 var current_biome
-var data_store
 var has_collided : bool
-var gravity_node
+
 
 # OnReady Vars
 @onready var biome_mesh = $RigidBody3D/biomeHex
@@ -39,20 +43,25 @@ var gravity_node
 # Called when the node enters the scene tree for the first time.
 func _ready() -> void:
 
-	#Enable collision detection
+	# Enable collision detection
 	a3D.set_monitoring(true)
 	a3D.set_monitorable(true)	
 	a3D_hits = 0
 
-	#enable rb freeze mode
+	# Enable rb freeze mode
 	rb.set_freeze_mode(0)
 	rb.set_freeze_enabled(false)
 
-	data_store = self.get_node("../Data/DataStoreTerrian")
+	# Setup Node Refs
+
+
+	data_node_ref = self.get_node("../%DataNodeRefs")
+	data_store = get_node("/" + data_node_ref.DATA_TERRIAN)
+	
 	current_biome = data_store.BiomeType.PLASMA
 
 	has_collided = false
-	gravity_node = self.get_node("../Data/Gravity")
+	gravity_node = get_node("/" + data_node_ref.GRAVITY_NODE)
 	gravity_node.reset_terrian_collision.connect(reset_collision)
 
 func _physics_process(delta):

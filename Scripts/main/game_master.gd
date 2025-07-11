@@ -14,14 +14,16 @@ var ui_next_biome_display
 var data_store_terrian
 
 # @onready variables
-
+@onready var data_node_ref = get_node("%DataNodeRefs")
 
 # Called when the node enters the scene tree for the first time.
 func _ready() -> void:
 	###	Get Refrences
-	ui_starting_display = self.get_node("../../UI/StarterBiomeDisplay")
-	ui_next_biome_display = self.get_node("../../UI/NextBiomeDisplay")
-	data_store_terrian = self.get_node("../../Data/DataStoreTerrian")
+	ui_starting_display = self.get_node("/" + data_node_ref.UI_BIOMES_START)
+	ui_next_biome_display = get_node("/" + data_node_ref.UI_BIOME_DISPLAY)
+	data_store_terrian = self.get_node("/" + data_node_ref.DATA_TERRIAN)
+
+	print(ui_next_biome_display)
 
 	### Init State Machine
 	switch_state_start()

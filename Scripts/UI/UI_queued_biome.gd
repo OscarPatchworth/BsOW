@@ -1,8 +1,9 @@
 extends Panel
 
+@onready var data_node_ref = get_node("%DataNodeRefs")
 @onready var active_queued_biome_UI = $ActiveBiome
 @onready var queued_biome_UI = %QueuedBiome
-@onready var data_store = $"../../../Data/DataStoreTerrian"
+@onready var data_store = get_node("/" + data_node_ref.DATA_TERRIAN)
 
 
 func updated_biome_queue(activeQueuedBiome: Variant, queuedBiome: Variant) -> void:

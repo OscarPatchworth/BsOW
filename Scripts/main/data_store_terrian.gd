@@ -31,13 +31,14 @@ const PLASMA_STLEBOX = "res://Textures/UI_Textures/Panel/PlasmaQueue.tres"
 # static variables
 var next_biome: BiomeType
 var queued_biome: BiomeType
+
+var ui_script: Node
 # @export variables
 
 # remaining regular variables
 
 # @onready variables
-#Biome UI Queue
-@onready var UIscript = $"../../UI/NextBiomeDisplay/Panel"
+@onready var data_node_ref = get_node("%DataNodeRefs")
 
 ###################################################################################################
 ###	Methods
@@ -45,7 +46,9 @@ var queued_biome: BiomeType
 ### Standard Methods
 
 func _ready() -> void:
-	#rand_queded_biomes()
+	ui_script = get_node("/" + data_node_ref.UI_BIOME_DISPLAY + "/Panel")
+
+	rand_queded_biomes()
 	pass
 
 
@@ -68,5 +71,5 @@ func rand_queded_biomes() -> void:
 ###	Connected signals
 func _on_user_controler_biome_placed() -> void:
 	updatequeued_biomes()
-	UIscript.updated_biome_queue(next_biome, queued_biome)
+	ui_script.updated_biome_queue(next_biome, queued_biome)
 	pass # Replace with function body.

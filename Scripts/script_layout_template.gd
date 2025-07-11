@@ -1,7 +1,5 @@
 extends Node
 
-extends Button
-
 # signals
 
 # enums
