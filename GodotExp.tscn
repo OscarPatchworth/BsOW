@@ -1,22 +1,20 @@
-[gd_scene load_steps=24 format=3 uid="uid://dp1qeccnucfgp"]
+[gd_scene load_steps=22 format=3 uid="uid://dp1qeccnucfgp"]
 
-[ext_resource type="Script" path="res://Scripts/main/data_store_terrian.gd" id="1_eofi0"]
 [ext_resource type="Texture2D" uid="uid://bn8wfhbs1omgo" path="res://Textures/TempTextures/third_person_controller_assets/textures/grids/Dark/texture_08.png" id="1_g3s7m"]
 [ext_resource type="Script" path="res://Scripts/main/gravity.gd" id="2_2m5uj"]
 [ext_resource type="PackedScene" uid="uid://ty2bm3kxr1dp" path="res://Textures/TempTextures/box.tscn" id="2_yont3"]
-[ext_resource type="Script" path="res://Scripts/main/data_settings.gd" id="3_0jhjv"]
 [ext_resource type="Script" path="res://Scripts/main/cam_gimbal.gd" id="3_og5xy"]
 [ext_resource type="PackedScene" uid="uid://csjp0fs12pgui" path="res://Assest_Scenes/is_placeable_box.tscn" id="5_lmwb0"]
 [ext_resource type="Script" path="res://Scripts/main/player_controler.gd" id="6_ju1sv"]
 [ext_resource type="PackedScene" uid="uid://b2kc3vd015y0" path="res://Assest_Scenes/terrian_hex.tscn" id="7_wnefj"]
-[ext_resource type="Script" path="res://Scripts/main/data_store_player.gd" id="8_jbgbn"]
 [ext_resource type="StyleBox" uid="uid://davru3uqkfrwq" path="res://Textures/UI_Textures/Panel/BadlandQueue.tres" id="9_ff70u"]
 [ext_resource type="Script" path="res://Scripts/UI/btn_starting_terrian_banner.gd" id="11_g4p2o"]
 [ext_resource type="Texture2D" uid="uid://bs8atlepclylh" path="res://Textures/TempTextures/third_person_controller_assets/textures/grids/Green/texture_02.png" id="11_r177d"]
 [ext_resource type="Texture2D" uid="uid://cgu4eqqbe8eyj" path="res://Textures/TempTextures/third_person_controller_assets/textures/grids/Red/texture_02.png" id="12_fiokd"]
-[ext_resource type="Script" path="res://Scripts/main/game_master.gd" id="13_xami0"]
 [ext_resource type="Theme" uid="uid://bi200u6dgup0j" path="res://Textures/Theames/Buttons/new_theme.tres" id="14_4j0qb"]
 [ext_resource type="Script" path="res://Scripts/UI/UI_queued_biome.gd" id="14_dfn7l"]
+[ext_resource type="Script" path="res://Scripts/data/data_settings.gd" id="14_gwi1l"]
+[ext_resource type="Script" path="res://Scripts/data/data_store_terrian.gd" id="15_6nsda"]
 [ext_resource type="Script" path="res://Scripts/data/data_node_and_file_refs.gd" id="18_8hc45"]
 
 [sub_resource type="BoxShape3D" id="BoxShape3D_um3ki"]
@@ -105,7 +103,6 @@ current = true
 script = SubResource("GDScript_5t88j")
 
 [node name="PlyDataStore" type="Node3D" parent="Player"]
-script = ExtResource("8_jbgbn")
 
 [node name="isPlaceableBox" parent="Player" instance=ExtResource("5_lmwb0")]
 valid_placement_material = ExtResource("11_r177d")
@@ -257,16 +254,15 @@ theme_override_styles/panel = ExtResource("9_ff70u")
 [node name="Data" type="Node" parent="."]
 
 [node name="Game_Master" type="Node" parent="Data"]
-script = ExtResource("13_xami0")
 
 [node name="Gravity" type="Node" parent="Data" groups=["gravity"]]
 script = ExtResource("2_2m5uj")
 
 [node name="SettingsData" type="Node" parent="Data"]
-script = ExtResource("3_0jhjv")
+script = ExtResource("14_gwi1l")
 
 [node name="DataStoreTerrian" type="Node" parent="Data"]
-script = ExtResource("1_eofi0")
+script = ExtResource("15_6nsda")
 
 [node name="DataNodeRefs" type="Node" parent="Data"]
 unique_name_in_owner = true
