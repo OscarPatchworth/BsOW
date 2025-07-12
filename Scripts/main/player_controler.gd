@@ -2,7 +2,7 @@ extends Node3D
 
 # signals
 signal mouse_moved
-signal biome_placed(ply_state : PlayerStateMachine)
+signal biome_placed(ply_state : PlayerStateMachine, spawn_spot : Dictionary)
 
 # enums
 
@@ -117,13 +117,7 @@ func input_place_starting_terrian(event: InputEvent) -> void:
 func spawn_terrian() -> void:
 	var result = raycast_placeable()
 	if result and data_store.next_biome != 0: #if hits valid position
-		var newHex = biome_hex.instantiate()
-		owner.add_child(newHex)
-		var newPos = result["position"]
-		newPos.y =+ 0.1
-		newHex.position = newPos
-		newHex.updateBiome(data_store.next_biome)
-		biome_placed.emit(player_state)		
+		biome_placed.emit(player_state, result)		
 
 		
 func raycat_island() -> Dictionary:

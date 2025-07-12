@@ -16,6 +16,7 @@ var player_node
 
 # @onready variables
 @onready var data_node_ref = get_node("%DataNodeRefs")
+@export var biome_hex: PackedScene
 
 # Called when the node enters the scene tree for the first time.
 func _ready() -> void:
@@ -61,6 +62,19 @@ func update_state_start():
 func update_state_place_terrian():
 	pass
 
+
+###################################################################################################
+### Custome Func()
+func instance_terrian(spawn_spot: Dictionary) -> void:
+	var newHex = biome_hex.instantiate()
+	var terrian_folder = get_node("/" + data_node_ref.terrian_node_folder)
+	terrian_folder.add_child(newHex)
+	var newPos = spawn_spot["position"]
+	newPos.y =+ 0.1
+	newHex.position = newPos
+	newHex.updateBiome(data_store_terrian.next_biome)
+
+
 ###################################################################################################
 ### Connected Signals
 
@@ -69,7 +83,9 @@ func _on_button_button_up() -> void:
 	pass
 
 
-func _on_user_controler_biome_placed(ply_state: int) -> void:
+func _on_user_controler_biome_placed(ply_state: int, spawn_spot: Dictionary) -> void:
+	instance_terrian(spawn_spot)
+	
 	if(ply_state == player_node.PlayerStateMachine.PLACE_STARTING_TERRIAN):
 		var terrian_btns = ui_starting_display.get_children()
 		for terrian_btn in terrian_btns:

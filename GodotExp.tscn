@@ -79,6 +79,8 @@ shape = SubResource("BoxShape3D_um3ki")
 [node name="Floor Mesh" type="MeshInstance3D" parent="World_Objects/Floor"]
 mesh = SubResource("BoxMesh_4y75s")
 
+[node name="Terrian" type="Node3D" parent="World_Objects"]
+
 [node name="Player" type="Node3D" parent="."]
 transform = Transform3D(0.999863, 0, 0.0165799, 0, 1, 0, -0.0165799, 0, 0.999863, 0, 0, 0)
 
@@ -271,6 +273,7 @@ theme_override_styles/panel = ExtResource("9_ff70u")
 
 [node name="Game_Master" type="Node" parent="Data"]
 script = ExtResource("13_jtui5")
+biome_hex = ExtResource("7_wnefj")
 
 [node name="Gravity" type="Node" parent="Data" groups=["gravity"]]
 script = ExtResource("2_2m5uj")
