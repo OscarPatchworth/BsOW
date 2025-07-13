@@ -41,6 +41,5 @@ func init_starting_terrian_btns() -> void:
 	var button_children = self.get_children()
 	for btn in button_children:
 		btn.set_script(load(data_node_ref.class_btn_terrian_select))
-		pass
 
 ### Connected Signals

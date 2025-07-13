@@ -17,7 +17,7 @@ var player_node
 
 # remaining regular variables
 var allocated_biome
-var is_toggle
+var is_toggled : bool
 
 # @onready variables
 
@@ -42,6 +42,7 @@ func _init() -> void:
 	### init btn func
 	set_toggle_mode(true)
 	set_action_mode(ACTION_MODE_BUTTON_RELEASE)
+	is_toggled = false
 	
 	pass # Replace with function body.
 
@@ -52,6 +53,9 @@ func _process(delta: float) -> void:
 
 func _toggled(toggled_on: bool) -> void:
 	if(toggled_on):
+		### toggle self
+		is_toggled = true
+
 		## untoggle the other btns
 		var start_terrian_btn_group = get_tree().get_nodes_in_group("btn_starting_terrian")
 		for i in start_terrian_btn_group:
@@ -59,6 +63,8 @@ func _toggled(toggled_on: bool) -> void:
 		
 		## set placeable terrian to active btn terrian
 		data_terrian.set_active_biome(allocated_biome)	
+
+
 ### overridden built-in virtual methods:
 func _pressed() -> void:
 	#data_terrian.set_active_biome(allocated_biome)
@@ -68,4 +74,9 @@ func _pressed() -> void:
 func untoggle_other_starting_terrian_btns(active_btn: Button) -> void:
 	if (self != active_btn):
 		set_pressed_no_signal(false)
+		is_toggled = false
+
+
+func delete_self() -> void:
+	self.queue_free()
 ### Connected Signals

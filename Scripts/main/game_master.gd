@@ -54,6 +54,8 @@ func switch_state_place_terrian():
 	ui_next_biome_display.show()
 	ui_starting_display.hide()
 
+	data_store_terrian.rand_queded_biomes()
+
 ### Update() states
 func update_state_start():
 	pass
@@ -85,10 +87,13 @@ func _on_button_button_up() -> void:
 
 func _on_user_controler_biome_placed(ply_state: int, spawn_spot: Dictionary) -> void:
 	instance_terrian(spawn_spot)
-	
 	if(ply_state == player_node.PlayerStateMachine.PLACE_STARTING_TERRIAN):
-		var terrian_btns = ui_starting_display.get_children()
+		var terrian_btns = ui_starting_display.get_child(0).get_children()
 		for terrian_btn in terrian_btns:
-			pass
+			if terrian_btn.is_pressed():
+				terrian_btn.delete_self()
+		if(terrian_btns.size() <= 1):
+				switch_state_place_terrian()
+
 	
 	pass # Replace with function body.
