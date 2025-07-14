@@ -43,6 +43,9 @@ func _init() -> void:
 	set_toggle_mode(true)
 	set_action_mode(ACTION_MODE_BUTTON_RELEASE)
 	is_toggled = false
+
+	### init btn colour
+	set_btn_colour()
 	
 	pass # Replace with function body.
 
@@ -79,4 +82,11 @@ func untoggle_other_starting_terrian_btns(active_btn: Button) -> void:
 
 func delete_self() -> void:
 	self.queue_free()
+
+
+func set_btn_colour() -> void:
+	var stylebox: StyleBox = self.get_theme_stylebox("normal")
+	stylebox.bg_color = "#ff0000"
+	self.add_theme_stylebox_override("normal", stylebox)
+
 ### Connected Signals

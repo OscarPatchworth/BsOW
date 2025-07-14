@@ -74,7 +74,7 @@ func instance_terrian(spawn_spot: Dictionary) -> void:
 	var newPos = spawn_spot["position"]
 	newPos.y =+ 0.1
 	newHex.position = newPos
-	newHex.updateBiome(data_store_terrian.next_biome)
+	newHex.update_biome(data_store_terrian.next_biome)
 
 
 ###################################################################################################
