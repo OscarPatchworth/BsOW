@@ -9,7 +9,7 @@ extends Node
 enum BiomeType {NONE, BADLANDS, COAST, FOREST, MOUNT, OCEAN, PLAINS, PLASMA}
 
 # constants
-#Biome Material Links
+### Biome Material Links
 # C:/Users/Kyran/Documents/GamerGirlBathWater/bsow/Textures/Materials/terrian_materials/
 const BADLANDS_MATERIAL = "res://Textures/Materials/terrian_materials/Terrian_Badlands.tres"
 const COAST_MATERIAL = "res://Textures/Materials/terrian_materials/Terrian_Coast.tres"
@@ -18,7 +18,8 @@ const MOUNT_MATERIAL = "res://Textures/Materials/terrian_materials/Terrian_Mount
 const OCEAN_MATERIAL = "res://Textures/Materials/terrian_materials/Terrian_Ocean.tres"
 const PLAINS_MATERIAL ="res://Textures/Materials/terrian_materials/Terrian_Plains.tres"
 const PLASMA_MATERIAL = "res://Textures/Materials/terrian_materials/Terrian_Plasma.tres"
-#Biome Texture Links
+
+### Biome Texture Links
 # C:/Users/Kyran/Documents/GamerGirlBathWater/bsow/Textures/Materials/UI_Textures/Panel/
 const BADLANDS_STYLEBOX = "res://Textures/UI_Textures/Panel/BadlandQueue.tres"
 const COAST_STYLEBOX = "res://Textures/UI_Textures/Panel/CoastQueue.tres"
@@ -27,6 +28,18 @@ const MOUNT_STYLEBOX = "res://Textures/UI_Textures/Panel/Mount.tres"
 const OCEAN_STYLEBOX = "res://Textures/UI_Textures/Panel/OceanQueue.tres"
 const PLAINS_STYLEBOX = "res://Textures/UI_Textures/Panel/PlainsQueue.tres"
 const PLASMA_STLEBOX = "res://Textures/UI_Textures/Panel/PlasmaQueue.tres"
+
+### Biome btn THEAMEs
+# C:/Users/Kyran/Documents/GamerGirlBathWater/bsow/Textures/Theames/Buttons/plains_btn_terrian_start.tres
+const BADLANDS_BTN_THEAME = "res://Textures/Theames/Buttons/badlands_btn_terrian_start.tres"
+const COAST_BTN_THEAME = "res://Textures/Theames/Buttons/coast_btn_terrian_start.tres"
+const FOREST_BTN_THEAME = "res://Textures/Theames/Buttons/forest_btn_terrian_start.tres"
+const MOUNT_BTN_THEAME = "res://Textures/Theames/Buttons/mount_btn_terrian_start.tres"
+const OCEAN_BTN_THEAME = "res://Textures/Theames/Buttons/ocean_btn_terrian_start.tres"
+const PLAINS_BTN_THEAME = "res://Textures/Theames/Buttons/plains_btn_terrian_start.tres"
+const PLASMA_BTN_THEAME = "res://Textures/Theames/Buttons/plasma_btn_terrian_start.tres"
+
+
 
 # static variables
 var next_biome: BiomeType
@@ -72,8 +85,8 @@ func set_active_biome(biome_type: int) -> void:
 	next_biome = biome_type as BiomeType
 
 
-func get_biome_material(current_biome: int) -> String:
-	match current_biome:
+func get_biome_material(biome: int) -> String:
+	match biome:
 		BiomeType.PLASMA:
 			return(PLASMA_MATERIAL)
 		BiomeType.BADLANDS:
@@ -88,6 +101,26 @@ func get_biome_material(current_biome: int) -> String:
 			return(OCEAN_MATERIAL)
 		BiomeType.PLAINS:
 			return(PLAINS_MATERIAL)
+		_:
+			return("")
+
+		
+func get_biome_btn_theame(biome: int) -> String:
+	match biome:
+		BiomeType.PLASMA:
+			return(PLASMA_BTN_THEAME)
+		BiomeType.BADLANDS:
+			return(BADLANDS_BTN_THEAME)
+		BiomeType.COAST:
+			return(COAST_BTN_THEAME)
+		BiomeType.FOREST:	
+			return(FOREST_BTN_THEAME)
+		BiomeType.MOUNT:
+			return(MOUNT_BTN_THEAME)
+		BiomeType.OCEAN:
+			return(OCEAN_BTN_THEAME)
+		BiomeType.PLAINS:
+			return(PLAINS_BTN_THEAME)
 		_:
 			return("")
 

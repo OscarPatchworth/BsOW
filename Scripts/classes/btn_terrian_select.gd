@@ -86,7 +86,8 @@ func delete_self() -> void:
 
 func set_btn_colour() -> void:
 	var stylebox: StyleBox = self.get_theme_stylebox("normal")
-	stylebox.bg_color = "#ff0000"
-	self.add_theme_stylebox_override("normal", stylebox)
+	#self.add_theme_stylebox_override("normal", stylebox)
+	#self.get_theme_stylebox("normal").bg_color = stylebox.bg_color
+	self.theme = load(data_terrian.get_biome_btn_theame(allocated_biome))
 
 ### Connected Signals

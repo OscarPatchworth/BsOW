@@ -1,4 +1,4 @@
-[gd_scene load_steps=23 format=3 uid="uid://dp1qeccnucfgp"]
+[gd_scene load_steps=24 format=3 uid="uid://dp1qeccnucfgp"]
 
 [ext_resource type="Texture2D" uid="uid://bn8wfhbs1omgo" path="res://Textures/TempTextures/third_person_controller_assets/textures/grids/Dark/texture_08.png" id="1_g3s7m"]
 [ext_resource type="Script" path="res://Scripts/main/gravity.gd" id="2_2m5uj"]
@@ -9,10 +9,11 @@
 [ext_resource type="PackedScene" uid="uid://b2kc3vd015y0" path="res://Assest_Scenes/terrian_hex.tscn" id="7_wnefj"]
 [ext_resource type="StyleBox" uid="uid://davru3uqkfrwq" path="res://Textures/UI_Textures/Panel/BadlandQueue.tres" id="9_ff70u"]
 [ext_resource type="Script" path="res://Scripts/UI/btn_starting_terrian_banner.gd" id="11_g4p2o"]
+[ext_resource type="Theme" uid="uid://bbx1dis7b8uyc" path="res://Textures/Theames/Buttons/plasma_btn_terrian_start.tres" id="11_oblbg"]
 [ext_resource type="Texture2D" uid="uid://bs8atlepclylh" path="res://Textures/TempTextures/third_person_controller_assets/textures/grids/Green/texture_02.png" id="11_r177d"]
 [ext_resource type="Texture2D" uid="uid://cgu4eqqbe8eyj" path="res://Textures/TempTextures/third_person_controller_assets/textures/grids/Red/texture_02.png" id="12_fiokd"]
 [ext_resource type="Script" path="res://Scripts/main/game_master.gd" id="13_jtui5"]
-[ext_resource type="Theme" uid="uid://bi200u6dgup0j" path="res://Textures/Theames/Buttons/new_theme.tres" id="14_4j0qb"]
+[ext_resource type="Theme" uid="uid://bi200u6dgup0j" path="res://Textures/new_theme.tres" id="14_4j0qb"]
 [ext_resource type="Script" path="res://Scripts/UI/UI_queued_biome.gd" id="14_dfn7l"]
 [ext_resource type="Script" path="res://Scripts/data/data_settings.gd" id="14_gwi1l"]
 [ext_resource type="Script" path="res://Scripts/data/data_store_terrian.gd" id="15_6nsda"]
@@ -150,7 +151,7 @@ offset_right = 100.0
 offset_bottom = 50.0004
 grow_horizontal = 2
 grow_vertical = 2
-theme = ExtResource("14_4j0qb")
+theme = ExtResource("11_oblbg")
 
 [node name="Button2" type="Button" parent="UI/StarterBiomeDisplay/StarterTerrianBanner"]
 layout_mode = 1
@@ -165,7 +166,7 @@ offset_right = -200.0
 offset_bottom = 50.0004
 grow_horizontal = 2
 grow_vertical = 2
-theme = ExtResource("14_4j0qb")
+theme = ExtResource("11_oblbg")
 
 [node name="Button3" type="Button" parent="UI/StarterBiomeDisplay/StarterTerrianBanner"]
 layout_mode = 1
@@ -180,7 +181,7 @@ offset_right = 400.0
 offset_bottom = 50.0004
 grow_horizontal = 2
 grow_vertical = 2
-theme = ExtResource("14_4j0qb")
+theme = ExtResource("11_oblbg")
 
 [node name="Button4" type="Button" parent="UI/StarterBiomeDisplay/StarterTerrianBanner"]
 layout_mode = 1
@@ -195,7 +196,7 @@ offset_right = -500.0
 offset_bottom = 50.0004
 grow_horizontal = 2
 grow_vertical = 2
-theme = ExtResource("14_4j0qb")
+theme = ExtResource("11_oblbg")
 
 [node name="Button5" type="Button" parent="UI/StarterBiomeDisplay/StarterTerrianBanner"]
 layout_mode = 1
@@ -210,7 +211,7 @@ offset_right = -800.0
 offset_bottom = 50.0004
 grow_horizontal = 2
 grow_vertical = 2
-theme = ExtResource("14_4j0qb")
+theme = ExtResource("11_oblbg")
 
 [node name="NextBiomeDisplay" type="Control" parent="UI"]
 z_index = 2
@@ -286,6 +287,9 @@ script = ExtResource("15_6nsda")
 
 [node name="DataNodeRefs" type="Node" parent="Data"]
 unique_name_in_owner = true
+script = ExtResource("18_8hc45")
+
+[node name="DataNodeRefs" type="Node" parent="Data/DataNodeRefs"]
 script = ExtResource("18_8hc45")
 
 [connection signal="biome_placed" from="Player/UserControler" to="Data/Game_Master" method="_on_user_controler_biome_placed"]
