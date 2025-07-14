@@ -107,23 +107,7 @@ func updateBiome(newBiome: int) -> void:
 
 
 func updateBiomeMaterial() -> void:
-	match current_biome:
-		data_store.BiomeType.PLASMA:
-			biome_mesh.set_surface_override_material(0, load(data_store.PLASMA_MATERIAL))
-		data_store.BiomeType.BADLANDS:
-			biome_mesh.set_surface_override_material(0, load(data_store.BADLANDS_MATERIAL))
-		data_store.BiomeType.COAST:
-			biome_mesh.set_surface_override_material(0, load(data_store.COAST_MATERIAL))
-		data_store.BiomeType.FOREST:	
-			biome_mesh.set_surface_override_material(0, load(data_store.FOREST_MATERIAL))
-		data_store.BiomeType.MOUNT:
-			biome_mesh.set_surface_override_material(0, load(data_store.MOUNT_MATERIAL))
-		data_store.BiomeType.OCEAN:
-			biome_mesh.set_surface_override_material(0, load(data_store.OCEAN_MATERIAL))
-		data_store.BiomeType.PLAINS:
-			biome_mesh.set_surface_override_material(0, load(data_store.PLAINS_MATERIAL))
-		_:
-			pass
+	biome_mesh.set_surface_override_material(0, load(data_store.get_biome_material(current_biome)))
 
 
 func raycastToGround() -> bool:

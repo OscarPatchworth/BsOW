@@ -71,6 +71,27 @@ func rand_queded_biomes() -> void:
 func set_active_biome(biome_type: int) -> void:
 	next_biome = biome_type as BiomeType
 
+
+func get_biome_material(current_biome: int) -> String:
+	match current_biome:
+		BiomeType.PLASMA:
+			return(PLASMA_MATERIAL)
+		BiomeType.BADLANDS:
+			return(BADLANDS_MATERIAL)
+		BiomeType.COAST:
+			return(COAST_MATERIAL)
+		BiomeType.FOREST:	
+			return(FOREST_MATERIAL)
+		BiomeType.MOUNT:
+			return(MOUNT_MATERIAL)
+		BiomeType.OCEAN:
+			return(OCEAN_MATERIAL)
+		BiomeType.PLAINS:
+			return(PLAINS_MATERIAL)
+		_:
+			return("")
+
+
 ###	Connected signals
 func _on_user_controler_biome_placed(player_state, spawn_spot: Dictionary) -> void:
 	updatequeued_biomes()
