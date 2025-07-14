@@ -28,6 +28,13 @@ var is_toggled : bool
 
 # Called when the node enters the scene tree for the first time.\
 func _init() -> void:
+	### init btn func
+	set_toggle_mode(true)
+	set_action_mode(ACTION_MODE_BUTTON_RELEASE)
+	is_toggled = false
+
+
+func _ready() -> void:
 	### Init node refs
 	data_node_ref = self.get_node("../%DataNodeRefs")
 	data_terrian = get_node("../").get_node("/" + data_node_ref.DATA_TERRIAN)
@@ -39,15 +46,11 @@ func _init() -> void:
 	var rnd = randi_range(1, data_terrian.BiomeType.size()-1)
 	allocated_biome = rnd
 
-	### init btn func
-	set_toggle_mode(true)
-	set_action_mode(ACTION_MODE_BUTTON_RELEASE)
-	is_toggled = false
-
 	### init btn colour
 	set_btn_colour()
-	
-	pass # Replace with function body.
+
+	### init signals
+
 
 # Called every frame. 'delta' is the elapsed time since the previous frame.
 func _process(delta: float) -> void:
