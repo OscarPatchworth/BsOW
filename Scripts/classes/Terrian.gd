@@ -70,7 +70,7 @@ func _physics_process(delta):
 
 	#if moving
 	if rb_velocity != Vector3.ZERO: 
-		addDrag()
+		add_drag()
 		
 		#If rb is moving slowly, set it to sleep
 		if(
@@ -98,19 +98,19 @@ func _physics_process(delta):
 	
 
 
-func updateBiome(newBiome: int) -> void:
+func update_biome(newBiome: int) -> void:
 	if(current_biome):
 		current_biome = newBiome
-		updateBiomeMaterial()
+		update_biome_material()
 	else:
 		pass
 
 
-func updateBiomeMaterial() -> void:
+func update_biome_material() -> void:
 	biome_mesh.set_surface_override_material(0, load(data_store.get_biome_material(current_biome)))
 
 
-func raycastToGround() -> bool:
+func raycast_to_ground() -> bool:
 	var space_state = get_world_3d().direct_space_state
 	var ray_start = rb.global_position
 	var ray_end = rb.global_position + (Vector3(0,-1,0) * 0.5)
@@ -125,7 +125,7 @@ func raycastToGround() -> bool:
 		return false
 
 
-func addDrag() -> void:
+func add_drag() -> void:
 	rb.set_angular_velocity(rb.get_angular_velocity() * 0.1)
 	rb.set_linear_velocity(rb.get_linear_velocity() * 0.7)
 	
