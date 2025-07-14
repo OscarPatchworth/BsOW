@@ -75,7 +75,7 @@ func switch_state_placing_terrian() -> void:
 	player_state = PlayerStateMachine.PLACING_TERRIAN
 
 func switch_state_place_starting_terrian() -> void:
-	check_terrain_paceable_sence.hide()
+	check_terrain_paceable_sence.show()
 	player_state = PlayerStateMachine.PLACE_STARTING_TERRIAN
 
 
