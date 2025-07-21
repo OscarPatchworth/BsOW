@@ -204,3 +204,6 @@ func ready_signals() -> void:
 	var starting_btns = get_tree().get_nodes_in_group("starter_biome_btns")
 	for btn in starting_btns:
 		btn.mouse_entered.connect(self._on_button_mouse_entered)
+
+	var data_terrian = get_node("/" + data_node_ref.DATA_TERRIAN)
+	self.biome_placed.connect(data_terrian._on_user_controler_biome_placed)

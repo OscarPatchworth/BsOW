@@ -15,6 +15,7 @@ const DATA_NODE_REFS = "root/Node3D/Data/DataNodeRefs"
 ### UI
 const UI_BIOME_DISPLAY = "root/Node3D/UI/NextBiomeDisplay"
 const UI_BIOMES_START = "root/Node3D/UI/StarterBiomeDisplay"
+const UI_PLAYER_RESOURCES = "root/Node3D/UI/Active_Player_Resources"
 
 ### Player
 const PLAYERS = "root/Node3D/Players"

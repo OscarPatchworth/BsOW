@@ -3,6 +3,7 @@ extends Node
 # signals
 signal players_generate_biome_resources
 signal player_change_state(state: int)
+signal update_active_player(player: Node)
 
 # enums
 enum GameState {START, PLACE_TERRIAN}
@@ -20,6 +21,7 @@ var data_settings
 var game_state: GameState
 var ui_starting_display
 var ui_next_biome_display
+var active_player
 
 
 # @onready variables
@@ -38,6 +40,7 @@ func _ready() -> void:
 	for i in range(data_settings.player_count):
 		var new_player = player_node.instantiate()
 		players_node.add_child(new_player)
+	set_active_player(get_tree().get_first_node_in_group("players"))
 
 	### Init State Machine
 	switch_state_start()
@@ -92,6 +95,9 @@ func instance_terrian(spawn_spot: Dictionary) -> void:
 	newHex.position = newPos
 	newHex.update_biome(data_store_terrian.next_biome)
 
+func set_active_player(player: Node) -> void:
+	active_player = player
+	update_active_player.emit(player)
 
 ###################################################################################################
 ### Connected Signals
@@ -112,6 +118,7 @@ func _on_user_controler_biome_placed(ply_state: int, spawn_spot: Dictionary) -> 
 				switch_state_place_terrian()
 	elif(ply_state == 2):
 		players_generate_biome_resources.emit()
+		
 
 	
 	pass # Replace with function body.

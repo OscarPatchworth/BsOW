@@ -2,6 +2,8 @@ class_name player
 extends Node
 
 # signals
+signal update_ui_food(food: int)
+signal update_ui_mineral(mineral: int)
 
 # enums
 
@@ -39,20 +41,26 @@ func _process(delta: float) -> void:
 
 ### Custom Methods
 func generate_biome_resources() -> void:
-	if(randi() % 2):
-		resource_food += 1  
+	if (randi() % 2):
+		resource_food += 1
 	
-	if(randi() % 2):
+	if (randi() % 2):
 		resource_mineral += 1
 
 	print(
-	"Resources \n" +
-	"=========" +
-	"\nFood: " + str(resource_food) +
-	"\nMineral: " + str(resource_mineral) + "\n"
+		"Resources \n" +
+		"=========" +
+		"\nFood: " + str(resource_food) +
+		"\nMineral: " + str(resource_mineral) + "\n"
 	)
+
+	update_ui_food.emit(resource_food)
+	update_ui_mineral.emit(resource_mineral)
 
 ### Connected Signals
 func connect_signals() -> void:
 	game_master.players_generate_biome_resources.connect(self.generate_biome_resources)
-	
+
+	var ui_resource_display = get_node("/" + data_node_ref.UI_PLAYER_RESOURCES)
+	self.update_ui_food.connect(ui_resource_display.update_food)
+	self.update_ui_mineral.connect(ui_resource_display.update_mineral)
