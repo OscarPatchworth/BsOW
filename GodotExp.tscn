@@ -1,10 +1,12 @@
-[gd_scene load_steps=19 format=3 uid="uid://dp1qeccnucfgp"]
+[gd_scene load_steps=21 format=3 uid="uid://dp1qeccnucfgp"]
 
 [ext_resource type="Texture2D" uid="uid://bn8wfhbs1omgo" path="res://Textures/TempTextures/third_person_controller_assets/textures/grids/Dark/texture_08.png" id="1_g3s7m"]
 [ext_resource type="Script" path="res://Scripts/main/gravity.gd" id="2_2m5uj"]
 [ext_resource type="PackedScene" uid="uid://ty2bm3kxr1dp" path="res://Textures/TempTextures/box.tscn" id="2_yont3"]
 [ext_resource type="PackedScene" uid="uid://b2kc3vd015y0" path="res://Assest_Scenes/terrian_hex.tscn" id="7_wnefj"]
+[ext_resource type="Texture2D" uid="uid://cvvwuxrt0xnbi" path="res://Textures/TempTextures/third_person_controller_assets/textures/grids/Green/texture_13.png" id="8_53dhx"]
 [ext_resource type="StyleBox" uid="uid://davru3uqkfrwq" path="res://Textures/UI_Textures/Panel/BadlandQueue.tres" id="9_ff70u"]
+[ext_resource type="Texture2D" uid="uid://dnra5qu24oqyx" path="res://Textures/TempTextures/third_person_controller_assets/textures/grids/Orange/texture_13.png" id="9_xg4lo"]
 [ext_resource type="PackedScene" uid="uid://crxhw2cugojad" path="res://Assest_Scenes/player.tscn" id="10_d0i1v"]
 [ext_resource type="Script" path="res://Scripts/UI/btn_starting_terrian_banner.gd" id="11_g4p2o"]
 [ext_resource type="Script" path="res://Scripts/main/game_master.gd" id="13_jtui5"]
@@ -152,6 +154,51 @@ offset_bottom = 50.0
 grow_horizontal = 2
 grow_vertical = 2
 theme_override_styles/panel = ExtResource("9_ff70u")
+
+[node name="Active_Player_Resources" type="Control" parent="UI"]
+layout_mode = 3
+anchors_preset = 0
+offset_right = 40.0
+offset_bottom = 40.0
+
+[node name="Food_Resource" type="Control" parent="UI/Active_Player_Resources"]
+anchors_preset = 0
+
+[node name="TextureRect" type="TextureRect" parent="UI/Active_Player_Resources/Food_Resource"]
+layout_mode = 2
+offset_right = 50.0
+offset_bottom = 50.0
+texture = ExtResource("8_53dhx")
+expand_mode = 5
+
+[node name="Label" type="Label" parent="UI/Active_Player_Resources/Food_Resource"]
+layout_mode = 0
+offset_left = 50.0
+offset_top = 14.0
+offset_right = 90.0
+offset_bottom = 37.0
+text = "Food"
+
+[node name="Mineral_Resource" type="Control" parent="UI/Active_Player_Resources"]
+layout_mode = 3
+anchors_preset = 0
+offset_left = 100.0
+offset_right = 100.0
+
+[node name="TextureRect" type="TextureRect" parent="UI/Active_Player_Resources/Mineral_Resource"]
+layout_mode = 2
+offset_right = 50.0
+offset_bottom = 50.0
+texture = ExtResource("9_xg4lo")
+expand_mode = 5
+
+[node name="Label" type="Label" parent="UI/Active_Player_Resources/Mineral_Resource"]
+layout_mode = 0
+offset_left = 50.0
+offset_top = 14.0
+offset_right = 90.0
+offset_bottom = 37.0
+text = "Mineral"
 
 [node name="Data" type="Node" parent="."]
 
