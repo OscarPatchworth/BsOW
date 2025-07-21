@@ -1,6 +1,9 @@
 extends Node
 
 # signals
+signal players_generate_biome_resources
+signal player_change_state(state: int)
+
 # enums
 enum GameState {START, PLACE_TERRIAN}
 
@@ -66,6 +69,8 @@ func switch_state_place_terrian():
 
 	data_store_terrian.rand_queded_biomes()
 
+	player_change_state.emit((game_state + 1))
+
 
 ### Update() states
 func update_state_start():
@@ -105,6 +110,8 @@ func _on_user_controler_biome_placed(ply_state: int, spawn_spot: Dictionary) -> 
 				terrian_btn.delete_self()
 		if(terrian_btns.size() <= 1):
 				switch_state_place_terrian()
+	elif(ply_state == 2):
+		players_generate_biome_resources.emit()
 
 	
 	pass # Replace with function body.

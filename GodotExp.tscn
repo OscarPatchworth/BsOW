@@ -5,13 +5,13 @@
 [ext_resource type="PackedScene" uid="uid://ty2bm3kxr1dp" path="res://Textures/TempTextures/box.tscn" id="2_yont3"]
 [ext_resource type="PackedScene" uid="uid://b2kc3vd015y0" path="res://Assest_Scenes/terrian_hex.tscn" id="7_wnefj"]
 [ext_resource type="StyleBox" uid="uid://davru3uqkfrwq" path="res://Textures/UI_Textures/Panel/BadlandQueue.tres" id="9_ff70u"]
+[ext_resource type="PackedScene" uid="uid://crxhw2cugojad" path="res://Assest_Scenes/player.tscn" id="10_d0i1v"]
 [ext_resource type="Script" path="res://Scripts/UI/btn_starting_terrian_banner.gd" id="11_g4p2o"]
 [ext_resource type="Script" path="res://Scripts/main/game_master.gd" id="13_jtui5"]
 [ext_resource type="Theme" uid="uid://bi200u6dgup0j" path="res://Textures/new_theme.tres" id="14_4j0qb"]
 [ext_resource type="Script" path="res://Scripts/UI/UI_queued_biome.gd" id="14_dfn7l"]
 [ext_resource type="Script" path="res://Scripts/data/data_settings.gd" id="14_gwi1l"]
 [ext_resource type="Script" path="res://Scripts/data/data_store_terrian.gd" id="15_6nsda"]
-[ext_resource type="PackedScene" uid="uid://c4yv6kqjq6jor" path="res://Assest_Scenes/Player.tscn" id="15_wfl0v"]
 [ext_resource type="Script" path="res://Scripts/data/data_node_and_file_refs.gd" id="18_8hc45"]
 [ext_resource type="PackedScene" uid="uid://ycqhtp6pluf8" path="res://Assest_Scenes/btn_biome_start.tscn" id="18_u4tc7"]
 
@@ -158,7 +158,7 @@ theme_override_styles/panel = ExtResource("9_ff70u")
 [node name="Game_Master" type="Node" parent="Data"]
 script = ExtResource("13_jtui5")
 biome_hex = ExtResource("7_wnefj")
-player_node = ExtResource("15_wfl0v")
+player_node = ExtResource("10_d0i1v")
 
 [node name="Gravity" type="Node" parent="Data" groups=["gravity"]]
 script = ExtResource("2_2m5uj")

@@ -1,54 +1,9 @@
-[gd_scene load_steps=8 format=3 uid="uid://c4yv6kqjq6jor"]
+[gd_scene load_steps=3 format=3 uid="uid://crxhw2cugojad"]
 
-[ext_resource type="Script" path="res://Scripts/main/player_controler.gd" id="1_ic44n"]
-[ext_resource type="PackedScene" uid="uid://b2kc3vd015y0" path="res://Assest_Scenes/terrian_hex.tscn" id="2_ldfx0"]
-[ext_resource type="Script" path="res://Scripts/main/cam_gimbal.gd" id="3_6luyh"]
-[ext_resource type="PackedScene" uid="uid://csjp0fs12pgui" path="res://Assest_Scenes/is_placeable_box.tscn" id="4_rdl4a"]
-[ext_resource type="Texture2D" uid="uid://bs8atlepclylh" path="res://Textures/TempTextures/third_person_controller_assets/textures/grids/Green/texture_02.png" id="5_ea7fm"]
-[ext_resource type="Texture2D" uid="uid://cgu4eqqbe8eyj" path="res://Textures/TempTextures/third_person_controller_assets/textures/grids/Red/texture_02.png" id="6_07mry"]
+[ext_resource type="Script" path="res://Scripts/classes/player.gd" id="1_xxc56"]
+[ext_resource type="PackedScene" uid="uid://c4yv6kqjq6jor" path="res://Assest_Scenes/player_controler.tscn" id="2_80akb"]
 
-[sub_resource type="GDScript" id="GDScript_5eyr7"]
-script/source = "extends Camera3D
+[node name="Player" type="Node"]
+script = ExtResource("1_xxc56")
 
-# Called when the node enters the scene tree for the first time.
-func _ready() -> void:
-	pass # Replace with function body.
-
-
-# Called every frame. 'delta' is the elapsed time since the previous frame.
-func _process(delta: float) -> void:
-	pass
-"
-
-[node name="Player" type="Node3D" groups=["Players"]]
-
-[node name="UserControler" type="Node3D" parent="." node_paths=PackedStringArray("cam", "check_terrain_paceable_sence")]
-transform = Transform3D(1, 0, -1.67638e-08, 0, 1, 0, 1.67638e-08, 0, 1, 0, 0, 0)
-script = ExtResource("1_ic44n")
-biome_hex = ExtResource("2_ldfx0")
-cam = NodePath("../CamGimbal/InnerGimbal/Camera3D")
-check_terrain_paceable_sence = NodePath("../isPlaceableBox")
-
-[node name="CamGimbal" type="Node3D" parent="."]
-transform = Transform3D(1, 0, -1.67638e-08, 0, 1, 0, 1.67638e-08, 0, 1, -2, 1.5, 4)
-script = ExtResource("3_6luyh")
-max_zoom = 5
-zoom_speed = 0.1
-
-[node name="InnerGimbal" type="Node3D" parent="CamGimbal"]
-
-[node name="Camera3D" type="Camera3D" parent="CamGimbal/InnerGimbal"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 4)
-current = true
-script = SubResource("GDScript_5eyr7")
-
-[node name="PlyDataStore" type="Node3D" parent="."]
-transform = Transform3D(0.999863, 0, 0.0165799, 0, 1, 0, -0.0165799, 0, 0.999863, 0, 0, 0)
-
-[node name="isPlaceableBox" parent="." instance=ExtResource("4_rdl4a")]
-transform = Transform3D(2.09971, 0, 0.0348178, 0, 2.1, 0, -0.0348178, 0, 2.09971, 0, 0, 0)
-valid_placement_material = ExtResource("5_ea7fm")
-invalid_placement_material = ExtResource("6_07mry")
-
-[connection signal="mouse_moved" from="UserControler" to="isPlaceableBox" method="_on_user_controler_mouse_moved"]
-[connection signal="is_terrian_placeable" from="isPlaceableBox" to="UserControler" method="_on_is_placeable_box_is_terrian_placeable"]
+[node name="Player_controler" parent="." instance=ExtResource("2_80akb")]

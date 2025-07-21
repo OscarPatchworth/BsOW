@@ -2,10 +2,10 @@ extends Node3D
 
 # signals
 signal mouse_moved
-signal biome_placed(ply_state : PlayerStateMachine, spawn_spot : Dictionary)
+signal biome_placed(ply_state : PlayerControlerStateMachine, spawn_spot : Dictionary)
 
 # enums
-enum PlayerStateMachine {INACTIVE, PLACE_STARTING_TERRIAN, PLACING_TERRIAN}
+enum PlayerControlerStateMachine {INACTIVE, PLACE_STARTING_TERRIAN, PLACING_TERRIAN}
 
 # constants
 const RAY_LENGTH = 100
@@ -30,7 +30,7 @@ var mouse_ray_start
 var mouse_ray_end
 ###
 var is_terrian_placeable : bool
-var player_state: PlayerStateMachine
+var player_state: PlayerControlerStateMachine
 
 # @onready variables
 func _ready() -> void:
@@ -38,7 +38,7 @@ func _ready() -> void:
 	data_store = get_node("/" + data_node_ref.DATA_TERRIAN)
 	game_master = get_node("/" + data_node_ref.GAME_MASTER)
 
-	player_state = PlayerStateMachine.PLACE_STARTING_TERRIAN
+	player_state = PlayerControlerStateMachine.PLACE_STARTING_TERRIAN
 	is_terrian_placeable = false
 
 	ready_signals()
@@ -47,21 +47,21 @@ func _ready() -> void:
 # Called every frame. 'delta' is the elapsed time since the previous frame.
 func _process(delta: float) -> void:
 	match player_state:
-		PlayerStateMachine.INACTIVE:
+		PlayerControlerStateMachine.INACTIVE:
 			pass
-		PlayerStateMachine.PLACING_TERRIAN:
+		PlayerControlerStateMachine.PLACING_TERRIAN:
 			update_placing_terrian()
-		PlayerStateMachine.PLACE_STARTING_TERRIAN:
+		PlayerControlerStateMachine.PLACE_STARTING_TERRIAN:
 			update_place_starting_terrian()
 	
 
 func _input(event: InputEvent) -> void:
 	match player_state:
-		PlayerStateMachine.INACTIVE:
+		PlayerControlerStateMachine.INACTIVE:
 			pass
-		PlayerStateMachine.PLACING_TERRIAN:
+		PlayerControlerStateMachine.PLACING_TERRIAN:
 			input_placing_terrian(event)
-		PlayerStateMachine.PLACE_STARTING_TERRIAN:
+		PlayerControlerStateMachine.PLACE_STARTING_TERRIAN:
 			input_place_starting_terrian(event)
 
 ###################################################################################################
@@ -71,16 +71,16 @@ func _input(event: InputEvent) -> void:
 
 func switch_state_inactive() -> void:
 	check_terrain_paceable_sence.hide()
-	player_state = PlayerStateMachine.INACTIVE
+	player_state = PlayerControlerStateMachine.INACTIVE
 
 
 func switch_state_placing_terrian() -> void:
 	check_terrain_paceable_sence.show()
-	player_state = PlayerStateMachine.PLACING_TERRIAN
+	player_state = PlayerControlerStateMachine.PLACING_TERRIAN
 
 func switch_state_place_starting_terrian() -> void:
 	check_terrain_paceable_sence.show()
-	player_state = PlayerStateMachine.PLACE_STARTING_TERRIAN
+	player_state = PlayerControlerStateMachine.PLACE_STARTING_TERRIAN
 
 
 ### Update() states
@@ -160,6 +160,11 @@ func move_to_mouse_pos(obj: Node3D) -> void:
 		#obj.position.y = obj.position.y +0.1
 	mouse_moved.emit()
 
+func game_master_change_state(state: int) -> void:
+	match state:
+		2:
+			switch_state_placing_terrian()
+
 ###################################################################################################
 ### Connected Signals
 
@@ -190,6 +195,7 @@ func _on_starter_biome_display_hidden() -> void:
 
 func ready_signals() -> void:
 	self.biome_placed.connect(game_master._on_user_controler_biome_placed)
+	game_master.player_change_state.connect(self.game_master_change_state)
 
 	var starter_biome_banner = get_node("/" + data_node_ref.UI_BIOMES_START).get_child(0)
 	starter_biome_banner.mouse_entered.connect(self._on_starter_terrian_banner_mouse_entered)
