@@ -8,7 +8,7 @@ signal is_terrian_placeable(yn: bool)
 # constants
 
 # static variables
-var player_node
+var data_node_ref
 
 # @export variables
 @export var valid_placement_material: Texture
@@ -21,13 +21,11 @@ var bodies_overlapping: int
 @onready var mesh = $MeshInstance3D
 @onready var rb = self.get_node("RigidBody3D")#rigidbody
 @onready var a3D = self.get_node("Area3D")
-@onready var data_node_ref = get_node("%DataNodeRefs")
 
 
 # Called when the node enters the scene tree for the first time.
 func _ready() -> void:
-	### Get remaing node refrences
-	# var player_node = get_node("/" + data_node_ref.PLAYER)
+	data_node_ref = get_node("/root/Node3D/Data/DataNodeRefs")
 
 
 	changeMaterial(valid_placement_material)

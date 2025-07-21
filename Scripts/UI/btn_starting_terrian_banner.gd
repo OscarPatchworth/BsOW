@@ -47,8 +47,9 @@ func init_starting_terrian_btns() -> void:
 	for i in range(1, btn_amount):
 		var btn = starting_terrian_btn.instantiate()
 		self.add_child(btn)
+		btn.add_to_group("starter_biome_btns")
+
 		btn.position.y = banner_size.y/3
-		
 		btn.position.x = 2 * i * btn_spacing * banner_size.x
 
 

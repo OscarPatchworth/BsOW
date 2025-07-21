@@ -6,17 +6,21 @@ enum GameState {START, PLACE_TERRIAN}
 
 # constants
 # static variables
+var data_store_terrian
+var data_settings
+
 # @export variables
+@export var biome_hex: PackedScene
+@export var player_node: PackedScene
+
 # remaining regular variables
 var game_state: GameState
 var ui_starting_display
 var ui_next_biome_display
-var data_store_terrian
-var player_node
+
 
 # @onready variables
 @onready var data_node_ref = get_node("%DataNodeRefs")
-@export var biome_hex: PackedScene
 
 # Called when the node enters the scene tree for the first time.
 func _ready() -> void:
@@ -24,7 +28,13 @@ func _ready() -> void:
 	ui_starting_display = get_node("/" + data_node_ref.UI_BIOMES_START)
 	ui_next_biome_display = get_node("/" + data_node_ref.UI_BIOME_DISPLAY)
 	data_store_terrian = get_node("/" + data_node_ref.DATA_TERRIAN)
-	player_node = get_node("/" + data_node_ref.PLAYER + "/UserControler")
+	data_settings = get_node("/" + data_node_ref.DATA_SETTINGS)
+	
+	###	Init Players
+	var players_node = get_node("/" + data_node_ref.PLAYERS)
+	for i in range(data_settings.player_count):
+		var new_player = player_node.instantiate()
+		players_node.add_child(new_player)
 
 	### Init State Machine
 	switch_state_start()
@@ -49,13 +59,13 @@ func switch_state_start():
 	data_store_terrian.queued_biome = 0
 
 
-
 func switch_state_place_terrian():
 	game_state = GameState.PLACE_TERRIAN
 	ui_next_biome_display.show()
 	ui_starting_display.hide()
 
 	data_store_terrian.rand_queded_biomes()
+
 
 ### Update() states
 func update_state_start():
@@ -88,7 +98,7 @@ func _on_button_button_up() -> void:
 
 func _on_user_controler_biome_placed(ply_state: int, spawn_spot: Dictionary) -> void:
 	instance_terrian(spawn_spot)
-	if(ply_state == player_node.PlayerStateMachine.PLACE_STARTING_TERRIAN):
+	if(ply_state == 1):
 		var terrian_btns = ui_starting_display.get_child(0).get_children()
 		for terrian_btn in terrian_btns:
 			if terrian_btn.is_pressed():

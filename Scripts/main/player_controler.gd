@@ -5,13 +5,15 @@ signal mouse_moved
 signal biome_placed(ply_state : PlayerStateMachine, spawn_spot : Dictionary)
 
 # enums
-
 enum PlayerStateMachine {INACTIVE, PLACE_STARTING_TERRIAN, PLACING_TERRIAN}
 
 # constants
 const RAY_LENGTH = 100
 
 # static variables
+var data_node_ref
+var data_store
+var game_master
 
 # export variables
 @export var biome_hex: PackedScene
@@ -31,13 +33,15 @@ var is_terrian_placeable : bool
 var player_state: PlayerStateMachine
 
 # @onready variables
-@onready var data_node_ref = get_node("%DataNodeRefs")
-@onready var data_store = get_node("/" + data_node_ref.DATA_TERRIAN)
-@onready var game_master = get_node("/" + data_node_ref.GAME_MASTER)
-
 func _ready() -> void:
+	data_node_ref = get_node("/root/Node3D/Data/DataNodeRefs")
+	data_store = get_node("/" + data_node_ref.DATA_TERRIAN)
+	game_master = get_node("/" + data_node_ref.GAME_MASTER)
+
 	player_state = PlayerStateMachine.PLACE_STARTING_TERRIAN
 	is_terrian_placeable = false
+
+	ready_signals()
 	
 
 # Called every frame. 'delta' is the elapsed time since the previous frame.
@@ -182,3 +186,15 @@ func _on_button_mouse_entered() -> void:
 
 func _on_starter_biome_display_hidden() -> void:
 	switch_state_placing_terrian()
+
+
+func ready_signals() -> void:
+	self.biome_placed.connect(game_master._on_user_controler_biome_placed)
+
+	var starter_biome_banner = get_node("/" + data_node_ref.UI_BIOMES_START).get_child(0)
+	starter_biome_banner.mouse_entered.connect(self._on_starter_terrian_banner_mouse_entered)
+	starter_biome_banner.mouse_exited.connect(self._on_starter_terrian_banner_mouse_exited)
+
+	var starting_btns = get_tree().get_nodes_in_group("starter_biome_btns")
+	for btn in starting_btns:
+		btn.mouse_entered.connect(self._on_button_mouse_entered)

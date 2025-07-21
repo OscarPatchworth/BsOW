@@ -11,7 +11,6 @@ extends Button
 var data_node_ref
 var data_terrian
 var game_master
-var player_node
 
 # @export variables
 
@@ -39,7 +38,6 @@ func _ready() -> void:
 	data_node_ref = self.get_node("../%DataNodeRefs")
 	data_terrian = get_node("../").get_node("/" + data_node_ref.DATA_TERRIAN)
 	game_master = get_node("../").get_node("/" + data_node_ref.GAME_MASTER)
-	player_node = get_node("../").get_node("/" + data_node_ref.PLAYER)
 	add_to_group("btn_starting_terrian")
 
 	### Init allocated biome
