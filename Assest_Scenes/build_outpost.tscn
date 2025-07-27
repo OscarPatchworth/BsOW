@@ -1,0 +1,34 @@
+[gd_scene load_steps=3 format=3 uid="uid://bekp8mu22hmcl"]
+
+[ext_resource type="Texture2D" uid="uid://caghcgw2vfkso" path="res://Textures/TempTextures/third_person_controller_assets/textures/grids/Orange/texture_11.png" id="1_05nh0"]
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_hw2n2"]
+albedo_texture = ExtResource("1_05nh0")
+uv1_scale = Vector3(10, 10, 10)
+uv1_triplanar = true
+uv1_triplanar_sharpness = 0.475929
+
+[node name="BuildOutpost" type="Node3D"]
+
+[node name="CSGCombiner3D" type="CSGCombiner3D" parent="."]
+material_override = SubResource("StandardMaterial3D_hw2n2")
+
+[node name="CSGBox3D" type="CSGBox3D" parent="CSGCombiner3D"]
+transform = Transform3D(0.5, 0, 0, 0, 0.5, 0, 0, 0, 0.5, 0, 0.375, 0)
+size = Vector3(1, 1.5, 1)
+
+[node name="CSGBox3D2" type="CSGBox3D" parent="CSGCombiner3D"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.2, 0.8, 0.2)
+size = Vector3(0.2, 0.2, 0.2)
+
+[node name="CSGBox3D3" type="CSGBox3D" parent="CSGCombiner3D"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.2, 0.8, -0.2)
+size = Vector3(0.2, 0.2, 0.2)
+
+[node name="CSGBox3D4" type="CSGBox3D" parent="CSGCombiner3D"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.2, 0.8, -0.2)
+size = Vector3(0.2, 0.2, 0.2)
+
+[node name="CSGBox3D5" type="CSGBox3D" parent="CSGCombiner3D"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.2, 0.8, 0.2)
+size = Vector3(0.2, 0.2, 0.2)
