@@ -15,13 +15,12 @@ var data_node_ref
 # Export Vars
 @export var sleeping_threshold_min = 0.05
 @export var sleeping_threshold_max = 75
-@export var update_time_interval = (1.0/15) 	
+@export var update_time_interval = (1.0/15)
 
 # Dynamic Vars
 var a3D_hits
 var current_biome
 var has_collided : bool
-
 
 # OnReady Vars
 @onready var biome_mesh = $RigidBody3D/biomeHex
@@ -39,6 +38,9 @@ var has_collided : bool
 #Building: Class
 #Units: [Units]
 
+###################################################################################################
+###	_built_in_methods()
+
 
 # Called when the node enters the scene tree for the first time.
 func _ready() -> void:
@@ -53,8 +55,6 @@ func _ready() -> void:
 	rb.set_freeze_enabled(false)
 
 	# Setup Node Refs
-
-
 	data_node_ref = self.get_node("../%DataNodeRefs")
 	data_store = get_node("/" + data_node_ref.DATA_TERRIAN)
 	
@@ -64,6 +64,10 @@ func _ready() -> void:
 	gravity_node = get_node("/" + data_node_ref.GRAVITY_NODE)
 	gravity_node.reset_terrian_collision.connect(reset_collision)
 
+	# Test Funcs 
+	ready_building()
+
+
 func _physics_process(delta):
 	var rb_velocity = rb.get_linear_velocity()
 	var rb_position = rb.get_global_position()
@@ -71,7 +75,6 @@ func _physics_process(delta):
 	#if moving
 	if rb_velocity != Vector3.ZERO: 
 		add_drag()
-		
 		#If rb is moving slowly, set it to sleep
 		if(
 				!rb.is_sleeping() 
@@ -79,24 +82,23 @@ func _physics_process(delta):
 				and rb_velocity.z < sleeping_threshold_min
 		):
 			set_rb_sleep()
-
 		#If rb is moving too fast, delete it
 		elif(
 				rb_velocity.x > sleeping_threshold_max or rb_velocity.y > sleeping_threshold_max 
 				or rb_velocity.z > sleeping_threshold_max
 			):
 			delete_self()
-
 		elif(
 				rb_position.x > border_size or rb_position.x < -border_size or rb_position.z > border_size 
 				or rb_position.z < -border_size
 			):
 			delete_self()
-
 	else:
 		rb.set_freeze_enabled(false)
 	
 
+###################################################################################################
+### Custom Methods
 
 func update_biome(newBiome: int) -> void:
 	if(current_biome):
@@ -141,6 +143,23 @@ func delete_self() -> void:
 	self.remove_from_group("terrian")
 	self.queue_free()
 
+
+func ready_building() -> void:
+	if(randi_range(0,1)):
+		if(randi_range(0,1)):
+			var build = data_store.building_HQ.instantiate()
+			var building_node = find_child("Building")
+			building_node.add_child(build)
+			build.position.y = 0.6
+		else:
+			var build = data_store.building_Tower.instantiate()
+			var building_node = find_child("Building")
+			building_node.add_child(build)
+			build.position.y = 0.6
+
+###################################################################################################
+###################################################################################################
+###	Connected Signals
 
 func _on_area_3d_body_entered(body: Node3D) -> void:
 	if(body != self.get_node("RigidBody3D")): # Ignore self collision

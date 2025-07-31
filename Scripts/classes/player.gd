@@ -47,13 +47,6 @@ func generate_biome_resources() -> void:
 	if (randi() % 2):
 		resource_mineral += 1
 
-	print(
-		"Resources \n" +
-		"=========" +
-		"\nFood: " + str(resource_food) +
-		"\nMineral: " + str(resource_mineral) + "\n"
-	)
-
 	update_ui_food.emit(resource_food)
 	update_ui_mineral.emit(resource_mineral)
 

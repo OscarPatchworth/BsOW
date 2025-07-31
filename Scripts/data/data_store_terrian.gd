@@ -39,11 +39,17 @@ const OCEAN_BTN_THEAME = "res://Textures/Theames/Buttons/ocean_btn_terrian_start
 const PLAINS_BTN_THEAME = "res://Textures/Theames/Buttons/plains_btn_terrian_start.tres"
 const PLASMA_BTN_THEAME = "res://Textures/Theames/Buttons/plasma_btn_terrian_start.tres"
 
+###	Building Packed Sence Links
+const BUILDING_HQ_PACKED_SENCE = "res://Assest_Scenes/buildings/build_HQ.tscn"
+const BUILDING_TOWER_PACKED_SENCE = "res://Assest_Scenes/buildings/build_outpost.tscn"
 
 
 # static variables
 var next_biome: BiomeType
 var queued_biome: BiomeType
+
+var building_HQ: PackedScene
+var building_Tower
 
 var ui_script: Node
 # @export variables
@@ -60,9 +66,8 @@ var ui_script: Node
 
 func _ready() -> void:
 	ui_script = get_node("/" + data_node_ref.UI_BIOME_DISPLAY + "/Panel")
-
-	#rand_queded_biomes()
-	pass
+	building_HQ = load(BUILDING_HQ_PACKED_SENCE)
+	building_Tower = load(BUILDING_TOWER_PACKED_SENCE)
 
 
 ### Custom Mehtods
