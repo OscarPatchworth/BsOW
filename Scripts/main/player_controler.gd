@@ -97,7 +97,7 @@ func update_place_starting_terrian() -> void:
 ### Input() states
 
 func input_placing_terrian(event: InputEvent) -> void:
-	if event.is_action_released("left_click") and !raycat_island() and (is_terrian_placeable):
+	if event.is_action_released("right_click") and !raycat_island() and (is_terrian_placeable):
 		spawn_terrian()
 	elif event.is_action_pressed("shifting") and !raycat_island():
 		check_terrain_paceable_sence.show()
@@ -106,7 +106,7 @@ func input_placing_terrian(event: InputEvent) -> void:
 
 
 func input_place_starting_terrian(event: InputEvent) -> void:
-	if event.is_action_released("left_click") and !raycat_island() and (is_terrian_placeable):
+	if event.is_action_released("right_click") and !raycat_island() and (is_terrian_placeable):
 		spawn_terrian()
 	elif event.is_action_pressed("shifting") and !raycat_island():
 		check_terrain_paceable_sence.show()
