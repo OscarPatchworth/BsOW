@@ -236,7 +236,7 @@ grow_vertical = 2
 theme_override_styles/panel = SubResource("StyleBoxFlat_vclpa")
 script = ExtResource("11_ddjtp")
 
-[node name="Label" type="Label" parent="UI/Terrian_Info_Panel/Panel"]
+[node name="Biome" type="Label" parent="UI/Terrian_Info_Panel/Panel"]
 layout_mode = 0
 offset_right = 495.0
 offset_bottom = 34.0
@@ -244,7 +244,7 @@ text = "Terrian Type"
 label_settings = SubResource("LabelSettings_4df4q")
 horizontal_alignment = 1
 
-[node name="Label2" type="Label" parent="UI/Terrian_Info_Panel/Panel"]
+[node name="Owner" type="Label" parent="UI/Terrian_Info_Panel/Panel"]
 layout_mode = 0
 offset_top = 115.0
 offset_right = 495.0
@@ -252,7 +252,7 @@ offset_bottom = 182.0
 text = "Owner: "
 label_settings = SubResource("LabelSettings_ax7hc")
 
-[node name="Label3" type="Label" parent="UI/Terrian_Info_Panel/Panel"]
+[node name="Placer" type="Label" parent="UI/Terrian_Info_Panel/Panel"]
 layout_mode = 0
 offset_top = 182.0
 offset_right = 495.0
@@ -260,7 +260,7 @@ offset_bottom = 249.0
 text = "Placer:"
 label_settings = SubResource("LabelSettings_ax7hc")
 
-[node name="Label4" type="Label" parent="UI/Terrian_Info_Panel/Panel"]
+[node name="Upkeep" type="Label" parent="UI/Terrian_Info_Panel/Panel"]
 layout_mode = 0
 offset_top = 249.0
 offset_right = 495.0
@@ -268,7 +268,7 @@ offset_bottom = 316.0
 text = "Upkeep Resources:"
 label_settings = SubResource("LabelSettings_ax7hc")
 
-[node name="Label5" type="Label" parent="UI/Terrian_Info_Panel/Panel"]
+[node name="Abilities" type="Label" parent="UI/Terrian_Info_Panel/Panel"]
 layout_mode = 0
 offset_top = 316.0
 offset_right = 495.0
@@ -276,7 +276,7 @@ offset_bottom = 383.0
 text = "Abilities: "
 label_settings = SubResource("LabelSettings_ax7hc")
 
-[node name="Label6" type="Label" parent="UI/Terrian_Info_Panel/Panel"]
+[node name="Buildings" type="Label" parent="UI/Terrian_Info_Panel/Panel"]
 layout_mode = 0
 offset_top = 383.0
 offset_right = 495.0
@@ -284,7 +284,7 @@ offset_bottom = 450.0
 text = "Buildings: "
 label_settings = SubResource("LabelSettings_ax7hc")
 
-[node name="Label7" type="Label" parent="UI/Terrian_Info_Panel/Panel"]
+[node name="Units" type="Label" parent="UI/Terrian_Info_Panel/Panel"]
 layout_mode = 0
 offset_top = 450.0
 offset_right = 495.0
@@ -292,7 +292,7 @@ offset_bottom = 517.0
 text = "Units:"
 label_settings = SubResource("LabelSettings_ax7hc")
 
-[node name="Label8" type="Label" parent="UI/Terrian_Info_Panel/Panel"]
+[node name="Connected Biomes" type="Label" parent="UI/Terrian_Info_Panel/Panel"]
 layout_mode = 0
 offset_top = 517.0
 offset_right = 495.0

@@ -130,6 +130,14 @@ func get_biome_btn_theame(biome: int) -> String:
 			return("")
 
 
+### Code from ChatGPT
+func get_enum_key(enum_dict: Dictionary, target_value) -> String:
+	for key in enum_dict.keys():
+		if enum_dict[key] == target_value:
+			return key
+	return "UNKNOWN"  # or null if you prefer
+
+
 ###	Connected signals
 func _on_user_controler_biome_placed(player_state, spawn_spot: Dictionary) -> void:
 	updatequeued_biomes()
