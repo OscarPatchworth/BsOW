@@ -30,6 +30,7 @@ func _process(delta: float) -> void:
 
 
 ### Custom Methods
-
+func update_display_info(terrian_info: Dictionary) -> void:
+	print("Update Terrian Panel info signal recived from Player_Cntrl  ||  " + str(terrian_info["Biome"]))
 
 ### Connected Signals

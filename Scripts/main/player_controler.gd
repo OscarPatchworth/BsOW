@@ -235,3 +235,4 @@ func ready_signals() -> void:
 
 	terrian_info_panel.mouse_entered.connect(self.switch_state_inactive)
 	terrian_info_panel.mouse_exited.connect(self.switch_state_active)
+	self.update_terrian_info_panel.connect(terrian_info_panel.update_display_info)
