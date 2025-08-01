@@ -3,6 +3,7 @@ extends Node3D
 # signals
 signal mouse_moved
 signal biome_placed(ply_state : PlayerControlerStateMachine, spawn_spot : Dictionary)
+signal update_terrian_info_panel(terrian_info: Dictionary)
 
 # enums
 enum PlayerControlerStateMachine {INACTIVE, PLACE_STARTING_TERRIAN, PLACING_TERRIAN}
@@ -114,9 +115,15 @@ func input_placing_terrian(event: InputEvent) -> void:
 	elif event.is_action_released("shifting"):
 		check_terrain_paceable_sence.hide()
 	elif event.is_action_released("right_click"):
-		var selected_terrian = raycat_island()
-		if (selected_terrian):
-			pass
+		var raycast_terrian = raycat_island()
+		if (raycast_terrian):
+			#get terrian data
+			var terrian_obj = raycast_terrian["collider"].get_parent()
+			var update_terrian_info = {
+				"Biome": terrian_obj.current_biome
+			}
+			#emit data
+			update_terrian_info_panel.emit(update_terrian_info)
 
 
 func input_place_starting_terrian(event: InputEvent) -> void:
@@ -129,7 +136,7 @@ func input_place_starting_terrian(event: InputEvent) -> void:
 	elif event.is_action_released("right_click"):
 		var selected_terrian = raycat_island()
 		if (selected_terrian):
-			pass
+			update_terrian_info_panel.emit(selected_terrian)
 
 
 
