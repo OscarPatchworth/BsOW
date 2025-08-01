@@ -14,6 +14,7 @@ const RAY_LENGTH = 100
 var data_node_ref
 var data_store
 var game_master
+var terrian_info_panel
 
 # export variables
 @export var biome_hex: PackedScene
@@ -37,6 +38,7 @@ func _ready() -> void:
 	data_node_ref = get_node("/root/Node3D/Data/DataNodeRefs")
 	data_store = get_node("/" + data_node_ref.DATA_TERRIAN)
 	game_master = get_node("/" + data_node_ref.GAME_MASTER)
+	terrian_info_panel = get_node(data_node_ref.UI_TERRIAN_INFO)
 
 	player_state = PlayerControlerStateMachine.PLACE_STARTING_TERRIAN
 	is_terrian_placeable = false
@@ -81,6 +83,14 @@ func switch_state_placing_terrian() -> void:
 func switch_state_place_starting_terrian() -> void:
 	check_terrain_paceable_sence.show()
 	player_state = PlayerControlerStateMachine.PLACE_STARTING_TERRIAN
+
+func switch_state_active() ->void:
+	if(game_master.game_state == game_master.GameState.START):
+		switch_state_place_starting_terrian()
+	elif (game_master.game_state == game_master.GameState.PLACE_TERRIAN):
+		switch_state_placing_terrian()
+	else:
+		switch_state_inactive()
 
 
 ### Update() states
@@ -215,3 +225,6 @@ func ready_signals() -> void:
 
 	var data_terrian = get_node("/" + data_node_ref.DATA_TERRIAN)
 	self.biome_placed.connect(data_terrian._on_user_controler_biome_placed)
+
+	terrian_info_panel.mouse_entered.connect(self.switch_state_inactive)
+	terrian_info_panel.mouse_exited.connect(self.switch_state_active)

@@ -1,4 +1,4 @@
-[gd_scene load_steps=25 format=3 uid="uid://dp1qeccnucfgp"]
+[gd_scene load_steps=26 format=3 uid="uid://dp1qeccnucfgp"]
 
 [ext_resource type="Texture2D" uid="uid://bn8wfhbs1omgo" path="res://Textures/TempTextures/third_person_controller_assets/textures/grids/Dark/texture_08.png" id="1_g3s7m"]
 [ext_resource type="Script" path="res://Scripts/main/gravity.gd" id="2_2m5uj"]
@@ -9,6 +9,7 @@
 [ext_resource type="StyleBox" uid="uid://davru3uqkfrwq" path="res://Textures/UI_Textures/Panel/BadlandQueue.tres" id="9_ff70u"]
 [ext_resource type="Texture2D" uid="uid://dnra5qu24oqyx" path="res://Textures/TempTextures/third_person_controller_assets/textures/grids/Orange/texture_13.png" id="9_xg4lo"]
 [ext_resource type="PackedScene" uid="uid://crxhw2cugojad" path="res://Assest_Scenes/Player/player.tscn" id="10_d0i1v"]
+[ext_resource type="Script" path="res://Scripts/UI/UI_terrian_info_panel.gd" id="11_ddjtp"]
 [ext_resource type="Script" path="res://Scripts/UI/btn_starting_terrian_banner.gd" id="11_g4p2o"]
 [ext_resource type="Script" path="res://Scripts/main/game_master.gd" id="13_jtui5"]
 [ext_resource type="Theme" uid="uid://bi200u6dgup0j" path="res://Textures/new_theme.tres" id="14_4j0qb"]
@@ -233,6 +234,7 @@ offset_bottom = 1060.0
 grow_horizontal = 0
 grow_vertical = 2
 theme_override_styles/panel = SubResource("StyleBoxFlat_vclpa")
+script = ExtResource("11_ddjtp")
 
 [node name="Label" type="Label" parent="UI/Terrian_Info_Panel/Panel"]
 layout_mode = 0
