@@ -30,6 +30,8 @@ func _ready() -> void:
 	# Ready refrences
 	data_terrian = get_node("/" + data_node_ref.DATA_TERRIAN)
 
+	# Ready Other
+	become_invisable()
 
 
 # Called every frame. 'delta' is the elapsed time since the previous frame.
@@ -46,5 +48,12 @@ func update_display_info(terrian_info: Dictionary) -> void:
 		data_terrian.get_enum_key(data_terrian.BiomeType, terrian_info["Biome"])
 		)
 	
+
+func become_invisable() ->void:
+	self.hide()
+
+
+func become_visable() -> void:
+	self.show()
 
 ### Connected Signals

@@ -4,6 +4,8 @@ extends Node3D
 signal mouse_moved
 signal biome_placed(ply_state : PlayerControlerStateMachine, spawn_spot : Dictionary)
 signal update_terrian_info_panel(terrian_info: Dictionary)
+signal escape_pressed
+signal show_terrina_info_panel
 
 # enums
 enum PlayerControlerStateMachine {INACTIVE, PLACE_STARTING_TERRIAN, PLACING_TERRIAN}
@@ -114,30 +116,24 @@ func input_placing_terrian(event: InputEvent) -> void:
 		check_terrain_paceable_sence.show()
 	elif event.is_action_released("shifting"):
 		check_terrain_paceable_sence.hide()
+	elif event.is_action_released("esc"):
+		escape_pressed.emit()
 	elif event.is_action_released("right_click"):
 		var raycast_terrian = raycat_island()
 		if (raycast_terrian):
-			#get terrian data
+			# show panel
+			show_terrina_info_panel.emit()
+			# get terrian data
 			var terrian_obj = raycast_terrian["collider"].get_parent()
 			var update_terrian_info = {
 				"Biome": terrian_obj.current_biome
 			}
-			#emit data
+			# emit data
 			update_terrian_info_panel.emit(update_terrian_info)
 
 
 func input_place_starting_terrian(event: InputEvent) -> void:
-	if event.is_action_released("left_click") and !raycat_island() and (is_terrian_placeable):
-		spawn_terrian()
-	elif event.is_action_pressed("shifting") and !raycat_island():
-		check_terrain_paceable_sence.show()
-	elif event.is_action_released("shifting"):
-		check_terrain_paceable_sence.hide()
-	elif event.is_action_released("right_click"):
-		var selected_terrian = raycat_island()
-		if (selected_terrian):
-			update_terrian_info_panel.emit(selected_terrian)
-
+	input_placing_terrian(event)
 
 
 ###################################################################################################
@@ -236,3 +232,5 @@ func ready_signals() -> void:
 	terrian_info_panel.mouse_entered.connect(self.switch_state_inactive)
 	terrian_info_panel.mouse_exited.connect(self.switch_state_active)
 	self.update_terrian_info_panel.connect(terrian_info_panel.update_display_info)
+	self.escape_pressed.connect(terrian_info_panel.become_invisable)
+	self.show_terrina_info_panel.connect(terrian_info_panel.become_visable)
