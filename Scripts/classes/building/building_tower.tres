@@ -1,0 +1,11 @@
+[gd_resource type="Resource" script_class="BuildingRes" load_steps=4 format=3 uid="uid://sa4yk2pxqme7"]
+
+[ext_resource type="PackedScene" uid="uid://bekp8mu22hmcl" path="res://Assest_Scenes/buildings/build_outpost.tscn" id="1_3urb8"]
+[ext_resource type="Resource" uid="uid://b8bx1rpl0bejp" path="res://Scripts/classes/cost/cost_tower.tres" id="2_1nnku"]
+[ext_resource type="Script" path="res://Scripts/classes/building/building_resource.gd" id="3_f6yr4"]
+
+[resource]
+script = ExtResource("3_f6yr4")
+name = "Tower"
+cost = ExtResource("2_1nnku")
+build_mesh = ExtResource("1_3urb8")

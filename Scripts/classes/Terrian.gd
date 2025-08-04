@@ -21,6 +21,8 @@ var data_node_ref
 var a3D_hits
 var current_biome
 var has_collided : bool
+#var buildings: Building
+var built_on: bool
 
 # OnReady Vars
 @onready var biome_mesh = $RigidBody3D/biomeHex
@@ -63,6 +65,9 @@ func _ready() -> void:
 	has_collided = false
 	gravity_node = get_node("/" + data_node_ref.GRAVITY_NODE)
 	gravity_node.reset_terrian_collision.connect(reset_collision)
+
+	# Setup vars
+	built_on = true
 
 	# Test Funcs 
 	ready_building()
