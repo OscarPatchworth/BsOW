@@ -1,0 +1,11 @@
+[gd_resource type="Resource" script_class="BuildingRes" load_steps=4 format=3 uid="uid://b713kpbwedg67"]
+
+[ext_resource type="PackedScene" uid="uid://cco3gp6wf1xic" path="res://Assest_Scenes/buildings/build_HQ.tscn" id="1_3xu7f"]
+[ext_resource type="Resource" uid="uid://d3qrj60rre6rl" path="res://Scripts/classes/cost/cost_HQ.tres" id="2_ml0qw"]
+[ext_resource type="Script" path="res://Scripts/classes/building/building_resource.gd" id="3_87525"]
+
+[resource]
+script = ExtResource("3_87525")
+name = "HQ"
+cost = ExtResource("2_ml0qw")
+build_mesh = ExtResource("1_3xu7f")

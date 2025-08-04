@@ -25,12 +25,12 @@ const PLAYERS = "root/Node3D/Players"
 const class_btn_terrian_select = "res://Scripts/classes/btn_terrian_select.gd"
 const CLASS_PLAYER = "res://Scripts/classes/player.gd"
 
-### Class
-const BUILDING_CLASS = "res://Scripts/classes/building/building.gd"
-
-
 ### Tree Hiracies
 const terrian_node_folder = "root/Node3D/World_Objects/Terrian"
+
+### Buildings
+const BUILDING_TOWER = "res://Scripts/classes/building/building_tower.tres"
+const BUILDING_HQ = "res://Scripts/classes/building/building_hq.tres"
 
 ### Sences
 

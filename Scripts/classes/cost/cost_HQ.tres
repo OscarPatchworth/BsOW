@@ -1,0 +1,8 @@
+[gd_resource type="Resource" script_class="CostRes" load_steps=2 format=3 uid="uid://d3qrj60rre6rl"]
+
+[ext_resource type="Script" path="res://Scripts/classes/cost/cost_resource.gd" id="1_woggk"]
+
+[resource]
+script = ExtResource("1_woggk")
+name = "HQ"
+gold = 2000

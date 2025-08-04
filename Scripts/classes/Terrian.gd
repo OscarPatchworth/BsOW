@@ -21,7 +21,7 @@ var data_node_ref
 var a3D_hits
 var current_biome
 var has_collided : bool
-#var buildings: Building
+var building: BuildingRes
 var built_on: bool
 
 # OnReady Vars
@@ -71,7 +71,7 @@ func _ready() -> void:
 
 	# Test Funcs 
 	ready_building()
-
+	
 
 func _physics_process(delta):
 	var rb_velocity = rb.get_linear_velocity()
@@ -152,15 +152,31 @@ func delete_self() -> void:
 func ready_building() -> void:
 	if(randi_range(0,1)):
 		if(randi_range(0,1)):
-			var build = data_store.building_HQ.instantiate()
-			var building_node = find_child("Building")
-			building_node.add_child(build)
-			build.position.y = 0.6
+			add_building(data_node_ref.BUILDING_HQ)
 		else:
-			var build = data_store.building_Tower.instantiate()
-			var building_node = find_child("Building")
-			building_node.add_child(build)
-			build.position.y = 0.6
+			add_building(data_node_ref.BUILDING_TOWER)
+	else:
+		built_on = false
+
+
+func add_building(building_ref: String) ->void:
+	building = load(building_ref)
+	var build_mesh = building.build_mesh.instantiate()
+	var building_node = find_child("Building")
+	building_node.add_child(build_mesh)
+	build_mesh.position.y = 0.6
+
+	built_on = true
+
+
+func rmv_building() -> void:
+	if(built_on):
+		building = null
+		built_on = false
+
+		var building_node = find_child("Building").get_child(0)
+		building_node.queue_free()
+
 
 ###################################################################################################
 ###################################################################################################
