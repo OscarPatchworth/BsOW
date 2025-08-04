@@ -44,7 +44,6 @@ var built_on: bool
 ###################################################################################################
 ###	_built_in_methods()
 
-
 # Called when the node enters the scene tree for the first time.
 func _ready() -> void:
 
@@ -115,7 +114,15 @@ func update_biome(newBiome: int) -> void:
 
 
 func update_biome_material() -> void:
-	biome_mesh.set_surface_override_material(0, load(data_store.get_biome_res(current_biome)).mesh_material)
+	if(biome):
+		biome_mesh.set_surface_override_material(0, biome.mesh_material)
+	else:
+		biome_mesh.set_surface_override_material(0, load(data_store.get_biome_res(current_biome)).mesh_material)
+
+
+func set_biome(biome_ref: String) -> void:
+	biome = load(biome_ref)
+	update_biome_material()
 
 
 func raycast_to_ground() -> bool:
