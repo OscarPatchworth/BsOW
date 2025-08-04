@@ -39,6 +39,9 @@ const OCEAN_BTN_THEAME = "res://Textures/Theames/Buttons/ocean_btn_terrian_start
 const PLAINS_BTN_THEAME = "res://Textures/Theames/Buttons/plains_btn_terrian_start.tres"
 const PLASMA_BTN_THEAME = "res://Textures/Theames/Buttons/plasma_btn_terrian_start.tres"
 
+### BiomeRes(s)
+const PLASMA_BIOME_RES = "res://Scripts/classes/biome/biome_plasma.tres"
+
 ###	Building Packed Sence Links
 const BUILDING_HQ_PACKED_SENCE = "res://Assest_Scenes/buildings/build_HQ.tscn"
 const BUILDING_TOWER_PACKED_SENCE = "res://Assest_Scenes/buildings/build_outpost.tscn"
@@ -128,6 +131,9 @@ func get_biome_btn_theame(biome: int) -> String:
 			return(PLAINS_BTN_THEAME)
 		_:
 			return("")
+
+func get_biome_res(biome: int) -> String:
+	return PLASMA_BIOME_RES
 
 
 ### Code from ChatGPT

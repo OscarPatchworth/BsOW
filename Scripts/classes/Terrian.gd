@@ -11,6 +11,7 @@ const RAY_LENGTH = 1000
 var data_store
 var gravity_node
 var data_node_ref
+var biome: BiomeReS
 
 # Export Vars
 @export var sleeping_threshold_min = 0.05
@@ -71,7 +72,7 @@ func _ready() -> void:
 
 	# Test Funcs 
 	ready_building()
-	
+
 
 func _physics_process(delta):
 	var rb_velocity = rb.get_linear_velocity()
@@ -114,7 +115,7 @@ func update_biome(newBiome: int) -> void:
 
 
 func update_biome_material() -> void:
-	biome_mesh.set_surface_override_material(0, load(data_store.get_biome_material(current_biome)))
+	biome_mesh.set_surface_override_material(0, load(data_store.get_biome_res(current_biome)).mesh_material)
 
 
 func raycast_to_ground() -> bool:
