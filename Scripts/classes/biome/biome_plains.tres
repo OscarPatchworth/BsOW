@@ -1,0 +1,9 @@
+[gd_resource type="Resource" script_class="BiomeReS" load_steps=3 format=3 uid="uid://ckccmcj4pdu7e"]
+
+[ext_resource type="Material" uid="uid://bnwsrcvad8btx" path="res://Textures/Materials/terrian_materials/Terrian_Plains.tres" id="1_g4v4b"]
+[ext_resource type="Script" path="res://Scripts/classes/biome/biome_resource.gd" id="2_mydw5"]
+
+[resource]
+script = ExtResource("2_mydw5")
+name = "Plains"
+mesh_material = ExtResource("1_g4v4b")

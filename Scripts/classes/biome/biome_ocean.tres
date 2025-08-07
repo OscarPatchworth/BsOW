@@ -1,0 +1,9 @@
+[gd_resource type="Resource" script_class="BiomeReS" load_steps=3 format=3 uid="uid://chijsgxh31o5c"]
+
+[ext_resource type="Material" uid="uid://bsfg0qt22g7xe" path="res://Textures/Materials/terrian_materials/Terrian_Ocean.tres" id="1_1xf0x"]
+[ext_resource type="Script" path="res://Scripts/classes/biome/biome_resource.gd" id="2_ed10n"]
+
+[resource]
+script = ExtResource("2_ed10n")
+name = "Ocean"
+mesh_material = ExtResource("1_1xf0x")

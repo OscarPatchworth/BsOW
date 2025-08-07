@@ -40,7 +40,14 @@ const PLAINS_BTN_THEAME = "res://Textures/Theames/Buttons/plains_btn_terrian_sta
 const PLASMA_BTN_THEAME = "res://Textures/Theames/Buttons/plasma_btn_terrian_start.tres"
 
 ### BiomeRes(s)
+const BADLANDS_BIOME_RES = "res://Scripts/classes/biome/biome_badlands.tres"
+const COAST_BIOME_RES = "res://Scripts/classes/biome/biome_coast.tres"
+const FOREST_BIOME_RES = "res://Scripts/classes/biome/biome_forest.tres"
+const MOUNT_BIOME_RES = "res://Scripts/classes/biome/biome_mount.tres"
+const OCEAN_BIOME_RES = "res://Scripts/classes/biome/biome_ocean.tres"
+const PLAINS_BIOME_RES = "res://Scripts/classes/biome/biome_plains.tres"
 const PLASMA_BIOME_RES = "res://Scripts/classes/biome/biome_plasma.tres"
+
 
 ###	Building Packed Sence Links
 const BUILDING_HQ_PACKED_SENCE = "res://Assest_Scenes/buildings/build_HQ.tscn"
@@ -133,7 +140,23 @@ func get_biome_btn_theame(biome: int) -> String:
 			return("")
 
 func get_biome_res(biome: int) -> String:
-	return PLASMA_BIOME_RES
+	match biome:
+		BiomeType.PLASMA:
+			return(PLASMA_BIOME_RES)
+		BiomeType.BADLANDS:
+			return(BADLANDS_BIOME_RES)
+		BiomeType.COAST:
+			return(COAST_BIOME_RES)
+		BiomeType.FOREST:	
+			return(FOREST_BIOME_RES)
+		BiomeType.MOUNT:
+			return(MOUNT_BIOME_RES)
+		BiomeType.OCEAN:
+			return(OCEAN_BIOME_RES)
+		BiomeType.PLAINS:
+			return(PLAINS_BIOME_RES)
+		_:
+			return("")
 
 
 ### Code from ChatGPT
