@@ -70,7 +70,7 @@ func _ready() -> void:
 	built_on = true
 
 	# Test Funcs 
-	ready_building()
+	#ready_building()
 
 
 func _physics_process(delta):

@@ -1,4 +1,4 @@
-[gd_scene load_steps=26 format=3 uid="uid://dp1qeccnucfgp"]
+[gd_scene load_steps=27 format=3 uid="uid://dp1qeccnucfgp"]
 
 [ext_resource type="Texture2D" uid="uid://bn8wfhbs1omgo" path="res://Textures/TempTextures/third_person_controller_assets/textures/grids/Dark/texture_08.png" id="1_g3s7m"]
 [ext_resource type="Script" path="res://Scripts/main/gravity.gd" id="2_2m5uj"]
@@ -11,6 +11,7 @@
 [ext_resource type="PackedScene" uid="uid://crxhw2cugojad" path="res://Assest_Scenes/Player/player.tscn" id="10_d0i1v"]
 [ext_resource type="Script" path="res://Scripts/UI/UI_terrian_info_panel.gd" id="11_ddjtp"]
 [ext_resource type="Script" path="res://Scripts/UI/btn_starting_terrian_banner.gd" id="11_g4p2o"]
+[ext_resource type="Texture2D" uid="uid://cd6076xif6oyu" path="res://Textures/TempTextures/colourHexIcon/GreenHexIcon.png" id="13_gdbs1"]
 [ext_resource type="Script" path="res://Scripts/main/game_master.gd" id="13_jtui5"]
 [ext_resource type="Theme" uid="uid://bi200u6dgup0j" path="res://Textures/new_theme.tres" id="14_4j0qb"]
 [ext_resource type="Script" path="res://Scripts/UI/UI_queued_biome.gd" id="14_dfn7l"]
@@ -236,67 +237,58 @@ grow_vertical = 2
 theme_override_styles/panel = SubResource("StyleBoxFlat_vclpa")
 script = ExtResource("11_ddjtp")
 
-[node name="Biome" type="Label" parent="UI/Terrian_Info_Panel/Panel"]
+[node name="VBoxContainer" type="VBoxContainer" parent="UI/Terrian_Info_Panel/Panel"]
 layout_mode = 0
 offset_right = 495.0
-offset_bottom = 34.0
+offset_bottom = 1080.0
+theme_override_constants/separation = 20
+
+[node name="Biome" type="Label" parent="UI/Terrian_Info_Panel/Panel/VBoxContainer"]
+layout_mode = 2
 text = "Terrian Type"
 label_settings = SubResource("LabelSettings_4df4q")
 horizontal_alignment = 1
 
-[node name="Owner" type="Label" parent="UI/Terrian_Info_Panel/Panel"]
-layout_mode = 0
-offset_top = 115.0
-offset_right = 495.0
-offset_bottom = 182.0
+[node name="Owner" type="Label" parent="UI/Terrian_Info_Panel/Panel/VBoxContainer"]
+layout_mode = 2
 text = "Owner: "
 label_settings = SubResource("LabelSettings_ax7hc")
 
-[node name="Placer" type="Label" parent="UI/Terrian_Info_Panel/Panel"]
-layout_mode = 0
-offset_top = 182.0
-offset_right = 495.0
-offset_bottom = 249.0
+[node name="Placer" type="Label" parent="UI/Terrian_Info_Panel/Panel/VBoxContainer"]
+layout_mode = 2
 text = "Placer:"
 label_settings = SubResource("LabelSettings_ax7hc")
 
-[node name="Upkeep" type="Label" parent="UI/Terrian_Info_Panel/Panel"]
-layout_mode = 0
-offset_top = 249.0
-offset_right = 495.0
-offset_bottom = 316.0
+[node name="Upkeep" type="Label" parent="UI/Terrian_Info_Panel/Panel/VBoxContainer"]
+layout_mode = 2
 text = "Upkeep Resources:"
 label_settings = SubResource("LabelSettings_ax7hc")
 
-[node name="Abilities" type="Label" parent="UI/Terrian_Info_Panel/Panel"]
-layout_mode = 0
-offset_top = 316.0
-offset_right = 495.0
-offset_bottom = 383.0
+[node name="Abilities" type="Label" parent="UI/Terrian_Info_Panel/Panel/VBoxContainer"]
+layout_mode = 2
 text = "Abilities: "
 label_settings = SubResource("LabelSettings_ax7hc")
 
-[node name="Buildings" type="Label" parent="UI/Terrian_Info_Panel/Panel"]
-layout_mode = 0
-offset_top = 383.0
-offset_right = 495.0
-offset_bottom = 450.0
+[node name="Buildings" type="Label" parent="UI/Terrian_Info_Panel/Panel/VBoxContainer"]
+layout_mode = 2
 text = "Buildings: "
 label_settings = SubResource("LabelSettings_ax7hc")
 
-[node name="Units" type="Label" parent="UI/Terrian_Info_Panel/Panel"]
-layout_mode = 0
-offset_top = 450.0
-offset_right = 495.0
-offset_bottom = 517.0
+[node name="HBoxContainer" type="HBoxContainer" parent="UI/Terrian_Info_Panel/Panel/VBoxContainer"]
+layout_mode = 2
+
+[node name="Button" type="Button" parent="UI/Terrian_Info_Panel/Panel/VBoxContainer/HBoxContainer"]
+layout_mode = 2
+icon = ExtResource("13_gdbs1")
+flat = true
+
+[node name="Units" type="Label" parent="UI/Terrian_Info_Panel/Panel/VBoxContainer"]
+layout_mode = 2
 text = "Units:"
 label_settings = SubResource("LabelSettings_ax7hc")
 
-[node name="Connected Biomes" type="Label" parent="UI/Terrian_Info_Panel/Panel"]
-layout_mode = 0
-offset_top = 517.0
-offset_right = 495.0
-offset_bottom = 584.0
+[node name="Connected Biomes" type="Label" parent="UI/Terrian_Info_Panel/Panel/VBoxContainer"]
+layout_mode = 2
 text = "Connected Biomes:"
 label_settings = SubResource("LabelSettings_ax7hc")
 

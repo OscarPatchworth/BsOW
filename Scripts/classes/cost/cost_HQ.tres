@@ -6,3 +6,7 @@
 script = ExtResource("1_woggk")
 name = "HQ"
 gold = 2000
+food = 0
+mineral = 0
+wood = 0
+stone = 0

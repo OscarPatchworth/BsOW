@@ -2,27 +2,26 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://cx4r1j6m3vtye"
-path.s3tc="res://.godot/imported/texture_10.png-53db7e3e4994a1e77f8e73ba093a7cf2.s3tc.ctex"
+uid="uid://cd6076xif6oyu"
+path="res://.godot/imported/GreenHexIcon.png-dda4a235eac9e3f867fc909c8df87aab.ctex"
 metadata={
-"imported_formats": ["s3tc_bptc"],
-"vram_texture": true
+"vram_texture": false
 }
 
 [deps]
 
-source_file="res://Textures/TempTextures/third_person_controller_assets/textures/grids/Orange/texture_10.png"
-dest_files=["res://.godot/imported/texture_10.png-53db7e3e4994a1e77f8e73ba093a7cf2.s3tc.ctex"]
+source_file="res://Textures/TempTextures/colourHexIcon/GreenHexIcon.png"
+dest_files=["res://.godot/imported/GreenHexIcon.png-dda4a235eac9e3f867fc909c8df87aab.ctex"]
 
 [params]
 
-compress/mode=2
+compress/mode=0
 compress/high_quality=false
 compress/lossy_quality=0.7
 compress/hdr_compression=1
 compress/normal_map=0
 compress/channel_pack=0
-mipmaps/generate=true
+mipmaps/generate=false
 mipmaps/limit=-1
 roughness/mode=0
 roughness/src_normal=""
@@ -32,4 +31,4 @@ process/normal_map_invert_y=false
 process/hdr_as_srgb=false
 process/hdr_clamp_exposure=false
 process/size_limit=0
-detect_3d/compress_to=0
+detect_3d/compress_to=1
