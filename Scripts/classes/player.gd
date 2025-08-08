@@ -12,6 +12,8 @@ signal update_ui_mineral(mineral: int)
 # static variables
 var data_node_ref
 var game_master
+var data_player
+var race: RaceRes
 
 # @export variables
 
@@ -29,9 +31,11 @@ var resource_mineral = 0
 func _ready() -> void:
 	data_node_ref = get_node("/root/Node3D/Data/DataNodeRefs")
 	game_master = get_node("/" + data_node_ref.GAME_MASTER)
+	data_player = get_node("/" + data_node_ref.DATA_PLAYER)
 
 	connect_signals()
-	pass # Replace with function body.
+
+	race = load(data_player.rnd_race())
 
 
 # Called every frame. 'delta' is the elapsed time since the previous frame.
