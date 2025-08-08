@@ -5,8 +5,13 @@ extends Node
 # enums
 
 # constants
+const RACE_APE_REF = "res://Scripts/classes/race/ape.tres"
 
 # static variables
+var race_ref = {
+	"Ape": RACE_APE_REF
+}
+
 
 # @export variables
 
@@ -30,6 +35,7 @@ func _process(delta: float) -> void:
 
 
 ### Custom Methods
-
+func rnd_race() -> String:
+	return race_ref.values()[randi() % race_ref.size()]
 
 ### Connected Signals
