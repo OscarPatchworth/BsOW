@@ -125,11 +125,9 @@ func input_placing_terrian(event: InputEvent) -> void:
 			show_terrina_info_panel.emit()
 			# get terrian data
 			var terrian_obj = raycast_terrian["collider"].get_parent()
-			var update_terrian_info = {
-				"Biome": terrian_obj.current_biome
-			}
+			var terrian_info = terrian_obj.terrian_banner_info()
 			# emit data
-			update_terrian_info_panel.emit(update_terrian_info)
+			update_terrian_info_panel.emit(terrian_info)
 
 
 func input_place_starting_terrian(event: InputEvent) -> void:
@@ -215,22 +213,31 @@ func _on_starter_biome_display_hidden() -> void:
 
 
 func ready_signals() -> void:
+	# Biome_placed->Game_master
 	self.biome_placed.connect(game_master._on_user_controler_biome_placed)
+	# Game_master -> State overide
 	game_master.player_change_state.connect(self.game_master_change_state)
 
+	# Starting Biome Bannner #
 	var starter_biome_banner = get_node("/" + data_node_ref.UI_BIOMES_START).get_child(0)
+	# Mouse ON/OFF -> self inactive/active state
 	starter_biome_banner.mouse_entered.connect(self._on_starter_terrian_banner_mouse_entered)
 	starter_biome_banner.mouse_exited.connect(self._on_starter_terrian_banner_mouse_exited)
-
+	# Mouse ON Biome Btn -> self inactive
 	var starting_btns = get_tree().get_nodes_in_group("starter_biome_btns")
 	for btn in starting_btns:
 		btn.mouse_entered.connect(self._on_button_mouse_entered)
 
+	# Biome_placed -> data_terrian.biome_placed
 	var data_terrian = get_node("/" + data_node_ref.DATA_TERRIAN)
 	self.biome_placed.connect(data_terrian._on_user_controler_biome_placed)
 
+	# Terrain Pannel #
+	# Mouse ON/OFF -> self inactive/active
 	terrian_info_panel.mouse_entered.connect(self.switch_state_inactive)
 	terrian_info_panel.mouse_exited.connect(self.switch_state_active)
+	# self.terrian_clicked -> banner.show_info
 	self.update_terrian_info_panel.connect(terrian_info_panel.update_display_info)
+	# self -> banner show/hide
 	self.escape_pressed.connect(terrian_info_panel.become_invisable)
 	self.show_terrina_info_panel.connect(terrian_info_panel.become_visable)

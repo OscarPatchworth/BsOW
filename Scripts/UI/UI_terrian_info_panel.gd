@@ -44,9 +44,7 @@ func update_display_info(terrian_info: Dictionary) -> void:
 	#print("Update Terrian Panel info signal recived from Player_Cntrl  ||  " + str(terrian_info["Biome"]))
 	
 	# Update Info
-	biome_label.text = str(
-		data_terrian.get_enum_key(data_terrian.BiomeType, terrian_info["Biome"])
-		)
+	biome_label.text = terrian_info["Biome"]
 	
 
 func become_invisable() ->void:
