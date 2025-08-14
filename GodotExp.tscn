@@ -270,9 +270,9 @@ layout_mode = 2
 text = "Abilities: "
 label_settings = SubResource("LabelSettings_ax7hc")
 
-[node name="Buildings" type="Label" parent="UI/Terrian_Info_Panel/Panel/VBoxContainer"]
+[node name="Building" type="Label" parent="UI/Terrian_Info_Panel/Panel/VBoxContainer"]
 layout_mode = 2
-text = "Buildings: "
+text = "Building: "
 label_settings = SubResource("LabelSettings_ax7hc")
 
 [node name="HBoxContainer" type="HBoxContainer" parent="UI/Terrian_Info_Panel/Panel/VBoxContainer"]

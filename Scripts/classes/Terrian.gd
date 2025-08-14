@@ -189,6 +189,8 @@ func rmv_building() -> void:
 func terrian_banner_info() -> Dictionary:
 	var info:Dictionary = {}
 	info["Biome"] = biome.name
+	info["Built"] = building.name if building else ""
+	
 	return info
 
 

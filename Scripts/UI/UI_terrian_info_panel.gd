@@ -7,7 +7,8 @@ extends Panel
 # constants
 
 # static variables
-var biome_label: Label
+var label_biome: Label
+var label_building: Label
 
 var data_terrian
 
@@ -25,7 +26,8 @@ var data_terrian
 # Called when the node enters the scene tree for the first time.
 func _ready() -> void:
 	# Ready Labels
-	biome_label = find_child("Biome")
+	label_biome = find_child("Biome")
+	label_building = find_child("Building")
 
 	# Ready refrences
 	data_terrian = get_node("/" + data_node_ref.DATA_TERRIAN)
@@ -44,7 +46,8 @@ func update_display_info(terrian_info: Dictionary) -> void:
 	#print("Update Terrian Panel info signal recived from Player_Cntrl  ||  " + str(terrian_info["Biome"]))
 	
 	# Update Info
-	biome_label.text = terrian_info["Biome"]
+	label_biome.text = terrian_info["Biome"]
+	label_building.text = "Building: " + terrian_info["Built"]
 	
 
 func become_invisable() ->void:
