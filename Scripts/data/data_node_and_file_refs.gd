@@ -19,8 +19,8 @@ const UI_PLAYER_RESOURCES = "root/Node3D/UI/Active_Player_Resources"
 const UI_TERRIAN_INFO = "/root/Node3D/UI/Terrian_Info_Panel/Panel"
 
 ### Player
-const PLAYERS = "root/Node3D/Players"
-const DATA_PLAYER = "root/Node3D/Data/DataStorePlayer"
+const PLAYERS = "/root/Node3D/Players"
+const DATA_PLAYER = "/root/Node3D/Data/DataStorePlayer"
 
 ### Scripts
 const class_btn_terrian_select = "res://Scripts/classes/btn_terrian_select.gd"

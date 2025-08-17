@@ -70,7 +70,7 @@ func _ready() -> void:
 	built_on = true
 
 	# Test Funcs 
-	#ready_building()
+	ready_building()
 
 
 func _physics_process(delta):
@@ -189,8 +189,7 @@ func rmv_building() -> void:
 func terrian_banner_info() -> Dictionary:
 	var info:Dictionary = {}
 	info["Biome"] = biome.name
-	info["Built"] = building.name if building else ""
-	
+	info["Built"] = building.name if building else ""	
 	return info
 
 

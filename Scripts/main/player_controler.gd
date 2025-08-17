@@ -18,6 +18,8 @@ var data_node_ref
 var data_store
 var game_master
 var terrian_info_panel
+var data_ply
+var race: RaceRes
 
 # export variables
 @export var biome_hex: PackedScene
@@ -42,6 +44,9 @@ func _ready() -> void:
 	data_store = get_node("/" + data_node_ref.DATA_TERRIAN)
 	game_master = get_node("/" + data_node_ref.GAME_MASTER)
 	terrian_info_panel = get_node(data_node_ref.UI_TERRIAN_INFO)
+	data_ply = get_node(data_node_ref.DATA_PLAYER)
+	race = load(data_ply.RACE_APE_REF)
+
 
 	player_state = PlayerControlerStateMachine.PLACE_STARTING_TERRIAN
 	is_terrian_placeable = false
@@ -126,7 +131,7 @@ func input_placing_terrian(event: InputEvent) -> void:
 			# get terrian data
 			var terrian_obj = raycast_terrian["collider"].get_parent()
 			var terrian_info = terrian_obj.terrian_banner_info()
-			#terrian_info["Race_buildings"] = race.buildings
+			terrian_info["Race_buildings"] = race.buildings
 			# emit data
 			update_terrian_info_panel.emit(terrian_info)
 

@@ -9,6 +9,7 @@ extends Panel
 # static variables
 var label_biome: Label
 var label_building: Label
+var hbox_build_opts: HBoxContainer
 
 var data_terrian
 
@@ -28,6 +29,7 @@ func _ready() -> void:
 	# Ready Labels
 	label_biome = find_child("Biome")
 	label_building = find_child("Building")
+	hbox_build_opts = find_child("Building_options")
 
 	# Ready refrences
 	data_terrian = get_node("/" + data_node_ref.DATA_TERRIAN)
@@ -47,7 +49,15 @@ func update_display_info(terrian_info: Dictionary) -> void:
 	
 	# Update Info
 	label_biome.text = terrian_info["Biome"]
-	label_building.text = "Building: " + terrian_info["Built"]
+	# If (Has Building)
+	if(terrian_info["Built"]):
+		label_building.text = "Building: " + terrian_info["Built"]
+		hbox_build_opts.hide()
+	else:
+		label_building.text = "Building: "
+		if(terrian_info["Race_buildings"]):
+			hbox_build_opts.show()
+			generate_build_opt_btns(terrian_info["Race_buildings"])
 	
 
 func become_invisable() ->void:
@@ -56,5 +66,17 @@ func become_invisable() ->void:
 
 func become_visable() -> void:
 	self.show()
+
+
+func generate_build_opt_btns(build_opts: Array[BuildingRes]) -> void:
+	free_children(hbox_build_opts)
+	for building_opt in build_opts:
+		var new_build_opt_btn = Button.new()
+		new_build_opt_btn.icon = building_opt.build_icon
+		hbox_build_opts.add_child(new_build_opt_btn) 
+
+func free_children(parent: Node) -> void:
+	for i in parent.get_children():
+		i.queue_free()
 
 ### Connected Signals
