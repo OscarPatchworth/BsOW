@@ -101,7 +101,7 @@ func set_active_player(player: Node) -> void:
 	print(active_player.name)
 
 
-func ply_attempt_build(build_res:BuildingRes) -> void:
+func ply_attempt_build(build_res:BuildingRes, callback) -> void:
 	# Check Player can pay for building
 	var can_pay = true
 	var build_cost = build_res.cost.get_resource_dict()
@@ -115,6 +115,7 @@ func ply_attempt_build(build_res:BuildingRes) -> void:
 			ply_res[i] -= build_cost[i]
 			active_player.player_resources.set_resource_value(i, ply_res[i])
 	else: print("\n Not enough resources \n ")
+	callback.call(can_pay)
 	#print("Building In Progress ...")
 
 ###################################################################################################

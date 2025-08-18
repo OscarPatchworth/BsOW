@@ -1,7 +1,7 @@
 extends Button
 
 # signals
-signal attempt_buy_build(build_res: BuildingRes)
+signal attempt_buy_build(build_res: BuildingRes, callback)
 
 # enums
 
@@ -15,7 +15,7 @@ var data_node_ref
 # @export variables
 
 # remaining regular variables
-
+var can_pay_build = false
 # @onready variables
 
 
@@ -50,4 +50,7 @@ func connect_signals() -> void:
 
 
 func _pressed() -> void:
-	attempt_buy_build.emit(build_res)
+	# chatGPT showed me callbacks ... way more confuzing than I remember
+	var callback = func(can_pay): can_pay_build = can_pay
+	attempt_buy_build.emit(build_res, callback)
+	
