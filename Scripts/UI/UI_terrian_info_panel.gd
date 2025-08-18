@@ -12,6 +12,7 @@ var label_building: Label
 var hbox_build_opts: HBoxContainer
 
 var data_terrian
+var game_master
 
 # @export variables
 @export var building_opt_btn: PackedScene
@@ -34,6 +35,7 @@ func _ready() -> void:
 
 	# Ready refrences
 	data_terrian = get_node("/" + data_node_ref.DATA_TERRIAN)
+	game_master = get_node("/" + data_node_ref.GAME_MASTER)
 
 	# Ready Other
 	become_invisable()
@@ -74,7 +76,10 @@ func generate_build_opt_btns(build_opts: Array[BuildingRes]) -> void:
 	for building_opt in build_opts:
 		var new_build_opt_btn = building_opt_btn.instantiate()
 		new_build_opt_btn.set_build_data(building_opt)
+		new_build_opt_btn.attempt_buy_build.connect(game_master.ply_attempt_build)
+		
 		hbox_build_opts.add_child(new_build_opt_btn) 
+
 
 func free_children(parent: Node) -> void:
 	for i in parent.get_children():

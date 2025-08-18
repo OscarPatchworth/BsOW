@@ -99,6 +99,10 @@ func set_active_player(player: Node) -> void:
 	active_player = player
 	update_active_player.emit(player)
 
+
+func ply_attempt_build(build_res:BuildingRes) -> void:
+	print("Player attempting to build ... ")
+
 ###################################################################################################
 ### Connected Signals
 
