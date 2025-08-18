@@ -1,4 +1,4 @@
-[gd_scene load_steps=28 format=3 uid="uid://dp1qeccnucfgp"]
+[gd_scene load_steps=29 format=3 uid="uid://dp1qeccnucfgp"]
 
 [ext_resource type="Texture2D" uid="uid://bn8wfhbs1omgo" path="res://Textures/TempTextures/third_person_controller_assets/textures/grids/Dark/texture_08.png" id="1_g3s7m"]
 [ext_resource type="Script" path="res://Scripts/main/gravity.gd" id="2_2m5uj"]
@@ -11,6 +11,7 @@
 [ext_resource type="PackedScene" uid="uid://crxhw2cugojad" path="res://Assest_Scenes/Player/player.tscn" id="10_d0i1v"]
 [ext_resource type="Script" path="res://Scripts/UI/UI_terrian_info_panel.gd" id="11_ddjtp"]
 [ext_resource type="Script" path="res://Scripts/UI/btn_starting_terrian_banner.gd" id="11_g4p2o"]
+[ext_resource type="PackedScene" uid="uid://cvfbuq8ui1g07" path="res://Assest_Scenes/buttons/btn_build_opt.tscn" id="12_0wqmo"]
 [ext_resource type="Texture2D" uid="uid://cd6076xif6oyu" path="res://Textures/TempTextures/colourHexIcon/GreenHexIcon.png" id="13_gdbs1"]
 [ext_resource type="Script" path="res://Scripts/main/game_master.gd" id="13_jtui5"]
 [ext_resource type="Theme" uid="uid://bi200u6dgup0j" path="res://Textures/new_theme.tres" id="14_4j0qb"]
@@ -18,7 +19,7 @@
 [ext_resource type="Script" path="res://Scripts/data/data_settings.gd" id="14_gwi1l"]
 [ext_resource type="Script" path="res://Scripts/data/data_store_terrian.gd" id="15_6nsda"]
 [ext_resource type="Script" path="res://Scripts/data/data_node_and_file_refs.gd" id="18_8hc45"]
-[ext_resource type="PackedScene" uid="uid://ycqhtp6pluf8" path="res://Assest_Scenes/btn_biome_start.tscn" id="18_u4tc7"]
+[ext_resource type="PackedScene" uid="uid://ycqhtp6pluf8" path="res://Assest_Scenes/buttons/btn_biome_start.tscn" id="18_u4tc7"]
 [ext_resource type="Script" path="res://Scripts/data/data_store_player.gd" id="20_haegh"]
 
 [sub_resource type="BoxShape3D" id="BoxShape3D_um3ki"]
@@ -237,6 +238,7 @@ grow_horizontal = 0
 grow_vertical = 2
 theme_override_styles/panel = SubResource("StyleBoxFlat_vclpa")
 script = ExtResource("11_ddjtp")
+building_opt_btn = ExtResource("12_0wqmo")
 
 [node name="VBoxContainer" type="VBoxContainer" parent="UI/Terrian_Info_Panel/Panel"]
 layout_mode = 0

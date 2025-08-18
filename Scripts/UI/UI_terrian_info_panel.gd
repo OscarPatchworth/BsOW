@@ -14,6 +14,7 @@ var hbox_build_opts: HBoxContainer
 var data_terrian
 
 # @export variables
+@export var building_opt_btn: PackedScene
 
 # remaining regular variables
 
@@ -71,8 +72,8 @@ func become_visable() -> void:
 func generate_build_opt_btns(build_opts: Array[BuildingRes]) -> void:
 	free_children(hbox_build_opts)
 	for building_opt in build_opts:
-		var new_build_opt_btn = Button.new()
-		new_build_opt_btn.icon = building_opt.build_icon
+		var new_build_opt_btn = building_opt_btn.instantiate()
+		new_build_opt_btn.set_build_data(building_opt)
 		hbox_build_opts.add_child(new_build_opt_btn) 
 
 func free_children(parent: Node) -> void:

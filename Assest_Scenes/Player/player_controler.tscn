@@ -3,7 +3,7 @@
 [ext_resource type="Script" path="res://Scripts/main/player_controler.gd" id="1_ic44n"]
 [ext_resource type="PackedScene" uid="uid://ctj0hjqxfncy0" path="res://Assest_Scenes/terrian_hex.tscn" id="2_ldfx0"]
 [ext_resource type="Script" path="res://Scripts/main/cam_gimbal.gd" id="3_6luyh"]
-[ext_resource type="PackedScene" uid="uid://csjp0fs12pgui" path="res://Assest_Scenes/is_placeable_box.tscn" id="4_rdl4a"]
+[ext_resource type="PackedScene" uid="uid://csjp0fs12pgui" path="res://Assest_Scenes/Player/is_placeable_box.tscn" id="4_rdl4a"]
 [ext_resource type="Texture2D" uid="uid://bs8atlepclylh" path="res://Textures/TempTextures/third_person_controller_assets/textures/grids/Green/texture_02.png" id="5_ea7fm"]
 [ext_resource type="Texture2D" uid="uid://cgu4eqqbe8eyj" path="res://Textures/TempTextures/third_person_controller_assets/textures/grids/Red/texture_02.png" id="6_07mry"]
 

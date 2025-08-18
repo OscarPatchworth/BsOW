@@ -23,7 +23,7 @@ const PLAYERS = "/root/Node3D/Players"
 const DATA_PLAYER = "/root/Node3D/Data/DataStorePlayer"
 
 ### Scripts
-const class_btn_terrian_select = "res://Scripts/classes/btn_terrian_select.gd"
+const class_btn_terrian_select = "res://Scripts/classes/buttons/btn_terrian_select.gd"
 const CLASS_PLAYER = "res://Scripts/classes/player.gd"
 
 ### Tree Hiracies
