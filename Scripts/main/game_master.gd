@@ -98,10 +98,24 @@ func instance_terrian(spawn_spot: Dictionary) -> void:
 func set_active_player(player: Node) -> void:
 	active_player = player
 	update_active_player.emit(player)
+	print(active_player.name)
 
 
 func ply_attempt_build(build_res:BuildingRes) -> void:
-	print("Player attempting to build ... ")
+	# Check Player can pay for building
+	var can_pay = true
+	var build_cost = build_res.cost.get_resource_dict()
+	var ply_res = active_player.player_resources.get_resource_dict()
+
+	for i in build_res.cost.get_resource_dict():
+		if(ply_res[i] < build_cost[i]):
+			can_pay = false
+	if(can_pay): 
+		for i in build_res.cost.get_resource_dict():
+			ply_res[i] -= build_cost[i]
+			active_player.player_resources.set_resource_value(i, ply_res[i])
+	else: print("\n Not enough resources \n ")
+	#print("Building In Progress ...")
 
 ###################################################################################################
 ### Connected Signals

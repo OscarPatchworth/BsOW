@@ -18,8 +18,7 @@ var race: RaceRes
 # @export variables
 
 # remaining regular variables
-var resource_food = 0
-var resource_mineral = 0
+var player_resources = CostRes.new()
 
 # @onready variables
 
@@ -37,6 +36,8 @@ func _ready() -> void:
 
 	race = load(data_player.rnd_race())
 
+	player_resources.gold = 3000
+
 
 # Called every frame. 'delta' is the elapsed time since the previous frame.
 func _process(delta: float) -> void:
@@ -46,13 +47,13 @@ func _process(delta: float) -> void:
 ### Custom Methods
 func generate_biome_resources() -> void:
 	if (randi() % 2):
-		resource_food += 1
+		player_resources.food += 1
 	
 	if (randi() % 2):
-		resource_mineral += 1
+		player_resources.mineral += 1
 
-	update_ui_food.emit(resource_food)
-	update_ui_mineral.emit(resource_mineral)
+	update_ui_food.emit(player_resources.food)
+	update_ui_mineral.emit(player_resources.mineral)
 
 ### Connected Signals
 func connect_signals() -> void:
