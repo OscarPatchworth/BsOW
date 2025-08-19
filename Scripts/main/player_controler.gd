@@ -130,10 +130,7 @@ func input_placing_terrian(event: InputEvent) -> void:
 			show_terrina_info_panel.emit()
 			# get terrian data
 			var terrian_obj = raycast_terrian["collider"].get_parent()
-			var terrian_info = terrian_obj.terrian_banner_info()
-			terrian_info["Race_buildings"] = race.buildings
-			# emit data
-			update_terrian_info_panel.emit(terrian_info)
+			generate_and_emit_terrian_banner_info(terrian_obj)
 
 
 func input_place_starting_terrian(event: InputEvent) -> void:
@@ -189,6 +186,14 @@ func game_master_change_state(state: int) -> void:
 	match state:
 		2:
 			switch_state_placing_terrian()
+
+
+func generate_and_emit_terrian_banner_info(terrian_obj) -> void:
+	var terrian_info = terrian_obj.terrian_banner_info()
+	terrian_info["Race_buildings"] = race.buildings
+	# emit data
+	update_terrian_info_panel.emit(terrian_info)
+
 
 ###################################################################################################
 ### Connected Signals

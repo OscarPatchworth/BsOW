@@ -1,7 +1,7 @@
 extends Panel
 
 # signals
-
+signal update_terrian_pannel_info(terrian)
 # enums
 
 # constants
@@ -10,6 +10,7 @@ extends Panel
 var label_biome: Label
 var label_building: Label
 var hbox_build_opts: HBoxContainer
+var terrian_node: Node3D
 
 var data_terrian
 var game_master
@@ -37,6 +38,9 @@ func _ready() -> void:
 	data_terrian = get_node("/" + data_node_ref.DATA_TERRIAN)
 	game_master = get_node("/" + data_node_ref.GAME_MASTER)
 
+	#Ready Signals
+	self.update_terrian_pannel_info.connect(game_master.update_terrian_pannel_info)
+
 	# Ready Other
 	become_invisable()
 
@@ -61,7 +65,7 @@ func update_display_info(terrian_info: Dictionary) -> void:
 		if(terrian_info["Race_buildings"]):
 			hbox_build_opts.show()
 			generate_build_opt_btns(terrian_info["Race_buildings"])
-	
+	terrian_node = terrian_info["Terrian_node"]
 
 func become_invisable() ->void:
 	self.hide()
@@ -77,12 +81,17 @@ func generate_build_opt_btns(build_opts: Array[BuildingRes]) -> void:
 		var new_build_opt_btn = building_opt_btn.instantiate()
 		new_build_opt_btn.set_build_data(building_opt)
 		new_build_opt_btn.attempt_buy_build.connect(game_master.ply_attempt_build)
-		
+		new_build_opt_btn.build_on_terrian.connect(self.build_on_terrian)
 		hbox_build_opts.add_child(new_build_opt_btn) 
 
 
 func free_children(parent: Node) -> void:
 	for i in parent.get_children():
 		i.queue_free()
+
+
+func build_on_terrian(build: BuildingRes) -> void:
+	terrian_node.add_building(build)
+	update_terrian_pannel_info.emit(terrian_node)
 
 ### Connected Signals

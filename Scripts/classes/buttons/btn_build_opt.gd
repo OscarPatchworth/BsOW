@@ -2,7 +2,7 @@ extends Button
 
 # signals
 signal attempt_buy_build(build_res: BuildingRes, callback)
-
+signal build_on_terrian(build_res:BuildingRes)
 # enums
 
 # constants
@@ -53,4 +53,5 @@ func _pressed() -> void:
 	# chatGPT showed me callbacks ... way more confuzing than I remember
 	var callback = func(can_pay): can_pay_build = can_pay
 	attempt_buy_build.emit(build_res, callback)
-	
+	if(can_pay_build):
+		build_on_terrian.emit(build_res)

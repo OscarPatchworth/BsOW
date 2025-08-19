@@ -118,6 +118,12 @@ func ply_attempt_build(build_res:BuildingRes, callback) -> void:
 	callback.call(can_pay)
 	#print("Building In Progress ...")
 
+func update_terrian_pannel_info(terrain) -> void:
+	var target = active_player.find_child("UserControler", true, false)
+	print(target)
+	target.generate_and_emit_terrian_banner_info(terrain)
+
+
 ###################################################################################################
 ### Connected Signals
 

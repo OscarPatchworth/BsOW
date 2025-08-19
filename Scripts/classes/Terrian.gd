@@ -67,7 +67,7 @@ func _ready() -> void:
 	gravity_node.reset_terrian_collision.connect(reset_collision)
 
 	# Setup vars
-	built_on = true
+	built_on = false
 
 	# Test Funcs 
 	ready_building()
@@ -167,14 +167,23 @@ func ready_building() -> void:
 		built_on = false
 
 
-func add_building(building_ref: String) ->void:
-	building = load(building_ref)
-	var build_mesh = building.build_mesh.instantiate()
-	var building_node = find_child("Building")
-	building_node.add_child(build_mesh)
-	build_mesh.position.y = 0.6
+func add_building(building_ref) -> void:
+	print("@ add building")
+	if(typeof(building_ref) == TYPE_STRING):
+		building = load(building_ref)
+	elif(building_ref is BuildingRes):
+		building = building_ref
+	else:
+		print("Terrian.add_building(building_ref) invalid input type \n")
+	if(built_on == false):
+		var build_mesh = building.build_mesh.instantiate()
+		var building_node = find_child("Building")
+		building_node.add_child(build_mesh)
+		build_mesh.position.y = 0.6
 
-	built_on = true
+		built_on = true
+	else:
+		print("Already built on!!")
 
 
 func rmv_building() -> void:
@@ -189,7 +198,8 @@ func rmv_building() -> void:
 func terrian_banner_info() -> Dictionary:
 	var info:Dictionary = {}
 	info["Biome"] = biome.name
-	info["Built"] = building.name if building else ""	
+	info["Built"] = building.name if building else ""
+	info["Terrian_node"]	 = self
 	return info
 
 
