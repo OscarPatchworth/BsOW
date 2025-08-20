@@ -189,10 +189,8 @@ func game_master_change_state(state: int) -> void:
 
 
 func generate_and_emit_terrian_banner_info(terrian_obj) -> void:
-	var terrian_info = terrian_obj.terrian_banner_info()
-	terrian_info["Race_buildings"] = race.buildings
 	# emit data
-	update_terrian_info_panel.emit(terrian_info)
+	update_terrian_info_panel.emit(terrian_obj, self)
 
 
 ###################################################################################################

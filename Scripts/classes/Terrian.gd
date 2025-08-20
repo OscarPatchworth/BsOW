@@ -195,14 +195,6 @@ func rmv_building() -> void:
 		building_node.queue_free()
 
 
-func terrian_banner_info() -> Dictionary:
-	var info:Dictionary = {}
-	info["Biome"] = biome.name
-	info["Built"] = building.name if building else ""
-	info["Terrian_node"]	 = self
-	return info
-
-
 ###################################################################################################
 ###################################################################################################
 ###	Connected Signals

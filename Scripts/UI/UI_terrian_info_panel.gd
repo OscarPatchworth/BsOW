@@ -51,21 +51,22 @@ func _process(delta: float) -> void:
 
 
 ### Custom Methods
-func update_display_info(terrian_info: Dictionary) -> void:
+func update_display_info(terrian_node, player_node) -> void:
+	var display_info = generate_diaplay_info(terrian_node, player_node)
 	#print("Update Terrian Panel info signal recived from Player_Cntrl  ||  " + str(terrian_info["Biome"]))
 	
 	# Update Info
-	label_biome.text = terrian_info["Biome"]
+	label_biome.text = display_info["Biome"]
 	# If (Has Building)
-	if(terrian_info["Built"]):
-		label_building.text = "Building: " + terrian_info["Built"]
+	if(display_info["Built"]):
+		label_building.text = "Building: " + display_info["Built"]
 		hbox_build_opts.hide()
 	else:
 		label_building.text = "Building: "
-		if(terrian_info["Race_buildings"]):
+		if(display_info["Race_buildings"]):
 			hbox_build_opts.show()
-			generate_build_opt_btns(terrian_info["Race_buildings"])
-	terrian_node = terrian_info["Terrian_node"]
+			generate_build_opt_btns(display_info["Race_buildings"])
+	self.terrian_node = terrian_node
 
 func become_invisable() ->void:
 	self.hide()
@@ -93,5 +94,14 @@ func free_children(parent: Node) -> void:
 func build_on_terrian(build: BuildingRes) -> void:
 	terrian_node.add_building(build)
 	update_terrian_pannel_info.emit(terrian_node)
+
+
+func generate_diaplay_info(terrian_node, player_node) -> Dictionary:
+	var info:Dictionary = {}
+	info["Biome"] = terrian_node.biome.name
+	info["Built"] = terrian_node.building.name if terrian_node.building else ""
+	info["Terrian_node"] = terrian_node
+	info["Race_buildings"] = player_node.race.buildings
+	return info
 
 ### Connected Signals
