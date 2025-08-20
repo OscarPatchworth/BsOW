@@ -124,6 +124,9 @@ func update_terrian_pannel_info(terrain) -> void:
 	target.generate_and_emit_terrian_banner_info(terrain)
 
 
+func get_active_player() -> player:
+	return active_player
+
 ###################################################################################################
 ### Connected Signals
 

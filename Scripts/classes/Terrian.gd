@@ -11,6 +11,7 @@ const RAY_LENGTH = 1000
 var data_store
 var gravity_node
 var data_node_ref
+var game_master
 var biome: BiomeReS
 
 # Export Vars
@@ -60,6 +61,7 @@ func _ready() -> void:
 	# Setup Node Refs
 	data_node_ref = self.get_node("../%DataNodeRefs")
 	data_store = get_node("/" + data_node_ref.DATA_TERRIAN)
+	game_master = get_node("/" + data_node_ref.GAME_MASTER)
 	
 	current_biome = data_store.BiomeType.PLASMA
 
@@ -171,7 +173,6 @@ func ready_building() -> void:
 
 
 func add_building(building_ref) -> void:
-	print("@ add building")
 	if(typeof(building_ref) == TYPE_STRING):
 		building_res = load(building_ref)
 	elif(building_ref is BuildingRes):
@@ -180,6 +181,15 @@ func add_building(building_ref) -> void:
 		print("Terrian.add_building(building_ref) invalid input type \n")
 	if(built_on == false):
 		var build_mesh = building_res.build_mesh.instantiate()
+		build_mesh.set_script(load(data_node_ref.CLASS_BUILDING))
+		build_mesh.add_to_group("buildings")
+		
+		build_mesh.build_res = building_res
+		var active_player = game_master.get_active_player()
+		build_mesh.build_by = active_player
+		build_mesh.controler = active_player
+		build_mesh.terrain = self
+
 		building.add_child(build_mesh)
 		build_mesh.position.y = 0.6
 
