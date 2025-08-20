@@ -65,7 +65,7 @@ func update_display_info(terrian_node, player_node) -> void:
 		label_building.text = "Building: "
 		if(display_info["Race_buildings"]):
 			hbox_build_opts.show()
-			generate_build_opt_btns(display_info["Race_buildings"])
+			generate_build_opt_btns(display_info["Race_buildings"], display_info["Player_node"], display_info["Terrian_node"] )
 	self.terrian_node = terrian_node
 
 func become_invisable() ->void:
@@ -76,14 +76,30 @@ func become_visable() -> void:
 	self.show()
 
 
-func generate_build_opt_btns(build_opts: Array[BuildingRes]) -> void:
+func generate_build_opt_btns(build_opts: Array[BuildingRes], player, terrain) -> void:
 	free_children(hbox_build_opts)
 	for building_opt in build_opts:
-		var new_build_opt_btn = building_opt_btn.instantiate()
-		new_build_opt_btn.set_build_data(building_opt)
-		new_build_opt_btn.attempt_buy_build.connect(game_master.ply_attempt_build)
-		new_build_opt_btn.build_on_terrian.connect(self.build_on_terrian)
-		hbox_build_opts.add_child(new_build_opt_btn) 
+		var valid_build:bool
+		
+		if(building_opt.unique_build):
+			valid_build = true
+			var all_buildings = get_tree().get_nodes_in_group("buildings")
+			for build in all_buildings:
+				if(build.build_res.name == building_opt.name and build.controler == player):
+					valid_build = false
+		else: valid_build = true
+
+					
+
+
+		if(valid_build):
+			var new_build_opt_btn = building_opt_btn.instantiate()
+			new_build_opt_btn.set_build_data(building_opt)
+			
+			new_build_opt_btn.attempt_buy_build.connect(game_master.ply_attempt_build)
+			new_build_opt_btn.build_on_terrian.connect(self.build_on_terrian)
+			
+			hbox_build_opts.add_child(new_build_opt_btn) 
 
 
 func free_children(parent: Node) -> void:
@@ -102,6 +118,7 @@ func generate_diaplay_info(terrian_node, player_node) -> Dictionary:
 	info["Built"] = terrian_node.building_res.name if terrian_node.building_res else ""
 	info["Terrian_node"] = terrian_node
 	info["Race_buildings"] = player_node.race.buildings
+	info["Player_node"] = player_node.get_parent().get_parent()
 	return info
 
 ### Connected Signals

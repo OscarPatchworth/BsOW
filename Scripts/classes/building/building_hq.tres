@@ -11,3 +11,4 @@ name = "HQ"
 cost = ExtResource("2_ml0qw")
 build_mesh = ExtResource("1_3xu7f")
 build_icon = ExtResource("1_lp6mh")
+unique_build = true

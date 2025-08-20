@@ -75,7 +75,6 @@ func _ready() -> void:
 	built_on = false
 
 	# Test Funcs 
-	ready_building()
 
 
 func _physics_process(delta):
@@ -183,7 +182,7 @@ func add_building(building_ref) -> void:
 		var build_mesh = building_res.build_mesh.instantiate()
 		build_mesh.set_script(load(data_node_ref.CLASS_BUILDING))
 		build_mesh.add_to_group("buildings")
-		
+
 		build_mesh.build_res = building_res
 		var active_player = game_master.get_active_player()
 		build_mesh.build_by = active_player

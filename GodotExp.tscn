@@ -51,7 +51,7 @@ font_color = Color(0.831731, 0.770937, 0.262618, 1)
 [sub_resource type="LabelSettings" id="LabelSettings_ax7hc"]
 font_size = 32
 
-[node name="Node3D" type="Node3D" groups=["buildings"]]
+[node name="Node3D" type="Node3D"]
 
 [node name="Env" type="Node3D" parent="."]
 
