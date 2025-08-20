@@ -22,8 +22,9 @@ var biome: BiomeReS
 var a3D_hits
 var current_biome
 var has_collided : bool
-var building: BuildingRes
+var building_res: BuildingRes
 var built_on: bool
+var building: Node3D
 
 # OnReady Vars
 @onready var biome_mesh = $RigidBody3D/biomeHex
@@ -65,6 +66,8 @@ func _ready() -> void:
 	has_collided = false
 	gravity_node = get_node("/" + data_node_ref.GRAVITY_NODE)
 	gravity_node.reset_terrian_collision.connect(reset_collision)
+
+	building = find_child("Building")
 
 	# Setup vars
 	built_on = false
@@ -170,15 +173,14 @@ func ready_building() -> void:
 func add_building(building_ref) -> void:
 	print("@ add building")
 	if(typeof(building_ref) == TYPE_STRING):
-		building = load(building_ref)
+		building_res = load(building_ref)
 	elif(building_ref is BuildingRes):
-		building = building_ref
+		building_res = building_ref
 	else:
 		print("Terrian.add_building(building_ref) invalid input type \n")
 	if(built_on == false):
-		var build_mesh = building.build_mesh.instantiate()
-		var building_node = find_child("Building")
-		building_node.add_child(build_mesh)
+		var build_mesh = building_res.build_mesh.instantiate()
+		building.add_child(build_mesh)
 		build_mesh.position.y = 0.6
 
 		built_on = true
@@ -188,11 +190,11 @@ func add_building(building_ref) -> void:
 
 func rmv_building() -> void:
 	if(built_on):
-		building = null
+		building_res = null
 		built_on = false
 
-		var building_node = find_child("Building").get_child(0)
-		building_node.queue_free()
+		var building_instance = building.get_child(0)
+		building_instance.queue_free()
 
 
 ###################################################################################################

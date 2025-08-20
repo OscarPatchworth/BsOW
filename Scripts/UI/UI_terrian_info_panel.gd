@@ -99,7 +99,7 @@ func build_on_terrian(build: BuildingRes) -> void:
 func generate_diaplay_info(terrian_node, player_node) -> Dictionary:
 	var info:Dictionary = {}
 	info["Biome"] = terrian_node.biome.name
-	info["Built"] = terrian_node.building.name if terrian_node.building else ""
+	info["Built"] = terrian_node.building_res.name if terrian_node.building_res else ""
 	info["Terrian_node"] = terrian_node
 	info["Race_buildings"] = player_node.race.buildings
 	return info
