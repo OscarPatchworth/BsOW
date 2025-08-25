@@ -290,6 +290,14 @@ layout_mode = 2
 text = "Units:"
 label_settings = SubResource("LabelSettings_ax7hc")
 
+[node name="Unit_options" type="HBoxContainer" parent="UI/Terrian_Info_Panel/Panel/VBoxContainer"]
+layout_mode = 2
+
+[node name="Button" type="Button" parent="UI/Terrian_Info_Panel/Panel/VBoxContainer/Unit_options"]
+layout_mode = 2
+icon = ExtResource("13_gdbs1")
+flat = true
+
 [node name="Connected Biomes" type="Label" parent="UI/Terrian_Info_Panel/Panel/VBoxContainer"]
 layout_mode = 2
 text = "Connected Biomes:"

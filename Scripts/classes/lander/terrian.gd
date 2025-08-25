@@ -27,7 +27,7 @@ var has_collided : bool
 var building_res: BuildingRes
 var built_on: bool
 var building: Node3D
-#var units: Aray[Unit]
+var units: Array[UnitRes]
 
 # OnReady Vars
 @onready var biome_mesh = $RigidBody3D/biomeHex

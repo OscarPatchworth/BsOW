@@ -10,6 +10,8 @@ signal update_terrian_pannel_info(terrian)
 var label_biome: Label
 var label_building: Label
 var hbox_build_opts: HBoxContainer
+var label_units: Label
+var hbox_units: HBoxContainer
 var terrian: Node3D
 var player: Node3D
 
@@ -34,6 +36,8 @@ func _ready() -> void:
 	label_biome = find_child("Biome")
 	label_building = find_child("Building")
 	hbox_build_opts = find_child("Building_options")
+	label_units = find_child("Units")
+	hbox_units = find_child("Unit_options")
 
 	# Ready refrences
 	data_terrian = get_node("/" + data_node_ref.DATA_TERRIAN)
@@ -61,6 +65,7 @@ func update_display_info(terrian_node, player_node) -> void:
 	
 	# Update Info
 	label_biome.text = display_info["Biome"]
+
 	# If (Has Building)
 	if(display_info["Built"]):
 		label_building.text = "Building: " + display_info["Built"]
@@ -70,6 +75,14 @@ func update_display_info(terrian_node, player_node) -> void:
 		if(display_info["Race_buildings"]):
 			hbox_build_opts.show()
 			generate_build_opt_btns(display_info["Race_buildings"])
+	
+	label_units.text = "Units: " + str(display_info["units"].size())
+	# If (has units)	
+	if(display_info["Built"] == "HQ"):
+		hbox_units.show()
+	else:
+		hbox_units.hide()
+
 
 
 func become_invisable() ->void:
@@ -92,9 +105,6 @@ func generate_build_opt_btns(build_opts: Array[BuildingRes]) -> void:
 				if(build.build_res.name == building_opt.name and build.controler == player.get_parent().get_parent()):
 					valid_build = false
 		else: valid_build = true
-
-					
-
 
 		if(valid_build):
 			var new_build_opt_btn = building_opt_btn.instantiate()
@@ -122,6 +132,8 @@ func generate_diaplay_info() -> Dictionary:
 	info["Built"] = terrian.building_res.name if terrian.building_res else ""
 	info["Terrian_node"] = terrian
 	info["Race_buildings"] = player.race.buildings
+
+	info["units"] = terrian.units
 	return info
 
 ### Connected Signals
