@@ -17,7 +17,6 @@ var terrain: Terrian
 
 # remaining regular variables
 var occupied = false
-#var units = Array[Units]
 #var has_health: bool
 #var health: int
 

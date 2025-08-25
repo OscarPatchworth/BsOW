@@ -18,6 +18,7 @@ var biome: BiomeReS
 @export var sleeping_threshold_min = 0.05
 @export var sleeping_threshold_max = 75
 @export var update_time_interval = (1.0/15)
+#@export var unit_capacity: int
 
 # Dynamic Vars
 var a3D_hits
@@ -26,6 +27,7 @@ var has_collided : bool
 var building_res: BuildingRes
 var built_on: bool
 var building: Node3D
+#var units: Aray[Unit]
 
 # OnReady Vars
 @onready var biome_mesh = $RigidBody3D/biomeHex
