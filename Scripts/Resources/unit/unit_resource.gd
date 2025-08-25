@@ -7,16 +7,9 @@ class_name UnitRes  # Optional, but helpful
 @export var cost: CostRes
 @export var icon: CompressedTexture2D
 
-@export var damage_dice_amount = 1
-@export var damage_dice_type = 6
-@export var damage_dice_modifier = 0
+
+
+const defualt_dmg_ref = "res://Scripts/Resources/damage/defualt_dmg.tres"
+@export var damage: DamageRes = preload(defualt_dmg_ref)
 
 #@export var abilities: Array[Ability]
-
-
-func get_damage_dict() -> Dictionary:
-    return {
-        "amount" : damage_dice_amount,
-        "dice" : damage_dice_type,
-        "mod" : damage_dice_modifier,
-    }
