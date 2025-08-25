@@ -5,6 +5,7 @@ class_name UnitRes  # Optional, but helpful
 @export var description: String
 @export var mesh: PackedScene
 @export var cost: CostRes
+@export var icon: CompressedTexture2D
 
 @export var damage_dice_amount = 1
 @export var damage_dice_type = 6
