@@ -32,11 +32,11 @@ func setup(unit: UnitRes) -> void:
     unit_res = unit
     pass
 
-func get_dmg_total() -> Dictionary:
+func get_dmg_total() -> DamageRes:
     damage_total = unit_res.damage.duplicate()
-    #damage_total.add_damage(dmg_mod)
+    damage_total.add_damage(dmg_mod)
 
-    return damage_total.get_damage_dict()
+    return damage_total
 
 
 func get_cost_total() -> CostRes:
