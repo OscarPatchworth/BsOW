@@ -1,12 +1,15 @@
-[gd_resource type="Resource" script_class="RaceRes" load_steps=5 format=3 uid="uid://dy8srlr3k38mq"]
+[gd_resource type="Resource" script_class="RaceRes" load_steps=7 format=3 uid="uid://dy8srlr3k38mq"]
 
 [ext_resource type="Script" path="res://Scripts/Resources/building/building_resource.gd" id="1_pvp4d"]
 [ext_resource type="Resource" uid="uid://b713kpbwedg67" path="res://Scripts/Resources/building/building_hq.tres" id="2_hw8i4"]
 [ext_resource type="Resource" uid="uid://sa4yk2pxqme7" path="res://Scripts/Resources/building/building_tower.tres" id="3_nhita"]
 [ext_resource type="Script" path="res://Scripts/Resources/race/race_resource.gd" id="4_ys4lk"]
+[ext_resource type="Script" path="res://Scripts/Resources/unit/unit_resource.gd" id="5_rtcv2"]
+[ext_resource type="Resource" uid="uid://ijjf08iqcwyg" path="res://Scripts/Resources/unit/foot_soldier.tres" id="6_qpjx2"]
 
 [resource]
 script = ExtResource("4_ys4lk")
 name = "Apes"
 description = "Defualt/Test Race"
 buildings = Array[ExtResource("1_pvp4d")]([ExtResource("2_hw8i4"), ExtResource("3_nhita")])
+units = Array[ExtResource("5_rtcv2")]([ExtResource("6_qpjx2")])

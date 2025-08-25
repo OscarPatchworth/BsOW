@@ -5,4 +5,4 @@ class_name RaceRes  # Optional, but helpful
 @export var description: String
 
 @export var buildings: Array[BuildingRes]
-#@export var units = [UnitRes]
+@export var units: Array[UnitRes]
