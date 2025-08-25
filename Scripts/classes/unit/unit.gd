@@ -13,15 +13,20 @@ extends RefCounted
 
 # remaining regular variables
 var cost_mod: CostRes
-var dmg_mod: Dictionary
-#var temp_abilities: Array[Ability]
+var dmg_mod: DamageRes
 
-# @onready variables
+var cost_total:CostRes
+var damage_total:DamageRes
+#var temp_abilities: Array[Ability]
 
 ###################################################################################################
 ###	Methods
 ### Custom Methods
 func setup(unit: UnitRes) -> void:
+    cost_mod = CostRes.new()
+    dmg_mod = DamageRes.new()
+    cost_total = CostRes.new()
+    damage_total = DamageRes.new()
     pass
 
 
