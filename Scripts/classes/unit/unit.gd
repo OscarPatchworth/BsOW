@@ -23,13 +23,13 @@ var damage_total:DamageRes
 ###################################################################################################
 ###	Methods
 ### Custom Methods
-func setup(unit: UnitRes) -> void:
+func setup(unit_ref: UnitRes) -> void:
     cost_mod = CostRes.new()
     dmg_mod = DamageRes.new()
     cost_total = CostRes.new()
     damage_total = DamageRes.new()
 
-    unit_res = unit
+    unit_res = unit_ref
     pass
 
 func get_dmg_total() -> DamageRes:
