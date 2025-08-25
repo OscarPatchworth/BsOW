@@ -1,7 +1,7 @@
 [gd_resource type="Resource" script_class="BiomeReS" load_steps=3 format=3 uid="uid://dk0itm315d85i"]
 
 [ext_resource type="Material" uid="uid://cb7k61imm7h6a" path="res://Textures/Materials/terrian_materials/Terrian_Mount.tres" id="1_45kh8"]
-[ext_resource type="Script" path="res://Scripts/classes/biome/biome_resource.gd" id="2_7hr41"]
+[ext_resource type="Script" path="res://Scripts/Resources/biome/biome_resource.gd" id="2_7hr41"]
 
 [resource]
 script = ExtResource("2_7hr41")

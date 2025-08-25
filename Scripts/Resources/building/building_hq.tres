@@ -1,0 +1,16 @@
+[gd_resource type="Resource" script_class="BuildingRes" load_steps=5 format=3 uid="uid://b713kpbwedg67"]
+
+[ext_resource type="Texture2D" uid="uid://6hrf2ssb6k6g" path="res://Textures/TempTextures/colourHexIcon/YellowHexIcon.png" id="1_ava21"]
+[ext_resource type="PackedScene" uid="uid://cco3gp6wf1xic" path="res://Assest_Scenes/buildings/build_HQ.tscn" id="2_avr1p"]
+[ext_resource type="Resource" uid="uid://d3qrj60rre6rl" path="res://Scripts/Resources/cost/cost_HQ.tres" id="3_ihcu4"]
+[ext_resource type="Script" path="res://Scripts/Resources/building/building_resource.gd" id="4_f7vjc"]
+
+[resource]
+script = ExtResource("4_f7vjc")
+name = "HQ"
+cost = ExtResource("3_ihcu4")
+build_mesh = ExtResource("2_avr1p")
+build_icon = ExtResource("1_ava21")
+unique_build = true
+override_unit_capacity = false
+unit_capacity = 0

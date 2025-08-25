@@ -1,6 +1,6 @@
 [gd_scene load_steps=9 format=4 uid="uid://ctj0hjqxfncy0"]
 
-[ext_resource type="Script" path="res://Scripts/classes/terrian.gd" id="1_s4udh"]
+[ext_resource type="Script" path="res://Scripts/classes/lander/terrian.gd" id="1_s4udh"]
 
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_0kw4m"]
 resource_name = "Material.002"

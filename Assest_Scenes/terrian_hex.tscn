@@ -1,6 +1,6 @@
 [gd_scene load_steps=10 format=4 uid="uid://ctj0hjqxfncy0"]
 
-[ext_resource type="Script" path="res://Scripts/classes/terrian.gd" id="1_s4udh"]
+[ext_resource type="Script" path="res://Scripts/classes/lander/terrian.gd" id="1_s4udh"]
 
 [sub_resource type="PhysicsMaterial" id="PhysicsMaterial_pgh3x"]
 friction = 0.5

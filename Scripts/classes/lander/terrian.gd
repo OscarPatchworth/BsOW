@@ -121,6 +121,7 @@ func update_biome(newBiome: int) -> void:
 
 func update_biome_material() -> void:
 	if(biome):
+		print(biome)
 		biome_mesh.set_surface_override_material(0, biome.mesh_material)
 	else:
 		biome_mesh.set_surface_override_material(0, load(data_store.get_biome_res(current_biome)).mesh_material)
@@ -180,11 +181,12 @@ func add_building(building_ref) -> void:
 		building_res = building_ref
 	else:
 		print("Terrian.add_building(building_ref) invalid input type \n")
+		
 	if(built_on == false):
 		var build_mesh = building_res.build_mesh.instantiate()
 		build_mesh.set_script(load(data_node_ref.CLASS_BUILDING))
 		build_mesh.add_to_group("buildings")
-
+		
 		build_mesh.build_res = building_res
 		var active_player = game_master.get_active_player()
 		build_mesh.build_by = active_player

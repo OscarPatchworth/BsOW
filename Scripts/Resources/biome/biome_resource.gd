@@ -3,4 +3,3 @@ class_name BiomeReS  # Optional, but helpful
 
 @export var name: String
 @export var mesh_material: Material
-

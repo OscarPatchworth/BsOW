@@ -40,13 +40,13 @@ const PLAINS_BTN_THEAME = "res://Textures/Theames/Buttons/plains_btn_terrian_sta
 const PLASMA_BTN_THEAME = "res://Textures/Theames/Buttons/plasma_btn_terrian_start.tres"
 
 ### BiomeRes(s)
-const BADLANDS_BIOME_RES = "res://Scripts/classes/biome/biome_badlands.tres"
-const COAST_BIOME_RES = "res://Scripts/classes/biome/biome_coast.tres"
-const FOREST_BIOME_RES = "res://Scripts/classes/biome/biome_forest.tres"
-const MOUNT_BIOME_RES = "res://Scripts/classes/biome/biome_mount.tres"
-const OCEAN_BIOME_RES = "res://Scripts/classes/biome/biome_ocean.tres"
-const PLAINS_BIOME_RES = "res://Scripts/classes/biome/biome_plains.tres"
-const PLASMA_BIOME_RES = "res://Scripts/classes/biome/biome_plasma.tres"
+const BADLANDS_BIOME_RES = "res://Scripts/Resources/biome/biome_badlands.tres"
+const COAST_BIOME_RES = "res://Scripts/Resources/biome/biome_coast.tres"
+const FOREST_BIOME_RES = "res://Scripts/Resources/biome/biome_forest.tres"
+const MOUNT_BIOME_RES = "res://Scripts/Resources/biome/biome_mount.tres"
+const OCEAN_BIOME_RES = "res://Scripts/Resources/biome/biome_ocean.tres"
+const PLAINS_BIOME_RES = "res://Scripts/Resources/biome/biome_plains.tres"
+const PLASMA_BIOME_RES = "res://Scripts/Resources/biome/biome_plasma.tres"
 
 
 ###	Building Packed Sence Links

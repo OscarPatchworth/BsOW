@@ -24,15 +24,16 @@ const DATA_PLAYER = "/root/Node3D/Data/DataStorePlayer"
 
 ### Scripts
 const class_btn_terrian_select = "res://Scripts/classes/buttons/btn_terrian_select.gd"
-const CLASS_PLAYER = "res://Scripts/classes/player.gd"
+const CLASS_PLAYER = "res://Scripts/classes/player/player.gd"
 const CLASS_BUILDING = "res://Scripts/classes/building/building.gd"
 
 ### Tree Hiracies
 const terrian_node_folder = "root/Node3D/World_Objects/Terrian"
 
-### Buildings
-const BUILDING_TOWER = "res://Scripts/classes/building/building_tower.tres"
-const BUILDING_HQ = "res://Scripts/classes/building/building_hq.tres"
+### Resources
+# Buildings
+const BUILDING_TOWER = "res://Scripts/Resources/building/building_tower.tres"
+const BUILDING_HQ = "res://Scripts/Resources/building/building_hq.tres"
 
 ### Sences
 

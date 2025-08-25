@@ -5,7 +5,7 @@ extends Node
 # enums
 
 # constants
-const RACE_APE_REF = "res://Scripts/classes/race/ape.tres"
+const RACE_APE_REF = "res://Scripts/Resources/race/ape.tres"
 
 # static variables
 var race_ref = {

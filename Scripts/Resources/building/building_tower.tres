@@ -2,8 +2,8 @@
 
 [ext_resource type="PackedScene" uid="uid://bekp8mu22hmcl" path="res://Assest_Scenes/buildings/build_outpost.tscn" id="1_3urb8"]
 [ext_resource type="Texture2D" uid="uid://mwn3fjw4j8gf" path="res://Textures/TempTextures/colourHexIcon/OrangeHexIcon.png" id="1_f0nbj"]
-[ext_resource type="Resource" uid="uid://b8bx1rpl0bejp" path="res://Scripts/classes/cost/cost_tower.tres" id="2_1nnku"]
-[ext_resource type="Script" path="res://Scripts/classes/building/building_resource.gd" id="3_f6yr4"]
+[ext_resource type="Resource" uid="uid://b8bx1rpl0bejp" path="res://Scripts/Resources/cost/cost_tower.tres" id="2_1nnku"]
+[ext_resource type="Script" path="res://Scripts/Resources/building/building_resource.gd" id="3_f6yr4"]
 
 [resource]
 script = ExtResource("3_f6yr4")
