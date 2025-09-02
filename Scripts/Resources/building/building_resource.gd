@@ -9,3 +9,4 @@ class_name BuildingRes  # Optional, but helpful
 @export var unique_build = false
 @export var override_unit_capacity = false
 @export var unit_capacity = 0
+@export var can_spawn = false

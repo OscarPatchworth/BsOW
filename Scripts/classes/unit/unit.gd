@@ -9,6 +9,7 @@ extends RefCounted
 
 # static variables
 var unit_res: UnitRes
+var name: String
 
 # @export variables
 
@@ -24,12 +25,13 @@ var damage_total:DamageRes
 ###	Methods
 ### Custom Methods
 func setup(unit_ref: UnitRes) -> void:
+    unit_res = unit_ref
+
     cost_mod = CostRes.new()
     dmg_mod = DamageRes.new()
+
     cost_total = CostRes.new()
     damage_total = DamageRes.new()
-
-    unit_res = unit_ref
     pass
 
 func get_dmg_total() -> DamageRes:

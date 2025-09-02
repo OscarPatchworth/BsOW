@@ -14,3 +14,4 @@ build_icon = ExtResource("1_ava21")
 unique_build = true
 override_unit_capacity = false
 unit_capacity = 0
+can_spawn = true

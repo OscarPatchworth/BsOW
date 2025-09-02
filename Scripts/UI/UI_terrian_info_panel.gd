@@ -78,8 +78,9 @@ func update_display_info(terrian_node, player_node) -> void:
 	
 	label_units.text = "Units: " + str(display_info["units"].size())
 	# If (has units)	
-	if(display_info["Built"] == "HQ"):
+	if(display_info["can_spawn"]):
 		hbox_units.show()
+		generate_spawn_opt_btns(display_info["race_spawn"])
 	else:
 		hbox_units.hide()
 
@@ -116,6 +117,21 @@ func generate_build_opt_btns(build_opts: Array[BuildingRes]) -> void:
 			hbox_build_opts.add_child(new_build_opt_btn) 
 
 
+func generate_spawn_opt_btns(spawn_opts: Array[UnitRes]) -> void:
+	free_children(hbox_units)
+	var upcoming_code = """
+	for spawn_opt in spawn_opts:
+		var new_spawn_opt_btn = spawn_opt_btn.instantiate()
+			new_spawn_opt_btn.set_spawn_data(spawn_opt)
+			
+			new_build_opt_btn.attempt_buy_unit.connect(game_master.ply_attempt_spawn)
+			new_build_opt_btn.spawn_on_terrian.connect(self.spawn_on_terrian)
+			
+			hbox_build_opts.add_child(new_build_opt_btn) 
+	"""
+	pass
+
+
 func free_children(parent: Node) -> void:
 	for i in parent.get_children():
 		i.queue_free()
@@ -134,6 +150,8 @@ func generate_diaplay_info() -> Dictionary:
 	info["Race_buildings"] = player.race.buildings
 
 	info["units"] = terrian.units
+	info["can_spawn"] = terrian.building_res.can_spawn if terrian.building_res else false
+	info["race_spawn"] = player.race.units
 	return info
 
 ### Connected Signals
