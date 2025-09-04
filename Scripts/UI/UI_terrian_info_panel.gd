@@ -126,7 +126,7 @@ func generate_spawn_opt_btns(spawn_opts: Array[UnitRes]) -> void:
 		new_spawn_opt_btn.set_unit_data(spawn_opt)
 			
 		new_spawn_opt_btn.attempt_buy_unit.connect(game_master.ply_attempt_buy_unit)
-		#new_spawn_opt_btn.spawn_on_terrian.connect(self.spawn_on_terrian)
+		new_spawn_opt_btn.spawn_unit_on_terrian.connect(self.add_unit)
 			
 		hbox_units.add_child(new_spawn_opt_btn) 
 	
@@ -142,6 +142,10 @@ func build_on_terrian(build: BuildingRes) -> void:
 	terrian.add_building(build)
 	update_terrian_pannel_info.emit(terrian)
 
+
+func add_unit(unit: UnitRes) -> void:
+	terrian.add_unit(unit)
+	update_terrian_pannel_info.emit(terrian)
 
 func generate_diaplay_info() -> Dictionary:
 	var info:Dictionary = {}

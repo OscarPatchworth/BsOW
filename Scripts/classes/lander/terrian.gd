@@ -201,6 +201,17 @@ func add_building(building_ref) -> void:
 		print("Already built on!!")
 
 
+func add_unit(unit_ref) -> void:
+	var unit_res: UnitRes
+	if(typeof(unit_ref) == TYPE_STRING):
+		unit_res = load(unit_ref)
+	elif(unit_ref is UnitRes):
+		unit_res = unit_ref
+	else:
+		print("Unit.add_unit(unit_ref) invalid input type \n")
+
+	print("Printing Units ... Pls wait ..._add_constant_central_force")
+
 func rmv_building() -> void:
 	if(built_on):
 		building_res = null
