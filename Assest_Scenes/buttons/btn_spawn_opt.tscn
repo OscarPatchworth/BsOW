@@ -1,6 +1,6 @@
 [gd_scene load_steps=2 format=3 uid="uid://capwibwtgadpy"]
 
-[ext_resource type="Script" path="res://Scripts/classes/buttons/btn_build_opt.gd" id="1_t27tm"]
+[ext_resource type="Script" path="res://Scripts/classes/buttons/btn_spawn_opt.gd" id="1_ko62k"]
 
-[node name="BtnBuildOpt" type="Button"]
-script = ExtResource("1_t27tm")
+[node name="BtnSpawnOpt" type="Button"]
+script = ExtResource("1_ko62k")

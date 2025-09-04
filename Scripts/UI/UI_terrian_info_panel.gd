@@ -20,7 +20,7 @@ var game_master
 
 # @export variables
 @export var building_opt_btn: PackedScene
-@export var building_spawn_btn: PackedScene
+@export var spawn_opt_btn: PackedScene
 
 # remaining regular variables
 
@@ -120,16 +120,16 @@ func generate_build_opt_btns(build_opts: Array[BuildingRes]) -> void:
 
 func generate_spawn_opt_btns(spawn_opts: Array[UnitRes]) -> void:
 	free_children(hbox_units)
-	var upcoming_code = """
+	#var upcoming_code = 
 	for spawn_opt in spawn_opts:
 		var new_spawn_opt_btn = spawn_opt_btn.instantiate()
-			new_spawn_opt_btn.set_spawn_data(spawn_opt)
+		new_spawn_opt_btn.set_unit_data(spawn_opt)
 			
-			new_build_opt_btn.attempt_buy_unit.connect(game_master.ply_attempt_spawn)
-			new_build_opt_btn.spawn_on_terrian.connect(self.spawn_on_terrian)
+		#new_spawn_opt_btn.attempt_buy_unit.connect(game_master.ply_attempt_spawn)
+		#new_spawn_opt_btn.spawn_on_terrian.connect(self.spawn_on_terrian)
 			
-			hbox_build_opts.add_child(new_build_opt_btn) 
-	"""
+		hbox_units.add_child(new_spawn_opt_btn) 
+	
 	pass
 
 

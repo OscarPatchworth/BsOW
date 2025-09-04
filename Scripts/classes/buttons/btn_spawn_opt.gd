@@ -8,7 +8,7 @@ signal build_on_terrian(build_res:BuildingRes)
 # constants
 
 # static variables
-var build_res: BuildingRes
+var unit_res: UnitRes
 var game_master
 var data_node_ref
 
@@ -34,14 +34,16 @@ func _process(delta: float) -> void:
 
 
 ### Custom Methods
-func set_build_data(build: BuildingRes) -> void:
-	build_res = build
+func set_unit_data(unit: UnitRes) -> void:
+	unit_res = unit
 	update_btn_data()
 
 
 func update_btn_data() -> void:
-	if(build_res):
-		icon = build_res.build_icon
+	if(unit_res):
+		icon = unit_res.icon
+	else:
+		pass
 
 
 ### Connected Signals
@@ -52,6 +54,6 @@ func connect_signals() -> void:
 func _pressed() -> void:
 	# chatGPT showed me callbacks ... way more confuzing than I remember
 	var callback = func(can_pay): can_pay_build = can_pay
-	attempt_buy_build.emit(build_res, callback)
+	attempt_buy_build.emit(unit_res, callback)
 	if(can_pay_build):
-		build_on_terrian.emit(build_res)
+		build_on_terrian.emit(unit_res)
