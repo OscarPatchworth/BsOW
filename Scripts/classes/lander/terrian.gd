@@ -27,7 +27,7 @@ var has_collided : bool
 var building_res: BuildingRes
 var built_on: bool
 var building: Node3D
-var units: Array[UnitRes]
+var units: Array[Unit]
 
 # OnReady Vars
 @onready var biome_mesh = $RigidBody3D/biomeHex
@@ -202,6 +202,7 @@ func add_building(building_ref) -> void:
 
 
 func add_unit(unit_ref) -> void:
+	# Assign Correct ref type
 	var unit_res: UnitRes
 	if(typeof(unit_ref) == TYPE_STRING):
 		unit_res = load(unit_ref)
@@ -210,7 +211,14 @@ func add_unit(unit_ref) -> void:
 	else:
 		print("Unit.add_unit(unit_ref) invalid input type \n")
 
-	print("Printing Units ... Pls wait ..._add_constant_central_force")
+	# Instance Unit
+	var unit = Unit.new() 
+	unit.set_script(load(data_node_ref.CLASS_UNIT))
+	unit.setup(unit_res)
+	#unit.add_to_group("units")
+	units.append(unit)
+
+	print("Printing Units ... Pls wait ... \n" + str(self.units))
 
 func rmv_building() -> void:
 	if(built_on):

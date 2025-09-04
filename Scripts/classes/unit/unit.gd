@@ -1,4 +1,4 @@
-class_name unit
+class_name Unit
 extends RefCounted
 
 # signals

@@ -26,6 +26,7 @@ const DATA_PLAYER = "/root/Node3D/Data/DataStorePlayer"
 const class_btn_terrian_select = "res://Scripts/classes/buttons/btn_terrian_select.gd"
 const CLASS_PLAYER = "res://Scripts/classes/player/player.gd"
 const CLASS_BUILDING = "res://Scripts/classes/building/building.gd"
+const CLASS_UNIT = "res://Scripts/classes/unit/unit.gd"
 
 ### Tree Hiracies
 const terrian_node_folder = "root/Node3D/World_Objects/Terrian"
