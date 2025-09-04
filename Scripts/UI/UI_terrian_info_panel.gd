@@ -125,7 +125,7 @@ func generate_spawn_opt_btns(spawn_opts: Array[UnitRes]) -> void:
 		var new_spawn_opt_btn = spawn_opt_btn.instantiate()
 		new_spawn_opt_btn.set_unit_data(spawn_opt)
 			
-		#new_spawn_opt_btn.attempt_buy_unit.connect(game_master.ply_attempt_spawn)
+		new_spawn_opt_btn.attempt_buy_unit.connect(game_master.ply_attempt_buy_unit)
 		#new_spawn_opt_btn.spawn_on_terrian.connect(self.spawn_on_terrian)
 			
 		hbox_units.add_child(new_spawn_opt_btn) 

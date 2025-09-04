@@ -118,6 +118,10 @@ func ply_attempt_build(build_res:BuildingRes, callback) -> void:
 	callback.call(can_pay)
 	#print("Building In Progress ...")
 
+func ply_attempt_buy_unit(unit_res: UnitRes, callback) -> void:
+	print("Training Units In Progress ...")
+	pass
+
 func update_terrian_pannel_info(terrain) -> void:
 	var target = active_player.find_child("UserControler", true, false)
 	print(target)

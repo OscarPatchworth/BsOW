@@ -1,7 +1,7 @@
 extends Button
 
 # signals
-signal attempt_buy_build(build_res: BuildingRes, callback)
+signal attempt_buy_unit(build_res: BuildingRes, callback)
 signal build_on_terrian(build_res:BuildingRes)
 # enums
 
@@ -34,8 +34,8 @@ func _process(delta: float) -> void:
 
 
 ### Custom Methods
-func set_unit_data(unit: UnitRes) -> void:
-	unit_res = unit
+func set_unit_data(unit_data: UnitRes) -> void:
+	unit_res = unit_data
 	update_btn_data()
 
 
@@ -54,6 +54,6 @@ func connect_signals() -> void:
 func _pressed() -> void:
 	# chatGPT showed me callbacks ... way more confuzing than I remember
 	var callback = func(can_pay): can_pay_build = can_pay
-	attempt_buy_build.emit(unit_res, callback)
-	if(can_pay_build):
-		build_on_terrian.emit(unit_res)
+	attempt_buy_unit.emit(unit_res, callback)
+	#if(can_pay_build):
+		#build_on_terrian.emit(unit_res)
