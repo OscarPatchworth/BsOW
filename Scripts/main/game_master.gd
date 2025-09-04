@@ -118,8 +118,23 @@ func ply_attempt_build(build_res:BuildingRes, callback) -> void:
 	callback.call(can_pay)
 	#print("Building In Progress ...")
 
+
 func ply_attempt_buy_unit(unit_res: UnitRes, callback) -> void:
-	print("Training Units In Progress ...")
+	# Check Player can pay for unit
+	var can_pay = true
+	var unit_cost = unit_res.cost.get_resource_dict()
+	var ply_res = active_player.player_resources.get_resource_dict()
+
+	for i in unit_res.cost.get_resource_dict():
+		if(ply_res[i] < unit_cost[i]):
+			can_pay = false
+	if(can_pay): 
+		for i in unit_res.cost.get_resource_dict():
+			ply_res[i] -= unit_cost[i]
+			active_player.player_resources.set_resource_value(i, ply_res[i])
+	else: print("\n Not enough resources \n ")
+	callback.call(can_pay)
+	#print("Training Units In Progress ...")
 	pass
 
 func update_terrian_pannel_info(terrain) -> void:
