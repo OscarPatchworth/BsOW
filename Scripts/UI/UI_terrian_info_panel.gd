@@ -20,6 +20,7 @@ var game_master
 
 # @export variables
 @export var building_opt_btn: PackedScene
+@export var building_spawn_btn: PackedScene
 
 # remaining regular variables
 
