@@ -2,7 +2,7 @@
 
 [resource]
 transparency = 1
-albedo_color = Color(1, 0.278431, 0.537255, 1)
+albedo_color = Color(0.61, 0.1708, 0.33184, 1)
 metallic = 0.8
 roughness = 0.3
 emission = Color(0.321106, 2.82768e-07, 0.13788, 1)

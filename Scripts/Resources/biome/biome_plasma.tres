@@ -1,9 +1,11 @@
-[gd_resource type="Resource" script_class="BiomeReS" load_steps=3 format=3 uid="uid://dj5pw1srh5qny"]
+[gd_resource type="Resource" script_class="BiomeReS" load_steps=4 format=3 uid="uid://dj5pw1srh5qny"]
 
 [ext_resource type="Material" uid="uid://wyt2weyuhn7" path="res://Textures/Materials/terrian_materials/Terrian_Plasma.tres" id="1_4aanc"]
+[ext_resource type="Texture2D" uid="uid://beo22jd8pb8jq" path="res://Textures/TempTextures/colourPokerIcons/PokerPinkIcon.png" id="2_k0hp5"]
 [ext_resource type="Script" path="res://Scripts/Resources/biome/biome_resource.gd" id="2_x6pcq"]
 
 [resource]
 script = ExtResource("2_x6pcq")
 name = "Plasma"
 mesh_material = ExtResource("1_4aanc")
+poker_icon = ExtResource("2_k0hp5")

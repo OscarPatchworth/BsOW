@@ -1,9 +1,11 @@
-[gd_resource type="Resource" script_class="BiomeReS" load_steps=3 format=3 uid="uid://dmqjnf4y7fcwf"]
+[gd_resource type="Resource" script_class="BiomeReS" load_steps=4 format=3 uid="uid://dmqjnf4y7fcwf"]
 
 [ext_resource type="Material" uid="uid://die6h0nmiegv0" path="res://Textures/Materials/terrian_materials/Terrian_Coast.tres" id="1_hwopr"]
+[ext_resource type="Texture2D" uid="uid://clqabc6u2ac4t" path="res://Textures/TempTextures/colourPokerIcons/PokerTealIcon.png" id="2_g21kv"]
 [ext_resource type="Script" path="res://Scripts/Resources/biome/biome_resource.gd" id="2_tkidv"]
 
 [resource]
 script = ExtResource("2_tkidv")
 name = "Coast"
 mesh_material = ExtResource("1_hwopr")
+poker_icon = ExtResource("2_g21kv")
