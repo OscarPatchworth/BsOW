@@ -28,11 +28,13 @@ var building_res: BuildingRes
 var built_on: bool
 var building: Node3D
 var units: Array[Unit]
+var connected_landers: Array[Terrian]
 
 # OnReady Vars
 @onready var biome_mesh = $RigidBody3D/biomeHex
 @onready var rb = self.get_node("RigidBody3D")
 @onready var a3D = rb.get_node("Area3D")
+@onready var a3D_lander_detector = self.get_node("LanderDetector")
 @onready var border_size = 100
 
 
@@ -55,6 +57,8 @@ func _ready() -> void:
 	a3D.set_monitoring(true)
 	a3D.set_monitorable(true)	
 	a3D_hits = 0
+	a3D_lander_detector.set_monitoring(true)
+	a3D_lander_detector.set_monitorable(true)
 
 	# Enable rb freeze mode
 	rb.set_freeze_mode(0)
@@ -251,3 +255,14 @@ func _on_area_3d_body_exited(body: Node3D) -> void:
 func reset_collision() -> void:
 	has_collided = false
 	rb.set_sleeping(false)
+
+
+func _on_lander_detector_body_entered(body: Node3D) -> void:
+	if (connected_landers.has(body) == false):
+		connected_landers.append(body.get_parent())
+		#print(connected_landers)
+
+
+func _on_lander_detector_body_exited(body: Node3D) -> void:
+	if connected_landers.has(body.get_parent()) == true:
+		connected_landers.erase(body.get_parent())
