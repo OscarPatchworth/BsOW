@@ -121,7 +121,6 @@ func update_biome(newBiome: int) -> void:
 
 func update_biome_material() -> void:
 	if(biome):
-		print(biome)
 		biome_mesh.set_surface_override_material(0, biome.mesh_material)
 	else:
 		biome_mesh.set_surface_override_material(0, load(data_store.get_biome_res(current_biome)).mesh_material)
@@ -218,7 +217,6 @@ func add_unit(unit_ref) -> void:
 	#unit.add_to_group("units")
 	units.append(unit)
 
-	print("Printing Units ... Pls wait ... \n" + str(self.units))
 
 func rmv_building() -> void:
 	if(built_on):

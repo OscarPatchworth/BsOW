@@ -60,31 +60,16 @@ func _process(delta: float) -> void:
 func update_display_info(terrian_node, player_node) -> void:
 	self.terrian = terrian_node
 	self.player = player_node
-
 	var display_info = generate_diaplay_info()
-	#print("Update Terrian Panel info signal recived from Player_Cntrl  ||  " + str(terrian_info["Biome"]))
 	
 	# Update Info
-	label_biome.text = display_info["Biome"]
+	update_biome_label(display_info)
 
 	# If (Has Building)
-	if(display_info["Built"]):
-		label_building.text = "Building: " + display_info["Built"]
-		hbox_build_opts.hide()
-	else:
-		label_building.text = "Building: "
-		if(display_info["Race_buildings"]):
-			hbox_build_opts.show()
-			generate_build_opt_btns(display_info["Race_buildings"])
+	update_building_label(display_info)
 	
-	label_units.text = "Units: " + str(display_info["units"].size())
-	# If (has units)	
-	if(display_info["can_spawn"]):
-		hbox_units.show()
-		generate_spawn_opt_btns(display_info["race_spawn"])
-	else:
-		hbox_units.hide()
-
+	# If (has units)
+	update_units_label(display_info)	
 
 
 func become_invisable() ->void:
@@ -93,6 +78,30 @@ func become_invisable() ->void:
 
 func become_visable() -> void:
 	self.show()
+
+
+func update_biome_label(display_info: Dictionary) -> void:
+	label_biome.text = display_info["Biome"]
+
+
+func update_building_label(display_info: Dictionary) -> void:
+	if(display_info["Built"]):
+		label_building.text = "Building: " + display_info["Built"]
+		hbox_build_opts.hide()
+	else:
+		label_building.text = "Building: "
+		if(display_info["Race_buildings"]):
+			hbox_build_opts.show()
+			generate_build_opt_btns(display_info["Race_buildings"])
+
+
+func update_units_label(display_info: Dictionary) -> void:
+	label_units.text = "Units: " + str(display_info["units"].size())
+	if(display_info["can_spawn"]):
+		hbox_units.show()
+		generate_spawn_opt_btns(display_info["race_spawn"])
+	else:
+		hbox_units.hide()
 
 
 func generate_build_opt_btns(build_opts: Array[BuildingRes]) -> void:
