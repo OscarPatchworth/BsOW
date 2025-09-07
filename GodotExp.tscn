@@ -287,15 +287,28 @@ layout_mode = 2
 icon = ExtResource("13_gdbs1")
 flat = true
 
+[node name="Spawn_units" type="Label" parent="UI/Terrian_Info_Panel/Panel/VBoxContainer"]
+layout_mode = 2
+text = "Units:"
+label_settings = SubResource("LabelSettings_ax7hc")
+
+[node name="Spawn_options" type="HBoxContainer" parent="UI/Terrian_Info_Panel/Panel/VBoxContainer"]
+layout_mode = 2
+
+[node name="Button" type="Button" parent="UI/Terrian_Info_Panel/Panel/VBoxContainer/Spawn_options"]
+layout_mode = 2
+icon = ExtResource("13_gdbs1")
+flat = true
+
 [node name="Units" type="Label" parent="UI/Terrian_Info_Panel/Panel/VBoxContainer"]
 layout_mode = 2
 text = "Units:"
 label_settings = SubResource("LabelSettings_ax7hc")
 
-[node name="Unit_options" type="HBoxContainer" parent="UI/Terrian_Info_Panel/Panel/VBoxContainer"]
+[node name="units_hbox" type="HBoxContainer" parent="UI/Terrian_Info_Panel/Panel/VBoxContainer"]
 layout_mode = 2
 
-[node name="Button" type="Button" parent="UI/Terrian_Info_Panel/Panel/VBoxContainer/Unit_options"]
+[node name="Button" type="Button" parent="UI/Terrian_Info_Panel/Panel/VBoxContainer/units_hbox"]
 layout_mode = 2
 icon = ExtResource("13_gdbs1")
 flat = true
@@ -304,6 +317,14 @@ flat = true
 layout_mode = 2
 text = "Connected Biomes:"
 label_settings = SubResource("LabelSettings_ax7hc")
+
+[node name="hbox_connected" type="HBoxContainer" parent="UI/Terrian_Info_Panel/Panel/VBoxContainer"]
+layout_mode = 2
+
+[node name="Button" type="Button" parent="UI/Terrian_Info_Panel/Panel/VBoxContainer/hbox_connected"]
+layout_mode = 2
+icon = ExtResource("13_gdbs1")
+flat = true
 
 [node name="Data" type="Node" parent="."]
 

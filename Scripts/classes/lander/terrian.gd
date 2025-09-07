@@ -258,7 +258,7 @@ func reset_collision() -> void:
 
 
 func _on_lander_detector_body_entered(body: Node3D) -> void:
-	if (connected_landers.has(body) == false):
+	if (connected_landers.has(body) == false and body.get_parent() != self ):
 		connected_landers.append(body.get_parent())
 		#print(connected_landers)
 
