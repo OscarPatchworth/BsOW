@@ -123,7 +123,7 @@ func update_unit_label(display_info: Dictionary) -> void:
 
 func update_connected_lander_label(display_info: Dictionary) -> void:
 	label_connected_lander.text = "Connected Terrian: " + str(display_info["connected_landers"].size())
-
+	generate_connected_lander_btns(display_info["connected_landers"])
 
 func generate_build_opt_btns(build_opts: Array[BuildingRes]) -> void:
 	free_children(hbox_build_opts)
@@ -160,7 +160,15 @@ func generate_spawn_opt_btns(spawn_opts: Array[UnitRes]) -> void:
 			
 		hbox_spawn_opts.add_child(new_spawn_opt_btn) 
 	
-	pass
+
+func generate_connected_lander_btns(connected_landers: Array[Terrian]) -> void:
+	free_children(hbox_connected_lander)
+
+	for lander in connected_landers:
+		var new_lander_icon_btn = Button.new()
+		new_lander_icon_btn.icon = lander.biome.poker_icon
+		hbox_connected_lander.add_child(new_lander_icon_btn)
+
 
 
 func free_children(parent: Node) -> void:
@@ -188,7 +196,7 @@ func generate_diaplay_info() -> Dictionary:
 	info["can_spawn"] = terrian.building_res.can_spawn if terrian.building_res else false
 	info["race_spawn"] = player.race.units
 
-	info["connected_landers"] = terrian.connected_landers
+	info["connected_landers"] = terrian.get_connected_landers()
 	return info
 
 ### Connected Signals

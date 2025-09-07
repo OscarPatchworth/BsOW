@@ -34,7 +34,7 @@ var connected_landers: Array[Terrian]
 @onready var biome_mesh = $RigidBody3D/biomeHex
 @onready var rb = self.get_node("RigidBody3D")
 @onready var a3D = rb.get_node("Area3D")
-@onready var a3D_lander_detector = self.get_node("LanderDetector")
+@onready var a3D_lander_detector = self.find_child("LanderDetector")
 @onready var border_size = 100
 
 
@@ -231,6 +231,14 @@ func rmv_building() -> void:
 		building_instance.queue_free()
 
 
+func get_connected_landers() -> Array[Terrian]:
+	connected_landers = []
+	for i in a3D_lander_detector.get_overlapping_bodies():
+		if((i.get_parent() in connected_landers) == false and i.get_parent() != self):
+			connected_landers.append(i.get_parent()) 
+		
+	return connected_landers
+
 ###################################################################################################
 ###################################################################################################
 ###	Connected Signals
@@ -255,14 +263,3 @@ func _on_area_3d_body_exited(body: Node3D) -> void:
 func reset_collision() -> void:
 	has_collided = false
 	rb.set_sleeping(false)
-
-
-func _on_lander_detector_body_entered(body: Node3D) -> void:
-	if (connected_landers.has(body) == false and body.get_parent() != self ):
-		connected_landers.append(body.get_parent())
-		#print(connected_landers)
-
-
-func _on_lander_detector_body_exited(body: Node3D) -> void:
-	if connected_landers.has(body.get_parent()) == true:
-		connected_landers.erase(body.get_parent())

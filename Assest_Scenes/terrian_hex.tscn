@@ -132,14 +132,13 @@ shape = SubResource("CylinderShape3D_ni25d")
 
 [node name="Building" type="Node3D" parent="RigidBody3D"]
 
-[node name="LanderDetector" type="Area3D" parent="."]
+[node name="LanderDetector" type="Area3D" parent="RigidBody3D"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.5, 0)
 collision_layer = 0
 collision_mask = 2
 
-[node name="CollisionShape3D" type="CollisionShape3D" parent="LanderDetector"]
+[node name="CollisionShape3D" type="CollisionShape3D" parent="RigidBody3D/LanderDetector"]
 shape = SubResource("CylinderShape3D_k1uw0")
 
 [connection signal="body_entered" from="RigidBody3D/Area3D" to="." method="_on_area_3d_body_entered"]
 [connection signal="body_exited" from="RigidBody3D/Area3D" to="." method="_on_area_3d_body_exited"]
-[connection signal="body_entered" from="LanderDetector" to="." method="_on_lander_detector_body_entered"]
-[connection signal="body_exited" from="LanderDetector" to="." method="_on_lander_detector_body_exited"]
