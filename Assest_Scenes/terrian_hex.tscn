@@ -1,4 +1,4 @@
-[gd_scene load_steps=10 format=4 uid="uid://ctj0hjqxfncy0"]
+[gd_scene load_steps=11 format=4 uid="uid://ctj0hjqxfncy0"]
 
 [ext_resource type="Script" path="res://Scripts/classes/lander/terrian.gd" id="1_s4udh"]
 
@@ -90,6 +90,10 @@ _surfaces = [{
 blend_shape_mode = 0
 shadow_mesh = SubResource("ArrayMesh_3eefu")
 
+[sub_resource type="CylinderShape3D" id="CylinderShape3D_k1uw0"]
+height = 0.5
+radius = 2.0
+
 [node name="TerrianHex" type="Node3D" groups=["terrian"]]
 script = ExtResource("1_s4udh")
 
@@ -127,6 +131,13 @@ transform = Transform3D(2.1, 0, 0, 0, 2.1, 0, 0, 0, 2.1, 0, 0, 0)
 shape = SubResource("CylinderShape3D_ni25d")
 
 [node name="Building" type="Node3D" parent="RigidBody3D"]
+
+[node name="LanderConnector" type="Area3D" parent="."]
+collision_layer = 0
+collision_mask = 2
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="LanderConnector"]
+shape = SubResource("CylinderShape3D_k1uw0")
 
 [connection signal="body_entered" from="RigidBody3D/Area3D" to="." method="_on_area_3d_body_entered"]
 [connection signal="body_exited" from="RigidBody3D/Area3D" to="." method="_on_area_3d_body_exited"]
