@@ -166,6 +166,3 @@ func _on_user_controler_biome_placed(ply_state: int, spawn_spot: Dictionary) -> 
 	elif(ply_state == 2):
 		players_generate_biome_resources.emit()
 		
-
-	
-	pass # Replace with function body.

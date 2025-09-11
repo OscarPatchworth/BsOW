@@ -1,4 +1,4 @@
-[gd_scene load_steps=30 format=3 uid="uid://dp1qeccnucfgp"]
+[gd_scene load_steps=31 format=3 uid="uid://dp1qeccnucfgp"]
 
 [ext_resource type="Texture2D" uid="uid://bn8wfhbs1omgo" path="res://Textures/TempTextures/third_person_controller_assets/textures/grids/Dark/texture_08.png" id="1_g3s7m"]
 [ext_resource type="Script" path="res://Scripts/main/gravity.gd" id="2_2m5uj"]
@@ -19,6 +19,7 @@
 [ext_resource type="Script" path="res://Scripts/UI/UI_queued_biome.gd" id="14_dfn7l"]
 [ext_resource type="Script" path="res://Scripts/data/data_settings.gd" id="14_gwi1l"]
 [ext_resource type="Script" path="res://Scripts/data/data_store_terrian.gd" id="15_6nsda"]
+[ext_resource type="Script" path="res://Scripts/UI/UI_Turn_display.gd" id="15_8h3ro"]
 [ext_resource type="Script" path="res://Scripts/data/data_node_and_file_refs.gd" id="18_8hc45"]
 [ext_resource type="PackedScene" uid="uid://ycqhtp6pluf8" path="res://Assest_Scenes/buttons/btn_biome_start.tscn" id="18_u4tc7"]
 [ext_resource type="Script" path="res://Scripts/data/data_store_player.gd" id="20_haegh"]
@@ -331,6 +332,7 @@ layout_mode = 3
 anchors_preset = 0
 offset_right = 40.0
 offset_bottom = 40.0
+script = ExtResource("15_8h3ro")
 
 [node name="Panel" type="Panel" parent="UI/Turn-Steps"]
 layout_mode = 1
