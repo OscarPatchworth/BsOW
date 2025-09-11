@@ -72,7 +72,7 @@ func switch_state_place_terrian():
 
 	data_store_terrian.rand_queded_biomes()
 
-	player_change_state.emit((game_state + 1))
+	player_change_state.emit((game_state))
 
 
 ### Update() states

@@ -8,7 +8,14 @@ signal escape_pressed
 signal show_terrina_info_panel
 
 # enums
-enum PlayerControlerStateMachine {INACTIVE, PLACE_STARTING_TERRIAN, PLACING_TERRIAN, MOVING_UNITS}
+enum PlayerControlerStateMachine {
+		INACTIVE, 
+		PLACE_STARTING_TERRIAN, 
+		PLACING_TERRIAN, 
+		MOVING_UNITS, 
+		COMBAT, 
+		RENFORCE
+}
 
 # constants
 const RAY_LENGTH = 100
@@ -63,6 +70,8 @@ func _process(delta: float) -> void:
 			update_placing_terrian()
 		PlayerControlerStateMachine.PLACE_STARTING_TERRIAN:
 			update_place_starting_terrian()
+		PlayerControlerStateMachine.COMBAT:
+			update_combat()
 	
 
 func _input(event: InputEvent) -> void:
@@ -73,6 +82,8 @@ func _input(event: InputEvent) -> void:
 			input_placing_terrian(event)
 		PlayerControlerStateMachine.PLACE_STARTING_TERRIAN:
 			input_place_starting_terrian(event)
+		PlayerControlerStateMachine.COMBAT:
+			input_combat(event)
 
 ###################################################################################################
 ###	State Machine Funcs
@@ -88,9 +99,11 @@ func switch_state_placing_terrian() -> void:
 	check_terrain_paceable_sence.show()
 	player_state = PlayerControlerStateMachine.PLACING_TERRIAN
 
+
 func switch_state_place_starting_terrian() -> void:
 	check_terrain_paceable_sence.show()
 	player_state = PlayerControlerStateMachine.PLACE_STARTING_TERRIAN
+
 
 func switch_state_active() ->void:
 	if(game_master.game_state == game_master.GameState.START):
@@ -101,16 +114,25 @@ func switch_state_active() ->void:
 		switch_state_inactive()
 
 
+func switch_state_combat() -> void:
+	check_terrain_paceable_sence.hide()
+	player_state = PlayerControlerStateMachine.COMBAT
+
+
 ### Update() states
 
 func update_placing_terrian() -> void:
 	if check_terrain_paceable_sence:
 		move_to_mouse_pos(check_terrain_paceable_sence)
 
+
 func update_place_starting_terrian() -> void:
 	if check_terrain_paceable_sence:
 		move_to_mouse_pos(check_terrain_paceable_sence)
 
+
+func update_combat() -> void:
+	pass
 
 ### Input() states
 
@@ -135,6 +157,10 @@ func input_placing_terrian(event: InputEvent) -> void:
 
 func input_place_starting_terrian(event: InputEvent) -> void:
 	input_placing_terrian(event)
+
+
+func input_combat(event: InputEvent) -> void:
+	pass
 
 
 ###################################################################################################
@@ -184,8 +210,10 @@ func move_to_mouse_pos(obj: Node3D) -> void:
 
 func game_master_change_state(state: int) -> void:
 	match state:
-		2:
+		game_master.GameState.PLACE_TERRIAN:
 			switch_state_placing_terrian()
+		game_master.GameState.COMBAT:
+			switch_state_combat()
 
 
 func generate_and_emit_terrian_banner_info(terrian_obj) -> void:
