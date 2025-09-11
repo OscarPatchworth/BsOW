@@ -326,6 +326,73 @@ layout_mode = 2
 icon = ExtResource("13_gdbs1")
 flat = true
 
+[node name="Turn-Steps" type="Control" parent="UI"]
+layout_mode = 3
+anchors_preset = 0
+offset_right = 40.0
+offset_bottom = 40.0
+
+[node name="Panel" type="Panel" parent="UI/Turn-Steps"]
+layout_mode = 1
+anchors_preset = 4
+anchor_top = 0.5
+anchor_bottom = 0.5
+offset_top = 55.0
+offset_right = 200.0
+offset_bottom = 380.0
+grow_vertical = 2
+
+[node name="VBoxContainer" type="VBoxContainer" parent="UI/Turn-Steps/Panel"]
+layout_mode = 0
+offset_right = 200.0
+offset_bottom = 40.0
+
+[node name="Title" type="Label" parent="UI/Turn-Steps/Panel/VBoxContainer"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 25
+text = "Turn Order"
+horizontal_alignment = 1
+
+[node name="Step1" type="Label" parent="UI/Turn-Steps/Panel/VBoxContainer"]
+layout_mode = 2
+text = "Upkeep"
+
+[node name="Step2" type="Label" parent="UI/Turn-Steps/Panel/VBoxContainer"]
+layout_mode = 2
+text = "Dustcloud Collaspe"
+
+[node name="Step3" type="Label" parent="UI/Turn-Steps/Panel/VBoxContainer"]
+layout_mode = 2
+text = "Combat"
+
+[node name="Step4" type="Label" parent="UI/Turn-Steps/Panel/VBoxContainer"]
+layout_mode = 2
+text = "Renforcement"
+
+[node name="Step5" type="Label" parent="UI/Turn-Steps/Panel/VBoxContainer"]
+layout_mode = 2
+text = "Cleanup"
+
+[node name="Break" type="Label" parent="UI/Turn-Steps/Panel/VBoxContainer"]
+layout_mode = 2
+
+[node name="EventTitle" type="Label" parent="UI/Turn-Steps/Panel/VBoxContainer"]
+layout_mode = 2
+text = "Event:
+"
+
+[node name="EventStep1" type="Label" parent="UI/Turn-Steps/Panel/VBoxContainer"]
+layout_mode = 2
+text = "Planechase"
+
+[node name="EventStep2" type="Label" parent="UI/Turn-Steps/Panel/VBoxContainer"]
+layout_mode = 2
+text = "Chaos Ensuses"
+
+[node name="EventStep3" type="Label" parent="UI/Turn-Steps/Panel/VBoxContainer"]
+layout_mode = 2
+text = "Seasons Change"
+
 [node name="Data" type="Node" parent="."]
 
 [node name="Game_Master" type="Node" parent="Data"]
