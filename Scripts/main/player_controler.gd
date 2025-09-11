@@ -8,7 +8,7 @@ signal escape_pressed
 signal show_terrina_info_panel
 
 # enums
-enum PlayerControlerStateMachine {INACTIVE, PLACE_STARTING_TERRIAN, PLACING_TERRIAN}
+enum PlayerControlerStateMachine {INACTIVE, PLACE_STARTING_TERRIAN, PLACING_TERRIAN, MOVING_UNITS}
 
 # constants
 const RAY_LENGTH = 100

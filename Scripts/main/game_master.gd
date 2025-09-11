@@ -6,7 +6,7 @@ signal player_change_state(state: int)
 signal update_active_player(player: Node)
 
 # enums
-enum GameState {START, PLACE_TERRIAN}
+enum GameState {START, PLACE_TERRIAN, MOVE_UNITS, COMBAT, RENFORCE, CLEANUP }
 
 # constants
 # static variables
