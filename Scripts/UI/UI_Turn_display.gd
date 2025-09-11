@@ -28,6 +28,7 @@ var game_master
 # @export variables
 
 # remaining regular variables
+var active_label: Label
 
 # @onready variables
 @onready var data_node_ref = get_node("%DataNodeRefs")
@@ -66,16 +67,40 @@ func ready_children() -> void:
 	label_step4 = vbox.find_child("Step4")
 	label_step5 = vbox.find_child("Step5")
 	label_break = vbox.find_child("Break")
-
-
+	
 func update_display(player_state: int) -> void:
-	match  player_state:
+	reset_prev_active_label()
+
+	match player_state:
+		game_master.GameState.UPKEEP:
+			set_active_label(label_step1)
+		game_master.GameState.PLACE_TERRIAN:
+			set_active_label(label_step2)
+		game_master.GameState.MOVE_UNITS:
+			set_active_label(label_step3)
 		0:
 			panel.hide()
 		_:
 			panel.show()
-	print(player_state)
 
+
+func set_active_label(label:Label) -> void:
+	panel.show()
+	active_label = label
+
+	var label_bg_override = StyleBoxFlat.new()
+	label_bg_override.bg_color = Color.DARK_ORANGE
+
+	active_label.add_theme_color_override("font_color", Color.WHEAT)
+	active_label.add_theme_stylebox_override("normal", label_bg_override)
+	active_label.add_theme_constant_override("outline_size",10)
+
+
+func reset_prev_active_label() -> void:
+	if(active_label):
+		active_label.remove_theme_color_override("font_color")
+		active_label.remove_theme_stylebox_override("normal")
+		active_label.remove_theme_constant_override("outline_size")
 
 ### Connected Signals
 func ready_refs() -> void:
