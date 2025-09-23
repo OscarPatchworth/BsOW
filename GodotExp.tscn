@@ -408,10 +408,9 @@ text = "Seasons Change"
 
 [node name="Button" type="Button" parent="UI/Turn-Steps/Panel"]
 layout_mode = 0
-offset_left = 20.0
-offset_top = 335.0
-offset_right = 170.0
-offset_bottom = 385.0
+offset_top = 337.0
+offset_right = 150.0
+offset_bottom = 387.0
 theme = SubResource("Theme_gehrl")
 text = "Next"
 

@@ -8,12 +8,20 @@ signal update_terrian_pannel_info(terrian)
 
 # static variables
 var label_biome: Label
+var label_owner: Label
+var label_placer: Label
+var label_upkeep: Label
+var label_abilities: Label
+
 var label_building: Label
 var hbox_build_opts: HBoxContainer
+
 var label_units: Label
 var hbox_units: HBoxContainer
+
 var label_spawn: Label
 var hbox_spawn_opts: HBoxContainer
+
 var label_connected_lander: Label
 var hbox_connected_lander: HBoxContainer
 
@@ -53,6 +61,11 @@ func _ready() -> void:
 	label_connected_lander = find_child("Connected Biomes")
 	hbox_connected_lander = find_child("hbox_connected")
 
+	label_owner = find_child("Owner")
+	label_placer = find_child("Placer")
+	label_upkeep = find_child("Upkeep")
+	label_abilities = find_child("Abilities")
+
 	# Ready refrences
 	data_terrian = get_node("/" + data_node_ref.DATA_TERRIAN)
 	game_master = get_node("/" + data_node_ref.GAME_MASTER)
@@ -89,10 +102,18 @@ func update_display_info(terrian_node, player_node) -> void:
 		update_biome_label(display_info)
 		# If (Has Building)
 		update_building_label(display_info)
-		update_unit_label(display_info)
 		update_connected_lander_label(display_info)
+		update_units_hbox(display_info)
+		
 		free_children(hbox_build_opts)
 		hbox_spawn_opts.hide()
+		label_spawn.hide()
+	
+	# Hide un-set fields
+	label_owner.hide()
+	label_placer.hide()
+	label_upkeep.hide()
+	label_abilities.hide()
 
 func become_invisable() ->void:
 	self.terrian = null
@@ -214,10 +235,12 @@ func generate_diaplay_info() -> Dictionary:
 
 func update_player_phase(player_state: int):
 	player_phase = player_state
-	print("Player Phase: " + str(player_phase))
 	if(player and terrian):
 		update_display_info(self.terrian, self.player)
 
+
+func update_units_hbox(display_info: Dictionary):
+	update_unit_label(display_info)
 
 ### Connected Signals
 func ready_signals() -> void:
