@@ -140,5 +140,7 @@ collision_mask = 2
 [node name="CollisionShape3D" type="CollisionShape3D" parent="RigidBody3D/LanderDetector"]
 shape = SubResource("CylinderShape3D_k1uw0")
 
+[node name="Unit_mesh" type="Node3D" parent="RigidBody3D"]
+
 [connection signal="body_entered" from="RigidBody3D/Area3D" to="." method="_on_area_3d_body_entered"]
 [connection signal="body_exited" from="RigidBody3D/Area3D" to="." method="_on_area_3d_body_exited"]

@@ -9,7 +9,6 @@ uv1_triplanar = true
 uv1_triplanar_sharpness = 0.475929
 
 [node name="BuildOutpost" type="Node3D"]
-transform = Transform3D(2, 0, 0, 0, 2, 0, 0, 0, 2, 0, 0, 0)
 
 [node name="CSGCombiner3D" type="CSGCombiner3D" parent="."]
 material_override = SubResource("StandardMaterial3D_hw2n2")

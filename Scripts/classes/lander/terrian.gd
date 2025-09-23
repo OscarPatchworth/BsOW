@@ -27,6 +27,7 @@ var has_collided : bool
 var building_res: BuildingRes
 var built_on: bool
 var building: Node3D
+var unit_mesh_node: Node3D
 var units: Array[Unit]
 var connected_landers: Array[Terrian]
 
@@ -76,6 +77,7 @@ func _ready() -> void:
 	gravity_node.reset_terrian_collision.connect(reset_collision)
 
 	building = find_child("Building")
+	unit_mesh_node = find_child("Unit_mesh")
 
 	# Setup vars
 	built_on = false
@@ -220,6 +222,15 @@ func add_unit(unit_ref) -> void:
 	unit.setup(unit_res)
 	#unit.add_to_group("units")
 	units.append(unit)
+
+	if(unit_mesh_node.get_child_count() < 1):
+		var unit_mesh = unit.unit_res.mesh.instantiate()
+		unit_mesh.position.y = 0.5
+		var angle = randf() * TAU
+		var offset = Vector3(cos(angle), 0, sin(angle)) * 0.7
+		unit_mesh.position += offset
+		unit_mesh.look_at(self.global_position, Vector3.UP)
+		unit_mesh_node.add_child(unit_mesh)
 
 
 func rmv_building() -> void:

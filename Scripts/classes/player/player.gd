@@ -46,11 +46,11 @@ func _process(delta: float) -> void:
 
 ### Custom Methods
 func generate_biome_resources() -> void:
-	if (randi() % 2):
-		player_resources.food += 1
+	if (randi()):
+		player_resources.food += 100
 	
-	if (randi() % 2):
-		player_resources.mineral += 1
+	if (randi()):
+		player_resources.mineral += 100
 
 	update_ui_food.emit(player_resources.food)
 	update_ui_mineral.emit(player_resources.mineral)
