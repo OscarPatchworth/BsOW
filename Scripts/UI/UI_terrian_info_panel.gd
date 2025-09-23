@@ -34,6 +34,7 @@ var game_master
 # @export variables
 @export var building_opt_btn: PackedScene
 @export var spawn_opt_btn: PackedScene
+@export var unit_in_lander_btn: PackedScene
 
 # remaining regular variables
 var player_phase = 0
@@ -203,6 +204,17 @@ func generate_connected_lander_btns(connected_landers: Array[Terrian]) -> void:
 		hbox_connected_lander.add_child(new_lander_icon_btn)
 
 
+func generate_inlander_units_btns(lander_units: Array[Unit]) -> void:
+	free_children(hbox_units)
+	hbox_units.show()
+
+	for unit in lander_units:
+		var new_unit_btn = unit_in_lander_btn.instantiate()
+		#new_unit_btn.set_unit_data(unit)
+
+		hbox_units.add_child(new_unit_btn)
+
+
 
 func free_children(parent: Node) -> void:
 	for i in parent.get_children():
@@ -241,6 +253,7 @@ func update_player_phase(player_state: int):
 
 func update_units_hbox(display_info: Dictionary):
 	update_unit_label(display_info)
+	generate_inlander_units_btns(display_info["units"])
 
 ### Connected Signals
 func ready_signals() -> void:

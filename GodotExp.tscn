@@ -1,4 +1,4 @@
-[gd_scene load_steps=34 format=3 uid="uid://dp1qeccnucfgp"]
+[gd_scene load_steps=35 format=3 uid="uid://dp1qeccnucfgp"]
 
 [ext_resource type="Texture2D" uid="uid://bn8wfhbs1omgo" path="res://Textures/TempTextures/third_person_controller_assets/textures/grids/Dark/texture_08.png" id="1_g3s7m"]
 [ext_resource type="Script" path="res://Scripts/main/gravity.gd" id="2_2m5uj"]
@@ -15,6 +15,7 @@
 [ext_resource type="Texture2D" uid="uid://cd6076xif6oyu" path="res://Textures/TempTextures/colourHexIcon/GreenHexIcon.png" id="13_gdbs1"]
 [ext_resource type="PackedScene" uid="uid://capwibwtgadpy" path="res://Assest_Scenes/buttons/btn_spawn_opt.tscn" id="13_hfjuo"]
 [ext_resource type="Script" path="res://Scripts/main/game_master.gd" id="13_jtui5"]
+[ext_resource type="PackedScene" uid="uid://bs14pblfpcbl1" path="res://Assest_Scenes/buttons/btn_unit_on_lander.tscn" id="14_4emn5"]
 [ext_resource type="Theme" uid="uid://bi200u6dgup0j" path="res://Textures/new_theme.tres" id="14_4j0qb"]
 [ext_resource type="Script" path="res://Scripts/UI/UI_queued_biome.gd" id="14_dfn7l"]
 [ext_resource type="Script" path="res://Scripts/data/data_settings.gd" id="14_gwi1l"]
@@ -253,6 +254,7 @@ theme_override_styles/panel = SubResource("StyleBoxFlat_vclpa")
 script = ExtResource("11_ddjtp")
 building_opt_btn = ExtResource("12_0wqmo")
 spawn_opt_btn = ExtResource("13_hfjuo")
+unit_in_lander_btn = ExtResource("14_4emn5")
 
 [node name="VBoxContainer" type="VBoxContainer" parent="UI/Terrian_Info_Panel/Panel"]
 layout_mode = 0

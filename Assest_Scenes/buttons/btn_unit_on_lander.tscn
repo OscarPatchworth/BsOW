@@ -1,0 +1,6 @@
+[gd_scene format=3 uid="uid://bs14pblfpcbl1"]
+
+[node name="BtnUnitOnLander" type="Button"]
+offset_right = 100.0
+offset_bottom = 100.0
+scale = Vector2(5, 5)
