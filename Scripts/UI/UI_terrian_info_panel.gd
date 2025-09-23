@@ -28,6 +28,7 @@ var game_master
 @export var spawn_opt_btn: PackedScene
 
 # remaining regular variables
+var player_phase = 0
 
 # @onready variables
 @onready var data_node_ref = get_node("%DataNodeRefs")
@@ -57,7 +58,7 @@ func _ready() -> void:
 	game_master = get_node("/" + data_node_ref.GAME_MASTER)
 
 	#Ready Signals
-	self.update_terrian_pannel_info.connect(game_master.update_terrian_pannel_info)
+	ready_signals()
 
 	# Ready Other
 	become_invisable()
@@ -74,17 +75,28 @@ func update_display_info(terrian_node, player_node) -> void:
 	self.player = player_node
 	var display_info = generate_diaplay_info()
 	
-	# Update Info
-	update_biome_label(display_info)
-	# If (Has Building)
-	update_building_label(display_info)
-	# If (can_spawn)
-	update_spawn_label(display_info)	
-	update_unit_label(display_info)
-	update_connected_lander_label(display_info)
-
+	if(player_phase != game_master.GameState.MOVE_UNITS):
+		# Update Info
+		update_biome_label(display_info)
+		# If (Has Building)
+		update_building_label(display_info)
+		# If (can_spawn)
+		update_spawn_label(display_info)	
+		update_unit_label(display_info)
+		update_connected_lander_label(display_info)
+	else:
+		# Update Info
+		update_biome_label(display_info)
+		# If (Has Building)
+		update_building_label(display_info)
+		update_unit_label(display_info)
+		update_connected_lander_label(display_info)
+		free_children(hbox_build_opts)
+		hbox_spawn_opts.hide()
 
 func become_invisable() ->void:
+	self.terrian = null
+	self.player = null
 	self.hide()
 
 
@@ -100,7 +112,7 @@ func update_building_label(display_info: Dictionary) -> void:
 	if(display_info["Built"]):
 		label_building.text = "Building: " + display_info["Built"]
 		hbox_build_opts.hide()
-	else:
+	elif(player_phase != game_master.GameState.MOVE_UNITS):
 		label_building.text = "Building: "
 		if(display_info["Race_buildings"]):
 			hbox_build_opts.show()
@@ -199,4 +211,17 @@ func generate_diaplay_info() -> Dictionary:
 	info["connected_landers"] = terrian.get_connected_landers()
 	return info
 
+
+func update_player_phase(player_state: int):
+	player_phase = player_state
+	print("Player Phase: " + str(player_phase))
+	if(player and terrian):
+		update_display_info(self.terrian, self.player)
+
+
 ### Connected Signals
+func ready_signals() -> void:
+	#GameMaster updates player state -> update self.UI
+	game_master.player_change_state.connect(self.update_player_phase)
+	#
+	self.update_terrian_pannel_info.connect(game_master.update_terrian_pannel_info)

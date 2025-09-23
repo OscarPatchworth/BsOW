@@ -112,4 +112,5 @@ func ready_signals() -> void:
 	#GameMaster updates player state -> update self.UI
 	game_master.player_change_state.connect(self.update_display)
 	
+	#next btn pressed -> GM update Turn phase
 	next_btn.pressed.connect(game_master.next_turn_phase_pressed)

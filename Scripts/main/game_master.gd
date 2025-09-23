@@ -75,6 +75,12 @@ func switch_state_place_terrian():
 	player_change_state.emit((game_state))
 
 
+func switch_state_move_units():
+	game_state = GameState.MOVE_UNITS
+	ui_next_biome_display.hide()
+
+	player_change_state.emit((game_state))
+
 ### Update() states
 func update_state_start():
 	pass
@@ -147,12 +153,9 @@ func get_active_player() -> player:
 
 
 func next_turn_phase_pressed() -> void:
-	if (game_state == GameState.size()-1):
-		game_state = 0
-	else:
-		game_state += 1
-
-	player_change_state.emit(game_state)
+	match game_state:
+		GameState.PLACE_TERRIAN:
+			switch_state_move_units()
 
 ###################################################################################################
 ### Connected Signals
