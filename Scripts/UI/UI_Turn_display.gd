@@ -13,6 +13,7 @@ var vbox: VBoxContainer
 var title_box: Label
 var title_event: Label
 var label_break: Label
+var next_btn: Button
 
 var label_step1: Label
 var label_step2: Label
@@ -57,6 +58,7 @@ func ready_children() -> void:
 	title_box = vbox.find_child("Title")
 	title_event = vbox.find_child("EventTitle")
 	label_break = vbox.find_child("Break")
+	next_btn = panel.find_child("Button")
 
 	label_event1 = vbox.find_child("Step1")
 	label_event2 = vbox.find_child("Step2")
@@ -109,3 +111,5 @@ func ready_refs() -> void:
 func ready_signals() -> void:
 	#GameMaster updates player state -> update self.UI
 	game_master.player_change_state.connect(self.update_display)
+	
+	next_btn.pressed.connect(game_master.next_turn_phase_pressed)

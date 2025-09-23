@@ -1,4 +1,4 @@
-[gd_scene load_steps=31 format=3 uid="uid://dp1qeccnucfgp"]
+[gd_scene load_steps=34 format=3 uid="uid://dp1qeccnucfgp"]
 
 [ext_resource type="Texture2D" uid="uid://bn8wfhbs1omgo" path="res://Textures/TempTextures/third_person_controller_assets/textures/grids/Dark/texture_08.png" id="1_g3s7m"]
 [ext_resource type="Script" path="res://Scripts/main/gravity.gd" id="2_2m5uj"]
@@ -52,6 +52,17 @@ font_color = Color(0.831731, 0.770937, 0.262618, 1)
 
 [sub_resource type="LabelSettings" id="LabelSettings_ax7hc"]
 font_size = 32
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_061q8"]
+bg_color = Color(0.714405, 0.161183, 0.250348, 1)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_klwfd"]
+bg_color = Color(0.984659, 0.378481, 0, 1)
+
+[sub_resource type="Theme" id="Theme_gehrl"]
+Button/colors/font_color = Color(0.770139, 0.929037, 1, 1)
+Button/styles/normal = SubResource("StyleBoxFlat_061q8")
+Button/styles/pressed = SubResource("StyleBoxFlat_klwfd")
 
 [node name="Node3D" type="Node3D"]
 
@@ -394,6 +405,15 @@ text = "Chaos Ensuses"
 [node name="EventStep3" type="Label" parent="UI/Turn-Steps/Panel/VBoxContainer"]
 layout_mode = 2
 text = "Seasons Change"
+
+[node name="Button" type="Button" parent="UI/Turn-Steps/Panel"]
+layout_mode = 0
+offset_left = 20.0
+offset_top = 335.0
+offset_right = 170.0
+offset_bottom = 385.0
+theme = SubResource("Theme_gehrl")
+text = "Next"
 
 [node name="Data" type="Node" parent="."]
 

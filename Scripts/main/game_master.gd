@@ -139,12 +139,20 @@ func ply_attempt_buy_unit(unit_res: UnitRes, callback) -> void:
 
 func update_terrian_pannel_info(terrain) -> void:
 	var target = active_player.find_child("UserControler", true, false)
-	print(target)
 	target.generate_and_emit_terrian_banner_info(terrain)
 
 
 func get_active_player() -> player:
 	return active_player
+
+
+func next_turn_phase_pressed() -> void:
+	if (game_state == GameState.size()-1):
+		game_state = 0
+	else:
+		game_state += 1
+
+	player_change_state.emit(game_state)
 
 ###################################################################################################
 ### Connected Signals
