@@ -210,7 +210,7 @@ func generate_inlander_units_btns(lander_units: Array[Unit]) -> void:
 
 	for unit in lander_units:
 		var new_unit_btn = unit_in_lander_btn.instantiate()
-		#new_unit_btn.set_unit_data(unit)
+		new_unit_btn.set_unit_data(unit)
 
 		hbox_units.add_child(new_unit_btn)
 

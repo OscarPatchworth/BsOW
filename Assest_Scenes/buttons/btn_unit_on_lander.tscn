@@ -1,6 +1,9 @@
-[gd_scene format=3 uid="uid://bs14pblfpcbl1"]
+[gd_scene load_steps=2 format=3 uid="uid://bs14pblfpcbl1"]
+
+[ext_resource type="Script" path="res://Scripts/classes/buttons/btn_unit_lander.gd" id="1_277ey"]
 
 [node name="BtnUnitOnLander" type="Button"]
 offset_right = 100.0
 offset_bottom = 100.0
 scale = Vector2(5, 5)
+script = ExtResource("1_277ey")
