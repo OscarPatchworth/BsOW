@@ -38,6 +38,7 @@ var game_master
 
 # remaining regular variables
 var player_phase = 0
+var selected_unit_landers: Array[Unit]
 
 # @onready variables
 @onready var data_node_ref = get_node("%DataNodeRefs")
@@ -256,13 +257,20 @@ func update_units_hbox(display_info: Dictionary):
 	generate_inlander_units_btns(display_info["units"])
 
 
-func add_selected_unit_lander():
-	print("@ UI_terrian_info_pannel.add_selected_unit_lander()")
+func add_selected_unit_lander(target_unit: Unit):
+	if(target_unit not in selected_unit_landers):
+		selected_unit_landers.append(target_unit)
+		print("Added target unit to the selected units array")
+	else:
+		print("Unit already selected")
 
 
-func rmv_selected_unit_lander():
-	print("@ UI_terrian_info_pannel.rmv_selected_unit_lander()")
-
+func rmv_selected_unit_lander(target_unit: Unit):
+	if(target_unit in selected_unit_landers):
+		selected_unit_landers.erase(target_unit)
+		print("Unit rmv from selected units")
+	else:
+		print("Unit wasn't in selected to begin with")
 ### Connected Signals
 func ready_signals() -> void:
 	#GameMaster updates player state -> update self.UI

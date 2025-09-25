@@ -3,8 +3,8 @@ extends Button
 
 
 # signals
-signal unit_selected()
-signal unit_unselected()
+signal unit_selected(unit: Unit)
+signal unit_unselected(unit: Unit)
 # enums
 
 # constants
@@ -19,6 +19,7 @@ var ui_pannel
 
 # remaining regular variables
 var is_toggled : bool
+var unit: Unit
 
 # @onready variables
 
@@ -47,12 +48,13 @@ func _toggled(toggled_on: bool) -> void:
 	is_toggled = toggled_on
 
 	if(toggled_on):
-		unit_selected.emit()
+		unit_selected.emit(unit)
 	else:
-		unit_unselected.emit()
+		unit_unselected.emit(unit)
 
 ### Custom Methods
 func set_unit_data(unit: Unit):
+	self.unit = unit
 	self.icon = unit.unit_res.icon
 
 
