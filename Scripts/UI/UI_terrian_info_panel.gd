@@ -255,6 +255,14 @@ func update_units_hbox(display_info: Dictionary):
 	update_unit_label(display_info)
 	generate_inlander_units_btns(display_info["units"])
 
+
+func add_selected_unit_lander():
+	print("@ UI_terrian_info_pannel.add_selected_unit_lander()")
+
+
+func rmv_selected_unit_lander():
+	print("@ UI_terrian_info_pannel.rmv_selected_unit_lander()")
+
 ### Connected Signals
 func ready_signals() -> void:
 	#GameMaster updates player state -> update self.UI
