@@ -18,6 +18,8 @@ var hbox_build_opts: HBoxContainer
 
 var label_units: Label
 var hbox_units: HBoxContainer
+var label_selected_units: Label
+var hbox_selected_units: HBoxContainer
 
 var label_spawn: Label
 var hbox_spawn_opts: HBoxContainer
@@ -39,6 +41,7 @@ var game_master
 # remaining regular variables
 var player_phase = 0
 var selected_unit_landers: Array[Unit]
+var display_info
 
 # @onready variables
 @onready var data_node_ref = get_node("%DataNodeRefs")
@@ -59,6 +62,8 @@ func _ready() -> void:
 
 	label_units = find_child("Units")
 	hbox_units = find_child("units_hbox")
+	label_selected_units = find_child("selected_units_label")
+	hbox_selected_units = find_child("selected_units")
 
 	label_connected_lander = find_child("Connected Biomes")
 	hbox_connected_lander = find_child("hbox_connected")
@@ -88,7 +93,7 @@ func _process(delta: float) -> void:
 func update_display_info(terrian_node, player_node) -> void:
 	self.terrian = terrian_node
 	self.player = player_node
-	var display_info = generate_diaplay_info()
+	display_info = generate_diaplay_info()
 	
 	if(player_phase != game_master.GameState.MOVE_UNITS):
 		# Update Info
@@ -127,11 +132,11 @@ func become_visable() -> void:
 	self.show()
 
 
-func update_biome_label(display_info: Dictionary) -> void:
+func update_biome_label(display_info: Dictionary = display_info) -> void:
 	label_biome.text = display_info["Biome"]
 
 
-func update_building_label(display_info: Dictionary) -> void:
+func update_building_label(display_info: Dictionary = display_info) -> void:
 	if(display_info["Built"]):
 		label_building.text = "Building: " + display_info["Built"]
 		hbox_build_opts.hide()
@@ -142,7 +147,7 @@ func update_building_label(display_info: Dictionary) -> void:
 			generate_build_opt_btns(display_info["Race_buildings"])
 
 
-func update_spawn_label(display_info: Dictionary) -> void:
+func update_spawn_label(display_info: Dictionary = display_info) -> void:
 	label_spawn.text = "Spawn Units: "
 	if(display_info["can_spawn"]):
 		hbox_spawn_opts.show()
@@ -151,12 +156,13 @@ func update_spawn_label(display_info: Dictionary) -> void:
 		hbox_spawn_opts.hide()
 
 
-func update_unit_label(display_info: Dictionary) -> void:
+func update_unit_label(display_info: Dictionary = display_info) -> void:
 	label_units.text = "Units on Lander: " + str(display_info["units"].size())
 	hbox_units.hide()
+	hbox_selected_units.hide()
 
 
-func update_connected_lander_label(display_info: Dictionary) -> void:
+func update_connected_lander_label(display_info: Dictionary = display_info) -> void:
 	label_connected_lander.text = "Connected Terrian: " + str(display_info["connected_landers"].size())
 	generate_connected_lander_btns(display_info["connected_landers"])
 
@@ -207,13 +213,23 @@ func generate_connected_lander_btns(connected_landers: Array[Terrian]) -> void:
 
 func generate_inlander_units_btns(lander_units: Array[Unit]) -> void:
 	free_children(hbox_units)
+	free_children(hbox_selected_units)
 	hbox_units.show()
+	hbox_selected_units.show()
+
 
 	for unit in lander_units:
-		var new_unit_btn = unit_in_lander_btn.instantiate()
-		new_unit_btn.set_unit_data(unit)
+		if(unit not in selected_unit_landers):
+			var new_unit_btn = unit_in_lander_btn.instantiate()
+			new_unit_btn.set_unit_data(unit)
 
-		hbox_units.add_child(new_unit_btn)
+			hbox_units.add_child(new_unit_btn)
+		else:
+			var new_unit_btn = unit_in_lander_btn.instantiate()
+			new_unit_btn.set_unit_data(unit)
+			new_unit_btn.set_pressed_no_signal(true)
+
+			hbox_selected_units.add_child(new_unit_btn)
 
 
 
@@ -252,7 +268,7 @@ func update_player_phase(player_state: int):
 		update_display_info(self.terrian, self.player)
 
 
-func update_units_hbox(display_info: Dictionary):
+func update_units_hbox(display_info: Dictionary = display_info):
 	update_unit_label(display_info)
 	generate_inlander_units_btns(display_info["units"])
 
@@ -263,6 +279,7 @@ func add_selected_unit_lander(target_unit: Unit):
 		print("Added target unit to the selected units array")
 	else:
 		print("Unit already selected")
+	update_units_hbox()
 
 
 func rmv_selected_unit_lander(target_unit: Unit):
@@ -271,6 +288,9 @@ func rmv_selected_unit_lander(target_unit: Unit):
 		print("Unit rmv from selected units")
 	else:
 		print("Unit wasn't in selected to begin with")
+	update_units_hbox()
+
+		
 ### Connected Signals
 func ready_signals() -> void:
 	#GameMaster updates player state -> update self.UI

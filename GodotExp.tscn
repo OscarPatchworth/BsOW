@@ -303,7 +303,7 @@ flat = true
 
 [node name="Spawn_units" type="Label" parent="UI/Terrian_Info_Panel/Panel/VBoxContainer"]
 layout_mode = 2
-text = "Units:"
+text = "Spawn Opts"
 label_settings = SubResource("LabelSettings_ax7hc")
 
 [node name="Spawn_options" type="HBoxContainer" parent="UI/Terrian_Info_Panel/Panel/VBoxContainer"]
@@ -323,6 +323,19 @@ label_settings = SubResource("LabelSettings_ax7hc")
 layout_mode = 2
 
 [node name="Button" type="Button" parent="UI/Terrian_Info_Panel/Panel/VBoxContainer/units_hbox"]
+layout_mode = 2
+icon = ExtResource("13_gdbs1")
+flat = true
+
+[node name="selected_units_label" type="Label" parent="UI/Terrian_Info_Panel/Panel/VBoxContainer"]
+layout_mode = 2
+text = "Selectedd Units:"
+label_settings = SubResource("LabelSettings_ax7hc")
+
+[node name="selected_units" type="HBoxContainer" parent="UI/Terrian_Info_Panel/Panel/VBoxContainer"]
+layout_mode = 2
+
+[node name="Button" type="Button" parent="UI/Terrian_Info_Panel/Panel/VBoxContainer/selected_units"]
 layout_mode = 2
 icon = ExtResource("13_gdbs1")
 flat = true
