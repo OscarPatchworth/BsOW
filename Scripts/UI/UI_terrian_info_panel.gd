@@ -269,28 +269,49 @@ func update_player_phase(player_state: int):
 
 
 func update_units_hbox(display_info: Dictionary = display_info):
-	update_unit_label(display_info)
-	generate_inlander_units_btns(display_info["units"])
+	if(display_info):
+		update_unit_label(display_info)
+		generate_inlander_units_btns(display_info["units"])
 
 
 func add_selected_unit_lander(target_unit: Unit):
 	if(target_unit not in selected_unit_landers):
 		selected_unit_landers.append(target_unit)
-		print("Added target unit to the selected units array")
+		##print("Added target unit to the selected units array")
 	else:
 		print("Unit already selected")
 	update_units_hbox()
 
 
+func add_mulitple_unit_landers(units: Array[Unit]):
+	for unit in units:
+		add_selected_unit_lander(unit)
+
+
 func rmv_selected_unit_lander(target_unit: Unit):
 	if(target_unit in selected_unit_landers):
 		selected_unit_landers.erase(target_unit)
-		print("Unit rmv from selected units")
+		#print("Unit rmv from selected units")
 	else:
 		print("Unit wasn't in selected to begin with")
 	update_units_hbox()
 
 		
+func rmv_mulitple_unit_landers(units: Array[Unit]):
+	for unit in units:
+		rmv_selected_unit_lander(unit)
+		
+
+func move_selected_units_to_lander(units: Array[Unit], lander: Terrian):
+	for unit in units:
+		if unit not in lander.units:
+			lander.units.append(unit)
+			self.terrian.units.erase(unit)
+		else: print("Unit moving to lander appears to already exist on lander ...")
+	rmv_mulitple_unit_landers(units)
+
+
+
 ### Connected Signals
 func ready_signals() -> void:
 	#GameMaster updates player state -> update self.UI
