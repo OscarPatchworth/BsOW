@@ -204,10 +204,16 @@ func generate_spawn_opt_btns(spawn_opts: Array[UnitRes]) -> void:
 
 func generate_connected_lander_btns(connected_landers: Array[Terrian]) -> void:
 	free_children(hbox_connected_lander)
+	var btn_script = load(data_node_ref.BTN_CONNECTED_LANDER)
 
 	for lander in connected_landers:
 		var new_lander_icon_btn = Button.new()
+		new_lander_icon_btn.set_script(btn_script)
 		new_lander_icon_btn.icon = lander.biome.poker_icon
+
+		new_lander_icon_btn.lander_ref = lander
+
+		new_lander_icon_btn.is_pressed.connect(move_selected_units_to_lander)
 		hbox_connected_lander.add_child(new_lander_icon_btn)
 
 
@@ -302,13 +308,14 @@ func rmv_mulitple_unit_landers(units: Array[Unit]):
 		rmv_selected_unit_lander(unit)
 		
 
-func move_selected_units_to_lander(units: Array[Unit], lander: Terrian):
-	for unit in units:
+func move_selected_units_to_lander(lander: Terrian):
+	print("UI info pannel move_selected_units_to_lander triggered")
+	for unit in selected_unit_landers:
 		if unit not in lander.units:
 			lander.units.append(unit)
 			self.terrian.units.erase(unit)
 		else: print("Unit moving to lander appears to already exist on lander ...")
-	rmv_mulitple_unit_landers(units)
+	rmv_mulitple_unit_landers(selected_unit_landers)
 
 
 

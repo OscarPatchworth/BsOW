@@ -156,6 +156,8 @@ func next_turn_phase_pressed() -> void:
 	match game_state:
 		GameState.PLACE_TERRIAN:
 			switch_state_move_units()
+		GameState.MOVE_UNITS:
+			switch_state_place_terrian()
 
 ###################################################################################################
 ### Connected Signals
