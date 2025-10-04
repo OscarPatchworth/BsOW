@@ -81,6 +81,13 @@ func switch_state_move_units():
 
 	player_change_state.emit((game_state))
 
+
+func switch_state_combat():
+	game_state = GameState.COMBAT
+	ui_next_biome_display.hide()
+
+	player_change_state.emit((game_state))
+
 ### Update() states
 func update_state_start():
 	pass
@@ -157,6 +164,8 @@ func next_turn_phase_pressed() -> void:
 		GameState.PLACE_TERRIAN:
 			switch_state_move_units()
 		GameState.MOVE_UNITS:
+			switch_state_combat()
+		GameState.COMBAT:
 			switch_state_place_terrian()
 
 ###################################################################################################

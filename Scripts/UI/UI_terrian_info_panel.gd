@@ -122,6 +122,9 @@ func update_display_info(terrian_node, player_node) -> void:
 	label_upkeep.hide()
 	label_abilities.hide()
 
+	#Free used vars/nodes
+	selected_unit_landers = []
+
 func become_invisable() ->void:
 	self.terrian = null
 	self.player = null
@@ -316,7 +319,6 @@ func move_selected_units_to_lander(lander: Terrian):
 			self.terrian.rvm_unit(unit)
 		else: print("Unit moving to lander appears to already exist on lander ...")
 	rmv_mulitple_unit_landers(selected_unit_landers)
-
 
 
 ### Connected Signals

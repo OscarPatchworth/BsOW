@@ -17,6 +17,13 @@ enum PlayerControlerStateMachine {
 		RENFORCE
 }
 
+
+enum CombatStateMachine {
+	INACTIVE,
+	HOLDING_CLICK,
+	FIGHT
+}
+
 # constants
 const RAY_LENGTH = 100
 
@@ -44,6 +51,7 @@ var mouse_ray_end
 ###
 var is_terrian_placeable : bool
 var player_state: PlayerControlerStateMachine
+var combat_state: CombatStateMachine
 
 # @onready variables
 func _ready() -> void:
@@ -53,7 +61,6 @@ func _ready() -> void:
 	terrian_info_panel = get_node(data_node_ref.UI_TERRIAN_INFO)
 	data_ply = get_node(data_node_ref.DATA_PLAYER)
 	race = load(data_ply.RACE_APE_REF)
-
 
 	player_state = PlayerControlerStateMachine.PLACE_STARTING_TERRIAN
 	is_terrian_placeable = false
@@ -117,6 +124,7 @@ func switch_state_active() ->void:
 func switch_state_combat() -> void:
 	check_terrain_paceable_sence.hide()
 	player_state = PlayerControlerStateMachine.COMBAT
+	combat_state = CombatStateMachine.INACTIVE
 
 
 ### Update() states
@@ -160,7 +168,10 @@ func input_place_starting_terrian(event: InputEvent) -> void:
 
 
 func input_combat(event: InputEvent) -> void:
-	pass
+	if event.is_action_pressed("left_click"):
+		combat_state = CombatStateMachine.HOLDING_CLICK
+	if event.is_action_released("left_click"):
+		combat_state = CombatStateMachine.INACTIVE
 
 
 ###################################################################################################
