@@ -90,7 +90,7 @@ func _process(delta: float) -> void:
 
 
 ### Custom Methods
-func update_display_info(terrian_node, player_node) -> void:
+func update_display_info(terrian_node = terrian, player_node = player) -> void:
 	self.terrian = terrian_node
 	self.player = player_node
 	display_info = generate_diaplay_info()

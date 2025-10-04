@@ -6,6 +6,7 @@ signal biome_placed(ply_state : PlayerControlerStateMachine, spawn_spot : Dictio
 signal update_terrian_info_panel(terrian_info: Dictionary)
 signal escape_pressed
 signal show_terrina_info_panel
+signal occupied_units_updated
 
 # enums
 enum PlayerControlerStateMachine {
@@ -188,10 +189,9 @@ func input_combat(event: InputEvent) -> void:
 						if unit not in target_lander.units:
 							target_lander.add_ext_unit(unit)
 							held_combat_lander.rvm_unit(unit)
-		held_combat_lander = null
-					
+		held_combat_lander = null		
+		occupied_units_updated.emit()
 				
-
 	
 	elif event.is_action_released("right_click"):
 		var raycast_terrian = raycat_island()
@@ -318,3 +318,5 @@ func ready_signals() -> void:
 	# self -> banner show/hide
 	self.escape_pressed.connect(terrian_info_panel.become_invisable)
 	self.show_terrina_info_panel.connect(terrian_info_panel.become_visable)
+	# self.Changed units array -> banner.update()
+	self.occupied_units_updated.connect(terrian_info_panel.update_display_info)
