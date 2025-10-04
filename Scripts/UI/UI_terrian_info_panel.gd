@@ -95,7 +95,7 @@ func update_display_info(terrian_node, player_node) -> void:
 	self.player = player_node
 	display_info = generate_diaplay_info()
 	
-	if(player_phase != game_master.GameState.MOVE_UNITS):
+	if(player_phase != game_master.GameState.MOVE_UNITS and player_phase != game_master.GameState.COMBAT ):
 		# Update Info
 		update_biome_label(display_info)
 		# If (Has Building)

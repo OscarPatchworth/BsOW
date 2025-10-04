@@ -52,6 +52,7 @@ var mouse_ray_end
 var is_terrian_placeable : bool
 var player_state: PlayerControlerStateMachine
 var combat_state: CombatStateMachine
+var held_combat_lander: Terrian
 
 # @onready variables
 func _ready() -> void:
@@ -169,9 +170,23 @@ func input_place_starting_terrian(event: InputEvent) -> void:
 
 func input_combat(event: InputEvent) -> void:
 	if event.is_action_pressed("left_click"):
-		combat_state = CombatStateMachine.HOLDING_CLICK
+		var raycast_terrian = raycat_island()
+		if (raycast_terrian):
+			combat_state = CombatStateMachine.HOLDING_CLICK
+			held_combat_lander = raycast_terrian["collider"].get_parent()
+			#print(held_combat_lander.biome.name)
+
 	if event.is_action_released("left_click"):
 		combat_state = CombatStateMachine.INACTIVE
+	
+	elif event.is_action_released("right_click"):
+		var raycast_terrian = raycat_island()
+		if (raycast_terrian):
+			# show panel
+			show_terrina_info_panel.emit()
+			# get terrian data
+			var terrian_obj = raycast_terrian["collider"].get_parent()
+			generate_and_emit_terrian_banner_info(terrian_obj)
 
 
 ###################################################################################################
