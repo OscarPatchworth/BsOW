@@ -312,8 +312,8 @@ func move_selected_units_to_lander(lander: Terrian):
 	print("UI info pannel move_selected_units_to_lander triggered")
 	for unit in selected_unit_landers:
 		if unit not in lander.units:
-			lander.units.append(unit)
-			self.terrian.units.erase(unit)
+			lander.add_ext_unit(unit)
+			self.terrian.rvm_unit(unit)
 		else: print("Unit moving to lander appears to already exist on lander ...")
 	rmv_mulitple_unit_landers(selected_unit_landers)
 

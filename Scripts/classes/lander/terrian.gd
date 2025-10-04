@@ -223,14 +223,30 @@ func add_unit(unit_ref) -> void:
 	#unit.add_to_group("units")
 	units.append(unit)
 
-	if(unit_mesh_node.get_child_count() < 1):
-		var unit_mesh = unit.unit_res.mesh.instantiate()
+	update_mesh_units()
+
+
+func add_ext_unit(unit: Unit):
+	units.append(unit)
+	update_mesh_units()
+
+
+func rvm_unit(unit):
+	if unit in units:
+		units.erase(unit)
+	update_mesh_units()
+
+func update_mesh_units():
+	if(unit_mesh_node.get_child_count() < 1 and units.size() > 0):
+		var unit_mesh = units[0].unit_res.mesh.instantiate()
 		unit_mesh.position.y = 0.5
 		var angle = randf() * TAU
 		var offset = Vector3(cos(angle), 0, sin(angle)) * 0.7
 		unit_mesh.position += offset
 		unit_mesh.look_at(self.global_position, Vector3.UP)
 		unit_mesh_node.add_child(unit_mesh)
+	elif(unit_mesh_node.get_child_count() > 0 and units.size() < 1):
+		free_children(unit_mesh_node)
 
 
 func rmv_building() -> void:
@@ -249,6 +265,10 @@ func get_connected_landers() -> Array[Terrian]:
 			connected_landers.append(i.get_parent()) 
 		
 	return connected_landers
+
+func free_children(target: Node):
+	for child in target.get_children():
+		child.queue_free()
 
 ###################################################################################################
 ###################################################################################################
