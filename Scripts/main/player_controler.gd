@@ -178,6 +178,20 @@ func input_combat(event: InputEvent) -> void:
 
 	if event.is_action_released("left_click"):
 		combat_state = CombatStateMachine.INACTIVE
+		if(held_combat_lander):
+			var raycast_terrian = raycat_island()
+			if (raycast_terrian):
+				var target_lander = raycast_terrian["collider"].get_parent()
+				if(target_lander in held_combat_lander.get_connected_landers()):
+					var moving_units = held_combat_lander.units
+					for unit in moving_units:
+						if unit not in target_lander.units:
+							target_lander.add_ext_unit(unit)
+							held_combat_lander.rvm_unit(unit)
+		held_combat_lander = null
+					
+				
+
 	
 	elif event.is_action_released("right_click"):
 		var raycast_terrian = raycat_island()
