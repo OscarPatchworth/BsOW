@@ -13,7 +13,7 @@ enum PlayerControlerStateMachine {
 		INACTIVE, 
 		PLACE_STARTING_TERRIAN, 
 		PLACING_TERRIAN, 
-		MOVING_UNITS, 
+		MOVE_UNITS, 
 		COMBAT, 
 		RENFORCE
 }
@@ -123,6 +123,12 @@ func switch_state_active() ->void:
 		switch_state_inactive()
 
 
+func switch_state_move_units() -> void:
+	check_terrain_paceable_sence.hide()
+	player_state = PlayerControlerStateMachine.MOVE_UNITS
+	combat_state = CombatStateMachine.INACTIVE
+
+
 func switch_state_combat() -> void:
 	check_terrain_paceable_sence.hide()
 	player_state = PlayerControlerStateMachine.COMBAT
@@ -143,6 +149,11 @@ func update_place_starting_terrian() -> void:
 
 func update_combat() -> void:
 	pass
+
+
+func update_move_units() -> void:
+	pass
+
 
 ### Input() states
 
@@ -169,7 +180,7 @@ func input_place_starting_terrian(event: InputEvent) -> void:
 	input_placing_terrian(event)
 
 
-func input_combat(event: InputEvent) -> void:
+func input_move_units(event: InputEvent) -> void:
 	if event.is_action_pressed("left_click"):
 		var raycast_terrian = raycat_island()
 		if (raycast_terrian):
@@ -191,8 +202,7 @@ func input_combat(event: InputEvent) -> void:
 							held_combat_lander.rvm_unit(unit)
 		held_combat_lander = null		
 		occupied_units_updated.emit()
-				
-	
+			
 	elif event.is_action_released("right_click"):
 		var raycast_terrian = raycat_island()
 		if (raycast_terrian):
@@ -201,6 +211,11 @@ func input_combat(event: InputEvent) -> void:
 			# get terrian data
 			var terrian_obj = raycast_terrian["collider"].get_parent()
 			generate_and_emit_terrian_banner_info(terrian_obj)
+
+
+func input_combat(event: InputEvent) -> void:
+	if combat_state != CombatStateMachine.FIGHT:
+		input_move_units(event)
 
 
 ###################################################################################################
@@ -252,6 +267,8 @@ func game_master_change_state(state: int) -> void:
 	match state:
 		game_master.GameState.PLACE_TERRIAN:
 			switch_state_placing_terrian()
+		game_master.GameState.MOVE_UNITS:
+			switch_state_move_units()
 		game_master.GameState.COMBAT:
 			switch_state_combat()
 
