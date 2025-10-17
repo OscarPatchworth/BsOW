@@ -441,6 +441,7 @@ script = ExtResource("2_2m5uj")
 
 [node name="SettingsData" type="Node" parent="Data"]
 script = ExtResource("14_gwi1l")
+player_count = 3
 
 [node name="DataStoreTerrian" type="Node" parent="Data"]
 script = ExtResource("15_6nsda")

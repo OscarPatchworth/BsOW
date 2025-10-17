@@ -28,6 +28,7 @@ const CLASS_PLAYER = "res://Scripts/classes/player/player.gd"
 const CLASS_BUILDING = "res://Scripts/classes/building/building.gd"
 const CLASS_UNIT = "res://Scripts/classes/unit/unit.gd"
 const BTN_CONNECTED_LANDER = "res://Scripts/classes/buttons/btn_connected_lander.gd"
+const BASIC_AI_SCRIPT = "res://Scripts/classes/player/basic_ai.gd"
 
 ### Tree Hiracies
 const terrian_node_folder = "root/Node3D/World_Objects/Terrian"

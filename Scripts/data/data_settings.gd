@@ -18,7 +18,7 @@ const starting_terrian_amount: int = 4
 ###################################################################################################
 var gravity_type = GravityForceTypes.CONTINUOUS
 var gravity_affected = GravityAffectedTerrian.ALL
-var player_count = 1
+@export var player_count = 1
 
 
 func _on_gravity_ready() -> void:

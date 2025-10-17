@@ -37,9 +37,15 @@ func _ready() -> void:
 	
 	###	Init Players
 	var players_node = get_node("/" + data_node_ref.PLAYERS)
-	for i in range(data_settings.player_count):
-		var new_player = player_node.instantiate()
+	var new_player = player_node.instantiate()
+	players_node.add_child(new_player)
+
+	for i in range(data_settings.player_count-1):
+		new_player = Node.new()
+		new_player.set_script(load(data_node_ref.BASIC_AI_SCRIPT))
 		players_node.add_child(new_player)
+		new_player.add_to_group("players")
+		new_player.init_rnd_race()
 	set_active_player(get_tree().get_first_node_in_group("players"))
 
 	### Init State Machine
