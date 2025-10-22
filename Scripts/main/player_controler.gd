@@ -263,6 +263,7 @@ func move_to_mouse_pos(obj: Node3D) -> void:
 		#obj.position.y = obj.position.y +0.1
 	mouse_moved.emit()
 
+
 func game_master_change_state(state: int) -> void:
 	match state:
 		game_master.GameState.PLACE_TERRIAN:
@@ -277,6 +278,9 @@ func generate_and_emit_terrian_banner_info(terrian_obj) -> void:
 	# emit data
 	update_terrian_info_panel.emit(terrian_obj, self)
 
+
+func set_state_inactive(): # To be called by GM
+	switch_state_inactive()
 
 ###################################################################################################
 ### Connected Signals

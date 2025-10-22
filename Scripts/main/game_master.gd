@@ -94,6 +94,19 @@ func switch_state_combat():
 
 	player_change_state.emit((game_state))
 
+
+### cleanup() states
+func cleanup_place_starting_terrian():
+	active_player.get_child(0).get_child(0).switch_state_inactive() # This is bad if multi-ply
+	
+	for character in (get_tree().get_nodes_in_group("players")):
+		if character is not player:
+			character.generate_starting_terrian()
+			
+
+	switch_state_place_terrian()
+
+
 ### Update() states
 func update_state_start():
 	pass
@@ -184,13 +197,13 @@ func _on_button_button_up() -> void:
 
 func _on_user_controler_biome_placed(ply_state: int, spawn_spot: Dictionary) -> void:
 	instance_terrian(spawn_spot)
-	if(ply_state == 1):
+	if(ply_state == 1): # Dont use ints, use the enum
 		var terrian_btns = ui_starting_display.get_child(0).get_children()
 		for terrian_btn in terrian_btns:
 			if terrian_btn.is_pressed():
 				terrian_btn.delete_self()
-		if(terrian_btns.size() <= 1):
-				switch_state_place_terrian()
+		if(terrian_btns.size() <= 1): # Shouldn't this be 0 ?
+			cleanup_place_starting_terrian()
 	elif(ply_state == 2):
 		players_generate_biome_resources.emit()
 		

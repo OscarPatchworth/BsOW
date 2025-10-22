@@ -38,4 +38,7 @@ func _process(delta: float) -> void:
 func init_rnd_race():
 	init_race(data_player.rnd_race())
 
+func generate_starting_terrian():
+	print(str(name) + " is generating starting terrinan ... ")
+
 ### Connected Signals
