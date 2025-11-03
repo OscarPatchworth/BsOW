@@ -1,5 +1,5 @@
 class_name character
-extends Node
+extends Node3D
 
 # signals
 
@@ -12,6 +12,7 @@ var data_node_ref
 var game_master
 var data_player
 var race: RaceRes
+var lander_collision_a3d
 
 # @export variables
 
@@ -27,8 +28,10 @@ var player_resources = CostRes.new()
 # Called when the node enters the scene tree for the first time.
 func _ready() -> void:
 	connect_signals()
+
 	player_resources.gold = 3000
 
+	lander_collision_a3d = load(data_node_ref.LANDER_COLLISION_A3D)
 
 # Called every frame. 'delta' is the elapsed time since the previous frame.
 func _process(delta: float) -> void:

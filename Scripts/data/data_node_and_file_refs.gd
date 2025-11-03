@@ -38,6 +38,8 @@ const terrian_node_folder = "root/Node3D/World_Objects/Terrian"
 const BUILDING_TOWER = "res://Scripts/Resources/building/building_tower.tres"
 const BUILDING_HQ = "res://Scripts/Resources/building/building_hq.tres"
 
+# Misc
+const LANDER_COLLISION_A3D = "res://Assest_Scenes/Player/is_placeable_box.tscn"
 ### Sences
 
 

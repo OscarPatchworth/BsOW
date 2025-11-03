@@ -41,7 +41,7 @@ func _ready() -> void:
 	players_node.add_child(new_player)
 
 	for i in range(data_settings.player_count-1):
-		new_player = Node.new()
+		new_player = Node3D.new()
 		new_player.set_script(load(data_node_ref.BASIC_AI_SCRIPT))
 		players_node.add_child(new_player)
 		new_player.add_to_group("players")
@@ -206,4 +206,10 @@ func _on_user_controler_biome_placed(ply_state: int, spawn_spot: Dictionary) -> 
 			cleanup_place_starting_terrian()
 	elif(ply_state == 2):
 		players_generate_biome_resources.emit()
+
+
+func add_lander(actor: character, spawn_spot: Vector3):
+	print("____ \n Actor: " + str(actor.name) + "\n Position: " + str(spawn_spot))
+	pass
+
 		
