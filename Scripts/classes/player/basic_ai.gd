@@ -56,9 +56,9 @@ func generate_starting_terrian():
 	check_collision_area.set_collision_mask_value(3, true)
 
 	check_collision_area.global_transform.origin = Vector3(
-		rng.randi_range(-4, 4),
+		rng.randi_range(-20, 20),
 		0,
-		rng.randi_range(-4, 4)
+		rng.randi_range(-20, 20)
 	)
 	check_collision_area.set_monitoring(true)
 
@@ -67,14 +67,12 @@ func generate_starting_terrian():
 	while(temp_loop):
 		if(check_collision_area.has_overlapping_bodies()):
 			check_collision_area.global_transform.origin = Vector3(
-				rng.randf_range(-4, 4),
+				rng.randf_range(-20, 20),
 				0,
-				rng.randf_range(-4, 4)
+				rng.randf_range(-20, 20)
 			)
 			print("___ \n Overlap: " + str(check_collision_area.has_overlapping_bodies()) + "\n Postion: " + str(check_collision_area.global_transform.origin))
 
-			if(rng.randi() % 341 == 0): 
-				temp_loop = false
 		else: 
 			temp_loop = false	
 			

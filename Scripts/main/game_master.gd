@@ -210,6 +210,8 @@ func _on_user_controler_biome_placed(ply_state: int, spawn_spot: Dictionary) -> 
 
 func add_lander(actor: character, spawn_spot: Vector3):
 	print("____ \n Actor: " + str(actor.name) + "\n Position: " + str(spawn_spot))
+	instance_terrian({"position" : spawn_spot})
+	
 	pass
 
 		
