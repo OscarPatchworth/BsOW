@@ -29,6 +29,9 @@ func _ready() -> void:
 	
 	lander_collision_a3d = load(data_node_ref.LANDER_COLLISION_A3D)
 
+	rng.randomize()
+	rng.seed = self.name.hash()
+
 	pass # Replace with function body.
 
 
@@ -42,6 +45,7 @@ func init_rnd_race():
 	init_race(data_player.rnd_race())
 
 func generate_starting_terrian():
+	game_master.lazy_biome_rnd()
 	print(str(name) + " is generating starting terrinan ... ")
 	var check_collision_area = Area3D.new()
 	var check_collision_shape = CollisionShape3D.new()
@@ -62,22 +66,26 @@ func generate_starting_terrian():
 	)
 	check_collision_area.set_monitoring(true)
 
-	var temp_loop = true
-	
-	while(temp_loop):
-		if(check_collision_area.has_overlapping_bodies()):
-			check_collision_area.global_transform.origin = Vector3(
-				rng.randf_range(-20, 20),
-				0,
-				rng.randf_range(-20, 20)
-			)
-			print("___ \n Overlap: " + str(check_collision_area.has_overlapping_bodies()) + "\n Postion: " + str(check_collision_area.global_transform.origin))
-
-		else: 
-			temp_loop = false	
-			
-	
-	if(not check_collision_area.has_overlapping_bodies()):
-		game_master.add_lander(self, check_collision_area.global_transform.origin)
+	for i in range(3):
+		var temp_loop = true
+		check_collision_area.global_transform.origin = Vector3(
+					rng.randf_range(-20, 20),
+					0,
+					rng.randf_range(-20, 20)
+		)
+					
+		while(temp_loop):
+			if(check_collision_area.has_overlapping_bodies()):
+				check_collision_area.global_transform.origin = Vector3(
+					rng.randf_range(-20, 20),
+					0,
+					rng.randf_range(-20, 20)
+				)
+				#print("___ \n Overlap: " + str(check_collision_area.has_overlapping_bodies()) + "\n Postion: " + str(check_collision_area.global_transform.origin))
+			else: 
+				temp_loop = false	
+				
+		if(not check_collision_area.has_overlapping_bodies()):
+			game_master.add_lander(self, check_collision_area.global_transform.origin)
 
 ### Connected Signals
