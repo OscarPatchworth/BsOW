@@ -227,3 +227,33 @@ func add_lander(actor: character, spawn_spot: Vector3):
 		
 func lazy_biome_rnd():
 	data_store_terrian.rand_queded_biomes()
+
+
+func lander_invasion(land: Terrian, attack_force: Array[Unit]):
+	var in_combat = true
+	var attacker: Unit
+	var defender: Unit
+
+	while(in_combat):
+		if(attack_force.size() > 0):
+			attacker = attack_force[0]
+		else:
+			in_combat = false
+			continue
+		
+		if(land.units.size() > 0):
+			defender = land.units[0]
+		else:
+			in_combat = false
+			continue
+
+		if(attacker.get_dmg_total().calc_damage() > defender.get_dmg_total().calc_damage()):
+			land.rvm_unit(defender)
+			print("defender troop defeated")
+		else:
+			attack_force.erase(attacker)
+			print("arracker troop defeated")
+
+	if(attack_force.size() > 0):
+		for i in attack_force:
+			land.add_ext_unit(i)

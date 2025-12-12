@@ -319,6 +319,7 @@ func move_selected_units_to_lander(lander: Terrian):
 			if i.owner != self.player:
 				print("Entering Combat !... ")
 				temp_can_move_into_lander = false
+				break
 
 	if(temp_can_move_into_lander):
 		for unit in selected_unit_landers:
@@ -326,6 +327,12 @@ func move_selected_units_to_lander(lander: Terrian):
 				lander.add_ext_unit(unit)
 				self.terrian.rvm_unit(unit)
 			else: print("Unit moving to lander appears to already exist on lander ...")
+		rmv_mulitple_unit_landers(selected_unit_landers)
+	else:
+		game_master.lander_invasion(lander, selected_unit_landers)
+		for unit in selected_unit_landers:
+			self.terrian.rvm_unit(unit)
+			print("Attacking troop advancing")
 		rmv_mulitple_unit_landers(selected_unit_landers)
 
 

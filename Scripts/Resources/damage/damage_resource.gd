@@ -24,6 +24,16 @@ func add_damage(dmg: DamageRes) -> void:
 		# Add the value from the other resource to the current one
 		if other_resources.has(res_key):
 			# `set()` and `get()` are useful for dynamic property access
-			var current_value = self.get(res_key)
+			var current_value = get_damage_dict()[res_key]
 			var other_value = other_resources[res_key]
+			#print(str(res_key) + ": " + str(current_value) + " | " + str(other_value))
 			self.set(res_key, current_value + other_value)
+
+
+func calc_damage() -> int:
+	var total_dmg = 0
+	#total_dmg = (damage_dice_amount * damage_dice_type) + damage_dice_modifier 
+	for dice in damage_dice_amount:
+		total_dmg = total_dmg + randi_range(1, damage_dice_type)
+	total_dmg = total_dmg + damage_dice_modifier
+	return total_dmg

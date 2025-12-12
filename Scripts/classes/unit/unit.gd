@@ -26,25 +26,28 @@ var damage_total:DamageRes
 ###	Methods
 ### Custom Methods
 func setup(unit_ref: UnitRes) -> void:
-    unit_res = unit_ref
+	unit_res = unit_ref
 
-    cost_mod = CostRes.new()
-    dmg_mod = DamageRes.new()
+	cost_mod = CostRes.new()
+	dmg_mod = DamageRes.new()
+	dmg_mod.damage_dice_amount = 0
+	dmg_mod.damage_dice_type = 0
+	dmg_mod.damage_dice_modifier = 0
 
-    cost_total = CostRes.new()
-    damage_total = DamageRes.new()
-    pass
+	cost_total = CostRes.new()
+	damage_total = DamageRes.new()
+	pass
 
 func get_dmg_total() -> DamageRes:
-    damage_total = unit_res.damage.duplicate()
-    damage_total.add_damage(dmg_mod)
+	damage_total = unit_res.damage.duplicate()
+	damage_total.add_damage(dmg_mod)
 
-    return damage_total
+	return damage_total
 
 
 func get_cost_total() -> CostRes:
-    cost_total = unit_res.cost.duplicate()
-    cost_total.add_cost(cost_mod)
+	cost_total = unit_res.cost.duplicate()
+	cost_total.add_cost(cost_mod)
 
-    return cost_total
+	return cost_total
 ### Connected Signals
