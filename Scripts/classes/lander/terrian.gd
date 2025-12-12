@@ -220,6 +220,7 @@ func add_unit(unit_ref) -> void:
 	var unit = Unit.new() 
 	unit.set_script(load(data_node_ref.CLASS_UNIT))
 	unit.setup(unit_res)
+	unit.owner = game_master.get_active_player()
 	#unit.add_to_group("units")
 	units.append(unit)
 
