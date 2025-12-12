@@ -312,18 +312,21 @@ func rmv_mulitple_unit_landers(units: Array[Unit]):
 		
 
 func move_selected_units_to_lander(lander: Terrian):
+	var temp_can_move_into_lander = true
 	print("UI info pannel move_selected_units_to_lander triggered")
 	if lander.units.size() > 0:
 		for i in lander.units:
 			if i.owner != self.player:
 				print("Entering Combat !... ")
-		
-	for unit in selected_unit_landers:
-		if unit not in lander.units:
-			lander.add_ext_unit(unit)
-			self.terrian.rvm_unit(unit)
-		else: print("Unit moving to lander appears to already exist on lander ...")
-	rmv_mulitple_unit_landers(selected_unit_landers)
+				temp_can_move_into_lander = false
+
+	if(temp_can_move_into_lander):
+		for unit in selected_unit_landers:
+			if unit not in lander.units:
+				lander.add_ext_unit(unit)
+				self.terrian.rvm_unit(unit)
+			else: print("Unit moving to lander appears to already exist on lander ...")
+		rmv_mulitple_unit_landers(selected_unit_landers)
 
 
 ### Connected Signals
