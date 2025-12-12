@@ -313,6 +313,11 @@ func rmv_mulitple_unit_landers(units: Array[Unit]):
 
 func move_selected_units_to_lander(lander: Terrian):
 	print("UI info pannel move_selected_units_to_lander triggered")
+	if lander.units.size() > 0:
+		for i in lander.units:
+			if i.owner != self.player:
+				print("Entering Combat !... ")
+		
 	for unit in selected_unit_landers:
 		if unit not in lander.units:
 			lander.add_ext_unit(unit)
