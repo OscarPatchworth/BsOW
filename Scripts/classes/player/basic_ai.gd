@@ -46,7 +46,7 @@ func init_rnd_race():
 
 func generate_starting_terrian():
 	game_master.lazy_biome_rnd()
-	print(str(name) + " is generating starting terrinan ... ")
+
 	var check_collision_area = Area3D.new()
 	var check_collision_shape = CollisionShape3D.new()
 	check_collision_shape.shape = CylinderShape3D.new()
@@ -88,4 +88,6 @@ func generate_starting_terrian():
 		if(not check_collision_area.has_overlapping_bodies()):
 			game_master.add_lander(self, check_collision_area.global_transform.origin)
 
+func upkeep():
+	pass
 ### Connected Signals

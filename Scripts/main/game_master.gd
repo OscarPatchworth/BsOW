@@ -70,6 +70,11 @@ func switch_state_start():
 	data_store_terrian.next_biome = 0
 	data_store_terrian.queued_biome = 0
 
+func switch_state_upkeep():
+	for i in get_tree().get_nodes_in_group("players"):
+		if i is bAi:
+			i.upkeep()
+	switch_state_place_terrian()
 
 func switch_state_place_terrian():
 	game_state = GameState.PLACE_TERRIAN
@@ -93,6 +98,12 @@ func switch_state_combat():
 	ui_next_biome_display.hide()
 
 	player_change_state.emit((game_state))
+
+func switch_state_cleanup():
+	#active_player.cleanup
+	#update_ative_player()
+	switch_state_upkeep()
+
 
 
 ### cleanup() states
@@ -185,7 +196,7 @@ func next_turn_phase_pressed() -> void:
 		GameState.MOVE_UNITS:
 			switch_state_combat()
 		GameState.COMBAT:
-			switch_state_place_terrian()
+			switch_state_cleanup()
 
 ###################################################################################################
 ### Connected Signals
