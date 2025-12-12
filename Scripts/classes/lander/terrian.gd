@@ -237,14 +237,17 @@ func rvm_unit(unit):
 	update_mesh_units()
 
 func update_mesh_units():
-	if(unit_mesh_node.get_child_count() < 1 and units.size() > 0):
-		var unit_mesh = units[0].unit_res.mesh.instantiate()
-		unit_mesh.position.y = 0.5
-		var angle = randf() * TAU
-		var offset = Vector3(cos(angle), 0, sin(angle)) * 0.7
-		unit_mesh.position += offset
-		unit_mesh.look_at(self.global_position, Vector3.UP)
-		unit_mesh_node.add_child(unit_mesh)
+	free_children(unit_mesh_node)
+
+	if(units.size() > 0):
+		for i in range(units.size()):
+			var unit_mesh = units[0].unit_res.mesh.instantiate()
+			unit_mesh.position.y = 0.5
+			var angle = randf() * TAU
+			var offset = Vector3(cos(angle), 0, sin(angle)) * 0.7
+			unit_mesh.position += offset
+			unit_mesh.look_at(self.global_position, Vector3.UP)
+			unit_mesh_node.add_child(unit_mesh)
 	elif(unit_mesh_node.get_child_count() > 0 and units.size() < 1):
 		free_children(unit_mesh_node)
 

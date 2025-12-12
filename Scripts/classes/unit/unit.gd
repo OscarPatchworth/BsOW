@@ -10,6 +10,7 @@ extends RefCounted
 # static variables
 var unit_res: UnitRes
 var name: String
+var owner: character
 
 # @export variables
 

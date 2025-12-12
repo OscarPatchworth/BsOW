@@ -88,6 +88,26 @@ func generate_starting_terrian():
 		if(not check_collision_area.has_overlapping_bodies()):
 			game_master.add_lander(self, check_collision_area.global_transform.origin)
 
+	init_rnd_unit_rnd_lander()
+
+
 func upkeep():
 	pass
+
+
+func init_rnd_unit_rnd_lander():
+	var landers = get_tree().get_nodes_in_group("terrian")
+	var foot_sold_res = load("res://Scripts/Resources/unit/foot_soldier.tres")
+
+	for i in range(2):
+		var target = landers.pick_random()
+		for j in range(2):
+			var unit = Unit.new() 
+			unit.set_script(load(data_node_ref.CLASS_UNIT))
+			unit.setup(foot_sold_res)
+			unit.owner = self
+			#unit.add_to_group("units")
+			target.add_ext_unit(unit)
+
+
 ### Connected Signals
