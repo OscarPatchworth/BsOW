@@ -1,6 +1,0 @@
-[gd_scene load_steps=2 format=3 uid="uid://cvfbuq8ui1g07"]
-
-[ext_resource type="Script" path="res://Scripts/classes/buttons/btn_build_opt.gd" id="1_3v3gg"]
-
-[node name="BtnBuildOpt" type="Button"]
-script = ExtResource("1_3v3gg")
