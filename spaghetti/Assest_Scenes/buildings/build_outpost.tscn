@@ -1,6 +1,6 @@
 [gd_scene load_steps=3 format=3 uid="uid://bekp8mu22hmcl"]
 
-[ext_resource type="Texture2D" uid="uid://caghcgw2vfkso" path="res://spaghetti/Textures/TempTextures/third_person_controller_assets/textures/grids/Orange/texture_11.png" id="1_h2cft"]
+[ext_resource type="Texture2D" uid="uid://caghcgw2vfkso" path="res://visuals/textures/third_person_controller_assets/textures/grids/Orange/texture_11.png" id="1_h2cft"]
 
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_hw2n2"]
 albedo_texture = ExtResource("1_h2cft")

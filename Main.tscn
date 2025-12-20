@@ -1,3 +1,39 @@
-[gd_scene format=3 uid="uid://clx8h78aia5jy"]
+[gd_scene load_steps=5 format=3 uid="uid://clx8h78aia5jy"]
+
+[ext_resource type="Texture2D" uid="uid://78pehu0r5g6w" path="res://visuals/textures/third_person_controller_assets/textures/grids/Dark/texture_04.png" id="1_bfc7u"]
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_r86o6"]
+size = Vector3(10, 0.1, 10)
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_16dx4"]
+albedo_texture = ExtResource("1_bfc7u")
+uv1_triplanar = true
+
+[sub_resource type="BoxMesh" id="BoxMesh_05ysm"]
+lightmap_size_hint = Vector2i(104, 57)
+material = SubResource("StandardMaterial3D_16dx4")
+size = Vector3(10, 0.1, 10)
 
 [node name="Main" type="Node3D"]
+
+[node name="World" type="Node3D" parent="."]
+
+[node name="Floor" type="StaticBody3D" parent="World"]
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="World/Floor"]
+transform = Transform3D(4, 0, 0, 0, 4, 0, 0, 0, 4, 0, 0, 0)
+shape = SubResource("BoxShape3D_r86o6")
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="World/Floor"]
+transform = Transform3D(4, 0, 0, 0, 4, 0, 0, 0, 4, 0, 0, 0)
+mesh = SubResource("BoxMesh_05ysm")
+
+[node name="Actors" type="Node3D" parent="."]
+
+[node name="ManagersAndSystems" type="Node" parent="."]
+
+[node name="UI" type="Control" parent="."]
+layout_mode = 3
+anchors_preset = 0
+offset_right = 40.0
+offset_bottom = 40.0
