@@ -1,0 +1,42 @@
+[gd_scene load_steps=6 format=3 uid="uid://lwrx00g5nx8i"]
+
+[sub_resource type="CylinderShape3D" id="CylinderShape3D_wh0p0"]
+height = 1.0
+radius = 1.0
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_u5pat"]
+albedo_color = Color(0.57, 0.50578, 0.4218, 1)
+
+[sub_resource type="CylinderMesh" id="CylinderMesh_lq1ou"]
+material = SubResource("StandardMaterial3D_u5pat")
+top_radius = 1.0
+bottom_radius = 0.25
+height = 0.75
+rings = 2
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_751kt"]
+albedo_color = Color(0.176675, 0.37, 0.1591, 1)
+
+[sub_resource type="CylinderMesh" id="CylinderMesh_fn2if"]
+material = SubResource("StandardMaterial3D_751kt")
+top_radius = 1.0
+bottom_radius = 1.1
+height = 0.075
+
+[node name="LanderSene" type="RigidBody3D"]
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.5, 0)
+shape = SubResource("CylinderShape3D_wh0p0")
+
+[node name="MeshBase" type="Node3D" parent="."]
+
+[node name="CSGMesh3D" type="CSGMesh3D" parent="MeshBase"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.5, 0)
+mesh = SubResource("CylinderMesh_lq1ou")
+
+[node name="MeshBiome" type="Node3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.9, 0)
+
+[node name="CSGMesh3D" type="CSGMesh3D" parent="MeshBiome"]
+mesh = SubResource("CylinderMesh_fn2if")
