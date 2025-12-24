@@ -1,3 +1,4 @@
+class_name ActorControler
 extends Node
 
 
