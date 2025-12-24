@@ -1,10 +1,9 @@
-[gd_scene load_steps=20 format=3 uid="uid://clx8h78aia5jy"]
+[gd_scene load_steps=19 format=3 uid="uid://clx8h78aia5jy"]
 
 [ext_resource type="Texture2D" uid="uid://78pehu0r5g6w" path="res://visuals/textures/third_person_controller_assets/textures/grids/Dark/texture_04.png" id="1_bfc7u"]
+[ext_resource type="Script" path="res://logic/classes/game_root.gd" id="1_fs3en"]
 [ext_resource type="Script" path="res://spaghetti/Scripts/main/cam_gimbal.gd" id="2_qloow"]
-[ext_resource type="Script" path="res://logic/classes/player.gd" id="3_aa36v"]
 [ext_resource type="Script" path="res://logic/managers_and_systems/turn_manager.gd" id="3_elh8a"]
-[ext_resource type="Script" path="res://logic/classes/player_controler.gd" id="4_8ehx4"]
 [ext_resource type="Script" path="res://logic/managers_and_systems/econ_manager.gd" id="4_k2s5q"]
 [ext_resource type="Script" path="res://logic/managers_and_systems/lander_manager.gd" id="5_igtti"]
 [ext_resource type="Script" path="res://logic/managers_and_systems/action_manager.gd" id="6_w5vq1"]
@@ -60,6 +59,7 @@ bottom_radius = 1.1
 height = 0.075
 
 [node name="Main" type="Node3D"]
+script = ExtResource("1_fs3en")
 
 [node name="World" type="Node3D" parent="."]
 
@@ -109,12 +109,6 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.9, 0)
 mesh = SubResource("CylinderMesh_ancmn")
 
 [node name="Actors" type="Node3D" parent="."]
-
-[node name="Player" type="Node3D" parent="Actors"]
-script = ExtResource("3_aa36v")
-
-[node name="PlayerControler" type="Node3D" parent="Actors/Player"]
-script = ExtResource("4_8ehx4")
 
 [node name="ManagersAndSystems" type="Node" parent="."]
 

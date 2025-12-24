@@ -1,0 +1,10 @@
+[gd_scene load_steps=3 format=3 uid="uid://cmnn2jtgwr4dw"]
+
+[ext_resource type="Script" path="res://logic/classes/player.gd" id="1_tftws"]
+[ext_resource type="Script" path="res://logic/classes/player_controler.gd" id="2_pm403"]
+
+[node name="Player" type="Node3D"]
+script = ExtResource("1_tftws")
+
+[node name="PlayerController" type="Node3D" parent="."]
+script = ExtResource("2_pm403")
