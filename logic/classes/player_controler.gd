@@ -10,7 +10,6 @@ const RAYCAST_WORLD_SURFACE_LENGHT = 100
 
 # static variables
 var cam: Camera3D
-var action_manager
 
 # @export variables
 
@@ -37,9 +36,14 @@ func _process(delta: float) -> void:
 
 
 # Called Whenever there is user input
-func _input(event: InputEvent) -> void:
+func _input(event: InputEvent) -> void: 
 	if event.is_action_released("left_click"):
 		var raycast_hit = raycat_to_world_surface()
+		var action_req = Action.new()
+		action_req.set_actor(self.get_parent())
+		action_req.set_pos(raycast_hit.position)
+		action_req.set_type(Action.RequestType.PLACE_LANDER)
+		action_manager.action_request(action_req)
 	pass
 
 

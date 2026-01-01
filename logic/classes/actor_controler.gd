@@ -1,12 +1,24 @@
 class_name ActorControler
 extends Node3D
 
+# signals
+#signal score_changed
 
-# Called when the node enters the scene tree for the first time.
-func _ready() -> void:
-	pass # Replace with function body.
+# enums
+#enum Element {EARTH,WATER,AIR,FIRE,}
 
+# constants
+#const MAX_SPEED = 200
 
-# Called every frame. 'delta' is the elapsed time since the previous frame.
-func _process(delta: float) -> void:
-	pass
+# static variables
+var action_manager: GameManager
+
+# @export variables
+
+# remaining regular variables
+
+# @onready variables
+
+###################################################################################################
+###	Methods
+

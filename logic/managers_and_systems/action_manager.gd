@@ -18,3 +18,6 @@ var game_state
 ###################################################################################################
 ###	Methods
 
+func action_request(req: Action):
+	print(str(req.actor) + " | " + str(req.pos))
+	pass

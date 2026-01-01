@@ -5,9 +5,10 @@ extends Node
 
 # enums
 enum RequestType {
-    MOVEMENT, 
-    ATTACK,
-    BUY
+	MOVEMENT, 
+	ATTACK,
+	BUY,
+	PLACE_LANDER
 }
 
 # constants
@@ -31,22 +32,27 @@ var target
 ### Get/Set (ers)
 # Type
 func get_type() -> RequestType:
-    return self.type
+	return self.type
 func set_type(req_type: RequestType):
-    self.type = req_type
+	self.type = req_type
 
 # Actor
 func get_actor() -> Actor:
-    return self.actor
+	return self.actor
 func set_actor(req_actor: Actor):
-    self.actor = req_actor
+	self.actor = req_actor
 
 # Pos
 func get_pos() -> Vector3:
-    return pos
+	return pos
 func set_pos(req_pos: Vector3):
-    self.pos = req_pos
+	self.pos = req_pos
 
-
-
-
+# All
+func get_action_dict() -> Dictionary:
+	var all = {
+		type: type,
+		actor: actor,
+		pos: pos
+	}
+	return all
