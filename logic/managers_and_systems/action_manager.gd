@@ -31,16 +31,9 @@ func action_request(req: Action):
 	pass
 
 func handle_place_lander(req: Action):
-	print(str(req.actor.name) + " | " + str(req.pos))
-	var valid_req = lander_manager.is_lander_placeable(req.pos)
+	print(str(req.actor.name) + " | " + str(req.position))
+	var valid_req = lander_manager.is_lander_placeable(req.position)
 	if(valid_req):
 		print("Valid Place Lander Req")
 	else:
 		print("Invalid Place Lander Req")
-
-
-func is_valid_lander_pos(pos: Vector3) -> bool:
-	#for lander in LanderManager.landers:
-		#if lander.position.distance_to(pos) < MIN_DISTANCE:
-			#return false
-	return true

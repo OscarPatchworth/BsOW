@@ -1,4 +1,4 @@
-[gd_scene load_steps=19 format=3 uid="uid://clx8h78aia5jy"]
+[gd_scene load_steps=15 format=3 uid="uid://clx8h78aia5jy"]
 
 [ext_resource type="Texture2D" uid="uid://78pehu0r5g6w" path="res://visuals/textures/third_person_controller_assets/textures/grids/Dark/texture_04.png" id="1_bfc7u"]
 [ext_resource type="Script" path="res://logic/managers_and_systems/game_root.gd" id="1_fs3en"]
@@ -8,6 +8,7 @@
 [ext_resource type="Script" path="res://logic/managers_and_systems/lander_manager.gd" id="5_igtti"]
 [ext_resource type="Script" path="res://logic/managers_and_systems/action_manager.gd" id="6_w5vq1"]
 [ext_resource type="Script" path="res://logic/managers_and_systems/gravity_system.gd" id="7_k8fui"]
+[ext_resource type="PackedScene" uid="uid://lwrx00g5nx8i" path="res://sences/landerSene.tscn" id="7_l1cnn"]
 [ext_resource type="Script" path="res://logic/managers_and_systems/selector_manager.gd" id="8_y0uvt"]
 
 [sub_resource type="BoxShape3D" id="BoxShape3D_r86o6"]
@@ -34,29 +35,6 @@ func _ready() -> void:
 func _process(delta: float) -> void:
 	pass
 "
-
-[sub_resource type="CylinderShape3D" id="CylinderShape3D_pgrgq"]
-height = 1.0
-radius = 1.0
-
-[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_djyco"]
-albedo_color = Color(0.57, 0.50578, 0.4218, 1)
-
-[sub_resource type="CylinderMesh" id="CylinderMesh_hyh7l"]
-material = SubResource("StandardMaterial3D_djyco")
-top_radius = 1.0
-bottom_radius = 0.25
-height = 0.75
-rings = 2
-
-[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_ljfq0"]
-albedo_color = Color(0.176675, 0.37, 0.1591, 1)
-
-[sub_resource type="CylinderMesh" id="CylinderMesh_ancmn"]
-material = SubResource("StandardMaterial3D_ljfq0")
-top_radius = 1.0
-bottom_radius = 1.1
-height = 0.075
 
 [node name="Main" type="Node3D"]
 script = ExtResource("1_fs3en")
@@ -89,26 +67,9 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 4)
 current = true
 script = SubResource("GDScript_cccf0")
 
-[node name="Node3D" type="RigidBody3D" parent="World"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2.78656, 0, 0)
-
-[node name="CollisionShape3D" type="CollisionShape3D" parent="World/Node3D"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.5, 0)
-shape = SubResource("CylinderShape3D_pgrgq")
-
-[node name="MeshBase" type="Node3D" parent="World/Node3D"]
-
-[node name="CSGMesh3D" type="CSGMesh3D" parent="World/Node3D/MeshBase"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.5, 0)
-mesh = SubResource("CylinderMesh_hyh7l")
-
-[node name="MeshBiome" type="Node3D" parent="World/Node3D"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.9, 0)
-
-[node name="CSGMesh3D" type="CSGMesh3D" parent="World/Node3D/MeshBiome"]
-mesh = SubResource("CylinderMesh_ancmn")
-
 [node name="Actors" type="Node3D" parent="."]
+
+[node name="Landers" type="Node3D" parent="."]
 
 [node name="ManagersAndSystems" type="Node" parent="."]
 
@@ -120,6 +81,7 @@ script = ExtResource("4_k2s5q")
 
 [node name="LanderManager" type="Node" parent="ManagersAndSystems"]
 script = ExtResource("5_igtti")
+lander_sence = ExtResource("7_l1cnn")
 
 [node name="ActionManager" type="Node" parent="ManagersAndSystems"]
 script = ExtResource("6_w5vq1")

@@ -16,7 +16,7 @@ enum RequestType {
 # static variables
 var type: RequestType
 var actor: Actor
-var pos: Vector3
+var position: Vector3
 var target
 
 # @export variables
@@ -44,15 +44,15 @@ func set_actor(req_actor: Actor):
 
 # Pos
 func get_pos() -> Vector3:
-	return pos
+	return position
 func set_pos(req_pos: Vector3):
-	self.pos = req_pos
+	self.position = req_pos
 
 # All
 func get_action_dict() -> Dictionary:
 	var all = {
-		type: type,
-		actor: actor,
-		pos: pos
+		"type": type,
+		"actor": actor,
+		"pos": position
 	}
 	return all
