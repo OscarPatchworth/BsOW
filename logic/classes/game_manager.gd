@@ -12,6 +12,7 @@ extends Node
 # @export variables
 
 # remaining regular variables
+var game_state
 
 # @onready variables
 

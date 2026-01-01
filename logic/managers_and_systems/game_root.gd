@@ -10,16 +10,21 @@ extends Node
 ### Loadable sences
 var player_scene = preload("res://sences/player.tscn")
 
-### Managers
-@onready var action_manager = self.find_child("ActionManager")
-
 # @export variables
 
 # remaining regular variables
 
+# @onready vars
+### Managers
+@onready var action_manager = self.find_child("ActionManager")
+@onready var lander_manager = self.find_child("LanderManager")
+
+
 # Called when the node enters the scene tree for the first time.
 func _ready() -> void:
+	init_game_managers_and_systems()
 	init_actors()
+
 
 
 # Called every frame. 'delta' is the elapsed time since the previous frame.
@@ -28,6 +33,16 @@ func _process(delta: float) -> void:
 
 
 ### Custom Funcs()
+# Init Game Managers
+func init_game_managers_and_systems():
+	init_action_manager()
+
+
+func init_action_manager():
+	action_manager.lander_manager = lander_manager
+
+
+# Init Actors
 func init_actors():
 	add_player()
 	add_ai()

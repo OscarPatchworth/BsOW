@@ -23,7 +23,7 @@ top_radius = 1.0
 bottom_radius = 1.1
 height = 0.075
 
-[node name="LanderSene" type="RigidBody3D"]
+[node name="LanderSene" type="RigidBody3D" groups=["lander"]]
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.5, 0)

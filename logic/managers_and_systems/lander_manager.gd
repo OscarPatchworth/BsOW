@@ -1,13 +1,27 @@
-extends Node
+extends GameManager
 
-### Constants
+#signals
+
+# enums
+
+# constants
 const lander_radius:float = 1
 
-# Called when the node enters the scene tree for the first time.
-func _ready() -> void:
-	pass # Replace with function body.
+# static variables
+
+# @export variables
+
+# remaining regular variables
+
+# @onready variables
+
+###################################################################################################
+###	Methods
 
 
-# Called every frame. 'delta' is the elapsed time since the previous frame.
-func _process(delta: float) -> void:
-	pass
+### Calls
+func is_lander_placeable(req_pos) -> bool:
+	if req_pos != Vector3.ZERO:
+		return true
+	else:
+		return false
