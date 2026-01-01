@@ -1,3 +1,4 @@
+#class_name ClassName
 extends Node
 
 # signals
@@ -13,7 +14,6 @@ extends Node
 # remaining regular variables
 
 # @onready variables
-@onready var data_node_ref = get_node("%DataNodeRefs")
 
 ###################################################################################################
 ###	Methods

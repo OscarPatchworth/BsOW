@@ -1,11 +1,20 @@
-extends Node
+extends GameManager
 
+# signals
 
-# Called when the node enters the scene tree for the first time.
-func _ready() -> void:
-	pass # Replace with function body.
+# enums
 
+# constants
 
-# Called every frame. 'delta' is the elapsed time since the previous frame.
-func _process(delta: float) -> void:
-	pass
+# static variables
+var movement_ctrl = load("res://logic/managers_and_systems/movement_controler.gd")
+
+# @export variables
+
+# remaining regular variables
+var game_state
+# @onready variables
+
+###################################################################################################
+###	Methods
+

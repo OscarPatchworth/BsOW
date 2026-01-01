@@ -7,7 +7,11 @@ extends Node
 # constants
 
 # static variables
+### Loadable sences
 var player_scene = preload("res://sences/player.tscn")
+
+### Managers
+@onready var action_manager = self.find_child("ActionManager")
 
 # @export variables
 
@@ -45,4 +49,5 @@ func init_player(player_x: Player):
 	var camera = find_child("Camera3D")
 	var player_cntrl = player_x.find_child("PlayerController")
 	player_cntrl.cam = camera
+	player_cntrl.action_manager = action_manager
 	pass
