@@ -42,5 +42,7 @@ func add_ai():
 
 func init_player(player_x: Player):
 	#player.refrence = wire
+	var camera = find_child("Camera3D")
+	var player_cntrl = player_x.find_child("PlayerController")
+	player_cntrl.cam = camera
 	pass
-

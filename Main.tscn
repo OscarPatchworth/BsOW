@@ -1,7 +1,7 @@
 [gd_scene load_steps=19 format=3 uid="uid://clx8h78aia5jy"]
 
 [ext_resource type="Texture2D" uid="uid://78pehu0r5g6w" path="res://visuals/textures/third_person_controller_assets/textures/grids/Dark/texture_04.png" id="1_bfc7u"]
-[ext_resource type="Script" path="res://logic/classes/game_root.gd" id="1_fs3en"]
+[ext_resource type="Script" path="res://logic/managers_and_systems/game_root.gd" id="1_fs3en"]
 [ext_resource type="Script" path="res://spaghetti/Scripts/main/cam_gimbal.gd" id="2_qloow"]
 [ext_resource type="Script" path="res://logic/managers_and_systems/turn_manager.gd" id="3_elh8a"]
 [ext_resource type="Script" path="res://logic/managers_and_systems/econ_manager.gd" id="4_k2s5q"]
