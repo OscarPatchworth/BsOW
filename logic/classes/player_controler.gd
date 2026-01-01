@@ -40,8 +40,6 @@ func _process(delta: float) -> void:
 func _input(event: InputEvent) -> void:
 	if event.is_action_released("left_click"):
 		var raycast_hit = raycat_to_world_surface()
-		print(raycast_hit.position)
-		print(action_manager.name)
 	pass
 
 
