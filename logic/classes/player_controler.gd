@@ -2,6 +2,7 @@ class_name PlayerControler
 extends ActorControler
 
 # signals
+signal view_lander_requested(target_lander)
 
 # enums
 
@@ -47,7 +48,8 @@ func _input(event: InputEvent) -> void:
 	elif event.is_action_released("right_click"):
 		var raycast_hit = raycat_to_layer(LANDER_LAYER)
 		if raycast_hit:
-			generate_view_lander_request(raycast_hit.collider)
+			view_lander_requested.emit(raycast_hit.collider)
+
 
 
 func raycat_to_layer(layer: int) -> Dictionary:
@@ -76,12 +78,3 @@ func generate_place_lander_request(pos: Vector3):
 	action_req.set_pos(pos)
 	action_req.set_type(Action.RequestType.PLACE_LANDER)
 	action_manager.action_request(action_req)
-
-
-func generate_view_lander_request(target: Lander):
-	var action_req = Action.new()
-	action_req.set_actor(self.get_parent())
-	action_req.set_target_lander(target)
-	action_req.set_type(Action.RequestType.VIEW_LANDER)
-	#action_manager.action_request(action_req)
-	print(action_req.get_action_dict())
