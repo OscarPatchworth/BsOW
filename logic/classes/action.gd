@@ -8,7 +8,8 @@ enum RequestType {
 	MOVEMENT, 
 	ATTACK,
 	BUY,
-	PLACE_LANDER
+	PLACE_LANDER,
+	VIEW_LANDER
 }
 
 # constants
@@ -17,7 +18,7 @@ enum RequestType {
 var type: RequestType
 var actor: Actor
 var position: Vector3
-var target
+var target_lander: Lander
 
 # @export variables
 
@@ -48,11 +49,20 @@ func get_pos() -> Vector3:
 func set_pos(req_pos: Vector3):
 	self.position = req_pos
 
+
+# Target Lander
+func get_target_lander() -> Lander:
+	return target_lander
+func set_target_lander(target: Lander):
+	self.target_lander = target
+
+
 # All
 func get_action_dict() -> Dictionary:
 	var all = {
 		"type": type,
 		"actor": actor,
-		"pos": position
+		"pos": position,
+		"target" : target_lander
 	}
 	return all
