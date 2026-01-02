@@ -31,7 +31,7 @@ func action_request(req: Action):
 	pass
 
 func handle_place_lander(req: Action):
-	if(lander_manager.is_pos_min_dist_from_landers(req.position) == true):
+	if(lander_manager.is_valid_lander_placement(req.position)):
 		lander_manager.inst_lander(req.position)
 	else:
 		print("Invalid Place Lander Request")

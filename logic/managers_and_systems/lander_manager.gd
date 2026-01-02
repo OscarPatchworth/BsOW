@@ -29,12 +29,17 @@ func inst_lander(pos: Vector3):
 
 	landers.append(new_lander)
 
-### Calls
-func is_pos_min_dist_from_landers(req_pos: Vector3) -> bool:
+
+func is_pos_min_distance_apart(pos: Vector3) -> bool:
 	# Here using the LANDER_RADIUS as the min distance between landers
 	# Squaring this value to make it compariable to the squared distance between lander positions
 	# Using the distanced_squared_to over distance_to bcs its operationally faster
 	for lander in landers:
-		if (req_pos.distance_squared_to(lander.position) < MIN_DIST_SQUARED):
+		if (pos.distance_squared_to(lander.position) < MIN_DIST_SQUARED):
 			return false
 	return true
+
+
+### Calls
+func is_valid_lander_placement(req_pos: Vector3) -> bool:
+	return is_pos_min_distance_apart(req_pos)
