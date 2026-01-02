@@ -9,7 +9,6 @@ extends GameManager
 # static variables
 var movement_ctrl = load("res://logic/managers_and_systems/movement_controler.gd")
 var lander_manager: GameManager
-var ui_manager: GameManager
 # @export variables
 
 # remaining regular variables
@@ -29,8 +28,6 @@ func action_request(req: Action):
 			pass
 		Action.RequestType.BUY:
 			pass
-		Action.RequestType.VIEW_LANDER:
-			handle_view_lander(req)
 	pass
 
 
@@ -39,8 +36,3 @@ func handle_place_lander(req: Action):
 		lander_manager.inst_lander(req.position)
 	else:
 		print("Invalid Place Lander Request")
-
-
-func handle_view_lander(req: Action):
-	#ui_manager.view_lander(req.target_lander)
-	pass

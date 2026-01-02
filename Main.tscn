@@ -1,4 +1,4 @@
-[gd_scene load_steps=15 format=3 uid="uid://clx8h78aia5jy"]
+[gd_scene load_steps=16 format=3 uid="uid://clx8h78aia5jy"]
 
 [ext_resource type="Texture2D" uid="uid://78pehu0r5g6w" path="res://visuals/textures/third_person_controller_assets/textures/grids/Dark/texture_04.png" id="1_bfc7u"]
 [ext_resource type="Script" path="res://logic/managers_and_systems/game_root.gd" id="1_fs3en"]
@@ -10,6 +10,7 @@
 [ext_resource type="Script" path="res://logic/managers_and_systems/gravity_system.gd" id="7_k8fui"]
 [ext_resource type="PackedScene" uid="uid://lwrx00g5nx8i" path="res://sences/landerSene.tscn" id="7_l1cnn"]
 [ext_resource type="Script" path="res://logic/managers_and_systems/selector_manager.gd" id="8_y0uvt"]
+[ext_resource type="Script" path="res://logic/managers_and_systems/ui_manager.gd" id="11_kbogb"]
 
 [sub_resource type="BoxShape3D" id="BoxShape3D_r86o6"]
 size = Vector3(10, 0.1, 10)
@@ -91,6 +92,9 @@ script = ExtResource("7_k8fui")
 
 [node name="SelectorManager" type="Node" parent="ManagersAndSystems"]
 script = ExtResource("8_y0uvt")
+
+[node name="UI-Manager" type="Node" parent="ManagersAndSystems"]
+script = ExtResource("11_kbogb")
 
 [node name="UI" type="Control" parent="."]
 layout_mode = 3

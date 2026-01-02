@@ -9,7 +9,6 @@ enum RequestType {
 	ATTACK,
 	BUY,
 	PLACE_LANDER,
-	VIEW_LANDER
 }
 
 # constants
