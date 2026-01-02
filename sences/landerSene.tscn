@@ -26,6 +26,8 @@ bottom_radius = 1.1
 height = 0.075
 
 [node name="LanderSene" type="RigidBody3D"]
+collision_layer = 2
+collision_mask = 3
 script = ExtResource("1_eyclh")
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="."]

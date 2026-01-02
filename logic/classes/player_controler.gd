@@ -7,6 +7,8 @@ extends ActorControler
 
 # constants
 const RAYCAST_WORLD_SURFACE_LENGHT = 100
+const WORLD_SURFACE_LAYER: int = 1
+const LANDER_LAYER: int = 2
 
 # static variables
 var cam: Camera3D
@@ -38,21 +40,24 @@ func _process(delta: float) -> void:
 # Called Whenever there is user input
 func _input(event: InputEvent) -> void: 
 	if event.is_action_released("left_click"):
-		var raycast_hit = raycat_to_world_surface()
+		var raycast_hit = raycat_to_layer(WORLD_SURFACE_LAYER)
 		if raycast_hit:
 			var action_req = Action.new()
 			action_req.set_actor(self.get_parent())
 			action_req.set_pos(raycast_hit.position)
 			action_req.set_type(Action.RequestType.PLACE_LANDER)
 			action_manager.action_request(action_req)
-	pass
+	elif event.is_action_released("right_click"):
+		var raycast_hit = raycat_to_layer(LANDER_LAYER)
+		if raycast_hit:
+			print(raycast_hit.collider.name)
 
 
-func raycat_to_world_surface() -> Dictionary:
+func raycat_to_layer(layer: int) -> Dictionary:
 	#Get cam and world space init
 	init_raycast_mouse_pos()
 	#Raycast layer 1 (the world surface layer)
-	var query = PhysicsRayQueryParameters3D.create(mouse_ray_start, mouse_ray_end, 1)
+	var query = PhysicsRayQueryParameters3D.create(mouse_ray_start, mouse_ray_end, layer)
 	query.collide_with_bodies = true
 	var result = space_state.intersect_ray(query)
 	return result
