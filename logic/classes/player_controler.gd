@@ -39,11 +39,12 @@ func _process(delta: float) -> void:
 func _input(event: InputEvent) -> void: 
 	if event.is_action_released("left_click"):
 		var raycast_hit = raycat_to_world_surface()
-		var action_req = Action.new()
-		action_req.set_actor(self.get_parent())
-		action_req.set_pos(raycast_hit.position)
-		action_req.set_type(Action.RequestType.PLACE_LANDER)
-		action_manager.action_request(action_req)
+		if raycast_hit:
+			var action_req = Action.new()
+			action_req.set_actor(self.get_parent())
+			action_req.set_pos(raycast_hit.position)
+			action_req.set_type(Action.RequestType.PLACE_LANDER)
+			action_manager.action_request(action_req)
 	pass
 
 

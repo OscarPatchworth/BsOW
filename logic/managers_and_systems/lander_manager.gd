@@ -6,6 +6,8 @@ extends GameManager
 
 # constants
 const LANDER_RADIUS:float = 1
+const MIN_DIST_BETWEEN_LANDERS = 2
+const MIN_DIST_SQUARED = MIN_DIST_BETWEEN_LANDERS ** 2
 
 # static variables
 var landers_sence_node: Node3D
@@ -25,9 +27,14 @@ func inst_lander(pos: Vector3):
 	new_lander.position = pos
 	landers_sence_node.add_child(new_lander)
 
+	landers.append(new_lander)
+
 ### Calls
-func is_lander_placeable(req_pos) -> bool:
-	if req_pos != Vector3.ZERO:
-		return true
-	else:
-		return false
+func is_pos_min_dist_from_landers(req_pos: Vector3) -> bool:
+	# Here using the LANDER_RADIUS as the min distance between landers
+	# Squaring this value to make it compariable to the squared distance between lander positions
+	# Using the distanced_squared_to over distance_to bcs its operationally faster
+	for lander in landers:
+		if (req_pos.distance_squared_to(lander.position) < MIN_DIST_SQUARED):
+			return false
+	return true
