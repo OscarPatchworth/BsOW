@@ -1,10 +1,37 @@
-[gd_scene load_steps=3 format=3 uid="uid://cmnn2jtgwr4dw"]
+[gd_scene load_steps=5 format=3 uid="uid://cmnn2jtgwr4dw"]
 
 [ext_resource type="Script" path="res://logic/classes/player.gd" id="1_tftws"]
 [ext_resource type="Script" path="res://logic/classes/player_controler.gd" id="2_pm403"]
+[ext_resource type="Script" path="res://spaghetti/Scripts/main/cam_gimbal.gd" id="3_mv7g2"]
+
+[sub_resource type="GDScript" id="GDScript_ks4yd"]
+script/source = "extends Camera3D
+
+# Called when the node enters the scene tree for the first time.
+func _ready() -> void:
+	pass # Replace with function body.
+
+
+# Called every frame. 'delta' is the elapsed time since the previous frame.
+func _process(delta: float) -> void:
+	pass
+"
 
 [node name="Player" type="Node3D"]
 script = ExtResource("1_tftws")
 
 [node name="PlayerController" type="Node3D" parent="."]
 script = ExtResource("2_pm403")
+
+[node name="CamGimbal" type="Node3D" parent="PlayerController"]
+transform = Transform3D(1, 0, -1.67638e-08, 0, 1, 0, 1.67638e-08, 0, 1, -2, 1.5, 4)
+script = ExtResource("3_mv7g2")
+max_zoom = 5
+zoom_speed = 0.1
+
+[node name="InnerGimbal" type="Node3D" parent="PlayerController/CamGimbal"]
+
+[node name="Camera3D" type="Camera3D" parent="PlayerController/CamGimbal/InnerGimbal"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 4)
+current = true
+script = SubResource("GDScript_ks4yd")

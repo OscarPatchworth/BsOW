@@ -12,7 +12,6 @@ const WORLD_SURFACE_LAYER: int = 1
 const LANDER_LAYER: int = 2
 
 # static variables
-var cam: Camera3D
 
 # @export variables
 
@@ -26,11 +25,11 @@ var mouse_ray_start
 var mouse_ray_end
 
 # @onready variables
-
+@onready var cam: Camera3D = self.find_child("Camera3D")
 
 # Called when the node enters the scene tree for the first time.
 func _ready() -> void:
-	pass # Replace with function body.
+	pass
 
 
 # Called every frame. 'delta' is the elapsed time since the previous frame.

@@ -1,8 +1,7 @@
-[gd_scene load_steps=16 format=3 uid="uid://clx8h78aia5jy"]
+[gd_scene load_steps=13 format=3 uid="uid://clx8h78aia5jy"]
 
 [ext_resource type="Texture2D" uid="uid://78pehu0r5g6w" path="res://visuals/textures/third_person_controller_assets/textures/grids/Dark/texture_04.png" id="1_bfc7u"]
 [ext_resource type="Script" path="res://logic/managers_and_systems/game_root.gd" id="1_fs3en"]
-[ext_resource type="Script" path="res://spaghetti/Scripts/main/cam_gimbal.gd" id="2_qloow"]
 [ext_resource type="Script" path="res://logic/managers_and_systems/turn_manager.gd" id="3_elh8a"]
 [ext_resource type="Script" path="res://logic/managers_and_systems/econ_manager.gd" id="4_k2s5q"]
 [ext_resource type="Script" path="res://logic/managers_and_systems/lander_manager.gd" id="5_igtti"]
@@ -10,7 +9,6 @@
 [ext_resource type="Script" path="res://logic/managers_and_systems/gravity_system.gd" id="7_k8fui"]
 [ext_resource type="PackedScene" uid="uid://lwrx00g5nx8i" path="res://sences/landerSene.tscn" id="7_l1cnn"]
 [ext_resource type="Script" path="res://logic/managers_and_systems/selector_manager.gd" id="8_y0uvt"]
-[ext_resource type="Script" path="res://logic/managers_and_systems/ui_manager.gd" id="11_kbogb"]
 
 [sub_resource type="BoxShape3D" id="BoxShape3D_r86o6"]
 size = Vector3(10, 0.1, 10)
@@ -23,19 +21,6 @@ uv1_triplanar = true
 lightmap_size_hint = Vector2i(104, 57)
 material = SubResource("StandardMaterial3D_16dx4")
 size = Vector3(10, 0.1, 10)
-
-[sub_resource type="GDScript" id="GDScript_cccf0"]
-script/source = "extends Camera3D
-
-# Called when the node enters the scene tree for the first time.
-func _ready() -> void:
-	pass # Replace with function body.
-
-
-# Called every frame. 'delta' is the elapsed time since the previous frame.
-func _process(delta: float) -> void:
-	pass
-"
 
 [node name="Main" type="Node3D"]
 script = ExtResource("1_fs3en")
@@ -54,19 +39,6 @@ mesh = SubResource("BoxMesh_05ysm")
 
 [node name="DirectionalLight3D" type="DirectionalLight3D" parent="World"]
 transform = Transform3D(0.766044, -0.55667, 0.321394, 0, 0.5, 0.866025, -0.642788, -0.663414, 0.383022, 0, 10, 0)
-
-[node name="CamGimbal" type="Node3D" parent="World"]
-transform = Transform3D(1, 0, -1.67638e-08, 0, 1, 0, 1.67638e-08, 0, 1, -2, 1.5, 4)
-script = ExtResource("2_qloow")
-max_zoom = 5
-zoom_speed = 0.1
-
-[node name="InnerGimbal" type="Node3D" parent="World/CamGimbal"]
-
-[node name="Camera3D" type="Camera3D" parent="World/CamGimbal/InnerGimbal"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 4)
-current = true
-script = SubResource("GDScript_cccf0")
 
 [node name="Actors" type="Node3D" parent="."]
 
@@ -92,12 +64,3 @@ script = ExtResource("7_k8fui")
 
 [node name="SelectorManager" type="Node" parent="ManagersAndSystems"]
 script = ExtResource("8_y0uvt")
-
-[node name="UI-Manager" type="Node" parent="ManagersAndSystems"]
-script = ExtResource("11_kbogb")
-
-[node name="UI" type="Control" parent="."]
-layout_mode = 3
-anchors_preset = 0
-offset_right = 40.0
-offset_bottom = 40.0
