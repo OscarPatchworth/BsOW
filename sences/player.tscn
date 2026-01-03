@@ -38,7 +38,7 @@ script = SubResource("GDScript_ks4yd")
 
 [node name="CanvasLayer" type="CanvasLayer" parent="."]
 
-[node name="UIManager" type="Control" parent="CanvasLayer"]
+[node name="UI-manager" type="Control" parent="CanvasLayer"]
 layout_mode = 3
 anchors_preset = 0
 offset_right = 40.0
