@@ -1,9 +1,10 @@
-[gd_scene load_steps=6 format=3 uid="uid://cmnn2jtgwr4dw"]
+[gd_scene load_steps=7 format=3 uid="uid://cmnn2jtgwr4dw"]
 
 [ext_resource type="Script" path="res://logic/classes/player.gd" id="1_tftws"]
 [ext_resource type="Script" path="res://logic/classes/player_controler.gd" id="2_pm403"]
 [ext_resource type="Script" path="res://spaghetti/Scripts/main/cam_gimbal.gd" id="3_mv7g2"]
 [ext_resource type="Script" path="res://logic/managers_and_systems/ui_manager.gd" id="4_6sgkc"]
+[ext_resource type="Script" path="res://sences/ui_manager.gd" id="5_m6gyu"]
 
 [sub_resource type="GDScript" id="GDScript_ks4yd"]
 script/source = "extends Camera3D
@@ -47,3 +48,4 @@ offset_bottom = 40.0
 script = ExtResource("4_6sgkc")
 
 [node name="UI-manager" type="Node" parent="CanvasLayer/UI"]
+script = ExtResource("5_m6gyu")
