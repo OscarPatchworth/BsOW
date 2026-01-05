@@ -3,7 +3,7 @@
 [ext_resource type="Script" path="res://logic/classes/player.gd" id="1_tftws"]
 [ext_resource type="Script" path="res://logic/classes/player_controler.gd" id="2_pm403"]
 [ext_resource type="Script" path="res://spaghetti/Scripts/main/cam_gimbal.gd" id="3_mv7g2"]
-[ext_resource type="Script" path="res://sences/ui_manager.gd" id="5_m6gyu"]
+[ext_resource type="Script" path="res://logic/managers_and_systems/ui_manager.gd" id="4_stx5a"]
 
 [sub_resource type="GDScript" id="GDScript_ks4yd"]
 script/source = "extends Camera3D
@@ -46,4 +46,4 @@ offset_right = 40.0
 offset_bottom = 40.0
 
 [node name="UI-manager" type="Node" parent="CanvasLayer/UI"]
-script = ExtResource("5_m6gyu")
+script = ExtResource("4_stx5a")

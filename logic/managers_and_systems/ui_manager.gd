@@ -10,6 +10,7 @@ extends GameManager
 #const MAX_SPEED = 200
 
 # static variables
+var ui_root: Control
 
 # @export variables
 
@@ -19,7 +20,12 @@ extends GameManager
 
 ###################################################################################################
 ###	Methods
+func _ready() -> void:
+	ui_root = get_parent()
+	assert(ui_root is Control)
 
 
+### Connected Signals
 
-### Listen()
+func display_landers_req(lander: Lander):
+	print("Player_UI recieved display landers req")
