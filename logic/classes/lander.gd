@@ -14,7 +14,7 @@ extends Node3D
 # @export variables
 
 # remaining regular variables
-#var position: Vector3
+var has_building: bool = false
 
 # @onready variables
 

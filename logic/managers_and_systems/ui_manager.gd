@@ -35,3 +35,11 @@ func show_lander_panel():
 
 func display_landers_req(lander: Lander):
 	show_lander_panel()
+	update_lander_panel(lander)
+
+
+func update_lander_panel(lander: Lander):
+	if not lander.has_building:
+		print("Lander has not building")
+	else:
+		print("Lander has building")
