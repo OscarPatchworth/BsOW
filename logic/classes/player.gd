@@ -19,7 +19,7 @@ extends Actor
 
 # @onready variables
 @onready var player_controller: ActorControler = self.find_child("PlayerController")
-@onready var player_ui: GameManager = self.find_child("UI-manager")
+@onready var player_ui: Control = self.find_child("UI-manager")
 
 
 ###################################################################################################

@@ -1,4 +1,4 @@
-extends GameManager
+extends Control
 
 # signals
 #signal score_changed
@@ -10,7 +10,6 @@ extends GameManager
 #const MAX_SPEED = 200
 
 # static variables
-var ui_root: Control
 
 # @export variables
 
@@ -21,8 +20,7 @@ var ui_root: Control
 ###################################################################################################
 ###	Methods
 func _ready() -> void:
-	ui_root = get_parent()
-	assert(ui_root is Control)
+	pass
 
 
 ### Connected Signals

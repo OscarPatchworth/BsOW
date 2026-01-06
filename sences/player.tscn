@@ -39,11 +39,7 @@ script = SubResource("GDScript_ks4yd")
 
 [node name="CanvasLayer" type="CanvasLayer" parent="."]
 
-[node name="UI" type="Control" parent="CanvasLayer"]
+[node name="UI-manager" type="Control" parent="CanvasLayer"]
 layout_mode = 3
 anchors_preset = 0
-offset_right = 40.0
-offset_bottom = 40.0
-
-[node name="UI-manager" type="Node" parent="CanvasLayer/UI"]
 script = ExtResource("4_stx5a")
