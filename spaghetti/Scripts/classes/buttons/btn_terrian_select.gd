@@ -1,4 +1,4 @@
-class_name BtnTerrianSelect # Class Name
+#class_name BtnTerrianSelect # Class Name
 extends Button
 
 # signals

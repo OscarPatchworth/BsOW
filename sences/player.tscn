@@ -1,9 +1,10 @@
-[gd_scene load_steps=6 format=3 uid="uid://cmnn2jtgwr4dw"]
+[gd_scene load_steps=7 format=3 uid="uid://cmnn2jtgwr4dw"]
 
 [ext_resource type="Script" path="res://logic/classes/player.gd" id="1_tftws"]
 [ext_resource type="Script" path="res://logic/classes/player_controler.gd" id="2_pm403"]
 [ext_resource type="Script" path="res://spaghetti/Scripts/main/cam_gimbal.gd" id="3_mv7g2"]
 [ext_resource type="Script" path="res://logic/managers_and_systems/ui_manager.gd" id="4_stx5a"]
+[ext_resource type="Script" path="res://view/game_button.gd" id="5_ujfh1"]
 
 [sub_resource type="GDScript" id="GDScript_ks4yd"]
 script/source = "extends Camera3D
@@ -43,3 +44,16 @@ script = SubResource("GDScript_ks4yd")
 layout_mode = 3
 anchors_preset = 0
 script = ExtResource("4_stx5a")
+
+[node name="LanderPanel" type="Panel" parent="CanvasLayer/UI-manager"]
+layout_mode = 0
+offset_left = 1550.0
+offset_right = 1900.0
+offset_bottom = 1080.0
+
+[node name="GameButton" type="Button" parent="CanvasLayer/UI-manager/LanderPanel"]
+layout_mode = 0
+offset_right = 8.0
+offset_bottom = 8.0
+text = "UwU"
+script = ExtResource("5_ujfh1")
