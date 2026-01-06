@@ -7,7 +7,6 @@ extends Control
 #enum Element {EARTH,WATER,AIR,FIRE,}
 
 # constants
-#const MAX_SPEED = 200
 
 # static variables
 
@@ -16,14 +15,23 @@ extends Control
 # remaining regular variables
 
 # @onready variables
+@onready var lander_panel:Panel = self.find_child("LanderPanel")
+
 
 ###################################################################################################
 ###	Methods
 func _ready() -> void:
-	pass
+	hide_lander_panel()
 
+
+func hide_lander_panel():
+	lander_panel.hide()
+
+
+func show_lander_panel():
+	lander_panel.show()
 
 ### Connected Signals
 
 func display_landers_req(lander: Lander):
-	print("Player_UI recieved display landers req")
+	show_lander_panel()
