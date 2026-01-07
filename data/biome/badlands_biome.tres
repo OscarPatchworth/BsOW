@@ -1,0 +1,14 @@
+[gd_resource type="Resource" script_class="BiomeReS" load_steps=4 format=3 uid="uid://b8nanibovp2q3"]
+
+[ext_resource type="Texture2D" uid="uid://cabd03uvto1pg" path="res://visuals/textures/poker_dot_Icons/poker_red_icon.png" id="1_r8p85"]
+[ext_resource type="Script" path="res://spaghetti/Scripts/Resources/biome/biome_resource.gd" id="2_s7fag"]
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_jpg1t"]
+albedo_color = Color(0.59, 0.41241, 0.3363, 1)
+
+[resource]
+resource_name = "Badlands"
+script = ExtResource("2_s7fag")
+name = "Badlands"
+mesh_material = SubResource("StandardMaterial3D_jpg1t")
+poker_icon = ExtResource("1_r8p85")
