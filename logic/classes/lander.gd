@@ -15,6 +15,7 @@ extends Node3D
 
 # remaining regular variables
 var has_building: bool = false
+var biome: BiomeData
 
 # @onready variables
 
