@@ -1,4 +1,4 @@
-class_name Building
+#class_name Building
 extends Node
 
 # signals
