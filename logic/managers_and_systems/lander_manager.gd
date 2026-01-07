@@ -26,7 +26,7 @@ var landers:Array[Lander]
 func inst_lander(pos: Vector3):
 	var new_lander = lander_sence.instantiate()
 	new_lander.position = pos
-	new_lander.biome = biome_types.pick_random()
+	new_lander.set_biome(biome_types.pick_random())
 	
 	landers_sence_node.add_child(new_lander)
 	landers.append(new_lander)
