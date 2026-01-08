@@ -13,6 +13,7 @@ extends Control
 # @export variables
 
 # remaining regular variables
+var selector_manager:GameManager
 
 # @onready variables
 @onready var lander_panel:Panel = self.find_child("LanderPanel")
@@ -22,6 +23,9 @@ extends Control
 ###################################################################################################
 ###	Methods
 func _ready() -> void:
+	connect_signals()
+	connect_wires()
+
 	hide_lander_panel()
 
 
@@ -43,7 +47,23 @@ func update_lander_panel(lander: Lander):
 	biome_label.text = str(lander.biome_data.name)
 
 	if not lander.has_building:
-		building_control.set_state_buy_building()
+		building_control.set_state_building_shop()
 	else:
 		building_control.set_state_building_details()
 		
+
+### Signals and wires
+func bind_selector(selector: GameManager):
+	selector_manager = selector
+	building_control.bind_selector(selector)
+
+func connect_signals():
+	pass
+
+
+func connect_wires():
+	wire_selector_manager()
+
+
+func wire_selector_manager():
+	pass

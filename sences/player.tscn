@@ -1,11 +1,14 @@
-[gd_scene load_steps=8 format=3 uid="uid://cmnn2jtgwr4dw"]
+[gd_scene load_steps=11 format=3 uid="uid://cmnn2jtgwr4dw"]
 
 [ext_resource type="Script" path="res://logic/classes/player.gd" id="1_tftws"]
 [ext_resource type="Script" path="res://logic/classes/player_controler.gd" id="2_pm403"]
 [ext_resource type="Script" path="res://spaghetti/Scripts/main/cam_gimbal.gd" id="3_mv7g2"]
 [ext_resource type="Script" path="res://logic/managers_and_systems/ui_manager.gd" id="4_stx5a"]
+[ext_resource type="Script" path="res://logic/managers_and_systems/selector_manager.gd" id="4_w88om"]
 [ext_resource type="Script" path="res://view/game_button.gd" id="5_ujfh1"]
 [ext_resource type="Script" path="res://view/lander_panel/building_control.gd" id="6_ynwhh"]
+[ext_resource type="Script" path="res://view/lander_panel/building_details_view.gd" id="7_j65c2"]
+[ext_resource type="Script" path="res://view/lander_panel/buy_building_view.gd" id="8_uxs8g"]
 
 [sub_resource type="GDScript" id="GDScript_ks4yd"]
 script/source = "extends Camera3D
@@ -38,6 +41,9 @@ zoom_speed = 0.1
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 4)
 current = true
 script = SubResource("GDScript_ks4yd")
+
+[node name="SelectorManager" type="Node" parent="."]
+script = ExtResource("4_w88om")
 
 [node name="CanvasLayer" type="CanvasLayer" parent="."]
 
@@ -86,16 +92,18 @@ script = ExtResource("6_ynwhh")
 layout_mode = 0
 offset_right = 40.0
 offset_bottom = 40.0
+script = ExtResource("7_j65c2")
 
 [node name="BuildingNameLabel" type="Label" parent="CanvasLayer/UI-manager/LanderPanel/VBoxContainer/BuildingControl/BuildingDetails"]
 layout_mode = 2
 text = "Building"
 
-[node name="BuyBuilding" type="VBoxContainer" parent="CanvasLayer/UI-manager/LanderPanel/VBoxContainer/BuildingControl"]
+[node name="BuildingShop" type="VBoxContainer" parent="CanvasLayer/UI-manager/LanderPanel/VBoxContainer/BuildingControl"]
 layout_mode = 0
 offset_right = 40.0
 offset_bottom = 40.0
+script = ExtResource("8_uxs8g")
 
-[node name="BuyBuildingLabel" type="Label" parent="CanvasLayer/UI-manager/LanderPanel/VBoxContainer/BuildingControl/BuyBuilding"]
+[node name="BuildingShopLabel" type="Label" parent="CanvasLayer/UI-manager/LanderPanel/VBoxContainer/BuildingControl/BuildingShop"]
 layout_mode = 2
 text = "Building Options"

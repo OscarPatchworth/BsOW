@@ -12,6 +12,7 @@ const WORLD_SURFACE_LAYER: int = 1
 const LANDER_LAYER: int = 2
 
 # static variables
+var selector_manager: GameManager
 
 # @export variables
 
@@ -77,3 +78,8 @@ func generate_place_lander_request(pos: Vector3):
 	action_req.set_pos(pos)
 	action_req.set_type(Action.RequestType.PLACE_LANDER)
 	action_manager.action_request(action_req)
+
+
+### Wires and Signals
+func bind_selector(selector: GameManager):
+	selector_manager = selector

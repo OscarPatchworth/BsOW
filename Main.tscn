@@ -1,4 +1,4 @@
-[gd_scene load_steps=18 format=3 uid="uid://clx8h78aia5jy"]
+[gd_scene load_steps=17 format=3 uid="uid://clx8h78aia5jy"]
 
 [ext_resource type="Texture2D" uid="uid://78pehu0r5g6w" path="res://visuals/textures/third_person_controller_assets/textures/grids/Dark/texture_04.png" id="1_bfc7u"]
 [ext_resource type="Script" path="res://logic/managers_and_systems/game_root.gd" id="1_fs3en"]
@@ -10,7 +10,6 @@
 [ext_resource type="Script" path="res://logic/managers_and_systems/gravity_system.gd" id="7_k8fui"]
 [ext_resource type="PackedScene" uid="uid://lwrx00g5nx8i" path="res://sences/landerSene.tscn" id="7_l1cnn"]
 [ext_resource type="Resource" uid="uid://c4kc36gl4hjpw" path="res://data/biome/badlands_biome.tres" id="8_5i0m8"]
-[ext_resource type="Script" path="res://logic/managers_and_systems/selector_manager.gd" id="8_y0uvt"]
 [ext_resource type="Resource" uid="uid://d04jxtc7utmqq" path="res://data/biome/forest_biome.tres" id="9_p6myw"]
 [ext_resource type="Resource" uid="uid://bo0vvivlki1y1" path="res://data/biome/mountain_biome.tres" id="10_33p1r"]
 [ext_resource type="Resource" uid="uid://djyants1sgts1" path="res://data/biome/plains_biome.tres" id="11_388a1"]
@@ -67,6 +66,3 @@ script = ExtResource("6_w5vq1")
 
 [node name="GravitySystem" type="Node" parent="ManagersAndSystems"]
 script = ExtResource("7_k8fui")
-
-[node name="SelectorManager" type="Node" parent="ManagersAndSystems"]
-script = ExtResource("8_y0uvt")

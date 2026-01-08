@@ -1,11 +1,26 @@
-extends Node
+#selector_manager.gd
+extends GameManager
+
+# signals
+#signal score_changed
+
+# enums
+#enum Element {EARTH,WATER,AIR,FIRE,}
+
+# constants
+#const MAX_SPEED = 200
+
+# static variables
+
+# @export variables
+
+# remaining regular variables
+var selected_lander:Lander
+
+# @onready variables
+
+###################################################################################################
+###	Methods
 
 
-# Called when the node enters the scene tree for the first time.
-func _ready() -> void:
-	pass # Replace with function body.
-
-
-# Called every frame. 'delta' is the elapsed time since the previous frame.
-func _process(delta: float) -> void:
-	pass
+### Connected Signals
