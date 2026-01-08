@@ -54,3 +54,4 @@ func connect_signals():
 
 func connect_player_signals():
 	player_controller.view_lander_requested.connect(player_ui.display_landers_req)
+	player_controller.select_lander.connect(selector_manager.select_lander_req)

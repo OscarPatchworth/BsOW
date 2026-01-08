@@ -2,6 +2,7 @@ class_name PlayerControler
 extends ActorControler
 
 # signals
+signal select_lander(target_lander)
 signal view_lander_requested(target_lander)
 
 # enums
@@ -48,6 +49,7 @@ func _input(event: InputEvent) -> void:
 	elif event.is_action_released("right_click"):
 		var raycast_hit = raycat_to_layer(LANDER_LAYER)
 		if raycast_hit:
+			select_lander.emit(raycast_hit.collider)
 			view_lander_requested.emit(raycast_hit.collider)
 
 

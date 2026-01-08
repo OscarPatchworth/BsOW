@@ -36,27 +36,18 @@ func hide_lander_panel():
 func show_lander_panel():	
 	lander_panel.show()
 
-### Connected Signals
 
-func display_landers_req(lander: Lander):
-	show_lander_panel()
-	update_lander_panel(lander)
+func update_lander_panel():
+	var cur_lander = selector_manager.get_selected_lander()
+	biome_label.text = str(cur_lander.biome_data.name)
 
-
-func update_lander_panel(lander: Lander):
-	biome_label.text = str(lander.biome_data.name)
-
-	if not lander.has_building:
+	if not cur_lander.has_building:
 		building_control.set_state_building_shop()
 	else:
 		building_control.set_state_building_details()
 		
 
 ### Signals and wires
-func bind_selector(selector: GameManager):
-	selector_manager = selector
-	building_control.bind_selector(selector)
-
 func connect_signals():
 	pass
 
@@ -67,3 +58,13 @@ func connect_wires():
 
 func wire_selector_manager():
 	pass
+
+### Connected Signals
+func bind_selector(selector: GameManager):
+	selector_manager = selector
+	building_control.bind_selector(selector)
+
+
+func display_landers_req(lander: Lander):
+	show_lander_panel()
+	update_lander_panel()

@@ -20,7 +20,13 @@ var selected_lander:Lander
 # @onready variables
 
 ###################################################################################################
-###	Methods
+###	Get/Set (er)s
+func get_selected_lander() -> Lander:
+	return selected_lander
+func set_selected_lander(lander: Lander):
+	selected_lander = lander
 
 
 ### Connected Signals
+func select_lander_req(lander: Lander):
+	set_selected_lander(lander)
