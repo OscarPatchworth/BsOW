@@ -1,0 +1,52 @@
+[gd_scene load_steps=9 format=3 uid="uid://c84n2wywirjkd"]
+
+[ext_resource type="Texture2D" uid="uid://df5m2n8glf0tu" path="res://visuals/textures/third_person_controller_assets/textures/grids/Light/texture_11.png" id="1_2tpvk"]
+
+[sub_resource type="CylinderShape3D" id="CylinderShape3D_t08x3"]
+height = 0.5
+
+[sub_resource type="CylinderMesh" id="CylinderMesh_cqnnr"]
+bottom_radius = 0.7
+height = 0.5
+radial_segments = 16
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_6obc3"]
+albedo_texture = ExtResource("1_2tpvk")
+uv1_triplanar = true
+
+[sub_resource type="CylinderMesh" id="CylinderMesh_58i4w"]
+top_radius = 0.05
+bottom_radius = 0.05
+height = 0.75
+radial_segments = 4
+rings = 2
+
+[sub_resource type="ORMMaterial3D" id="ORMMaterial3D_rh13a"]
+albedo_color = Color(0.4, 0.4, 0.4, 1)
+
+[sub_resource type="PrismMesh" id="PrismMesh_gm40m"]
+size = Vector3(0.25, 0.6, 0.1)
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_tq6d5"]
+albedo_color = Color(0.6, 0.24, 0.24, 1)
+
+[node name="Base" type="RigidBody3D"]
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.25, 0)
+shape = SubResource("CylinderShape3D_t08x3")
+
+[node name="CSGMesh3D" type="CSGMesh3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.25, 0)
+mesh = SubResource("CylinderMesh_cqnnr")
+material = SubResource("StandardMaterial3D_6obc3")
+
+[node name="CSGMesh3D2" type="CSGMesh3D" parent="CSGMesh3D"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.5, 0)
+mesh = SubResource("CylinderMesh_58i4w")
+material = SubResource("ORMMaterial3D_rh13a")
+
+[node name="CSGMesh3D" type="CSGMesh3D" parent="CSGMesh3D/CSGMesh3D2"]
+transform = Transform3D(-4.37114e-08, 1, 0, -1, -4.37114e-08, 0, 0, 0, 1, 0.2, 0.3, 0)
+mesh = SubResource("PrismMesh_gm40m")
+material = SubResource("StandardMaterial3D_tq6d5")
