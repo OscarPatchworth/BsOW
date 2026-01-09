@@ -1,0 +1,10 @@
+[gd_resource type="Resource" script_class="SpeciesData" load_steps=3 format=3 uid="uid://cojb8wwjom73a"]
+
+[ext_resource type="Script" path="res://data/building/building_data.gd" id="1_lsw80"]
+[ext_resource type="Script" path="res://data/species/species_data.gd" id="2_u5824"]
+
+[resource]
+resource_name = "Lycanthrope"
+script = ExtResource("2_u5824")
+name = "Lycanthrope"
+buildings = Array[ExtResource("1_lsw80")]([])
