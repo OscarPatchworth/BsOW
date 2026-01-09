@@ -11,7 +11,7 @@ extends Node
 var player_scene = preload("res://sences/player.tscn")
 
 # @export variables
-
+@export var game_species: Array[SpeciesData]
 # remaining regular variables
 
 # @onready vars
@@ -69,4 +69,6 @@ func init_player(player_x: Player):
 	#player.refrence = wire
 	var player_cntrl = player_x.find_child("PlayerController")
 	player_cntrl.action_manager = action_manager
-	pass
+
+	player_x.species = game_species.pick_random()
+	print(player_x.species.name)

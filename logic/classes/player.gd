@@ -12,7 +12,7 @@ extends Actor
 #const MAX_SPEED = 200
 
 # static variables
-
+var species: SpeciesData
 # @export variables
 
 # remaining regular variables

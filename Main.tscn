@@ -1,9 +1,12 @@
-[gd_scene load_steps=17 format=3 uid="uid://clx8h78aia5jy"]
+[gd_scene load_steps=20 format=3 uid="uid://clx8h78aia5jy"]
 
 [ext_resource type="Texture2D" uid="uid://78pehu0r5g6w" path="res://visuals/textures/third_person_controller_assets/textures/grids/Dark/texture_04.png" id="1_bfc7u"]
 [ext_resource type="Script" path="res://logic/managers_and_systems/game_root.gd" id="1_fs3en"]
+[ext_resource type="Script" path="res://data/species/species_data.gd" id="2_xnbok"]
 [ext_resource type="Script" path="res://logic/managers_and_systems/turn_manager.gd" id="3_elh8a"]
+[ext_resource type="Resource" uid="uid://cojb8wwjom73a" path="res://data/species/lycanthrope.tres" id="3_loevq"]
 [ext_resource type="Script" path="res://logic/managers_and_systems/econ_manager.gd" id="4_k2s5q"]
+[ext_resource type="Resource" uid="uid://b6i0g0eoslsoo" path="res://data/species/ettercap.tres" id="4_sfa3f"]
 [ext_resource type="Script" path="res://logic/managers_and_systems/lander_manager.gd" id="5_igtti"]
 [ext_resource type="Script" path="res://logic/managers_and_systems/action_manager.gd" id="6_w5vq1"]
 [ext_resource type="Script" path="res://data/biome/biome_data.gd" id="7_5v68b"]
@@ -28,6 +31,7 @@ size = Vector3(10, 0.1, 10)
 
 [node name="Main" type="Node3D"]
 script = ExtResource("1_fs3en")
+game_species = Array[ExtResource("2_xnbok")]([ExtResource("3_loevq"), ExtResource("4_sfa3f")])
 
 [node name="World" type="Node3D" parent="."]
 
