@@ -1,10 +1,11 @@
-[gd_resource type="Resource" script_class="SpeciesData" load_steps=3 format=3 uid="uid://cojb8wwjom73a"]
+[gd_resource type="Resource" script_class="SpeciesData" load_steps=4 format=3 uid="uid://cojb8wwjom73a"]
 
 [ext_resource type="Script" path="res://data/building/building_data.gd" id="1_lsw80"]
+[ext_resource type="Resource" uid="uid://c30rqnqmpoirn" path="res://data/building/base.tres" id="2_7tf32"]
 [ext_resource type="Script" path="res://data/species/species_data.gd" id="2_u5824"]
 
 [resource]
 resource_name = "Lycanthrope"
 script = ExtResource("2_u5824")
 name = "Lycanthrope"
-buildings = Array[ExtResource("1_lsw80")]([])
+buildings = Array[ExtResource("1_lsw80")]([ExtResource("2_7tf32")])
