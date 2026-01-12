@@ -45,7 +45,7 @@ func connect_wires():
 
 func wire_selector_manager():
 	player_controller.selector_manager = selector_manager
-	player_ui.selector_manager = selector_manager
+	player_ui.bind_selector(selector_manager)
 
 ### Connected Signals
 func connect_signals():

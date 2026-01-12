@@ -8,7 +8,7 @@
 [ext_resource type="Script" path="res://view/game_button.gd" id="5_ujfh1"]
 [ext_resource type="Script" path="res://view/lander_panel/building_control.gd" id="6_ynwhh"]
 [ext_resource type="Script" path="res://view/lander_panel/building_details_view.gd" id="7_j65c2"]
-[ext_resource type="Script" path="res://view/lander_panel/buy_building_view.gd" id="8_uxs8g"]
+[ext_resource type="Script" path="res://view/lander_panel/building_shop_view.gd" id="9_lvvl7"]
 
 [sub_resource type="GDScript" id="GDScript_ks4yd"]
 script/source = "extends Camera3D
@@ -102,7 +102,7 @@ text = "Building"
 layout_mode = 0
 offset_right = 40.0
 offset_bottom = 40.0
-script = ExtResource("8_uxs8g")
+script = ExtResource("9_lvvl7")
 
 [node name="BuildingShopLabel" type="Label" parent="CanvasLayer/UI-manager/LanderPanel/VBoxContainer/BuildingControl/BuildingShop"]
 layout_mode = 2

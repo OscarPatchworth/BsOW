@@ -78,12 +78,14 @@ func update_building_details():
 func update_building_shop():
 	building_details_node.hide()
 	building_shop_node.show()
+	building_shop_node.update()
 
 ### Signals and wires
 func bind_selector(selector: GameManager):
 	selector_manager = selector
 	building_details_node.bind_selector(selector)
 	building_shop_node.bind_selector(selector)
+	print("Building Control selector_manager bound")
 
 
 func connect_signals():
