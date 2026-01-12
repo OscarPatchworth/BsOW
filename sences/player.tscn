@@ -104,6 +104,9 @@ offset_right = 40.0
 offset_bottom = 40.0
 script = ExtResource("9_lvvl7")
 
+[node name="BuildingButtons" type="HBoxContainer" parent="CanvasLayer/UI-manager/LanderPanel/VBoxContainer/BuildingControl/BuildingShop"]
+layout_mode = 2
+
 [node name="BuildingShopLabel" type="Label" parent="CanvasLayer/UI-manager/LanderPanel/VBoxContainer/BuildingControl/BuildingShop"]
 layout_mode = 2
 text = "Building Options"

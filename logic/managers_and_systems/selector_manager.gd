@@ -11,6 +11,7 @@ extends GameManager
 #const MAX_SPEED = 200
 
 # static variables
+var player: Player
 
 # @export variables
 
@@ -27,6 +28,8 @@ func set_selected_lander(lander: Lander):
 	selected_lander = lander
 
 
-### Connected Signals
+### Connected Signals and Signals
 func select_lander_req(lander: Lander):
 	set_selected_lander(lander)
+
+

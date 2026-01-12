@@ -16,9 +16,12 @@ var selector_manager:GameManager
 # @export variables
 
 # remaining regular variables
+var cur_lander: Lander
+
 
 # @onready variables
 @onready var shop_label: Label = self.find_child("BuildingShopLabel")
+@onready var shop_buttons: HBoxContainer = self.find_child("BuildingButtons")
 
 ###################################################################################################
 ###	Methods
@@ -31,5 +34,14 @@ func bind_selector(selector: GameManager):
 
 
 func update():
-	var cur_lander = selector_manager.get_selected_lander()
+	cur_lander = selector_manager.get_selected_lander()
 	shop_label.text = cur_lander.biome_data.name
+
+
+func update_shop_building_buttons():
+	free_children(shop_buttons)
+
+
+func free_children(parent: Node) -> void:
+	for i in parent.get_children():
+		i.queue_free()
