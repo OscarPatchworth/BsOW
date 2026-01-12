@@ -28,6 +28,10 @@ func set_selected_lander(lander: Lander):
 	selected_lander = lander
 
 
+func get_player() -> Player:
+	return player
+
+
 ### Connected Signals and Signals
 func select_lander_req(lander: Lander):
 	set_selected_lander(lander)

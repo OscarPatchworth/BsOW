@@ -35,11 +35,21 @@ func bind_selector(selector: GameManager):
 
 func update():
 	cur_lander = selector_manager.get_selected_lander()
-	shop_label.text = cur_lander.biome_data.name
+	#shop_label.text = cur_lander.biome_data.name
+	update_shop_building_buttons()
 
 
 func update_shop_building_buttons():
 	free_children(shop_buttons)
+	var buildings = selector_manager.player.species.buildings
+
+	for building in buildings:
+		print("building.name")
+		#var build_btn = GameButton.new()
+		var building_label = Label.new()
+		building_label.text = building.name
+		shop_buttons.add_child(building_label)
+
 
 
 func free_children(parent: Node) -> void:

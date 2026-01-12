@@ -41,10 +41,10 @@ func update_lander_panel():
 	var cur_lander = selector_manager.get_selected_lander()
 	biome_label.text = str(cur_lander.biome_data.name)
 
-	if not cur_lander.has_building:
-		building_control.set_state_building_shop()
-	else:
+	if cur_lander.has_building:
 		building_control.set_state_building_details()
+	else:
+		building_control.set_state_building_shop()
 		
 
 ### Signals and wires

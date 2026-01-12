@@ -45,12 +45,15 @@ func set_display_state(new_state: BuildingDisplay):
 ##
 func set_state_hide():
 	set_display_state(BuildingDisplay.HIDE_ALL)
+	update_display()
 
 func set_state_building_details():
 	set_display_state(BuildingDisplay.BUILDING_DETAILS)
+	update_display()
 
 func set_state_building_shop():
 	set_display_state(BuildingDisplay.BUILDING_SHOP)
+	update_display()
 ##
 
 func update_display():
