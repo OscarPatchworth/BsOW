@@ -44,11 +44,11 @@ func update_shop_building_buttons():
 	var buildings = selector_manager.player.species.buildings
 
 	for building in buildings:
-		print("building.name")
-		#var build_btn = GameButton.new()
-		var building_label = Label.new()
-		building_label.text = building.name
-		shop_buttons.add_child(building_label)
+		var build_btn = BuildingShopButton.new()
+		build_btn.bind_selector(selector_manager)
+		build_btn.set_building(building)
+
+		shop_buttons.add_child(build_btn)
 
 
 

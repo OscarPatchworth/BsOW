@@ -12,6 +12,8 @@ extends GameButton
 #const MAX_SPEED = 200
 
 # static variables
+var building: BuildingData
+var selector_manager: GameManager
 
 # @export variables
 
@@ -21,19 +23,21 @@ extends GameButton
 
 ###################################################################################################
 ###	Methods
-
-###	_built_in_methods()
-# Called when the node enters the scene tree for the first time.
-func _ready() -> void:
-	pass # Replace with function body.
-
-
-# Called every frame. 'delta' is the elapsed time since the previous frame.
-func _process(delta: float) -> void:
-	pass
+func get_building() -> BuildingData:
+	return building
+func set_building(new_building: BuildingData):
+	building = new_building
+	update_btn_view()
 
 
-### Custom Methods
-
+func update_btn_view():
+	self.text = building.name
 
 ### Connected Signals
+func bind_selector(selector: GameManager):
+	selector_manager = selector
+	print("Building_Shop_Button selector_manager bound")
+
+
+func _pressed():
+	print(building.name)
