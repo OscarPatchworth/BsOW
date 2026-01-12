@@ -1,7 +1,7 @@
 extends Control
 
 # signals
-#signal score_changed
+signal build_action_req(build_req)
 
 # enums
 #enum Element {EARTH,WATER,AIR,FIRE,}
@@ -49,7 +49,7 @@ func update_lander_panel():
 
 ### Signals and wires
 func connect_signals():
-	pass
+	building_control.build_action_req.connect(self.fwd_build_request)
 
 
 func connect_wires():
@@ -71,3 +71,7 @@ func bind_selector(selector: GameManager):
 func display_landers_req(lander: Lander):
 	show_lander_panel()
 	update_lander_panel()
+
+
+func fwd_build_request(build_req: Action):
+	build_action_req.emit(build_req)

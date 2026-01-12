@@ -3,7 +3,7 @@ extends Actor
 
 
 # signals
-#signal score_changed
+signal build_action_req(build_req)
 
 # enums
 #enum Element {EARTH,WATER,AIR,FIRE,}
@@ -54,8 +54,18 @@ func wire_selector_manager():
 ### Connected Signals
 func connect_signals():
 	connect_player_signals()
+	connect_ui_signals()
 
 
 func connect_player_signals():
 	player_controller.view_lander_requested.connect(player_ui.display_landers_req)
 	player_controller.select_lander.connect(selector_manager.select_lander_req)
+
+
+func connect_ui_signals():
+	player_ui.build_action_req.connect(self.fwd_build_req)
+
+
+func fwd_build_req(build_req: Action):
+	build_req.actor = self
+	build_action_req.emit(build_req)

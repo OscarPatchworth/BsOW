@@ -2,7 +2,7 @@
 extends Control
 
 # signals
-#signal score_changed
+signal build_action_req(build_req)
 
 # enums
 enum BuildingDisplay {
@@ -92,8 +92,12 @@ func bind_selector(selector: GameManager):
 
 
 func connect_signals():
-	pass
+	shop_node.build_action_req.connect(self.fwd_build_req)
 
 
 func connect_wires():
 	pass
+
+
+func fwd_build_req(build_req: Action):
+	build_action_req.emit(build_req)

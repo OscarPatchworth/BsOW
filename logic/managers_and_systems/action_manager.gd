@@ -28,7 +28,8 @@ func action_request(req: Action):
 			pass
 		Action.RequestType.BUY:
 			pass
-	pass
+		_:
+			print("No Action Match type match!! \n match type: " + str(Action.RequestType.keys()[req.type] ))
 
 
 func handle_place_lander(req: Action):

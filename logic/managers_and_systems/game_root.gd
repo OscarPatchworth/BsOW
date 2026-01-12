@@ -26,8 +26,9 @@ var player_scene = preload("res://sences/player.tscn")
 ###################################################################################################
 # Called when the node enters the scene tree for the first time.
 func _ready() -> void:
-	init_game_managers_and_systems()
 	init_actors()
+	init_game_managers_and_systems()
+	
 
 ###################################################################################################
 ### Custom Funcs()
@@ -39,6 +40,7 @@ func init_game_managers_and_systems():
 
 # Init action manager
 func init_action_manager():
+	# Connect Wires
 	action_manager.lander_manager = lander_manager
 
 
@@ -69,6 +71,8 @@ func init_player(player_x: Player):
 	#player.refrence = wire
 	var player_cntrl = player_x.find_child("PlayerController")
 	player_cntrl.action_manager = action_manager
+
+	player_x.build_action_req.connect(action_manager.action_request)
 
 	player_x.species = game_species.pick_random()
 	print(player_x.species.name)

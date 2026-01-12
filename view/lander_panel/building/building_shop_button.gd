@@ -42,8 +42,8 @@ func bind_selector(selector: GameManager):
 func _pressed():
 	var action_req = Action.new()
 	action_req.type = Action.RequestType.BUY_BUILDING
-	action_req.actor = selector_manager.player
-	action_req.target_lander = selector_manager.selected_lander
+	#action_req.actor = selector_manager.player
+	#action_req.target_lander = selector_manager.selected_lander
 	action_req.building_type = building
 	build_action_req.emit(action_req)
 	#print("Emittting action request: \n" + str(action_req.get_action_dict()))

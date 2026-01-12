@@ -2,7 +2,7 @@
 extends VBoxContainer
 
 # signals
-#signal score_changed
+signal build_action_req(action_request)
 
 # enums
 #enum Element {EARTH,WATER,AIR,FIRE,}
@@ -25,6 +25,9 @@ var cur_lander: Lander
 
 ###################################################################################################
 ###	Methods
+func free_children(parent: Node) -> void:
+	for i in parent.get_children():
+		i.queue_free()
 
 
 ### Signals and Wires
@@ -47,11 +50,12 @@ func update_shop_building_buttons():
 		var build_btn = BuildingShopButton.new()
 		build_btn.bind_selector(selector_manager)
 		build_btn.set_building(building)
+		build_btn.build_action_req.connect(self.fwd_build_action_req)
 
 		shop_buttons.add_child(build_btn)
 
 
+func fwd_build_action_req(action_req: Action):
+	action_req.target_lander = cur_lander
+	build_action_req.emit(action_req)
 
-func free_children(parent: Node) -> void:
-	for i in parent.get_children():
-		i.queue_free()
