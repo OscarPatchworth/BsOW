@@ -36,7 +36,7 @@ func update_btn_view():
 ### Connected Signals
 func bind_selector(selector: GameManager):
 	selector_manager = selector
-	print("Building_Shop_Button selector_manager bound")
+	#print("Building_Shop_Button selector_manager bound")
 
 
 func _pressed():

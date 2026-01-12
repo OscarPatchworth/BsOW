@@ -33,7 +33,7 @@ func free_children(parent: Node) -> void:
 ### Signals and Wires
 func bind_selector(selector: GameManager):
 	selector_manager = selector
-	print("BuildingShop slector_manager bound")
+	#print("BuildingShop slector_manager bound")
 
 
 func update():

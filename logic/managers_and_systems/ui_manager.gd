@@ -62,7 +62,7 @@ func wire_selector_manager():
 ### Connected Signals
 func bind_selector(selector: GameManager):
 	selector_manager = selector
-	print("UI manager selector bound")
+	#print("UI manager selector bound")
 	
 	building_control.bind_selector(selector)
 	

@@ -43,7 +43,7 @@ func handle_place_lander(req: Action):
 
 
 func handle_buy_building(req:Action):
-	print("Action recieved: " + str(req.get_action_dict()))
+	#print("Action recieved: " + str(req.get_action_dict()))
 	## Check if valid
 	if(req.target_lander.has_building):
 		print("Can't build on lander: Building already present")

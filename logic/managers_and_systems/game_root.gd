@@ -71,7 +71,7 @@ func add_ai():
 
 
 func init_player(player_x: Player):
-	#player.refrence = wire
+	# player.refrence = wire
 	var player_cntrl = player_x.find_child("PlayerController")
 	player_cntrl.action_manager = action_manager
 
@@ -80,4 +80,4 @@ func init_player(player_x: Player):
 	lander_manager.built_action_completed.connect(player_x.fwd_build_action_completed)
 
 	player_x.species = game_species.pick_random()
-	print(player_x.species.name)
+	#print("Player Species randomly selected: " + str(player_x.species.name))
