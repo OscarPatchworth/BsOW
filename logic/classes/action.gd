@@ -9,6 +9,7 @@ enum RequestType {
 	ATTACK,
 	BUY,
 	PLACE_LANDER,
+	BUY_BUILDING,
 }
 
 # constants
@@ -18,6 +19,7 @@ var type: RequestType
 var actor: Actor
 var position: Vector3
 var target_lander: Lander
+var building_type: BuildingData
 
 # @export variables
 
@@ -56,12 +58,20 @@ func set_target_lander(target: Lander):
 	self.target_lander = target
 
 
+# Building Type
+func get_building_type() -> BuildingData:
+	return building_type
+func set_building_type(building_data):
+	self.building_type = building_data
+
+
 # All
 func get_action_dict() -> Dictionary:
 	var all = {
 		"type": type,
 		"actor": actor,
 		"pos": position,
-		"target" : target_lander
+		"target lander" : target_lander,
+		"building type" : building_type
 	}
 	return all

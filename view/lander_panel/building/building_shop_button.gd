@@ -3,7 +3,7 @@ class_name BuildingShopButton
 extends GameButton
 
 # signals
-#signal score_changed
+signal build_action_req(action_request)
 
 # enums
 #enum Element {EARTH,WATER,AIR,FIRE,}
@@ -40,4 +40,10 @@ func bind_selector(selector: GameManager):
 
 
 func _pressed():
-	print(building.name)
+	var action_req = Action.new()
+	action_req.type = Action.RequestType.BUY_BUILDING
+	action_req.actor = selector_manager.player
+	action_req.target_lander = selector_manager.selected_lander
+	action_req.building_type = building
+	build_action_req.emit(action_req)
+	#print("Emittting action request: \n" + str(action_req.get_action_dict()))
