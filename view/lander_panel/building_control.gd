@@ -23,8 +23,8 @@ var selector_manager:GameManager
 var display_state: BuildingDisplay = BuildingDisplay.HIDE_ALL
 
 # @onready variables
-@onready var building_details_node:VBoxContainer = self.find_child("BuildingDetails")
-@onready var building_shop_node:VBoxContainer = self.find_child("BuildingShop")
+@onready var details_node:VBoxContainer = self.find_child("DetailsState")
+@onready var shop_node:VBoxContainer = self.find_child("ShopState")
 
 
 ###################################################################################################
@@ -69,25 +69,25 @@ func update_display():
 
 
 func update_hide_all():
-	building_details_node.hide()
-	building_shop_node.hide()
+	details_node.hide()
+	shop_node.hide()
 
 
 func update_building_details():
-	building_shop_node.hide()
-	building_details_node.show()
+	shop_node.hide()
+	details_node.show()
 
 
 func update_building_shop():
-	building_details_node.hide()
-	building_shop_node.show()
-	building_shop_node.update()
+	details_node.hide()
+	shop_node.show()
+	shop_node.update()
 
 ### Signals and wires
 func bind_selector(selector: GameManager):
 	selector_manager = selector
-	building_details_node.bind_selector(selector)
-	building_shop_node.bind_selector(selector)
+	details_node.bind_selector(selector)
+	shop_node.bind_selector(selector)
 	print("Building Control selector_manager bound")
 
 

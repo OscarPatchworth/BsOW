@@ -82,28 +82,28 @@ layout_mode = 2
 layout_mode = 2
 script = ExtResource("6_ynwhh")
 
-[node name="BuildingDetails" type="VBoxContainer" parent="CanvasLayer/UI-manager/LanderPanel/VBoxContainer/BuildingControl"]
+[node name="DetailsState" type="VBoxContainer" parent="CanvasLayer/UI-manager/LanderPanel/VBoxContainer/BuildingControl"]
 layout_mode = 0
 offset_right = 40.0
 offset_bottom = 40.0
 script = ExtResource("7_j65c2")
 
-[node name="BuildingNameLabel" type="Label" parent="CanvasLayer/UI-manager/LanderPanel/VBoxContainer/BuildingControl/BuildingDetails"]
+[node name="BuildingNameLabel" type="Label" parent="CanvasLayer/UI-manager/LanderPanel/VBoxContainer/BuildingControl/DetailsState"]
 layout_mode = 2
 text = "Building"
 
-[node name="BuildingShop" type="VBoxContainer" parent="CanvasLayer/UI-manager/LanderPanel/VBoxContainer/BuildingControl"]
+[node name="ShopState" type="VBoxContainer" parent="CanvasLayer/UI-manager/LanderPanel/VBoxContainer/BuildingControl"]
 layout_mode = 0
 offset_right = 40.0
 offset_bottom = 40.0
 script = ExtResource("9_lvvl7")
 
-[node name="BuildingShopLabel" type="Label" parent="CanvasLayer/UI-manager/LanderPanel/VBoxContainer/BuildingControl/BuildingShop"]
+[node name="BuildingShopLabel" type="Label" parent="CanvasLayer/UI-manager/LanderPanel/VBoxContainer/BuildingControl/ShopState"]
 layout_mode = 2
 text = "Building Options"
 
-[node name="HSeparator" type="HSeparator" parent="CanvasLayer/UI-manager/LanderPanel/VBoxContainer/BuildingControl/BuildingShop"]
+[node name="HSeparator" type="HSeparator" parent="CanvasLayer/UI-manager/LanderPanel/VBoxContainer/BuildingControl/ShopState"]
 layout_mode = 2
 
-[node name="BuildingButtons" type="HBoxContainer" parent="CanvasLayer/UI-manager/LanderPanel/VBoxContainer/BuildingControl/BuildingShop"]
+[node name="BuildingButtons" type="HBoxContainer" parent="CanvasLayer/UI-manager/LanderPanel/VBoxContainer/BuildingControl/ShopState"]
 layout_mode = 2
