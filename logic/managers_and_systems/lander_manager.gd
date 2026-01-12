@@ -8,6 +8,7 @@ extends GameManager
 const LANDER_RADIUS:float = 1
 const MIN_DIST_BETWEEN_LANDERS = 2
 const MIN_DIST_SQUARED = MIN_DIST_BETWEEN_LANDERS ** 2
+const FLOOR_OFFSET:Vector3 = Vector3.UP * 2
 
 # static variables
 var landers_sence_node: Node3D
@@ -25,9 +26,12 @@ var landers:Array[Lander]
 ###	Methods
 func inst_lander(pos: Vector3):
 	var new_lander = lander_sence.instantiate()
-	new_lander.position = pos
+	#Acidental Feature:
+	#	Meant to have the lander slightly off the ground to prevent wobbling
+	#	Now has the lander fall to the ground when spawned	
+	new_lander.position = pos + FLOOR_OFFSET
+
 	new_lander.set_biome(biome_types.pick_random())
-	
 	landers_sence_node.add_child(new_lander)
 	landers.append(new_lander)
 
