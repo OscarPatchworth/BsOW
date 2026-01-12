@@ -1,9 +1,6 @@
-[gd_scene load_steps=9 format=3 uid="uid://c84n2wywirjkd"]
+[gd_scene load_steps=8 format=3 uid="uid://c84n2wywirjkd"]
 
 [ext_resource type="Texture2D" uid="uid://df5m2n8glf0tu" path="res://visuals/textures/third_person_controller_assets/textures/grids/Light/texture_11.png" id="1_2tpvk"]
-
-[sub_resource type="CylinderShape3D" id="CylinderShape3D_t08x3"]
-height = 0.5
 
 [sub_resource type="CylinderMesh" id="CylinderMesh_cqnnr"]
 bottom_radius = 0.7
@@ -30,11 +27,7 @@ size = Vector3(0.25, 0.6, 0.1)
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_tq6d5"]
 albedo_color = Color(0.6, 0.24, 0.24, 1)
 
-[node name="Base" type="RigidBody3D"]
-
-[node name="CollisionShape3D" type="CollisionShape3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.25, 0)
-shape = SubResource("CylinderShape3D_t08x3")
+[node name="Base" type="CSGCombiner3D"]
 
 [node name="CSGMesh3D" type="CSGMesh3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.25, 0)

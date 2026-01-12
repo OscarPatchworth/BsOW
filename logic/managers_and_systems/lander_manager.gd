@@ -49,3 +49,7 @@ func is_pos_min_distance_apart(pos: Vector3) -> bool:
 ### Calls
 func is_valid_lander_placement(req_pos: Vector3) -> bool:
 	return is_pos_min_distance_apart(req_pos)
+
+
+func build_action(req: Action):
+	req.get_target_lander().build_action(req)

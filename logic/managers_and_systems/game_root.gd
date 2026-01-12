@@ -42,12 +42,16 @@ func init_game_managers_and_systems():
 func init_action_manager():
 	# Connect Wires
 	action_manager.lander_manager = lander_manager
+	
 
 
 # Init lander manager
 func init_lander_manager():
 	lander_manager.landers_sence_node = self.landers_sence_node
 	lander_manager.inst_lander(Vector3.ZERO)
+	
+	# Connect Signals
+	action_manager.build_action.connect(lander_manager.build_action)
 
 
 # Init Actors

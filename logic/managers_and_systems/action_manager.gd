@@ -50,4 +50,3 @@ func handle_buy_building(req:Action):
 		pass
 	## Then emit if true
 	build_action.emit(req)
-

@@ -1,7 +1,7 @@
 class_name Lander
 extends Node3D
 
-#signal score_changed
+signal built_action_completed(req: Action)
 
 # enums
 #enum Element {EARTH,WATER,AIR,FIRE,}
@@ -17,9 +17,10 @@ extends Node3D
 # remaining regular variables
 var has_building: bool = false
 var biome_data: BiomeData
+var building: BuildingData
 
 # @onready variables
-
+@onready var building_node: Node3D = self.find_child("Building")
 
 ###################################################################################################
 ###	Methods
@@ -32,3 +33,12 @@ func set_biome(new_biome: BiomeData):
 
 func update_biome():
 	biome_mesh.set_material(biome_data.mesh_material)
+
+
+### Calls
+func build_action(req: Action):
+	var build_mesh = req.get_building_type().build_mesh.instantiate()
+	building_node.add_child(build_mesh)
+	building = req.get_building_type()
+	has_building = true
+	built_action_completed.emit(req)
