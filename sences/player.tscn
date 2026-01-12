@@ -5,9 +5,9 @@
 [ext_resource type="Script" path="res://spaghetti/Scripts/main/cam_gimbal.gd" id="3_mv7g2"]
 [ext_resource type="Script" path="res://logic/managers_and_systems/ui_manager.gd" id="4_stx5a"]
 [ext_resource type="Script" path="res://logic/managers_and_systems/selector_manager.gd" id="4_w88om"]
-[ext_resource type="Script" path="res://view/lander_panel/building_control.gd" id="6_ynwhh"]
-[ext_resource type="Script" path="res://view/lander_panel/building_details_view.gd" id="7_j65c2"]
-[ext_resource type="Script" path="res://view/lander_panel/building_shop_view.gd" id="9_lvvl7"]
+[ext_resource type="Script" path="res://view/lander_panel/building/building_control.gd" id="6_3akxm"]
+[ext_resource type="Script" path="res://view/lander_panel/building/details_state.gd" id="7_8rhiy"]
+[ext_resource type="Script" path="res://view/lander_panel/building/shop_state.gd" id="8_cl8pv"]
 
 [sub_resource type="GDScript" id="GDScript_ks4yd"]
 script/source = "extends Camera3D
@@ -80,13 +80,13 @@ layout_mode = 2
 
 [node name="BuildingControl" type="Control" parent="CanvasLayer/UI-manager/LanderPanel/VBoxContainer"]
 layout_mode = 2
-script = ExtResource("6_ynwhh")
+script = ExtResource("6_3akxm")
 
 [node name="DetailsState" type="VBoxContainer" parent="CanvasLayer/UI-manager/LanderPanel/VBoxContainer/BuildingControl"]
 layout_mode = 0
 offset_right = 40.0
 offset_bottom = 40.0
-script = ExtResource("7_j65c2")
+script = ExtResource("7_8rhiy")
 
 [node name="BuildingNameLabel" type="Label" parent="CanvasLayer/UI-manager/LanderPanel/VBoxContainer/BuildingControl/DetailsState"]
 layout_mode = 2
@@ -96,7 +96,7 @@ text = "Building"
 layout_mode = 0
 offset_right = 40.0
 offset_bottom = 40.0
-script = ExtResource("9_lvvl7")
+script = ExtResource("8_cl8pv")
 
 [node name="BuildingShopLabel" type="Label" parent="CanvasLayer/UI-manager/LanderPanel/VBoxContainer/BuildingControl/ShopState"]
 layout_mode = 2
