@@ -69,3 +69,11 @@ func connect_ui_signals():
 func fwd_build_req(build_req: Action):
 	build_req.actor = self
 	build_action_req.emit(build_req)
+
+
+## Calls
+func fwd_build_action_completed(req:Action):
+	if req.actor == self:
+		#print("Player recieved comfirmation of build action completed !!")
+		player_ui.received_build_action_completed(req)
+	else: pass

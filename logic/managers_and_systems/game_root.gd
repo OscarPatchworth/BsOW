@@ -42,7 +42,6 @@ func init_game_managers_and_systems():
 func init_action_manager():
 	# Connect Wires
 	action_manager.lander_manager = lander_manager
-	
 
 
 # Init lander manager
@@ -76,7 +75,9 @@ func init_player(player_x: Player):
 	var player_cntrl = player_x.find_child("PlayerController")
 	player_cntrl.action_manager = action_manager
 
+	# Connect Signals
 	player_x.build_action_req.connect(action_manager.action_request)
+	lander_manager.built_action_completed.connect(player_x.fwd_build_action_completed)
 
 	player_x.species = game_species.pick_random()
 	print(player_x.species.name)

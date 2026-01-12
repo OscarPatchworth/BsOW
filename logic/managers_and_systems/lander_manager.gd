@@ -1,6 +1,7 @@
 extends GameManager
 
 #signals
+signal built_action_completed(req: Action)
 
 # enums
 
@@ -31,6 +32,8 @@ func inst_lander(pos: Vector3):
 	#	Now has the lander fall to the ground when spawned	
 	new_lander.position = pos + FLOOR_OFFSET
 
+	wire_and_signal_lander(new_lander)
+
 	new_lander.set_biome(biome_types.pick_random())
 	landers_sence_node.add_child(new_lander)
 	landers.append(new_lander)
@@ -45,6 +48,14 @@ func is_pos_min_distance_apart(pos: Vector3) -> bool:
 			return false
 	return true
 
+
+### Wires and Signals
+func wire_and_signal_lander(lander: Lander):
+	lander.built_action_completed.connect(self.fwd_build_action_completed)
+
+
+func fwd_build_action_completed(req: Action):
+	built_action_completed.emit(req)
 
 ### Calls
 func is_valid_lander_placement(req_pos: Vector3) -> bool:

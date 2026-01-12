@@ -75,3 +75,8 @@ func display_landers_req(lander: Lander):
 
 func fwd_build_request(build_req: Action):
 	build_action_req.emit(build_req)
+
+
+## Calls
+func received_build_action_completed(req: Action):
+	update_lander_panel()
