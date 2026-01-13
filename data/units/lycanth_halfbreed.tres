@@ -1,0 +1,11 @@
+[gd_resource type="Resource" script_class="UnitData" load_steps=3 format=3 uid="uid://wnpla86qhlna"]
+
+[ext_resource type="Resource" uid="uid://dmftxjfnr1n60" path="res://data/units/base_footsolider.tres" id="1_lsrus"]
+[ext_resource type="Script" path="res://data/units/unitData.gd" id="2_t8ece"]
+
+[resource]
+resource_name = "Lycanth Halfbreed"
+script = ExtResource("2_t8ece")
+base = ExtResource("1_lsrus")
+name = "Lycanth Halfbreed"
+type = 1

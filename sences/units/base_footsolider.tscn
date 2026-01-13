@@ -1,0 +1,66 @@
+[gd_scene load_steps=9 format=3 uid="uid://p5ih6l4koapk"]
+
+[ext_resource type="Texture2D" uid="uid://c3tsgpq3k48ho" path="res://visuals/textures/third_person_controller_assets/textures/grids/Dark/texture_02.png" id="1_47ewp"]
+[ext_resource type="Texture2D" uid="uid://b2pbqtjxhrgra" path="res://visuals/textures/third_person_controller_assets/textures/grids/Purple/texture_11.png" id="2_n18kh"]
+
+[sub_resource type="SphereMesh" id="SphereMesh_7gerx"]
+radius = 0.3
+height = 0.5
+radial_segments = 8
+rings = 4
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_kaxuk"]
+albedo_texture = ExtResource("1_47ewp")
+
+[sub_resource type="BoxMesh" id="BoxMesh_dc8og"]
+size = Vector3(0.7, 1, 0.5)
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_g6j37"]
+albedo_texture = ExtResource("2_n18kh")
+uv1_offset = Vector3(0.6, 0.3, 0)
+uv1_triplanar = true
+
+[sub_resource type="CapsuleMesh" id="CapsuleMesh_3q8x0"]
+radius = 0.1
+height = 1.0
+radial_segments = 8
+rings = 2
+
+[sub_resource type="CapsuleMesh" id="CapsuleMesh_ndyla"]
+radius = 0.15
+height = 0.9
+radial_segments = 8
+rings = 2
+
+[node name="BaseFootsolider" type="CSGCombiner3D"]
+transform = Transform3D(0.3, 0, 0, 0, 0.3, 0, 0, 0, 0.3, 0, 0, 0)
+
+[node name="Head" type="CSGMesh3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.9, 0)
+mesh = SubResource("SphereMesh_7gerx")
+material = SubResource("StandardMaterial3D_kaxuk")
+
+[node name="Torso" type="CSGMesh3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.2, 0)
+mesh = SubResource("BoxMesh_dc8og")
+material = SubResource("StandardMaterial3D_g6j37")
+
+[node name="Legs" type="CSGCombiner3D" parent="."]
+
+[node name="LLeg" type="CSGMesh3D" parent="Legs"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.2, 0.5, 0)
+mesh = SubResource("CapsuleMesh_3q8x0")
+
+[node name="RLeg" type="CSGMesh3D" parent="Legs"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.2, 0.5, 0)
+mesh = SubResource("CapsuleMesh_3q8x0")
+
+[node name="Arms" type="CSGCombiner3D" parent="."]
+
+[node name="RArm" type="CSGMesh3D" parent="Arms"]
+transform = Transform3D(0.994522, -0.104528, 0, 0.104528, 0.994522, 0, 0, 0, 1, 0.5, 1.2, 0)
+mesh = SubResource("CapsuleMesh_ndyla")
+
+[node name="LArm" type="CSGMesh3D" parent="Arms"]
+transform = Transform3D(0.994522, 0.104528, 0, -0.104528, 0.994522, 0, 0, 0, 1, -0.5, 1.2, 0)
+mesh = SubResource("CapsuleMesh_ndyla")
