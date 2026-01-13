@@ -18,6 +18,7 @@ var selector_manager:GameManager
 # remaining regular variables
 
 # @onready variables
+@onready var building_label: Label = self.find_child("BuildingNameLabel")
 
 ###################################################################################################
 ###	Methods
@@ -27,3 +28,9 @@ var selector_manager:GameManager
 func bind_selector(selector: GameManager):
 	selector_manager = selector
 	#print("BuildingDetails slector_manager bound")
+
+
+## Calls
+func update():
+	var cur_lander = selector_manager.get_selected_lander()
+	building_label.text = cur_lander.bio

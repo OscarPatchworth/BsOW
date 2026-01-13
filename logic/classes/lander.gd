@@ -24,6 +24,11 @@ var building: BuildingData
 
 ###################################################################################################
 ###	Methods
+func update_biome():
+	biome_mesh.set_material(biome_data.mesh_material)
+
+
+## Get/Set (er)s
 func get_biome() -> BiomeData:
 	return biome_data
 func set_biome(new_biome: BiomeData):
@@ -31,9 +36,10 @@ func set_biome(new_biome: BiomeData):
 	update_biome()
 
 
-func update_biome():
-	biome_mesh.set_material(biome_data.mesh_material)
-
+func get_building() -> BuildingData:
+	if(building == null) :
+		print("Calling for NULL building on Lander!!")
+	return building
 
 ### Calls
 func build_action(req: Action):
