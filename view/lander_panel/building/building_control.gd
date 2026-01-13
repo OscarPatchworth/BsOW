@@ -1,4 +1,4 @@
-#class_name ClassName
+#Building_control.gd
 extends Control
 
 # signals
