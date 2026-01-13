@@ -1,11 +1,14 @@
-[gd_resource type="Resource" script_class="SpeciesData" load_steps=4 format=3 uid="uid://b6i0g0eoslsoo"]
+[gd_resource type="Resource" script_class="SpeciesData" load_steps=6 format=3 uid="uid://b6i0g0eoslsoo"]
 
 [ext_resource type="Script" path="res://data/building/building_data.gd" id="1_rh7g3"]
 [ext_resource type="Resource" uid="uid://c30rqnqmpoirn" path="res://data/building/base.tres" id="2_7bpwy"]
 [ext_resource type="Script" path="res://data/species/species_data.gd" id="2_fkjdq"]
+[ext_resource type="Script" path="res://data/units/unitData.gd" id="4_mng3l"]
+[ext_resource type="Resource" uid="uid://c6gc0ufrfqhr0" path="res://data/units/ettercap_spawn.tres" id="5_q8cca"]
 
 [resource]
 resource_name = "Ettercap"
 script = ExtResource("2_fkjdq")
 name = "Ettercap"
 buildings = Array[ExtResource("1_rh7g3")]([ExtResource("2_7bpwy")])
+units = Array[ExtResource("4_mng3l")]([ExtResource("5_q8cca")])
