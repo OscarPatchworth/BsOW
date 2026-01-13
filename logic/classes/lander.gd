@@ -16,6 +16,7 @@ signal built_action_completed(req: Action)
 
 # remaining regular variables
 var has_building: bool = false
+var has_units: bool = false
 var biome_data: BiomeData
 var building: BuildingData
 

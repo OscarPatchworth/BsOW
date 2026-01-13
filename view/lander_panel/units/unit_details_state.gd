@@ -30,3 +30,5 @@ func bind_selector(selector: GameManager):
 
 
 ## Calls
+func update():
+	pass

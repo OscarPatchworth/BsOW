@@ -34,16 +34,27 @@ func bind_selector(selector):
 	unit_control.bind_selector(selector)
 
 
+func update_building_control(cur_lander: Lander):
+	if cur_lander.has_building:
+		building_control.set_state_building_details()
+	else:
+		building_control.set_state_building_shop()
+
+
+func update_unit_control(cur_lander: Lander):
+	if cur_lander.has_units:
+		unit_control.set_state_details()
+	else:
+		unit_control.set_state_shop()
+
 ## Calls
 
 func update():
 	var cur_lander = selector_manager.get_selected_lander()
 	biome_label.text = str(cur_lander.biome_data.name)
 
-	if cur_lander.has_building:
-		building_control.set_state_building_details()
-	else:
-		building_control.set_state_building_shop()
+	update_building_control(cur_lander)
+	update_unit_control(cur_lander)	
 
 
 ### Connected Signals
@@ -53,6 +64,7 @@ func connect_signals():
 
 func connect_wires():
 	pass
+
 
 func fwd_build_request(req):
 	build_action_req.emit(req)

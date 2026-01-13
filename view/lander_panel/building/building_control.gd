@@ -1,5 +1,5 @@
 #Building_control.gd
-extends Control
+extends VBoxContainer
 
 # signals
 signal build_action_req(build_req)

@@ -1,5 +1,5 @@
 #unit_control.gd
-extends Control
+extends VBoxContainer
 
 # signals
 

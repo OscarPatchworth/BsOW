@@ -1,5 +1,5 @@
 #unit_shop_state.gd
-extends Node
+extends VBoxContainer
 
 # signals
 #signal score_changed
@@ -30,3 +30,5 @@ func bind_selector(selector: GameManager):
 
 
 ## Calls
+func update():
+	pass

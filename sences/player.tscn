@@ -83,14 +83,12 @@ horizontal_alignment = 1
 [node name="HSeparator" type="HSeparator" parent="CanvasLayer/UI-manager/LanderPanel/VBoxContainer"]
 layout_mode = 2
 
-[node name="BuildingControl" type="Control" parent="CanvasLayer/UI-manager/LanderPanel/VBoxContainer"]
+[node name="BuildingControl" type="VBoxContainer" parent="CanvasLayer/UI-manager/LanderPanel/VBoxContainer"]
 layout_mode = 2
 script = ExtResource("6_3akxm")
 
 [node name="DetailsState" type="VBoxContainer" parent="CanvasLayer/UI-manager/LanderPanel/VBoxContainer/BuildingControl"]
-layout_mode = 0
-offset_right = 40.0
-offset_bottom = 40.0
+layout_mode = 2
 script = ExtResource("7_khele")
 
 [node name="BuildingNameLabel" type="Label" parent="CanvasLayer/UI-manager/LanderPanel/VBoxContainer/BuildingControl/DetailsState"]
@@ -98,9 +96,7 @@ layout_mode = 2
 text = "Building"
 
 [node name="ShopState" type="VBoxContainer" parent="CanvasLayer/UI-manager/LanderPanel/VBoxContainer/BuildingControl"]
-layout_mode = 0
-offset_right = 40.0
-offset_bottom = 40.0
+layout_mode = 2
 script = ExtResource("8_0d160")
 
 [node name="BuildingShopLabel" type="Label" parent="CanvasLayer/UI-manager/LanderPanel/VBoxContainer/BuildingControl/ShopState"]
@@ -113,19 +109,22 @@ layout_mode = 2
 [node name="BuildingButtons" type="HBoxContainer" parent="CanvasLayer/UI-manager/LanderPanel/VBoxContainer/BuildingControl/ShopState"]
 layout_mode = 2
 
-[node name="UnitControl" type="Control" parent="CanvasLayer/UI-manager/LanderPanel/VBoxContainer"]
+[node name="UnitControl" type="VBoxContainer" parent="CanvasLayer/UI-manager/LanderPanel/VBoxContainer"]
 layout_mode = 2
 script = ExtResource("9_bf17q")
 
 [node name="DetailsState" type="VBoxContainer" parent="CanvasLayer/UI-manager/LanderPanel/VBoxContainer/UnitControl"]
-offset_left = -1536.0
-offset_top = -39.0
-offset_right = -1496.0
-offset_bottom = 1.0
+layout_mode = 2
 script = ExtResource("11_8gxc8")
 
+[node name="Label" type="Label" parent="CanvasLayer/UI-manager/LanderPanel/VBoxContainer/UnitControl/DetailsState"]
+layout_mode = 2
+text = "Units:"
+
 [node name="ShopState" type="VBoxContainer" parent="CanvasLayer/UI-manager/LanderPanel/VBoxContainer/UnitControl"]
-layout_mode = 0
-offset_right = 40.0
-offset_bottom = 40.0
+layout_mode = 2
 script = ExtResource("12_u1vg3")
+
+[node name="Label" type="Label" parent="CanvasLayer/UI-manager/LanderPanel/VBoxContainer/UnitControl/ShopState"]
+layout_mode = 2
+text = "Train Units"
