@@ -33,4 +33,4 @@ func bind_selector(selector: GameManager):
 ## Calls
 func update():
 	var cur_lander = selector_manager.get_selected_lander()
-	building_label.text = cur_lander.bio
+	building_label.text = cur_lander.get_building().get_building_name()

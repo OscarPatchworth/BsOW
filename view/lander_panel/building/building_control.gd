@@ -76,6 +76,7 @@ func update_hide_all():
 func update_building_details():
 	shop_node.hide()
 	details_node.show()
+	details_node.update()
 
 
 func update_building_shop():
