@@ -1,11 +1,58 @@
+#lander_panel.gd
+
 extends Panel
 
+# signals
+signal build_action_req(req: Action)
 
-# Called when the node enters the scene tree for the first time.
+# enums
+
+# constants
+
+# static variables
+
+# remaining regular variables
+var selector_manager:GameManager
+
+# @onready variables
+@onready var building_control: Control = self.find_child("BuildingControl")
+@onready var unit_control: Control = self.find_child("UnitControl")
+@onready var biome_label: Label = find_child("BiomeLabel")
+
+###################################################################################################
+###	Methods
 func _ready() -> void:
-	pass # Replace with function body.
+	connect_signals()
+	connect_wires()
+
+### Connected Signals
+func bind_selector(selector):
+	selector_manager = selector
+	#print("Lander Panel selector Manager bound")
+
+	building_control.bind_selector(selector)
+	unit_control.bind_selector(selector)
 
 
-# Called every frame. 'delta' is the elapsed time since the previous frame.
-func _process(delta: float) -> void:
+## Calls
+
+func update():
+	var cur_lander = selector_manager.get_selected_lander()
+	biome_label.text = str(cur_lander.biome_data.name)
+
+	if cur_lander.has_building:
+		building_control.set_state_building_details()
+	else:
+		building_control.set_state_building_shop()
+
+
+### Connected Signals
+func connect_signals():
+	building_control.build_action_req.connect(self.fwd_build_request)
+
+
+func connect_wires():
 	pass
+
+func fwd_build_request(req):
+	build_action_req.emit(req)

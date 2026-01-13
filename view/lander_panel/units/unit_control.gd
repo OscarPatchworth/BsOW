@@ -86,7 +86,7 @@ func update_shop():
 ### Signals and wires
 func bind_selector(selector: GameManager):
 	selector_manager = selector
-	print("Unit Control selector_manager bound")
+	#print("Unit Control selector_manager bound")
 
 	details_node.bind_selector(selector)
 	shop_node.bind_selector(selector)
@@ -94,7 +94,8 @@ func bind_selector(selector: GameManager):
 
 
 func connect_signals():
-	shop_node.build_action_req.connect(self.fwd_build_req)
+	#shop_node.build_action_req.connect(self.fwd_build_req)
+	pass
 
 
 func connect_wires():

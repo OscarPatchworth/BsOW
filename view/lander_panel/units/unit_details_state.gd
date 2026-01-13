@@ -26,7 +26,7 @@ var selector_manager: GameManager
 ### Connected Signals
 func bind_selector(selector: GameManager):
 	selector_manager = selector
-	print("UnitDetails slector_manager bound")
+	#print("UnitDetails slector_manager bound")
 
 
 ## Calls
