@@ -1,0 +1,32 @@
+#unit_details_state.gd
+extends Node
+
+# signals
+#signal score_changed
+
+# enums
+#enum Element {EARTH,WATER,AIR,FIRE,}
+
+# constants
+#const MAX_SPEED = 200
+
+# static variables
+var selector_manager: GameManager
+
+# @export variables
+
+# remaining regular variables
+
+# @onready variables
+
+###################################################################################################
+###	Methods
+
+
+### Connected Signals
+func bind_selector(selector: GameManager):
+	selector_manager = selector
+	print("UnitDetails slector_manager bound")
+
+
+## Calls

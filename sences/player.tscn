@@ -1,4 +1,4 @@
-[gd_scene load_steps=10 format=3 uid="uid://cmnn2jtgwr4dw"]
+[gd_scene load_steps=11 format=3 uid="uid://cmnn2jtgwr4dw"]
 
 [ext_resource type="Script" path="res://logic/classes/player.gd" id="1_tftws"]
 [ext_resource type="Script" path="res://logic/classes/player_controler.gd" id="2_pm403"]
@@ -8,6 +8,7 @@
 [ext_resource type="Script" path="res://view/lander_panel/building/building_control.gd" id="6_3akxm"]
 [ext_resource type="Script" path="res://view/lander_panel/building/building_details_state.gd" id="7_khele"]
 [ext_resource type="Script" path="res://view/lander_panel/building/building_shop_state.gd" id="8_0d160"]
+[ext_resource type="Script" path="res://view/lander_panel/units/unit_control.gd" id="9_bf17q"]
 
 [sub_resource type="GDScript" id="GDScript_ks4yd"]
 script/source = "extends Camera3D
@@ -110,3 +111,15 @@ layout_mode = 2
 
 [node name="UnitControl" type="Control" parent="CanvasLayer/UI-manager/LanderPanel/VBoxContainer"]
 layout_mode = 2
+script = ExtResource("9_bf17q")
+
+[node name="DetailsState" type="VBoxContainer" parent="CanvasLayer/UI-manager/LanderPanel/VBoxContainer/UnitControl"]
+offset_left = -1536.0
+offset_top = -39.0
+offset_right = -1496.0
+offset_bottom = 1.0
+
+[node name="ShopState" type="VBoxContainer" parent="CanvasLayer/UI-manager/LanderPanel/VBoxContainer/UnitControl"]
+layout_mode = 0
+offset_right = 40.0
+offset_bottom = 40.0
