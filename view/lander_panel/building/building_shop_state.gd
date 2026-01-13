@@ -1,4 +1,4 @@
-#buy_building_view.gd
+#building_shop_state.gd
 extends VBoxContainer
 
 # signals
@@ -58,4 +58,3 @@ func update_shop_building_buttons():
 func fwd_build_action_req(action_req: Action):
 	action_req.target_lander = cur_lander
 	build_action_req.emit(action_req)
-

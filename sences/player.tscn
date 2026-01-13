@@ -6,8 +6,8 @@
 [ext_resource type="Script" path="res://logic/managers_and_systems/ui_manager.gd" id="4_stx5a"]
 [ext_resource type="Script" path="res://logic/managers_and_systems/selector_manager.gd" id="4_w88om"]
 [ext_resource type="Script" path="res://view/lander_panel/building/building_control.gd" id="6_3akxm"]
-[ext_resource type="Script" path="res://view/lander_panel/building/details_state.gd" id="7_8rhiy"]
-[ext_resource type="Script" path="res://view/lander_panel/building/shop_state.gd" id="8_cl8pv"]
+[ext_resource type="Script" path="res://view/lander_panel/building/building_details_state.gd" id="7_khele"]
+[ext_resource type="Script" path="res://view/lander_panel/building/building_shop_state.gd" id="8_0d160"]
 
 [sub_resource type="GDScript" id="GDScript_ks4yd"]
 script/source = "extends Camera3D
@@ -86,7 +86,7 @@ script = ExtResource("6_3akxm")
 layout_mode = 0
 offset_right = 40.0
 offset_bottom = 40.0
-script = ExtResource("7_8rhiy")
+script = ExtResource("7_khele")
 
 [node name="BuildingNameLabel" type="Label" parent="CanvasLayer/UI-manager/LanderPanel/VBoxContainer/BuildingControl/DetailsState"]
 layout_mode = 2
@@ -96,7 +96,7 @@ text = "Building"
 layout_mode = 0
 offset_right = 40.0
 offset_bottom = 40.0
-script = ExtResource("8_cl8pv")
+script = ExtResource("8_0d160")
 
 [node name="BuildingShopLabel" type="Label" parent="CanvasLayer/UI-manager/LanderPanel/VBoxContainer/BuildingControl/ShopState"]
 layout_mode = 2
@@ -106,4 +106,7 @@ text = "Building Options"
 layout_mode = 2
 
 [node name="BuildingButtons" type="HBoxContainer" parent="CanvasLayer/UI-manager/LanderPanel/VBoxContainer/BuildingControl/ShopState"]
+layout_mode = 2
+
+[node name="UnitControl" type="Control" parent="CanvasLayer/UI-manager/LanderPanel/VBoxContainer"]
 layout_mode = 2

@@ -1,4 +1,4 @@
-#building_details_view.gd
+#building_details_state.gd
 extends VBoxContainer
 
 # signals
