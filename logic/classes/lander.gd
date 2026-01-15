@@ -37,7 +37,7 @@ func set_biome(new_biome: BiomeData):
 	update_biome()
 
 
-func get_building() -> BuildingData:
+func get_building_data() -> BuildingData:
 	if(building == null) :
 		print("Calling for NULL building on Lander!!")
 	return building

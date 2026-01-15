@@ -72,4 +72,5 @@ func fwd_build_request(req):
 
 
 func fwd_buy_unit_action_req(buy_unit_req: Action):
+	buy_unit_req.target_lander = selector_manager.get_selected_lander()
 	buy_unit_action_req.emit(buy_unit_req)

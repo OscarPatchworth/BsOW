@@ -11,5 +11,5 @@ build_mesh = ExtResource("1_xa416")
 unique_build = false
 override_unit_capacity = false
 unit_capacity = -1
-can_spawn = false
+can_spawn = true
 spawn_type = Array[int]([1, 3])
