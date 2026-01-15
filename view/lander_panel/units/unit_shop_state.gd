@@ -47,7 +47,6 @@ func bind_selector(selector: GameManager):
 
 
 func fwd_buy_unit_action_req(req:Action):
-	print("req")
 	buy_unit_action_req.emit(req)
 	
 

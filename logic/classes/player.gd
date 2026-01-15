@@ -3,7 +3,8 @@ extends Actor
 
 
 # signals
-signal build_action_req(build_req)
+signal build_action_req(build_req: Action)
+signal buy_unit_action_req(buy_unit_req: Action)
 
 # enums
 #enum Element {EARTH,WATER,AIR,FIRE,}
@@ -64,11 +65,17 @@ func connect_player_signals():
 
 func connect_ui_signals():
 	player_ui.build_action_req.connect(self.fwd_build_req)
+	player_ui.buy_unit_action_req.connect(self.fwd_buy_unit_action_req)
 
 
 func fwd_build_req(build_req: Action):
 	build_req.actor = self
 	build_action_req.emit(build_req)
+
+
+func fwd_buy_unit_action_req(buy_unit_req: Action):
+	buy_unit_req.actor = self
+	buy_unit_action_req.emit(buy_unit_req)
 
 
 ## Calls

@@ -4,6 +4,7 @@ extends Panel
 
 # signals
 signal build_action_req(req: Action)
+signal buy_unit_action_req(req: Action)
 
 # enums
 
@@ -60,7 +61,7 @@ func update():
 ### Connected Signals
 func connect_signals():
 	building_control.build_action_req.connect(self.fwd_build_request)
-
+	unit_control.buy_unit_action_req.connect(self.fwd_buy_unit_action_req)
 
 func connect_wires():
 	pass
@@ -68,3 +69,7 @@ func connect_wires():
 
 func fwd_build_request(req):
 	build_action_req.emit(req)
+
+
+func fwd_buy_unit_action_req(buy_unit_req: Action):
+	buy_unit_action_req.emit(buy_unit_req)

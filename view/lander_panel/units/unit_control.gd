@@ -2,6 +2,7 @@
 extends VBoxContainer
 
 # signals
+signal buy_unit_action_req(req: Action)
 
 # enums
 enum UnitDisplay {
@@ -94,7 +95,7 @@ func bind_selector(selector: GameManager):
 
 
 func connect_signals():
-	#shop_node.build_action_req.connect(self.fwd_build_req)
+	shop_node.buy_unit_action_req.connect(self.fwd_buy_unit_action_req)
 	pass
 
 
@@ -102,5 +103,5 @@ func connect_wires():
 	pass
 
 
-#func fwd_build_req(build_req: Action):
-#	build_action_req.emit(build_req)
+func fwd_buy_unit_action_req(buy_unit_req: Action):
+	buy_unit_action_req.emit(buy_unit_req)
