@@ -3,7 +3,7 @@ class_name UnitData
 extends Resource
 
 enum UnitType {
-	NULL,
+	NULL = -1,
 	MEELE_BASIC,
 	MEELE_ADVNACED,
 	RANGED_BASIC,
