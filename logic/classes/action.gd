@@ -10,6 +10,7 @@ enum RequestType {
 	BUY,
 	PLACE_LANDER,
 	BUY_BUILDING,
+	BUY_UNIT
 }
 
 # constants
@@ -20,6 +21,7 @@ var actor: Actor
 var position: Vector3
 var target_lander: Lander
 var building_type: BuildingData
+var unit_type: UnitData
 
 # @export variables
 
@@ -67,11 +69,20 @@ func set_building_type(building_data):
 
 # All
 func get_action_dict() -> Dictionary:
+	var build_name: String = str(null)
+	if(building_type):
+		build_name = building_type.get_building_name()
+
+	var unit_name: String = str(null)
+	if(unit_type):
+		unit_name = unit_type.get_unit_name()
+
 	var all = {
 		"type": type,
 		"actor": actor,
 		"pos": position,
 		"target lander" : target_lander,
-		"building type" : building_type
+		"building type" : build_name,
+		"unit_type" : unit_name
 	}
 	return all

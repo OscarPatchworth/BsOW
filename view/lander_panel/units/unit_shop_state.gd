@@ -2,7 +2,7 @@
 extends VBoxContainer
 
 # signals
-#signal score_changed
+signal buy_unit_action_req(req: Action)
 
 # enums
 #enum Element {EARTH,WATER,AIR,FIRE,}
@@ -16,12 +16,29 @@ var selector_manager: GameManager
 # @export variables
 
 # remaining regular variables
+var cur_lander: Lander
+var cur_actor: Actor
 
 # @onready variables
+@onready var shop_buttons: HBoxContainer = self.find_child("UnitButtons")
 
 ###################################################################################################
 ###	Methods
+func free_children(parent: Node) -> void:
+	for i in parent.get_children():
+		i.queue_free()
 
+
+func update_shop_buttons():
+	free_children(shop_buttons)
+	var units = selector_manager.player.species.units
+
+	for unit in units:
+		var unit_btn = UnitShopButton.new()
+		unit_btn.bind_selector(selector_manager)
+		unit_btn.set_unit(unit)
+		unit_btn.buy_unit_action_req.connect(self.fwd_buy_unit_action_req)
+		shop_buttons.add_child(unit_btn)
 
 ### Connected Signals
 func bind_selector(selector: GameManager):
@@ -29,6 +46,14 @@ func bind_selector(selector: GameManager):
 	#print("UnitShop slector_manager bound")
 
 
+func fwd_buy_unit_action_req(req:Action):
+	print("req")
+	buy_unit_action_req.emit(req)
+	
+
 ## Calls
 func update():
-	pass
+	cur_lander = selector_manager.get_selected_lander()
+	cur_actor = selector_manager.get_player()
+
+	update_shop_buttons()

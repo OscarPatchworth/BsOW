@@ -16,6 +16,9 @@ var selector_manager: GameManager
 # @export variables
 
 # remaining regular variables
+var cur_lander: Lander
+var cur_actor: Actor
+
 
 # @onready variables
 
