@@ -20,15 +20,37 @@ var has_building: bool = false
 var has_units: bool = false
 var biome_data: BiomeData
 var building: BuildingData
+var units: Array[UnitObject] = []
 
 # @onready variables
 @onready var building_node: Node3D = self.find_child("Building")
+@onready var units_node: Node3D = self.find_child("Units")
 
 ###################################################################################################
 ###	Methods
+func free_children(target: Node):
+	for child in target.get_children():
+		child.queue_free()
+
+
 func update_biome():
 	biome_mesh.set_material(biome_data.mesh_material)
 
+
+func update_unit_visuals():
+	free_children(units_node)
+
+	if(units.size() > 0):
+		for i in range(units.size()):
+			var unit_mesh = units[i].get_unit_data().get_mesh().instantiate()
+			var angle = randf() * TAU
+			var offset = Vector3(cos(angle), 0, sin(angle)) * 0.7
+			unit_mesh.position += offset
+			#unit_mesh.position.y = 0.5
+			unit_mesh.look_at(self.global_position, Vector3.UP)
+			units_node.add_child(unit_mesh)
+	elif(units_node.get_child_count() > 0 and units.size() < 1):
+		free_children(units_node)
 
 ## Get/Set (er)s
 func get_biome() -> BiomeData:
@@ -53,5 +75,10 @@ func build_action(req: Action):
 
 
 func buy_unit_action(req: Action):
-	print("Lander Recieved Request to buy unit")
+	#print("Lander Recieved Request to buy unit")
+	var new_unit = UnitObject.new()
+	new_unit.setup(req.get_unit_type())
+	units.append(new_unit)
+	self.has_units = true
 	buy_unit_action_completed.emit(req)
+	update_unit_visuals()

@@ -67,6 +67,13 @@ func set_building_type(building_data):
 	self.building_type = building_data
 
 
+# Unit Type
+func get_unit_type() -> UnitData:
+	return unit_type
+func set_unit_type(unit_data: UnitData):
+	self.unit_type = unit_data
+
+
 # All
 func get_action_dict() -> Dictionary:
 	var build_name: String = str(null)

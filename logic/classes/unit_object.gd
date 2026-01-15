@@ -28,7 +28,13 @@ var hit_points: int = 1
 ## Calls
 func setup(unit_type: UnitData):
 	self.unit_data = unit_type
-	
+
+
+## Get/Set (er)s
+func get_unit_data() -> UnitData:
+	return unit_data
+func set_unit_data(unit: UnitData):
+	self.unit_data = unit
 
 
 ### Connected Signals
