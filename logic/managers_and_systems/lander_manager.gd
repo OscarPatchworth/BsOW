@@ -2,6 +2,7 @@ extends GameManager
 
 #signals
 signal built_action_completed(req: Action)
+signal buy_unit_action_completed(req: Action)
 
 # enums
 
@@ -52,10 +53,14 @@ func is_pos_min_distance_apart(pos: Vector3) -> bool:
 ### Wires and Signals
 func wire_and_signal_lander(lander: Lander):
 	lander.built_action_completed.connect(self.fwd_build_action_completed)
-
+	lander.buy_unit_action_completed.connect(self.fwd_buy_unit_action_completed)
 
 func fwd_build_action_completed(req: Action):
 	built_action_completed.emit(req)
+
+
+func fwd_buy_unit_action_completed(req: Action):
+	buy_unit_action_completed.emit(req)
 
 ### Calls
 func is_valid_lander_placement(req_pos: Vector3) -> bool:
@@ -64,3 +69,7 @@ func is_valid_lander_placement(req_pos: Vector3) -> bool:
 
 func build_action(req: Action):
 	req.get_target_lander().build_action(req)
+
+
+func buy_unit_action(req: Action):
+	req.get_target_lander().buy_unit_action(req)

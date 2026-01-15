@@ -84,3 +84,9 @@ func fwd_build_action_completed(req:Action):
 		#print("Player recieved comfirmation of build action completed !!")
 		player_ui.received_build_action_completed(req)
 	else: pass
+
+
+func fwd_buy_unit_action_completed(req: Action):
+	if req.actor == self:
+		#print("Player recieved comformation of unit purchase")
+		player_ui.fwd_buy_unit_action_completed(req)

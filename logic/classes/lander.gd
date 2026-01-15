@@ -2,6 +2,7 @@ class_name Lander
 extends Node3D
 
 signal built_action_completed(req: Action)
+signal buy_unit_action_completed(req: Action)
 
 # enums
 #enum Element {EARTH,WATER,AIR,FIRE,}
@@ -49,3 +50,8 @@ func build_action(req: Action):
 	building = req.get_building_type()
 	has_building = true
 	built_action_completed.emit(req)
+
+
+func buy_unit_action(req: Action):
+	print("Lander Recieved Request to buy unit")
+	buy_unit_action_completed.emit(req)
