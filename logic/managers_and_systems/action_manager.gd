@@ -2,6 +2,7 @@ extends GameManager
 
 # signals
 signal build_action(req)
+signal buy_unit_action(req)
 
 # enums
 
@@ -55,7 +56,7 @@ func handle_buy_building(req:Action):
 
 
 func handle_buy_unit(req:Action):
-	print("Action Recieved: " + str(req.get_action_dict()))
+	#print("Action Recieved: " + str(req.get_action_dict()))
 	## Check if valid
 	if(req.get_target_lander() == null):
 		print("Buy Unit Req is missing target lander")
@@ -70,4 +71,5 @@ func handle_buy_unit(req:Action):
 	if(req.unit_type.get_type() not in lander_building.get_spawn_type() ):
 		print("Buy Unit Req failed: \'" + str(lander_building.get_building_name()) + "\' can not spawn this type of unit: \'" + str(req.unit_type.get_type()) + "\'")
 		return
-	print("Buy unit req valid")
+	#print("Buy unit req valid")
+	buy_unit_action.emit(req)
