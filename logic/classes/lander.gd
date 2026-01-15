@@ -47,8 +47,8 @@ func update_unit_visuals():
 			var offset = Vector3(cos(angle), 0, sin(angle)) * 0.7
 			unit_mesh.position += offset
 			#unit_mesh.position.y = 0.5
-			unit_mesh.look_at(self.global_position, Vector3.UP)
 			units_node.add_child(unit_mesh)
+			#unit_mesh.look_at(self.global_position, self.building_node.global_position )
 	elif(units_node.get_child_count() > 0 and units.size() < 1):
 		free_children(units_node)
 
