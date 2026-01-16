@@ -1,4 +1,4 @@
-[gd_scene load_steps=14 format=3 uid="uid://cmnn2jtgwr4dw"]
+[gd_scene load_steps=15 format=3 uid="uid://cmnn2jtgwr4dw"]
 
 [ext_resource type="Script" path="res://logic/classes/player.gd" id="1_tftws"]
 [ext_resource type="Script" path="res://logic/classes/player_controler.gd" id="2_pm403"]
@@ -12,6 +12,7 @@
 [ext_resource type="Script" path="res://view/lander_panel/units/unit_control.gd" id="9_bf17q"]
 [ext_resource type="Script" path="res://view/lander_panel/units/unit_details_state.gd" id="11_8gxc8"]
 [ext_resource type="Script" path="res://view/lander_panel/units/unit_shop_state.gd" id="12_u1vg3"]
+[ext_resource type="Script" path="res://view/turn_panel/turn_panel.gd" id="13_0hrky"]
 
 [sub_resource type="GDScript" id="GDScript_ks4yd"]
 script/source = "extends Camera3D
@@ -131,3 +132,76 @@ text = "Train Units"
 
 [node name="UnitButtons" type="HBoxContainer" parent="CanvasLayer/UI-manager/LanderPanel/VBoxContainer/UnitControl/ShopState"]
 layout_mode = 2
+
+[node name="TurnPanel" type="Panel" parent="CanvasLayer/UI-manager"]
+layout_mode = 1
+anchors_preset = -1
+anchor_left = 0.001
+anchor_top = 0.4
+anchor_right = 0.1
+anchor_bottom = 0.6
+script = ExtResource("13_0hrky")
+
+[node name="VBoxContainer" type="VBoxContainer" parent="CanvasLayer/UI-manager/TurnPanel"]
+layout_mode = 1
+anchors_preset = 10
+anchor_right = 1.0
+offset_bottom = 23.0
+grow_horizontal = 2
+alignment = 1
+
+[node name="TurnPanelLabel" type="Label" parent="CanvasLayer/UI-manager/TurnPanel/VBoxContainer"]
+layout_mode = 2
+text = "Turn Order:"
+horizontal_alignment = 1
+
+[node name="HSeparator" type="HSeparator" parent="CanvasLayer/UI-manager/TurnPanel/VBoxContainer"]
+layout_mode = 2
+
+[node name="PhaseLabels" type="VBoxContainer" parent="CanvasLayer/UI-manager/TurnPanel/VBoxContainer"]
+layout_mode = 2
+
+[node name="Upkeep" type="Label" parent="CanvasLayer/UI-manager/TurnPanel/VBoxContainer/PhaseLabels"]
+layout_mode = 2
+text = "Upkeep
+"
+
+[node name="DustcloudCollapse" type="Label" parent="CanvasLayer/UI-manager/TurnPanel/VBoxContainer/PhaseLabels"]
+layout_mode = 2
+text = "Dustcloud Collapse
+"
+
+[node name="Combat" type="Label" parent="CanvasLayer/UI-manager/TurnPanel/VBoxContainer/PhaseLabels"]
+layout_mode = 2
+text = "Combat"
+
+[node name="Reinforcement" type="Label" parent="CanvasLayer/UI-manager/TurnPanel/VBoxContainer/PhaseLabels"]
+layout_mode = 2
+text = "Reinforcement"
+
+[node name="Cleanup" type="Label" parent="CanvasLayer/UI-manager/TurnPanel/VBoxContainer/PhaseLabels"]
+layout_mode = 2
+text = "Cleanup"
+
+[node name="HSeparator2" type="HSeparator" parent="CanvasLayer/UI-manager/TurnPanel/VBoxContainer"]
+layout_mode = 2
+
+[node name="Label" type="Label" parent="CanvasLayer/UI-manager/TurnPanel/VBoxContainer"]
+layout_mode = 2
+text = "Player Order:"
+horizontal_alignment = 1
+
+[node name="HSeparator3" type="HSeparator" parent="CanvasLayer/UI-manager/TurnPanel/VBoxContainer"]
+layout_mode = 2
+
+[node name="PlayerLabels" type="VBoxContainer" parent="CanvasLayer/UI-manager/TurnPanel/VBoxContainer"]
+layout_mode = 2
+
+[node name="Label" type="Label" parent="CanvasLayer/UI-manager/TurnPanel/VBoxContainer/PlayerLabels"]
+layout_mode = 2
+text = "You"
+
+[node name="Label2" type="Label" parent="CanvasLayer/UI-manager/TurnPanel/VBoxContainer/PlayerLabels"]
+layout_mode = 2
+text = "OPP 1:
+"
