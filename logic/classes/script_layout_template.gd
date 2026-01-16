@@ -25,5 +25,6 @@ extends Node
 
 ## Calls
 
+## Get/Set (er)s
 
 ### Connected Signals

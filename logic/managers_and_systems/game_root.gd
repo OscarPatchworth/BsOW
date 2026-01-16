@@ -18,6 +18,7 @@ var player_scene = preload("res://sences/player.tscn")
 ### Managers
 @onready var action_manager = self.find_child("ActionManager")
 @onready var lander_manager = self.find_child("LanderManager")
+@onready var turn_manager = self.find_child("TurnManager")
 
 ### Sence Nodes
 @onready var landers_sence_node = self.find_child("Landers")
@@ -36,6 +37,7 @@ func _ready() -> void:
 func init_game_managers_and_systems():
 	init_action_manager()
 	init_lander_manager()
+	init_turn_manager()
 
 
 # Init action manager
@@ -52,6 +54,12 @@ func init_lander_manager():
 	# Connect Signals
 	action_manager.build_action.connect(lander_manager.build_action)
 	action_manager.buy_unit_action.connect(lander_manager.buy_unit_action)
+
+
+## Init turn manager
+func init_turn_manager():
+	pass
+
 
 
 # Init Actors
