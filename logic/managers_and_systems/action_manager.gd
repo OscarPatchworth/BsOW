@@ -64,7 +64,7 @@ func handle_buy_unit(req:Action):
 	if(req.target_lander.get_building_data() == null):
 		print("Buy Unit Req is missing spawning building")
 		return
-	var lander_building = req.target_lander.building
+	var lander_building = req.target_lander.get_building_data()
 	if(!lander_building.get_can_spawn()):
 		print("Buy Unit Req failed: The building \'" + str(lander_building.get_building_name() + "\' can not spawn units"))
 		return

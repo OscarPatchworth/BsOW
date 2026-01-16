@@ -19,7 +19,7 @@ signal buy_unit_action_completed(req: Action)
 var has_building: bool = false
 var has_units: bool = false
 var biome_data: BiomeData
-var building: BuildingData
+var building: BuildingObject
 var units: Array[UnitObject] = []
 
 # @onready variables
@@ -63,13 +63,19 @@ func set_biome(new_biome: BiomeData):
 func get_building_data() -> BuildingData:
 	if(building == null) :
 		print("Calling for NULL building on Lander!!")
-	return building
+		return null
+	return building.get_building_data()
 
 ### Calls
 func build_action(req: Action):
-	var build_mesh = req.get_building_type().build_mesh.instantiate()
-	building_node.add_child(build_mesh)
-	building = req.get_building_type()
+	var new_building = BuildingObject.new()
+	new_building.set_building_data(req.get_building_type())
+	new_building.bind_building_node(building_node)
+	
+	#building_node.add_child(new_building)
+	building = new_building
+	new_building.update_mesh()
+
 	has_building = true
 	built_action_completed.emit(req)
 
