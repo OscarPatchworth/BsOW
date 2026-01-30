@@ -52,6 +52,7 @@ func update_unit_visuals():
 	elif(units_node.get_child_count() > 0 and units.size() < 1):
 		free_children(units_node)
 
+
 ## Get/Set (er)s
 func get_biome() -> BiomeData:
 	return biome_data

@@ -19,8 +19,13 @@ var landers_sence_node: Node3D
 @export var lander_sence: PackedScene
 @export var biome_types: Array[BiomeData]
 
+@export var connected_lander_distance: float:
+	set(value):
+		connected_distance_sq = value ** 2
+
 # remaining regular variables
 var landers:Array[Lander]
+var connected_distance_sq: float = 0.0
 
 # @onready variables
 
@@ -49,6 +54,14 @@ func is_pos_min_distance_apart(pos: Vector3) -> bool:
 			return false
 	return true
 
+
+func get_connected_landers(target_lander: Lander) -> Array[Lander]:
+	var connected_landers: Array[Lander] = []
+	for lander in landers:
+		if (target_lander.position.distance_squared_to(lander.position) < connected_distance_sq and lander != target_lander):
+			connected_landers.append(lander)
+	print(connected_landers)
+	return connected_landers
 
 ### Wires and Signals
 func wire_and_signal_lander(lander: Lander):

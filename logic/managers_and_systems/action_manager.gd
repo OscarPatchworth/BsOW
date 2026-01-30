@@ -53,6 +53,7 @@ func handle_buy_building(req:Action):
 		return
 	## Then emit if true
 	build_action.emit(req)
+	lander_manager.get_connected_landers(req.target_lander)
 
 
 func handle_buy_unit(req:Action):
