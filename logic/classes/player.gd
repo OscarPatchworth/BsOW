@@ -14,6 +14,8 @@ signal buy_unit_action_req(buy_unit_req: Action)
 
 # static variables
 var species: SpeciesData
+var turn_manager: GameManager
+
 # @export variables
 
 # remaining regular variables
@@ -42,6 +44,7 @@ func _process(delta: float) -> void:
 ### Custom Methods
 func connect_wires():
 	wire_selector_manager()
+	wire_turn_manager()
 
 
 func wire_selector_manager():
@@ -50,6 +53,11 @@ func wire_selector_manager():
 	player_ui.bind_selector(selector_manager)
 	# Wire selector: Things->Manager
 	selector_manager.player = self
+
+
+func wire_turn_manager():
+	# Wire: manager -> Things
+	player_ui.bind_turn_manager(turn_manager)
 
 
 ### Connected Signals

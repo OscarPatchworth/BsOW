@@ -1,4 +1,4 @@
-[gd_scene load_steps=15 format=3 uid="uid://cmnn2jtgwr4dw"]
+[gd_scene load_steps=20 format=3 uid="uid://cmnn2jtgwr4dw"]
 
 [ext_resource type="Script" path="res://logic/classes/player.gd" id="1_tftws"]
 [ext_resource type="Script" path="res://logic/classes/player_controler.gd" id="2_pm403"]
@@ -26,6 +26,18 @@ func _ready() -> void:
 func _process(delta: float) -> void:
 	pass
 "
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_uayee"]
+
+[sub_resource type="FontVariation" id="FontVariation_upk8h"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_7vh2u"]
+bg_color = Color(0.6, 0.5755, 0.39, 1)
+
+[sub_resource type="FontVariation" id="FontVariation_nfx7u"]
+variation_embolden = 1.0
+
+[sub_resource type="LabelSettings" id="LabelSettings_cgt8w"]
 
 [node name="Player" type="Node3D"]
 script = ExtResource("1_tftws")
@@ -141,6 +153,10 @@ anchor_top = 0.4
 anchor_right = 0.1
 anchor_bottom = 0.6
 script = ExtResource("13_0hrky")
+defualt_label_stylebox = SubResource("StyleBoxEmpty_uayee")
+defualt_label_font = SubResource("FontVariation_upk8h")
+active_label_stylebox = SubResource("StyleBoxFlat_7vh2u")
+active_label_font = SubResource("FontVariation_nfx7u")
 
 [node name="VBoxContainer" type="VBoxContainer" parent="CanvasLayer/UI-manager/TurnPanel"]
 layout_mode = 1
@@ -178,6 +194,7 @@ text = "Combat"
 [node name="Reinforcement" type="Label" parent="CanvasLayer/UI-manager/TurnPanel/VBoxContainer/PhaseLabels"]
 layout_mode = 2
 text = "Reinforcement"
+label_settings = SubResource("LabelSettings_cgt8w")
 
 [node name="Cleanup" type="Label" parent="CanvasLayer/UI-manager/TurnPanel/VBoxContainer/PhaseLabels"]
 layout_mode = 2
@@ -186,7 +203,7 @@ text = "Cleanup"
 [node name="HSeparator2" type="HSeparator" parent="CanvasLayer/UI-manager/TurnPanel/VBoxContainer"]
 layout_mode = 2
 
-[node name="Label" type="Label" parent="CanvasLayer/UI-manager/TurnPanel/VBoxContainer"]
+[node name="PlayerOrderLabel" type="Label" parent="CanvasLayer/UI-manager/TurnPanel/VBoxContainer"]
 layout_mode = 2
 text = "Player Order:"
 horizontal_alignment = 1

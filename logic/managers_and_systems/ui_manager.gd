@@ -10,6 +10,7 @@ signal buy_unit_action_req(buy_unit_req)
 # constants
 
 # static variables
+var turn_manager: GameManager
 
 # @export variables
 
@@ -21,6 +22,7 @@ var selector_manager:GameManager
 @onready var biome_label: Label = lander_panel.find_child("BiomeLabel")
 @onready var building_control:Control = self.find_child("BuildingControl")
 @onready var unit_control: Control = self.find_child("UnitControl")
+@onready var turn_panel: Panel = self.find_child("TurnPanel")
 
 ###################################################################################################
 ###	Methods
@@ -50,7 +52,13 @@ func bind_selector(selector: GameManager):
 	#print("UI manager selector bound")
 	
 	lander_panel.bind_selector(selector)
-	
+
+
+func bind_turn_manager(tm: GameManager):
+	# Bind self
+	turn_manager = tm
+	# Bind Children
+	turn_panel.bind_turn_manager(tm)
 
 
 func display_landers_req(lander: Lander):

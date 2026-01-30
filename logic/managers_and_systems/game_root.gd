@@ -58,6 +58,7 @@ func init_lander_manager():
 
 ## Init turn manager
 func init_turn_manager():
+	# Connect Binders
 	pass
 
 
@@ -71,8 +72,9 @@ func init_actors():
 func add_player():
 	var actor_node = find_child("Actors")
 	var player_x = player_scene.instantiate()
-	actor_node.add_child(player_x)
 	init_player(player_x)
+	actor_node.add_child(player_x)
+	
 
 
 func add_ai():
@@ -87,6 +89,7 @@ func init_player(player_x: Player):
 	# Connect Signals
 	player_x.build_action_req.connect(action_manager.action_request)
 	player_x.buy_unit_action_req.connect(action_manager.action_request)
+	player_x.turn_manager = self.turn_manager
 
 	lander_manager.built_action_completed.connect(player_x.fwd_build_action_completed)
 	lander_manager.buy_unit_action_completed.connect(player_x.fwd_buy_unit_action_completed)
