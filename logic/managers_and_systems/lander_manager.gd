@@ -61,7 +61,6 @@ func get_connected_landers(target_lander: Lander) -> Array[Lander]:
 		if (target_lander.position.distance_squared_to(lander.position) < connected_distance_sq):
 			if(lander != target_lander):
 				connected_landers.append(lander)
-	print(connected_landers)
 	return connected_landers
 
 ### Wires and Signals

@@ -22,6 +22,7 @@ var selector_manager:GameManager
 @onready var biome_label: Label = lander_panel.find_child("BiomeLabel")
 @onready var building_control:Control = self.find_child("BuildingControl")
 @onready var unit_control: Control = self.find_child("UnitControl")
+@onready var lander_control: Control = self.find_child("LanderControl")
 @onready var turn_panel: Panel = self.find_child("TurnPanel")
 
 ###################################################################################################

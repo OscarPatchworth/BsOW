@@ -1,4 +1,4 @@
-[gd_scene load_steps=20 format=3 uid="uid://cmnn2jtgwr4dw"]
+[gd_scene load_steps=21 format=3 uid="uid://cmnn2jtgwr4dw"]
 
 [ext_resource type="Script" path="res://logic/classes/player.gd" id="1_tftws"]
 [ext_resource type="Script" path="res://logic/classes/player_controler.gd" id="2_pm403"]
@@ -13,6 +13,7 @@
 [ext_resource type="Script" path="res://view/lander_panel/units/unit_details_state.gd" id="11_8gxc8"]
 [ext_resource type="Script" path="res://view/lander_panel/units/unit_shop_state.gd" id="12_u1vg3"]
 [ext_resource type="Script" path="res://view/turn_panel/turn_panel.gd" id="13_0hrky"]
+[ext_resource type="Script" path="res://view/lander_panel/landers/landers_control.gd" id="13_rmo7a"]
 
 [sub_resource type="GDScript" id="GDScript_ks4yd"]
 script/source = "extends Camera3D
@@ -87,13 +88,16 @@ anchor_right = 1.0
 offset_bottom = 58.0
 grow_horizontal = 2
 
-[node name="BiomeLabel" type="Label" parent="CanvasLayer/UI-manager/LanderPanel/VBoxContainer"]
+[node name="BiomeControl" type="VBoxContainer" parent="CanvasLayer/UI-manager/LanderPanel/VBoxContainer"]
+layout_mode = 2
+
+[node name="BiomeLabel" type="Label" parent="CanvasLayer/UI-manager/LanderPanel/VBoxContainer/BiomeControl"]
 layout_mode = 2
 text = "BIOME
 "
 horizontal_alignment = 1
 
-[node name="HSeparator" type="HSeparator" parent="CanvasLayer/UI-manager/LanderPanel/VBoxContainer"]
+[node name="HSeparator" type="HSeparator" parent="CanvasLayer/UI-manager/LanderPanel/VBoxContainer/BiomeControl"]
 layout_mode = 2
 
 [node name="BuildingControl" type="VBoxContainer" parent="CanvasLayer/UI-manager/LanderPanel/VBoxContainer"]
@@ -143,6 +147,17 @@ layout_mode = 2
 text = "Train Units"
 
 [node name="UnitButtons" type="HBoxContainer" parent="CanvasLayer/UI-manager/LanderPanel/VBoxContainer/UnitControl/ShopState"]
+layout_mode = 2
+
+[node name="LanderControl" type="VBoxContainer" parent="CanvasLayer/UI-manager/LanderPanel/VBoxContainer"]
+layout_mode = 2
+script = ExtResource("13_rmo7a")
+
+[node name="Label" type="Label" parent="CanvasLayer/UI-manager/LanderPanel/VBoxContainer/LanderControl"]
+layout_mode = 2
+text = "Connected Landers: "
+
+[node name="Landers" type="HBoxContainer" parent="CanvasLayer/UI-manager/LanderPanel/VBoxContainer/LanderControl"]
 layout_mode = 2
 
 [node name="TurnPanel" type="Panel" parent="CanvasLayer/UI-manager"]

@@ -18,6 +18,7 @@ var selector_manager:GameManager
 # @onready variables
 @onready var building_control: Control = self.find_child("BuildingControl")
 @onready var unit_control: Control = self.find_child("UnitControl")
+@onready var lander_control: Control = self.find_child("LanderControl")
 @onready var biome_label: Label = find_child("BiomeLabel")
 
 ###################################################################################################
@@ -33,6 +34,7 @@ func bind_selector(selector):
 
 	building_control.bind_selector(selector)
 	unit_control.bind_selector(selector)
+	lander_control.bind_selector(selector)
 
 
 func update_building_control(cur_lander: Lander):
