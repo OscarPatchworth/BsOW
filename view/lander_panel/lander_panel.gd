@@ -13,7 +13,8 @@ signal buy_unit_action_req(req: Action)
 # static variables
 
 # remaining regular variables
-var selector_manager:GameManager
+var selector_manager: GameManager
+var lander_manager: GameManager
 
 # @onready variables
 @onready var building_control: Control = self.find_child("BuildingControl")
@@ -35,6 +36,10 @@ func bind_selector(selector):
 	building_control.bind_selector(selector)
 	unit_control.bind_selector(selector)
 	lander_control.bind_selector(selector)
+
+func bind_lander_manager(lm: GameManager):
+	lander_manager = lm
+	lander_control.bind_lander_manager(lm)
 
 
 func update_building_control(cur_lander: Lander):

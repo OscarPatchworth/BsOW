@@ -1,4 +1,4 @@
-#landers_control.gd
+#lander_control.gd
 extends VBoxContainer
 
 # signals
@@ -9,6 +9,7 @@ extends VBoxContainer
 
 # static vars
 var selector_manager: GameManager
+var lander_manager: GameManager
 
 # @export variables
 
@@ -23,6 +24,9 @@ func update():
 	if cur_lander == null:
 		print("Lander Control in player UI has null lander selected")
 		return
+	#var connected_landers: Array[Landers]
+	#connected_landers = cur_lander.get_connected_landers()
+
 	pass
 
 
@@ -35,6 +39,10 @@ func bind_selector(selector: GameManager):
 	selector_manager = selector
 	#print("Lander Control selector_manager bound")
 
+
+func bind_lander_manager(lm: GameManager):
+	lander_manager = lm
+	#print("Lander Manager bound to Lander_Control")
 
 
 ## Get/Set (er)s

@@ -90,6 +90,7 @@ func init_player(player_x: Player):
 	player_x.build_action_req.connect(action_manager.action_request)
 	player_x.buy_unit_action_req.connect(action_manager.action_request)
 	player_x.turn_manager = self.turn_manager
+	player_x.lander_manager = self.lander_manager
 
 	lander_manager.built_action_completed.connect(player_x.fwd_build_action_completed)
 	lander_manager.buy_unit_action_completed.connect(player_x.fwd_buy_unit_action_completed)
