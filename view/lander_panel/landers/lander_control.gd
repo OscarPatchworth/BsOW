@@ -24,10 +24,11 @@ func update():
 	if cur_lander == null:
 		print("Lander Control in player UI has null lander selected")
 		return
-	#var connected_landers: Array[Landers]
-	#connected_landers = cur_lander.get_connected_landers()
+	var connected_landers: Array[Lander]
+	connected_landers = lander_manager.get_connected_landers(cur_lander)
 
-	pass
+	for lander in connected_landers:
+		print(lander.get_biome().name)
 
 
 
