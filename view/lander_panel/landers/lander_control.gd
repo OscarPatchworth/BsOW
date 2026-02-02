@@ -17,7 +17,7 @@ var lander_manager: GameManager
 var cur_lander: Lander
 
 # @onready variables
-@onready var lander_hbox: HBoxContainer = self.find_child("Landers")
+@onready var lander_hflow: HFlowContainer = self.find_child("Landers")
 
 ###################################################################################################
 ###	Methods
@@ -32,7 +32,7 @@ func update():
 		print("Lander Control in player UI has null lander selected")
 		return
 
-	free_children(lander_hbox)	
+	free_children(lander_hflow)	
 
 	var connected_landers: Array[Lander]
 	connected_landers = lander_manager.get_connected_landers(cur_lander)
@@ -42,7 +42,7 @@ func update():
 		new_lnd_btn.bind_selector(selector_manager)
 		new_lnd_btn.lander = lander
 		new_lnd_btn.update_display()
-		lander_hbox.add_child(new_lnd_btn)
+		lander_hflow.add_child(new_lnd_btn)
 
 
 

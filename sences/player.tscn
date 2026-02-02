@@ -157,7 +157,7 @@ script = ExtResource("13_nfxjl")
 layout_mode = 2
 text = "Connected Landers: "
 
-[node name="Landers" type="HBoxContainer" parent="CanvasLayer/UI-manager/LanderPanel/VBoxContainer/LanderControl"]
+[node name="Landers" type="HFlowContainer" parent="CanvasLayer/UI-manager/LanderPanel/VBoxContainer/LanderControl"]
 layout_mode = 2
 
 [node name="TurnPanel" type="Panel" parent="CanvasLayer/UI-manager"]

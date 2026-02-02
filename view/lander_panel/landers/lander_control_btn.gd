@@ -37,6 +37,7 @@ func bind_selector(selector: GameManager):
 
 func update_display():
 	self.text = lander.get_biome().name
+	self.icon = lander.get_biome().poker_icon
 
 
 ## Get/Set (er)s
