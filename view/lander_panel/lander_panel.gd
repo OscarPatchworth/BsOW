@@ -50,6 +50,10 @@ func update_unit_control(cur_lander: Lander):
 	else:
 		unit_control.set_state_shop()
 
+
+func update_lander_control(cur_lander: Lander):
+	lander_control.update()
+
 ## Calls
 
 func update():
@@ -58,6 +62,7 @@ func update():
 
 	update_building_control(cur_lander)
 	update_unit_control(cur_lander)	
+	update_lander_control(cur_lander)
 
 
 ### Connected Signals
