@@ -53,7 +53,11 @@ func update():
 	var stationed_units = cur_lander.units # Need to make a get func()
 
 	for unit in stationed_units:
-		print(unit.get_unit_data().name)
+		var new_unit_btn = UnitLanderControlButton.new()
+		new_unit_btn.bind_selector(selector_manager)
+		new_unit_btn.unit = unit
+		new_unit_btn.update_display()
+		units_hflow.add_child(new_unit_btn)
 
 ### Connected Signals
 

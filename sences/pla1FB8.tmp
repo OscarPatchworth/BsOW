@@ -1,0 +1,246 @@
+[gd_scene load_steps=21 format=3 uid="uid://cmnn2jtgwr4dw"]
+
+[ext_resource type="Script" path="res://logic/classes/player.gd" id="1_tftws"]
+[ext_resource type="Script" path="res://logic/classes/player_controler.gd" id="2_pm403"]
+[ext_resource type="Script" path="res://spaghetti/Scripts/main/cam_gimbal.gd" id="3_mv7g2"]
+[ext_resource type="Script" path="res://logic/managers_and_systems/ui_manager.gd" id="4_stx5a"]
+[ext_resource type="Script" path="res://logic/managers_and_systems/selector_manager.gd" id="4_w88om"]
+[ext_resource type="Script" path="res://view/lander_panel/building/building_control.gd" id="6_3akxm"]
+[ext_resource type="Script" path="res://view/lander_panel/lander_panel.gd" id="6_3ojsw"]
+[ext_resource type="Script" path="res://view/lander_panel/building/building_details_state.gd" id="7_khele"]
+[ext_resource type="Script" path="res://view/lander_panel/building/building_shop_state.gd" id="8_0d160"]
+[ext_resource type="Script" path="res://view/lander_panel/units/unit_control.gd" id="9_bf17q"]
+[ext_resource type="Script" path="res://view/lander_panel/units/unit_details_state.gd" id="11_8gxc8"]
+[ext_resource type="Script" path="res://view/lander_panel/units/unit_shop_state.gd" id="12_u1vg3"]
+[ext_resource type="Script" path="res://view/turn_panel/turn_panel.gd" id="13_0hrky"]
+[ext_resource type="Script" path="res://view/lander_panel/landers/lander_control.gd" id="13_nfxjl"]
+
+[sub_resource type="GDScript" id="GDScript_ks4yd"]
+script/source = "extends Camera3D
+
+# Called when the node enters the scene tree for the first time.
+func _ready() -> void:
+	pass # Replace with function body.
+
+
+# Called every frame. 'delta' is the elapsed time since the previous frame.
+func _process(delta: float) -> void:
+	pass
+"
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_uayee"]
+
+[sub_resource type="FontVariation" id="FontVariation_upk8h"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_7vh2u"]
+bg_color = Color(0.6, 0.5755, 0.39, 1)
+
+[sub_resource type="FontVariation" id="FontVariation_nfx7u"]
+variation_embolden = 1.0
+
+[sub_resource type="LabelSettings" id="LabelSettings_cgt8w"]
+
+[node name="Player" type="Node3D"]
+script = ExtResource("1_tftws")
+
+[node name="PlayerController" type="Node3D" parent="."]
+script = ExtResource("2_pm403")
+
+[node name="CamGimbal" type="Node3D" parent="PlayerController"]
+transform = Transform3D(1, 0, -1.67638e-08, 0, 1, 0, 1.67638e-08, 0, 1, -2, 1.5, 4)
+script = ExtResource("3_mv7g2")
+max_zoom = 5
+zoom_speed = 0.1
+
+[node name="InnerGimbal" type="Node3D" parent="PlayerController/CamGimbal"]
+
+[node name="Camera3D" type="Camera3D" parent="PlayerController/CamGimbal/InnerGimbal"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 4)
+current = true
+script = SubResource("GDScript_ks4yd")
+
+[node name="SelectorManager" type="Node" parent="."]
+script = ExtResource("4_w88om")
+
+[node name="CanvasLayer" type="CanvasLayer" parent="."]
+
+[node name="UI-manager" type="Control" parent="CanvasLayer"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("4_stx5a")
+
+[node name="LanderPanel" type="Panel" parent="CanvasLayer/UI-manager"]
+layout_mode = 1
+anchors_preset = -1
+anchor_left = 0.8
+anchor_right = 1.0
+anchor_bottom = 1.0
+script = ExtResource("6_3ojsw")
+
+[node name="VBoxContainer" type="VBoxContainer" parent="CanvasLayer/UI-manager/LanderPanel"]
+layout_mode = 1
+anchors_preset = 10
+anchor_right = 1.0
+offset_bottom = 58.0
+grow_horizontal = 2
+
+[node name="BiomeControl" type="VBoxContainer" parent="CanvasLayer/UI-manager/LanderPanel/VBoxContainer"]
+layout_mode = 2
+
+[node name="BiomeLabel" type="Label" parent="CanvasLayer/UI-manager/LanderPanel/VBoxContainer/BiomeControl"]
+layout_mode = 2
+text = "BIOME
+"
+horizontal_alignment = 1
+
+[node name="HSeparator" type="HSeparator" parent="CanvasLayer/UI-manager/LanderPanel/VBoxContainer/BiomeControl"]
+layout_mode = 2
+
+[node name="BuildingControl" type="VBoxContainer" parent="CanvasLayer/UI-manager/LanderPanel/VBoxContainer"]
+layout_mode = 2
+script = ExtResource("6_3akxm")
+
+[node name="DetailsState" type="VBoxContainer" parent="CanvasLayer/UI-manager/LanderPanel/VBoxContainer/BuildingControl"]
+layout_mode = 2
+script = ExtResource("7_khele")
+
+[node name="BuildingNameLabel" type="Label" parent="CanvasLayer/UI-manager/LanderPanel/VBoxContainer/BuildingControl/DetailsState"]
+layout_mode = 2
+text = "Building"
+
+[node name="ShopState" type="VBoxContainer" parent="CanvasLayer/UI-manager/LanderPanel/VBoxContainer/BuildingControl"]
+layout_mode = 2
+script = ExtResource("8_0d160")
+
+[node name="BuildingShopLabel" type="Label" parent="CanvasLayer/UI-manager/LanderPanel/VBoxContainer/BuildingControl/ShopState"]
+layout_mode = 2
+text = "Building Options"
+
+[node name="HSeparator" type="HSeparator" parent="CanvasLayer/UI-manager/LanderPanel/VBoxContainer/BuildingControl/ShopState"]
+layout_mode = 2
+
+[node name="BuildingButtons" type="HBoxContainer" parent="CanvasLayer/UI-manager/LanderPanel/VBoxContainer/BuildingControl/ShopState"]
+layout_mode = 2
+
+[node name="UnitControl" type="VBoxContainer" parent="CanvasLayer/UI-manager/LanderPanel/VBoxContainer"]
+layout_mode = 2
+script = ExtResource("9_bf17q")
+
+[node name="DetailsState" type="VBoxContainer" parent="CanvasLayer/UI-manager/LanderPanel/VBoxContainer/UnitControl"]
+layout_mode = 2
+script = ExtResource("11_8gxc8")
+
+[node name="Label" type="Label" parent="CanvasLayer/UI-manager/LanderPanel/VBoxContainer/UnitControl/DetailsState"]
+layout_mode = 2
+text = "Units:"
+
+[node name="ShopState" type="VBoxContainer" parent="CanvasLayer/UI-manager/LanderPanel/VBoxContainer/UnitControl"]
+layout_mode = 2
+script = ExtResource("12_u1vg3")
+
+[node name="Label" type="Label" parent="CanvasLayer/UI-manager/LanderPanel/VBoxContainer/UnitControl/ShopState"]
+layout_mode = 2
+text = "Train Units"
+
+[node name="UnitButtons" type="HBoxContainer" parent="CanvasLayer/UI-manager/LanderPanel/VBoxContainer/UnitControl/ShopState"]
+layout_mode = 2
+
+[node name="LanderControl" type="VBoxContainer" parent="CanvasLayer/UI-manager/LanderPanel/VBoxContainer"]
+layout_mode = 2
+script = ExtResource("13_nfxjl")
+
+[node name="Label" type="Label" parent="CanvasLayer/UI-manager/LanderPanel/VBoxContainer/LanderControl"]
+layout_mode = 2
+text = "Connected Landers: "
+
+[node name="Landers" type="HFlowContainer" parent="CanvasLayer/UI-manager/LanderPanel/VBoxContainer/LanderControl"]
+layout_mode = 2
+
+[node name="Label2" type="Label" parent="CanvasLayer/UI-manager/LanderPanel/VBoxContainer/LanderControl"]
+layout_mode = 2
+text = "Stationed Units:"
+
+[node name="Units" type="HFlowContainer" parent="CanvasLayer/UI-manager/LanderPanel/VBoxContainer/LanderControl"]
+layout_mode = 2
+
+[node name="TurnPanel" type="Panel" parent="CanvasLayer/UI-manager"]
+layout_mode = 1
+anchors_preset = -1
+anchor_left = 0.001
+anchor_top = 0.4
+anchor_right = 0.1
+anchor_bottom = 0.6
+script = ExtResource("13_0hrky")
+defualt_label_stylebox = SubResource("StyleBoxEmpty_uayee")
+defualt_label_font = SubResource("FontVariation_upk8h")
+active_label_stylebox = SubResource("StyleBoxFlat_7vh2u")
+active_label_font = SubResource("FontVariation_nfx7u")
+
+[node name="VBoxContainer" type="VBoxContainer" parent="CanvasLayer/UI-manager/TurnPanel"]
+layout_mode = 1
+anchors_preset = 10
+anchor_right = 1.0
+offset_bottom = 23.0
+grow_horizontal = 2
+alignment = 1
+
+[node name="TurnPanelLabel" type="Label" parent="CanvasLayer/UI-manager/TurnPanel/VBoxContainer"]
+layout_mode = 2
+text = "Turn Order:"
+horizontal_alignment = 1
+
+[node name="HSeparator" type="HSeparator" parent="CanvasLayer/UI-manager/TurnPanel/VBoxContainer"]
+layout_mode = 2
+
+[node name="PhaseLabels" type="VBoxContainer" parent="CanvasLayer/UI-manager/TurnPanel/VBoxContainer"]
+layout_mode = 2
+
+[node name="Upkeep" type="Label" parent="CanvasLayer/UI-manager/TurnPanel/VBoxContainer/PhaseLabels"]
+layout_mode = 2
+text = "Upkeep
+"
+
+[node name="DustcloudCollapse" type="Label" parent="CanvasLayer/UI-manager/TurnPanel/VBoxContainer/PhaseLabels"]
+layout_mode = 2
+text = "Dustcloud Collapse
+"
+
+[node name="Combat" type="Label" parent="CanvasLayer/UI-manager/TurnPanel/VBoxContainer/PhaseLabels"]
+layout_mode = 2
+text = "Combat"
+
+[node name="Reinforcement" type="Label" parent="CanvasLayer/UI-manager/TurnPanel/VBoxContainer/PhaseLabels"]
+layout_mode = 2
+text = "Reinforcement"
+label_settings = SubResource("LabelSettings_cgt8w")
+
+[node name="Cleanup" type="Label" parent="CanvasLayer/UI-manager/TurnPanel/VBoxContainer/PhaseLabels"]
+layout_mode = 2
+text = "Cleanup"
+
+[node name="HSeparator2" type="HSeparator" parent="CanvasLayer/UI-manager/TurnPanel/VBoxContainer"]
+layout_mode = 2
+
+[node name="PlayerOrderLabel" type="Label" parent="CanvasLayer/UI-manager/TurnPanel/VBoxContainer"]
+layout_mode = 2
+text = "Player Order:"
+horizontal_alignment = 1
+
+[node name="HSeparator3" type="HSeparator" parent="CanvasLayer/UI-manager/TurnPanel/VBoxContainer"]
+layout_mode = 2
+
+[node name="PlayerLabels" type="VBoxContainer" parent="CanvasLayer/UI-manager/TurnPanel/VBoxContainer"]
+layout_mode = 2
+
+[node name="Label" type="Label" parent="CanvasLayer/UI-manager/TurnPanel/VBoxContainer/PlayerLabels"]
+layout_mode = 2
+text = "You"
+
+[node name="Label2" type="Label" parent="CanvasLayer/UI-manager/TurnPanel/VBoxContainer/PlayerLabels"]
+layout_mode = 2
+text = "OPP 1:
+"
