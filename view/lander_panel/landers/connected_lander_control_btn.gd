@@ -1,5 +1,5 @@
-#lander_control_btn.gd
-class_name LanderControlButton
+#ConnectedLanderControlButton.gd
+class_name ConnectedLanderControlButton
 extends GameButton
 
 # signals

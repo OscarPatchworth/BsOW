@@ -43,7 +43,7 @@ func update():
 	connected_landers = lander_manager.get_connected_landers(cur_lander)
 
 	for lander in connected_landers:
-		var new_lnd_btn = LanderControlButton.new()
+		var new_lnd_btn = ConnectedLanderControlButton.new()
 		new_lnd_btn.bind_selector(selector_manager)
 		new_lnd_btn.lander = lander
 		new_lnd_btn.update_display()
