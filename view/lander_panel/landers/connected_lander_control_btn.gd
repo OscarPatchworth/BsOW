@@ -3,6 +3,8 @@ class_name ConnectedLanderControlButton
 extends GameButton
 
 # signals
+signal btn_pressed(lander: Lander)
+signal move_units_action_req(req: Action)
 
 # enums
 
@@ -27,7 +29,11 @@ func free_children(parent: Node) -> void:
 
 ### Connected Signals
 func _pressed():
-	print(lander.get_biome().name)
+	btn_pressed.emit(lander)
+
+	var move_units_req = Action.new()
+	move_units_req.set_type(Action.RequestType.MOVEMENT)
+	move_units_action_req.emit(move_units_req)
 
 ## Calls
 func bind_selector(selector: GameManager):

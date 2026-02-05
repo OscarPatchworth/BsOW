@@ -25,6 +25,7 @@ func action_request(req: Action):
 		Action.RequestType.PLACE_LANDER:
 			handle_place_lander(req)
 		Action.RequestType.MOVEMENT:
+			print("Movement Action Recieved")
 			pass
 		Action.RequestType.ATTACK:
 			pass

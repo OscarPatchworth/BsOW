@@ -85,12 +85,13 @@ func init_player(player_x: Player):
 	# player.refrence = wire
 	var player_cntrl = player_x.find_child("PlayerController")
 	player_cntrl.action_manager = action_manager
+	player_x.turn_manager = self.turn_manager
+	player_x.lander_manager = self.lander_manager
 
 	# Connect Signals
 	player_x.build_action_req.connect(action_manager.action_request)
 	player_x.buy_unit_action_req.connect(action_manager.action_request)
-	player_x.turn_manager = self.turn_manager
-	player_x.lander_manager = self.lander_manager
+	player_x.move_units_action_req.connect(action_manager.action_request)
 
 	lander_manager.built_action_completed.connect(player_x.fwd_build_action_completed)
 	lander_manager.buy_unit_action_completed.connect(player_x.fwd_buy_unit_action_completed)

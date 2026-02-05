@@ -3,6 +3,7 @@ extends VBoxContainer
 
 # signals
 signal lander_control_updated
+signal move_units_action_req(req: Action)
 
 # enums
 
@@ -38,7 +39,7 @@ func update():
 	update_connected_landers()
 	update_unit_landers()
 	lander_control_updated.emit()
-	
+
 
 func update_connected_landers():
 	free_children(lander_hflow)
@@ -52,6 +53,9 @@ func update_connected_landers():
 		new_lnd_btn.lander = lander
 		new_lnd_btn.update_display()
 		lander_hflow.add_child(new_lnd_btn)
+		# Connect _pressed()
+		new_lnd_btn.btn_pressed.connect(selector_manager.set_target_lander)
+		new_lnd_btn.move_units_action_req.connect(fwd_move_units_req)
 
 
 func update_unit_landers():
@@ -86,3 +90,5 @@ func bind_lander_manager(lm: GameManager):
 ## Get/Set (er)s
 
 ### Connected Signals
+func fwd_move_units_req(req: Action):
+	move_units_action_req.emit(req)

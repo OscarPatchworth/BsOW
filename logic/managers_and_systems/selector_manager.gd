@@ -18,6 +18,7 @@ var player: Player
 # remaining regular variables
 var selected_lander:Lander
 var selected_units: Array[UnitObject]
+var target_lander: Lander
 
 # @onready variables
 
@@ -27,6 +28,13 @@ func get_selected_lander() -> Lander:
 	return selected_lander
 func set_selected_lander(lander: Lander):
 	selected_lander = lander
+	
+
+
+func get_target_lander() -> Lander:
+	return target_lander
+func set_target_lander(lander: Lander):
+	target_lander = lander
 
 
 func get_player() -> Player:
@@ -64,9 +72,7 @@ func rmv_unit_selected_units(unit: UnitObject):
 func clear_selected_units():
 	selected_units = []
 
-	
+
 ### Connected Signals and Signals
 func select_lander_req(lander: Lander):
 	set_selected_lander(lander)
-
-

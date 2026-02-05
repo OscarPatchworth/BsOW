@@ -5,6 +5,7 @@ extends Panel
 # signals
 signal build_action_req(req: Action)
 signal buy_unit_action_req(req: Action)
+signal move_units_action_req(req: Action)
 
 # enums
 
@@ -76,7 +77,7 @@ func update():
 func connect_signals():
 	building_control.build_action_req.connect(self.fwd_build_request)
 	unit_control.buy_unit_action_req.connect(self.fwd_buy_unit_action_req)
-
+	lander_control.move_units_action_req.connect(self.fwd_move_units_req)
 
 
 
@@ -96,3 +97,7 @@ func fwd_build_request(req):
 func fwd_buy_unit_action_req(buy_unit_req: Action):
 	buy_unit_req.target_lander = selector_manager.get_selected_lander()
 	buy_unit_action_req.emit(buy_unit_req)
+
+
+func fwd_move_units_req(req: Action):
+	move_units_action_req.emit(req)
