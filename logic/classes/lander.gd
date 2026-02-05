@@ -8,7 +8,7 @@ signal buy_unit_action_completed(req: Action)
 #enum Element {EARTH,WATER,AIR,FIRE,}
 
 # constants
-#const MAX_SPEED = 200
+const MAX_DEFUALT_UNITS: int = 5
 
 # static variables
 
@@ -21,6 +21,7 @@ var has_units: bool = false
 var biome_data: BiomeData
 var building: BuildingObject
 var units: Array[UnitObject] = []
+var unit_capacity: int = MAX_DEFUALT_UNITS
 
 # @onready variables
 @onready var building_node: Node3D = self.find_child("Building")

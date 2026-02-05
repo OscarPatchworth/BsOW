@@ -50,7 +50,7 @@ func update_building_control(cur_lander: Lander):
 
 
 func update_unit_control(cur_lander: Lander):
-	if cur_lander.has_units:
+	if cur_lander.units.size() >= cur_lander.unit_capacity:
 		unit_control.set_state_details()
 	else:
 		unit_control.set_state_shop()
