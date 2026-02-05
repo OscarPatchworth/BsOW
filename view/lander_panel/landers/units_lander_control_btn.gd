@@ -20,6 +20,10 @@ var selector_manager: GameManager
 
 ###################################################################################################
 ###	Methods
+func _init() -> void:
+	self.set_toggle_mode(true)
+
+
 func free_children(parent: Node) -> void:
 	for i in parent.get_children():
 		i.queue_free()
