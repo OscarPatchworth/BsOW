@@ -37,6 +37,8 @@ func bind_selector(selector):
 	unit_control.bind_selector(selector)
 	lander_control.bind_selector(selector)
 
+	connect_selector_signals()
+
 func bind_lander_manager(lm: GameManager):
 	lander_manager = lm
 	lander_control.bind_lander_manager(lm)
@@ -74,6 +76,14 @@ func update():
 func connect_signals():
 	building_control.build_action_req.connect(self.fwd_build_request)
 	unit_control.buy_unit_action_req.connect(self.fwd_buy_unit_action_req)
+
+
+
+
+func connect_selector_signals():
+	# This signal should be done in the selector manager as that's the listener
+	lander_control.lander_control_updated.connect(selector_manager.clear_selected_units)
+
 
 func connect_wires():
 	pass

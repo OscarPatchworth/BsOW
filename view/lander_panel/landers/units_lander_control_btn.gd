@@ -3,6 +3,8 @@ class_name UnitLanderControlButton
 extends GameButton
 
 # signals
+signal unit_selected(unit: UnitObject)
+signal unit_deselected(unit: UnitObject)
 
 # enums
 
@@ -48,3 +50,8 @@ func update_display():
 ## Get/Set (er)s
 
 ### Connected Signals
+func _toggled(toggled_on: bool) -> void:
+	if toggled_on:
+		unit_selected.emit(unit)
+	else:
+		unit_deselected.emit(unit)
