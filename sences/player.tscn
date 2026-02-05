@@ -160,6 +160,13 @@ text = "Connected Landers: "
 [node name="Landers" type="HFlowContainer" parent="CanvasLayer/UI-manager/LanderPanel/VBoxContainer/LanderControl"]
 layout_mode = 2
 
+[node name="Label2" type="Label" parent="CanvasLayer/UI-manager/LanderPanel/VBoxContainer/LanderControl"]
+layout_mode = 2
+text = "Stationed Units:"
+
+[node name="Units" type="HFlowContainer" parent="CanvasLayer/UI-manager/LanderPanel/VBoxContainer/LanderControl"]
+layout_mode = 2
+
 [node name="TurnPanel" type="Panel" parent="CanvasLayer/UI-manager"]
 layout_mode = 1
 anchors_preset = -1
