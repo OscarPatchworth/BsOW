@@ -28,7 +28,7 @@ func free_children(parent: Node) -> void:
 ### Connected Signals
 func _pressed():
 	print(unit.get_unit_data().name)
-	
+
 
 ## Calls
 func bind_selector(selector: GameManager):
@@ -38,7 +38,7 @@ func bind_selector(selector: GameManager):
 
 func update_display():
 	self.text = unit.get_unit_data().name
-	self.icon = unit.get_unit_data().icon
+	self.icon = unit.get_unit_data().get_icon()
 
 
 ## Get/Set (er)s
