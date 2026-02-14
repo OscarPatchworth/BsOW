@@ -95,6 +95,7 @@ func fwd_buy_unit_action_req(buy_unit_req: Action):
 
 
 func fwd_move_units_req(move_units_req: Action):
+	move_units_req.actor = self
 	move_units_action_req.emit(move_units_req)
 
 ## Calls

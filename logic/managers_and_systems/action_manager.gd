@@ -78,7 +78,7 @@ func handle_buy_unit(req:Action):
 
 func handle_movement(req:Action):
 	print("Movement Action Recieved")
-	#print(req.get_action_dict())
+	print(req.get_action_dict())
 	# Check if(lander.units.owner == player)
 	#lander_owner = lander_manager.get_lander_occpied_actor(req.)
 		#lander1.rvm(units)

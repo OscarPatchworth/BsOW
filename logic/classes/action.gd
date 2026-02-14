@@ -22,6 +22,8 @@ var position: Vector3
 var target_lander: Lander
 var building_type: BuildingData
 var unit_type: UnitData
+var selected_lander: Lander
+var selected_units: Array[UnitObject]
 
 # @export variables
 
@@ -60,6 +62,13 @@ func set_target_lander(target: Lander):
 	self.target_lander = target
 
 
+# Selected Lander
+func get_selected_lander() -> Lander:
+	return selected_lander
+func set_selected_lander(selected: Lander):
+	selected_lander = selected
+
+
 # Building Type
 func get_building_type() -> BuildingData:
 	return building_type
@@ -85,11 +94,13 @@ func get_action_dict() -> Dictionary:
 		unit_name = unit_type.get_unit_name()
 
 	var all = {
-		"type": type,
-		"actor": actor,
+		"type": RequestType.find_key(type),
+		"actor": actor.name,
 		"pos": position,
-		"target lander" : target_lander,
+		"target lander" : target_lander.get_biome().name,
 		"building type" : build_name,
-		"unit_type" : unit_name
+		"unit_type" : unit_name,
+		"selected_lander" : selected_lander.get_biome().name,
+		"selected_units" : selected_units
 	}
 	return all

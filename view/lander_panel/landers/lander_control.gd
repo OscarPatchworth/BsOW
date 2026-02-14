@@ -91,4 +91,7 @@ func bind_lander_manager(lm: GameManager):
 
 ### Connected Signals
 func fwd_move_units_req(req: Action):
+	req.target_lander = selector_manager.get_target_lander()
+	req.selected_lander = selector_manager.get_selected_lander()
+	req.selected_units = selector_manager.get_selected_units()
 	move_units_action_req.emit(req)
