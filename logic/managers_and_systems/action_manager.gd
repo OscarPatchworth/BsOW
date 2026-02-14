@@ -78,8 +78,11 @@ func handle_buy_unit(req:Action):
 
 func handle_movement(req:Action):
 	print("Movement Action Recieved")
-	print(req.get_action_dict())
 	# Check if(lander.units.owner == player)
-	#lander_owner = lander_manager.get_lander_occpied_actor(req.)
-		#lander1.rvm(units)
-		#lander2.add(units)
+	var target_lander_owner = lander_manager.get_lander_occpied_actor(req.target_lander)
+	if(target_lander_owner == null or target_lander_owner == req.actor):
+		print("Can move landers to target")
+	else:
+		print("Target Lander is hostile land \n Movement failed")
+	# lander1.rvm(units)
+	# lander2.add(units)
