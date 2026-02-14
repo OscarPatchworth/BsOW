@@ -10,6 +10,7 @@ extends Node
 
 # static variables
 var unit_data: UnitData
+var ownned_by: Actor
 
 # @export variables
 
@@ -35,6 +36,12 @@ func get_unit_data() -> UnitData:
 	return unit_data
 func set_unit_data(unit: UnitData):
 	self.unit_data = unit
+
+
+func get_owned_by() -> Actor:
+	return ownned_by
+func set_ownned_by(target: Actor):
+	ownned_by = target
 
 
 ### Connected Signals

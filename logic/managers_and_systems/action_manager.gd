@@ -25,7 +25,7 @@ func action_request(req: Action):
 		Action.RequestType.PLACE_LANDER:
 			handle_place_lander(req)
 		Action.RequestType.MOVEMENT:
-			print("Movement Action Recieved")
+			handle_movement(req)
 			pass
 		Action.RequestType.ATTACK:
 			pass
@@ -74,3 +74,12 @@ func handle_buy_unit(req:Action):
 		return
 	#print("Buy unit req valid")
 	buy_unit_action.emit(req)
+
+
+func handle_movement(req:Action):
+	print("Movement Action Recieved")
+	#print(req.get_action_dict())
+	# Check if(lander.units.owner == player)
+	#lander_owner = lander_manager.get_lander_occpied_actor(req.)
+		#lander1.rvm(units)
+		#lander2.add(units)

@@ -63,6 +63,15 @@ func get_connected_landers(target_lander: Lander) -> Array[Lander]:
 				connected_landers.append(lander)
 	return connected_landers
 
+
+func get_lander_occpied_actor(target: Lander) -> Actor:
+	var target_units = target.get_units()
+	if target_units != null:
+		return target_units[0].get_unit_data().ownned_by
+	else:
+		return null
+
+
 ### Wires and Signals
 func wire_and_signal_lander(lander: Lander):
 	lander.built_action_completed.connect(self.fwd_build_action_completed)

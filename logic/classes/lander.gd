@@ -68,6 +68,10 @@ func get_building_data() -> BuildingData:
 		return null
 	return building.get_building_data()
 
+
+func get_units() -> Array[UnitObject]:
+	return units
+
 ### Calls
 func build_action(req: Action):
 	var new_building = BuildingObject.new()
@@ -86,6 +90,7 @@ func buy_unit_action(req: Action):
 	#print("Lander Recieved Request to buy unit")
 	var new_unit = UnitObject.new()
 	new_unit.setup(req.get_unit_type())
+	new_unit.set_ownned_by(req.actor)	
 	units.append(new_unit)
 	self.has_units = true
 	buy_unit_action_completed.emit(req)
