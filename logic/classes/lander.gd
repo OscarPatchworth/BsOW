@@ -64,6 +64,7 @@ func add_units(new_units: Array[UnitObject]):
 			#print("Unit added to lander")
 	update_unit_visuals()
 
+
 func rmv_units(new_units: Array[UnitObject]):
 	for unit in new_units:
 		if unit not in units:
@@ -72,6 +73,9 @@ func rmv_units(new_units: Array[UnitObject]):
 		else:
 			units.erase(unit)
 			#print("Unit removed from lander")
+	
+	if units == []:
+		has_units = false
 	update_unit_visuals()
 
 

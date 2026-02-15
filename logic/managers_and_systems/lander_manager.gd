@@ -95,3 +95,10 @@ func build_action(req: Action):
 
 func buy_unit_action(req: Action):
 	req.get_target_lander().buy_unit_action(req)
+
+
+func move_units_action(req: Action):
+	# lander1.rvm(units)
+	req.selected_lander.rmv_units(req.selected_units)
+	# lander2.add(units)
+	req.target_lander.add_units(req.selected_units)

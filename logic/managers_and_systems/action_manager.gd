@@ -84,7 +84,6 @@ func handle_movement(req:Action):
 		print("Can move landers to target")
 	else:
 		print("Target Lander is hostile land \n Movement failed")
-	# lander1.rvm(units)
-	req.selected_lander.rmv_units(req.selected_units)
-	# lander2.add(units)
-	req.target_lander.add_units(req.selected_units)
+		return
+
+	lander_manager.move_units_action(req)
