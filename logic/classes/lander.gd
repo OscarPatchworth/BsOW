@@ -54,6 +54,27 @@ func update_unit_visuals():
 		free_children(units_node)
 
 
+func add_units(new_units: Array[UnitObject]):
+	for unit in new_units:
+		if unit in units:
+			print("Unit is alreay on lander")
+			break
+		else:
+			units.append(unit)
+			#print("Unit added to lander")
+	update_unit_visuals()
+
+func rmv_units(new_units: Array[UnitObject]):
+	for unit in new_units:
+		if unit not in units:
+			print("Unit is alreay not on lander")
+			break
+		else:
+			units.erase(unit)
+			#print("Unit removed from lander")
+	update_unit_visuals()
+
+
 ## Get/Set (er)s
 func get_biome() -> BiomeData:
 	return biome_data
