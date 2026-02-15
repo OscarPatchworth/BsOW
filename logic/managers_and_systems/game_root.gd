@@ -79,7 +79,16 @@ func add_player():
 
 
 func add_ai():
-	print("Number of opponents this match: " + str(match_settings.number_of_opponents))
+	#print("Number of opponents this match: " + str(match_settings.number_of_opponents))
+	var actor_node = find_child("Actors")
+	var new_ai = SimpleAI.new()
+	init_ai(new_ai)
+	actor_node.add_child(new_ai)
+
+
+func init_ai(ai: SimpleAI):
+	#print(ai)
+	pass
 
 
 func init_player(player_x: Player):

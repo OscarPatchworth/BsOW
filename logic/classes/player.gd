@@ -14,9 +14,6 @@ signal move_units_action_req(move_units_req: Action)
 #const MAX_SPEED = 200
 
 # static variables
-var species: SpeciesData
-var turn_manager: GameManager
-var lander_manager: GameManager
 
 # @export variables
 
