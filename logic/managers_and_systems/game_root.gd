@@ -19,6 +19,7 @@ var player_scene = preload("res://sences/player.tscn")
 @onready var action_manager = self.find_child("ActionManager")
 @onready var lander_manager = self.find_child("LanderManager")
 @onready var turn_manager = self.find_child("TurnManager")
+@onready var match_settings = self.find_child("MatchSettings")
 
 ### Sence Nodes
 @onready var landers_sence_node = self.find_child("Landers")
@@ -78,7 +79,7 @@ func add_player():
 
 
 func add_ai():
-	pass
+	print("Number of opponents this match: " + str(match_settings.number_of_opponents))
 
 
 func init_player(player_x: Player):

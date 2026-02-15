@@ -1,4 +1,4 @@
-[gd_scene load_steps=20 format=3 uid="uid://clx8h78aia5jy"]
+[gd_scene load_steps=21 format=3 uid="uid://clx8h78aia5jy"]
 
 [ext_resource type="Texture2D" uid="uid://78pehu0r5g6w" path="res://visuals/textures/third_person_controller_assets/textures/grids/Dark/texture_04.png" id="1_bfc7u"]
 [ext_resource type="Script" path="res://logic/managers_and_systems/game_root.gd" id="1_fs3en"]
@@ -16,6 +16,7 @@
 [ext_resource type="Resource" uid="uid://d04jxtc7utmqq" path="res://data/biome/forest_biome.tres" id="9_p6myw"]
 [ext_resource type="Resource" uid="uid://bo0vvivlki1y1" path="res://data/biome/mountain_biome.tres" id="10_33p1r"]
 [ext_resource type="Resource" uid="uid://djyants1sgts1" path="res://data/biome/plains_biome.tres" id="11_388a1"]
+[ext_resource type="Script" path="res://data/match_settings.gd" id="17_535i8"]
 
 [sub_resource type="BoxShape3D" id="BoxShape3D_r86o6"]
 size = Vector3(10, 0.1, 10)
@@ -71,3 +72,6 @@ script = ExtResource("6_w5vq1")
 
 [node name="GravitySystem" type="Node" parent="ManagersAndSystems"]
 script = ExtResource("7_k8fui")
+
+[node name="MatchSettings" type="Node" parent="ManagersAndSystems"]
+script = ExtResource("17_535i8")

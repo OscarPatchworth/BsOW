@@ -1,11 +1,32 @@
+#match_settings.gd
 extends Node
 
+# signals
 
-# Called when the node enters the scene tree for the first time.
-func _ready() -> void:
-	pass # Replace with function body.
+# enums
+
+# constants
+
+# static variables
+
+# @export variables
+@export var number_of_opponents: int = 1
+# remaining regular variables
+
+# @onready variables
+
+###################################################################################################
+###	Methods
+func free_children(parent: Node) -> void:
+	for i in parent.get_children():
+		i.queue_free()
 
 
-# Called every frame. 'delta' is the elapsed time since the previous frame.
-func _process(delta: float) -> void:
-	pass
+### Connected Signals
+
+
+## Calls
+
+## Get/Set (er)s
+
+### Connected Signals
