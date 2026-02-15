@@ -1,6 +1,6 @@
 #simple_ai.gd
 class_name SimpleAI
-extends Node
+extends Actor
 
 # signals
 

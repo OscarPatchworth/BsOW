@@ -86,10 +86,11 @@ func add_ai():
 	actor_node.add_child(new_ai)
 
 
-func init_ai(ai: SimpleAI):
+func init_ai(sai: SimpleAI):
 	#print(ai)
-	pass
-
+	sai.species = game_species.pick_random()
+	sai.turn_manager = self.turn_manager
+	sai.lander_manager = self.lander_manager
 
 func init_player(player_x: Player):
 	# player.refrence = wire
