@@ -11,6 +11,8 @@ extends Node
 
 # @export variables
 @export var number_of_opponents: int = 1
+@export var map_size: int = 10
+@export var starting_simple_troops: int = 3
 # remaining regular variables
 
 # @onready variables

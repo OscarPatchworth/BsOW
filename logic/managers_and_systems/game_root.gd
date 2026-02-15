@@ -28,8 +28,8 @@ var player_scene = preload("res://sences/player.tscn")
 ###################################################################################################
 # Called when the node enters the scene tree for the first time.
 func _ready() -> void:
-	init_actors()
 	init_game_managers_and_systems()
+	init_actors()
 	
 
 ###################################################################################################
@@ -86,11 +86,24 @@ func add_ai():
 	actor_node.add_child(new_ai)
 
 
+
 func init_ai(sai: SimpleAI):
 	#print(ai)
 	sai.species = game_species.pick_random()
 	sai.turn_manager = self.turn_manager
 	sai.lander_manager = self.lander_manager
+
+	for i in match_settings.starting_simple_troops:
+		var place_pos = Vector3.ZERO
+		place_pos.x = randf() * match_settings.map_size * ((-1)**(randi()%2))
+		place_pos.z = randf() * match_settings.map_size * ((-1)**(randi()%2))
+		if lander_manager.is_pos_min_distance_apart(place_pos):
+			lander_manager.inst_lander(place_pos)
+		else:
+			i = i-1
+		
+
+
 
 func init_player(player_x: Player):
 	# player.refrence = wire
