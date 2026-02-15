@@ -110,3 +110,10 @@ func fwd_buy_unit_action_completed(req: Action):
 	if req.actor == self:
 		#print("Player recieved comformation of unit purchase")
 		player_ui.fwd_buy_unit_action_completed(req)
+
+
+func fwd_move_units_action_completed(req: Action):
+	if(req.actor == self or 
+	selector_manager.get_selected_lander() == req.get_selected_lander() or 
+	req.get_target_lander() == selector_manager.get_target_lander()):
+		player_ui.fwd_move_units_action_completed(req)

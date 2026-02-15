@@ -3,6 +3,7 @@ extends GameManager
 #signals
 signal built_action_completed(req: Action)
 signal buy_unit_action_completed(req: Action)
+signal move_units_action_completed(req: Action)
 
 # enums
 
@@ -102,3 +103,5 @@ func move_units_action(req: Action):
 	req.selected_lander.rmv_units(req.selected_units)
 	# lander2.add(units)
 	req.target_lander.add_units(req.selected_units)
+	# Emit confirmation
+	move_units_action_completed.emit(req)

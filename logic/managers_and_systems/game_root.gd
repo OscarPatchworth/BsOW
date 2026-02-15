@@ -95,6 +95,7 @@ func init_player(player_x: Player):
 
 	lander_manager.built_action_completed.connect(player_x.fwd_build_action_completed)
 	lander_manager.buy_unit_action_completed.connect(player_x.fwd_buy_unit_action_completed)
+	lander_manager.move_units_action_completed.connect(player_x.fwd_move_units_action_completed)
 
 	player_x.species = game_species.pick_random()
 	#print("Player Species randomly selected: " + str(player_x.species.name))
