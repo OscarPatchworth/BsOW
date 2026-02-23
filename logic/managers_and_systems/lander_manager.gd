@@ -46,6 +46,25 @@ func inst_lander(pos: Vector3):
 	landers.append(new_lander)
 
 
+func spawn_protected_lander(pos: Vector3, ownr: Actor, amount_defenders: int):
+	inst_lander(pos)
+	#cmd ^ adds lander to end of landers[] and so below grabs the lander that was just instanced
+	var target = landers[-1]
+
+	#Get footsolider
+	for unit in ownr.species.units:
+		if (unit.base != null and unit.base.name == "Base Footsolider"):
+			for i in amount_defenders:
+				var footsoldier = UnitObject.new()
+				footsoldier.setup(unit, ownr)
+
+				var defending_units: Array[UnitObject]
+				defending_units.append(footsoldier)
+
+				target.add_units(defending_units)
+		else:
+			print("Failed to spawn troops on protected lander. \n error: species has no units with base of \'Base Footsolider\'")
+
 func is_pos_min_distance_apart(pos: Vector3) -> bool:
 	# Here using the LANDER_RADIUS as the min distance between landers
 	# Squaring this value to make it compariable to the squared distance between lander positions

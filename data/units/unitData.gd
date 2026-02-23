@@ -53,3 +53,9 @@ func get_type() -> UnitType:
 	else:
 		print(str(name) + "is missing mesh and base Type !!")
 		return UnitType.NULL
+
+
+func get_base() -> UnitData:
+	return base
+func set_base(b: UnitData):
+	self.base = b

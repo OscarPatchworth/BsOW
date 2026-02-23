@@ -27,8 +27,9 @@ var hit_points: int = 1
 
 
 ## Calls
-func setup(unit_type: UnitData):
+func setup(unit_type: UnitData, ownr: Actor):
 	self.unit_data = unit_type
+	self.ownned_by = ownr
 
 
 ## Get/Set (er)s

@@ -98,9 +98,9 @@ func init_ai(sai: SimpleAI):
 		place_pos.x = randf() * match_settings.map_size * ((-1)**(randi()%2))
 		place_pos.z = randf() * match_settings.map_size * ((-1)**(randi()%2))
 		if lander_manager.is_pos_min_distance_apart(place_pos):
-			lander_manager.inst_lander(place_pos)
+			lander_manager.spawn_protected_lander(place_pos, sai, match_settings.starting_simple_troops )
 		else:
-			i = i-1
+			print("AI init lander spawn error: out of bounds")
 		
 
 
