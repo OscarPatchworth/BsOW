@@ -14,6 +14,8 @@ var selector_manager: GameManager
 var lander_manager: GameManager
 
 # @export variables
+@export var ui_player: Actor
+
 
 # remaining regular variables
 var cur_lander: Lander
@@ -51,8 +53,15 @@ func update_connected_landers():
 		var new_lnd_btn = ConnectedLanderControlButton.new()
 		new_lnd_btn.bind_selector(selector_manager)
 		new_lnd_btn.lander = lander
-		new_lnd_btn.update_display()
+		
+		if(lander.get_ownr() != null):
+			if lander.get_ownr() == ui_player:
+				new_lnd_btn.display_state = ConnectedLanderControlButton.DisplayState.ALLY
+			else:
+				new_lnd_btn.display_state = ConnectedLanderControlButton.DisplayState.ENEMY
+			
 		lander_hflow.add_child(new_lnd_btn)
+		new_lnd_btn.update_display()
 		# Connect _pressed()
 		new_lnd_btn.btn_pressed.connect(selector_manager.set_target_lander)
 		new_lnd_btn.move_units_action_req.connect(fwd_move_units_req)
@@ -74,7 +83,6 @@ func update_unit_landers():
 
 
 ### Connected Signals
-
 
 ## Calls
 func bind_selector(selector: GameManager):

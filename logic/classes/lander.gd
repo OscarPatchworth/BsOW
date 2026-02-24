@@ -97,6 +97,13 @@ func get_building_data() -> BuildingData:
 func get_units() -> Array[UnitObject]:
 	return units
 
+
+func get_ownr() -> Actor:
+	if units == []:
+		return null
+	else:
+		return units[0].get_owned_by()
+
 ### Calls
 func build_action(req: Action):
 	var new_building = BuildingObject.new()

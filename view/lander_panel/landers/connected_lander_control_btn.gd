@@ -7,16 +7,26 @@ signal btn_pressed(lander: Lander)
 signal move_units_action_req(req: Action)
 
 # enums
+enum DisplayState {
+	NEUTRAL,
+	ALLY,
+	ENEMY
+}
 
 # constants
 
 # static variables
-var lander: Lander
 var selector_manager: GameManager
+
+var style_box_defualt: StyleBox = preload("res://view/lander_panel/landers/lander_btn_defualt.res")
+var style_box_enemy: StyleBox = preload("res://view/lander_panel/landers/lander_btn_enemy.res")
+var style_box_ally: StyleBox = preload("res://view/lander_panel/landers/lander_btn_ally.res")
+# remaining regular variables
+var lander: Lander
+var display_state: DisplayState = DisplayState.NEUTRAL
 
 # @export variables
 
-# remaining regular variables
 
 # @onready variables
 
@@ -44,6 +54,18 @@ func bind_selector(selector: GameManager):
 func update_display():
 	self.text = lander.get_biome().name
 	self.icon = lander.get_biome().poker_icon
+	
+	match display_state:
+		DisplayState.NEUTRAL:
+			self.add_theme_stylebox_override("normal", style_box_defualt)
+		DisplayState.ENEMY:
+			self.add_theme_stylebox_override("normal", style_box_enemy)
+		DisplayState.ALLY:
+			self.add_theme_stylebox_override("normal", style_box_ally)
+		_:
+			print("Connected Lander Btn Error: Btn has no assigned DisplayState")
+
+
 
 
 ## Get/Set (er)s

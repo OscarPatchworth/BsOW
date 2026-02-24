@@ -69,10 +69,6 @@ layout_mode = 3
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
-offset_left = 186.0
-offset_top = -45.0
-offset_right = 186.0
-offset_bottom = -45.0
 grow_horizontal = 2
 grow_vertical = 2
 script = ExtResource("4_stx5a")
@@ -80,7 +76,7 @@ script = ExtResource("4_stx5a")
 [node name="LanderPanel" type="Panel" parent="CanvasLayer/UI-manager"]
 layout_mode = 1
 anchors_preset = -1
-anchor_left = 0.8
+anchor_left = 0.85
 anchor_right = 1.0
 anchor_bottom = 1.0
 script = ExtResource("6_3ojsw")
@@ -89,7 +85,7 @@ script = ExtResource("6_3ojsw")
 layout_mode = 1
 anchors_preset = 10
 anchor_right = 1.0
-offset_bottom = 58.0
+offset_bottom = 182.0
 grow_horizontal = 2
 
 [node name="BiomeControl" type="VBoxContainer" parent="CanvasLayer/UI-manager/LanderPanel/VBoxContainer"]
@@ -153,9 +149,10 @@ text = "Train Units"
 [node name="UnitButtons" type="HBoxContainer" parent="CanvasLayer/UI-manager/LanderPanel/VBoxContainer/UnitControl/ShopState"]
 layout_mode = 2
 
-[node name="LanderControl" type="VBoxContainer" parent="CanvasLayer/UI-manager/LanderPanel/VBoxContainer"]
+[node name="LanderControl" type="VBoxContainer" parent="CanvasLayer/UI-manager/LanderPanel/VBoxContainer" node_paths=PackedStringArray("ui_player")]
 layout_mode = 2
 script = ExtResource("13_nfxjl")
+ui_player = NodePath("../../../../..")
 
 [node name="Label" type="Label" parent="CanvasLayer/UI-manager/LanderPanel/VBoxContainer/LanderControl"]
 layout_mode = 2
