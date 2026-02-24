@@ -28,7 +28,7 @@ func action_request(req: Action):
 			handle_movement(req)
 			pass
 		Action.RequestType.ATTACK:
-			pass
+			print("Attack Action Recieved! ")
 		Action.RequestType.BUY:
 			pass
 		Action.RequestType.BUY_BUILDING:

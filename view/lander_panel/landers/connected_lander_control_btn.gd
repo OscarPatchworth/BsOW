@@ -5,6 +5,7 @@ extends GameButton
 # signals
 signal btn_pressed(lander: Lander)
 signal move_units_action_req(req: Action)
+signal attack_lander_action_req(req: Action)
 
 # enums
 enum DisplayState {
@@ -41,9 +42,17 @@ func free_children(parent: Node) -> void:
 func _pressed():
 	btn_pressed.emit(lander)
 
-	var move_units_req = Action.new()
-	move_units_req.set_type(Action.RequestType.MOVEMENT)
-	move_units_action_req.emit(move_units_req)
+	# Determine Action to emit based on lander-state-to-player
+	if(display_state == DisplayState.ENEMY):
+		# Attack Action Req
+		var attack_req = Action.new()
+		attack_req.set_type(Action.RequestType.ATTACK)
+		attack_lander_action_req.emit(attack_req)
+	else:
+		# Move Action Req
+		var move_units_req = Action.new()
+		move_units_req.set_type(Action.RequestType.MOVEMENT)
+		move_units_action_req.emit(move_units_req)
 
 ## Calls
 func bind_selector(selector: GameManager):

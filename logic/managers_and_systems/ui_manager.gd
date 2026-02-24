@@ -4,6 +4,7 @@ extends Control
 signal build_action_req(build_req)
 signal buy_unit_action_req(buy_unit_req)
 signal move_units_action_req(move_units_req)
+signal attack_action_req(req: Action)
 
 # enums
 #enum Element {EARTH,WATER,AIR,FIRE,}
@@ -41,6 +42,7 @@ func connect_signals():
 	lander_panel.build_action_req.connect(self.fwd_build_request)
 	lander_panel.buy_unit_action_req.connect(self.fwd_buy_unit_action_req)
 	lander_panel.move_units_action_req.connect(self.fwd_move_units_req)
+	lander_panel.attack_action_req.connect(self.fwd_attack_action_req)
 
 func connect_wires():
 	wire_selector_manager()
@@ -83,6 +85,11 @@ func fwd_buy_unit_action_req(buy_unit_req: Action):
 
 func fwd_move_units_req(req: Action):
 	move_units_action_req.emit(req)
+
+
+func fwd_attack_action_req(req: Action):
+	attack_action_req.emit(req)
+
 
 ## Calls
 func received_build_action_completed(req: Action):

@@ -4,6 +4,7 @@ extends VBoxContainer
 # signals
 signal lander_control_updated
 signal move_units_action_req(req: Action)
+signal attack_action_req(req: Action)
 
 # enums
 
@@ -65,6 +66,7 @@ func update_connected_landers():
 		# Connect _pressed()
 		new_lnd_btn.btn_pressed.connect(selector_manager.set_target_lander)
 		new_lnd_btn.move_units_action_req.connect(fwd_move_units_req)
+		new_lnd_btn.attack_lander_action_req.connect(fwd_attack_req)
 
 
 func update_unit_landers():
@@ -81,6 +83,12 @@ func update_unit_landers():
 		new_unit_btn.unit_selected.connect(selector_manager.add_unit_selected_units)
 		new_unit_btn.unit_deselected.connect(selector_manager.rmv_unit_selected_units)
 
+
+func apply_selected_to_req(req: Action) -> Action:
+	req.target_lander = selector_manager.get_target_lander()
+	req.selected_lander = selector_manager.get_selected_lander()
+	req.selected_units = selector_manager.get_selected_units()
+	return req
 
 ### Connected Signals
 
@@ -99,7 +107,8 @@ func bind_lander_manager(lm: GameManager):
 
 ### Connected Signals
 func fwd_move_units_req(req: Action):
-	req.target_lander = selector_manager.get_target_lander()
-	req.selected_lander = selector_manager.get_selected_lander()
-	req.selected_units = selector_manager.get_selected_units()
-	move_units_action_req.emit(req)
+	move_units_action_req.emit(apply_selected_to_req(req))
+	
+
+func fwd_attack_req(req: Action):
+	attack_action_req.emit(apply_selected_to_req(req))

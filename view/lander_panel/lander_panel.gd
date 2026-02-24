@@ -6,6 +6,7 @@ extends Panel
 signal build_action_req(req: Action)
 signal buy_unit_action_req(req: Action)
 signal move_units_action_req(req: Action)
+signal attack_action_req(req: Action)
 
 # enums
 
@@ -78,6 +79,7 @@ func connect_signals():
 	building_control.build_action_req.connect(self.fwd_build_request)
 	unit_control.buy_unit_action_req.connect(self.fwd_buy_unit_action_req)
 	lander_control.move_units_action_req.connect(self.fwd_move_units_req)
+	lander_control.attack_action_req.connect(self.fwd_attack_action_req)
 
 
 
@@ -101,3 +103,7 @@ func fwd_buy_unit_action_req(buy_unit_req: Action):
 
 func fwd_move_units_req(req: Action):
 	move_units_action_req.emit(req)
+
+
+func fwd_attack_action_req(req: Action):
+	attack_action_req.emit(req)

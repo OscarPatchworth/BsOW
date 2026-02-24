@@ -6,6 +6,7 @@ extends Actor
 signal build_action_req(build_req: Action)
 signal buy_unit_action_req(buy_unit_req: Action)
 signal move_units_action_req(move_units_req: Action)
+signal attack_action_req(req: Action)
 
 # enums
 #enum Element {EARTH,WATER,AIR,FIRE,}
@@ -79,6 +80,7 @@ func connect_ui_signals():
 	player_ui.build_action_req.connect(self.fwd_build_req)
 	player_ui.buy_unit_action_req.connect(self.fwd_buy_unit_action_req)
 	player_ui.move_units_action_req.connect(self.fwd_move_units_req)
+	player_ui.attack_action_req.connect(self.fwd_attack_action_req)
 
 
 func fwd_build_req(build_req: Action):
@@ -94,6 +96,12 @@ func fwd_buy_unit_action_req(buy_unit_req: Action):
 func fwd_move_units_req(move_units_req: Action):
 	move_units_req.actor = self
 	move_units_action_req.emit(move_units_req)
+
+
+
+func fwd_attack_action_req(req: Action):
+	req.actor = self
+	attack_action_req.emit(req)
 
 ## Calls
 func fwd_build_action_completed(req:Action):
