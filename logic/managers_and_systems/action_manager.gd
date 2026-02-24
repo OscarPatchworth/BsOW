@@ -26,9 +26,9 @@ func action_request(req: Action):
 			handle_place_lander(req)
 		Action.RequestType.MOVEMENT:
 			handle_movement(req)
-			pass
 		Action.RequestType.ATTACK:
-			print("Attack Action Recieved! ")
+			#print("Attack Action Recieved! ")
+			handle_attack(req)
 		Action.RequestType.BUY:
 			pass
 		Action.RequestType.BUY_BUILDING:
@@ -87,3 +87,22 @@ func handle_movement(req:Action):
 		return
 
 	lander_manager.move_units_action(req)
+
+
+func handle_attack(req: Action):
+	# Check if selected & target lander have enemy units
+	if(req.selected_lander.get_units() == []):
+		print("Action Manager Error | Attack Req: Selected lander has no units! ")
+		return
+	if(req.target_lander.get_units() == []):
+		print("Action Manager Error | Attack Req: Target lander has no units! ")
+		return
+	if(req.selected_lander.get_units()[0].get_owned_by() == req.target_lander.get_units()[0].get_owned_by()):
+		print("Action Manager Error | Attack Req: Selected and Target landers are allies")
+		return
+	# Check if the attacking units belong to the attacking player
+	if(req.selected_lander.get_units()[0].get_owned_by() != req.actor):
+		print("Action Manager Error | Attack Req: Attacking force doese not belong to the attacking player")
+		return
+	# Fwd the attack to combat manager
+	print("Fwd attack req")
