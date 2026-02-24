@@ -11,6 +11,8 @@ signal buy_unit_action(req)
 # static variables
 var movement_ctrl = load("res://logic/managers_and_systems/movement_controler.gd")
 var lander_manager: GameManager
+var combat_manager: GameManager
+
 # @export variables
 
 # remaining regular variables
@@ -106,3 +108,4 @@ func handle_attack(req: Action):
 		return
 	# Fwd the attack to combat manager
 	print("Fwd attack req")
+	combat_manager.attack_action(req)

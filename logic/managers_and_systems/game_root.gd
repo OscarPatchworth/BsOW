@@ -20,6 +20,7 @@ var player_scene = preload("res://sences/player.tscn")
 @onready var lander_manager = self.find_child("LanderManager")
 @onready var turn_manager = self.find_child("TurnManager")
 @onready var match_settings = self.find_child("MatchSettings")
+@onready var combat_manager = self.find_child("CombatManager")
 
 ### Sence Nodes
 @onready var landers_sence_node = self.find_child("Landers")
@@ -45,6 +46,7 @@ func init_game_managers_and_systems():
 func init_action_manager():
 	# Connect Wires
 	action_manager.lander_manager = lander_manager
+	action_manager.combat_manager = combat_manager
 
 
 # Init lander manager
