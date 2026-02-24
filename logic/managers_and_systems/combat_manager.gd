@@ -2,7 +2,7 @@
 extends GameManager
 
 # signals
-signal combat_started(req: Action)
+signal combat_started(contest: Contest)
 
 # enums
 enum CombatLoop {
@@ -30,6 +30,11 @@ func free_children(parent: Node) -> void:
 	for i in parent.get_children():
 		i.queue_free()
 
+func generate_contest_data(req: Action) -> Contest:
+	var contest = Contest.new()
+	contest.set_contested_lander(req.target_lander)
+	contest.set_invading_lander(req.selected_lander)
+	return contest
 
 ### Connected Signals
 
@@ -37,7 +42,7 @@ func free_children(parent: Node) -> void:
 ## Calls
 func attack_action(req: Action):
 	#print("Combat Manager | Combat Req recieved")
-	combat_started.emit(req)
+	combat_started.emit(generate_contest_data(req))
 
 
 ## Get/Set (er)s

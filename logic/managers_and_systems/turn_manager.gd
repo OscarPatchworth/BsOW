@@ -3,7 +3,7 @@ extends GameManager
 
 # signals
 signal game_phased_changed(game_phase: GameLoop)
-signal combat_assign(req: Action)
+signal combat_assign(contest: Contest)
 
 # enums
 enum Gamesequence {
@@ -49,10 +49,10 @@ var combat_phase: CombatLoop = CombatLoop.MOVE_UNITS
 
 
 ## Calls
-func combat_started(req: Action):
+func combat_started(contest: Contest):
 	# print("Turn Manager | Recieved start Combat Req")
 	set_combat_phase(CombatLoop.ASSIGN_COMBATANTS)
-	combat_assign.emit(req)
+	combat_assign.emit(contest)
 	pass
 
 ## Get/Set (er)s

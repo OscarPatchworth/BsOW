@@ -105,5 +105,5 @@ func fwd_move_units_action_completed(req: Action):
 	lander_panel.update()
 
 
-func run_combat_display(req: Action):
+func run_combat_display(contest: Contest):
 	print("PlayerUI | run_combat_display recieved")
