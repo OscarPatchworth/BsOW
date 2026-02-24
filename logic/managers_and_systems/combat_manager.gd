@@ -2,6 +2,7 @@
 extends GameManager
 
 # signals
+signal combat_started(req: Action)
 
 # enums
 enum CombatLoop {
@@ -36,7 +37,7 @@ func free_children(parent: Node) -> void:
 ## Calls
 func attack_action(req: Action):
 	#print("Combat Manager | Combat Req recieved")
-	pass
+	combat_started.emit(req)
 
 
 ## Get/Set (er)s

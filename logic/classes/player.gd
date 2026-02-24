@@ -122,3 +122,18 @@ func fwd_move_units_action_completed(req: Action):
 	selector_manager.get_selected_lander() == req.get_selected_lander() or 
 	req.get_target_lander() == selector_manager.get_target_lander()):
 		player_ui.fwd_move_units_action_completed(req)
+
+
+func contest_lander(req: Action):
+	#print("Player | Contest Lander call recieved")
+
+	# Check if this combat involves this player
+	if(req.selected_lander.get_units()[0].get_owned_by() == self or
+	req.target_lander.get_units()[0].get_owned_by() == self):
+		print("Player | Entering lander contest")
+		player_ui.run_combat_display(req)
+	else:
+		# Player is not involved in combat
+		# Do not need to do anything
+		# May want to put player in spectator mode or smth later
+		pass

@@ -103,3 +103,7 @@ func fwd_move_units_action_completed(req: Action):
 	selector_manager.clear_selected_units()
 	selector_manager.set_target_lander(null)
 	lander_panel.update()
+
+
+func run_combat_display(req: Action):
+	print("PlayerUI | run_combat_display recieved")
