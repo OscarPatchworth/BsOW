@@ -136,3 +136,12 @@ func contest_lander(contest: Contest):
 		# Do not need to do anything
 		# May want to put player in spectator mode or smth later
 		pass
+
+
+func combat_req(contest: Contest):
+	print("Player | Combat Req recieved")
+	# We are assuming: contest.get_contested_lander().get_units() != null 
+	if(contest.get_invading_actor() == self or contest.get_defending_actor() == self):
+		var cmb_pos = "Attacker" if contest.get_invading_actor() == self else "Defender"
+		print("Player | Entering Combat as: " + cmb_pos)
+		player_ui.run_combat_display(contest)
