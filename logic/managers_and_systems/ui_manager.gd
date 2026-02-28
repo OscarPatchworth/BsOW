@@ -22,11 +22,8 @@ var lander_manager: GameManager
 
 # @onready variables
 @onready var lander_panel:Panel = self.find_child("LanderPanel")
-@onready var biome_label: Label = lander_panel.find_child("BiomeLabel")
-@onready var building_control:Control = self.find_child("BuildingControl")
-@onready var unit_control: Control = self.find_child("UnitControl")
-@onready var lander_control: Control = self.find_child("LanderControl")
 @onready var turn_panel: Panel = self.find_child("TurnPanel")
+@onready var combat_panel: Panel = self.find_child("CombatPanel")
 
 ###################################################################################################
 ###	Methods
@@ -107,3 +104,6 @@ func fwd_move_units_action_completed(req: Action):
 
 func run_combat_display(contest: Contest):
 	print("PlayerUI | run_combat_display recieved")
+	combat_panel.show()
+	lander_panel.hide()
+	turn_panel.hide()

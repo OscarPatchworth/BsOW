@@ -110,7 +110,6 @@ grow_vertical = 2
 script = ExtResource("4_stx5a")
 
 [node name="LanderPanel" type="Panel" parent="CanvasLayer/UI-manager"]
-visible = false
 layout_mode = 1
 anchors_preset = -1
 anchor_left = 0.85
@@ -206,7 +205,6 @@ text = "Stationed Units:"
 layout_mode = 2
 
 [node name="TurnPanel" type="Panel" parent="CanvasLayer/UI-manager"]
-visible = false
 layout_mode = 1
 anchors_preset = -1
 anchor_left = 0.008
@@ -288,6 +286,7 @@ text = "OPP 1:
 "
 
 [node name="CombatPanel" type="Panel" parent="CanvasLayer/UI-manager"]
+visible = false
 layout_mode = 1
 anchors_preset = -1
 anchor_left = 0.1
