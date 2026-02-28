@@ -1,21 +1,28 @@
 #match_settings.gd
-extends Node
 
-# signals
-
-# enums
-
-# constants
-
-# static variables
-
-# @export variables
+# Actor Settings
 @export var number_of_opponents: int = 1
-@export var map_size: int = 10
 @export var starting_simple_troops: int = 3
-# remaining regular variables
 
-# @onready variables
+# Map Settings
+@export var map_size: int = 10
+
+# Combat Units
+
+var max_attack_units: int = 3
+var max_defend_units: int = 3
+
+var max_attack_ablt: int = 10
+var max_defend_ablt: int = 10
+
+# Resource Settings
+
+
+# Season Settings
+
+
+
+
 
 ###################################################################################################
 ###	Methods

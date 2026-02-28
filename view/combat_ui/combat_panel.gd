@@ -32,6 +32,8 @@ func free_children(parent: Node) -> void:
 	for i in parent.get_children():
 		i.queue_free()
 
+func update(combat_state: Contest):
+	pass
 
 ### Connected Signals
 
@@ -44,6 +46,7 @@ func bind_combat_manager(cm: GameManager):
 
 func setup_combat_display(contest: Contest):
 	print("Combat UI | @ setup()")
+	update(contest)
 
 
 ## Get/Set (er)s
