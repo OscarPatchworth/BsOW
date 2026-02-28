@@ -1,4 +1,4 @@
-[gd_scene load_steps=35 format=3 uid="uid://cmnn2jtgwr4dw"]
+[gd_scene load_steps=41 format=3 uid="uid://cmnn2jtgwr4dw"]
 
 [ext_resource type="Script" path="res://logic/classes/player.gd" id="1_tftws"]
 [ext_resource type="Script" path="res://logic/classes/player_controler.gd" id="2_pm403"]
@@ -15,7 +15,13 @@
 [ext_resource type="Script" path="res://view/turn_panel/turn_panel.gd" id="13_0hrky"]
 [ext_resource type="Script" path="res://view/lander_panel/landers/lander_control.gd" id="13_nfxjl"]
 [ext_resource type="Script" path="res://view/combat_ui/combat_panel.gd" id="15_1neg8"]
-[ext_resource type="Script" path="res://view/game_button.gd" id="16_42iw7"]
+[ext_resource type="Script" path="res://view/combat_ui/attack_units_panel.gd" id="16_s4a6g"]
+[ext_resource type="Script" path="res://view/combat_ui/defend_units_panel.gd" id="17_otoap"]
+[ext_resource type="Script" path="res://view/combat_ui/attack_ablt_panel.gd" id="18_p5lpa"]
+[ext_resource type="Script" path="res://view/combat_ui/defend_ablt_panel.gd" id="19_26ink"]
+[ext_resource type="Script" path="res://view/combat_ui/select_units_panel.gd" id="20_sfpvi"]
+[ext_resource type="Script" path="res://view/combat_ui/select_ablt_panel.gd" id="21_gsl2e"]
+[ext_resource type="Script" path="res://view/combat_ui/fight_btn.gd" id="22_oflah"]
 
 [sub_resource type="GDScript" id="GDScript_ks4yd"]
 script/source = "extends Camera3D
@@ -305,6 +311,7 @@ anchor_left = 0.15
 anchor_top = 0.1
 anchor_right = 0.45
 anchor_bottom = 0.55
+script = ExtResource("16_s4a6g")
 
 [node name="Panel" type="ProgressBar" parent="CanvasLayer/UI-manager/CombatPanel/AttackUnitsPanel"]
 layout_mode = 1
@@ -357,6 +364,7 @@ anchor_left = 0.55
 anchor_top = 0.1
 anchor_right = 0.85
 anchor_bottom = 0.55
+script = ExtResource("17_otoap")
 
 [node name="Panel2" type="ProgressBar" parent="CanvasLayer/UI-manager/CombatPanel/DefendUnitsPanel"]
 layout_mode = 1
@@ -408,6 +416,7 @@ anchor_left = 0.02
 anchor_top = 0.1
 anchor_right = 0.13
 anchor_bottom = 0.55
+script = ExtResource("18_p5lpa")
 
 [node name="DefendAbilitiesPanel" type="Panel" parent="CanvasLayer/UI-manager/CombatPanel"]
 layout_mode = 1
@@ -416,6 +425,7 @@ anchor_left = 0.87
 anchor_top = 0.1
 anchor_right = 0.98
 anchor_bottom = 0.55
+script = ExtResource("19_26ink")
 
 [node name="SelectUnitsPanel" type="Panel" parent="CanvasLayer/UI-manager/CombatPanel"]
 layout_mode = 1
@@ -425,6 +435,7 @@ anchor_top = 0.65
 anchor_right = 0.45
 anchor_bottom = 0.95
 grow_horizontal = 2
+script = ExtResource("20_sfpvi")
 
 [node name="VFlowContainer" type="ScrollContainer" parent="CanvasLayer/UI-manager/CombatPanel/SelectUnitsPanel"]
 layout_mode = 1
@@ -492,6 +503,7 @@ anchor_top = 0.65
 anchor_right = 0.985
 anchor_bottom = 0.95
 grow_horizontal = 2
+script = ExtResource("21_gsl2e")
 
 [node name="VFlowContainer2" type="ScrollContainer" parent="CanvasLayer/UI-manager/CombatPanel/SelectAbilitiesPanel"]
 layout_mode = 1
@@ -562,4 +574,4 @@ grow_horizontal = 2
 rotation = 0.20944
 pivot_offset = Vector2(50, 45)
 text = "Fight !"
-script = ExtResource("16_42iw7")
+script = ExtResource("22_oflah")
