@@ -1,4 +1,5 @@
 #match_settings.gd
+extends Node
 
 # Actor Settings
 @export var number_of_opponents: int = 1

@@ -1,4 +1,4 @@
-[gd_scene load_steps=41 format=3 uid="uid://cmnn2jtgwr4dw"]
+[gd_scene load_steps=42 format=3 uid="uid://cmnn2jtgwr4dw"]
 
 [ext_resource type="Script" path="res://logic/classes/player.gd" id="1_tftws"]
 [ext_resource type="Script" path="res://logic/classes/player_controler.gd" id="2_pm403"]
@@ -17,6 +17,7 @@
 [ext_resource type="Script" path="res://view/combat_ui/combat_panel.gd" id="15_1neg8"]
 [ext_resource type="Script" path="res://view/combat_ui/attack_units_panel.gd" id="16_s4a6g"]
 [ext_resource type="Script" path="res://view/combat_ui/defend_units_panel.gd" id="17_otoap"]
+[ext_resource type="PackedScene" uid="uid://didndg1nkv2uy" path="res://view/combat_ui/SelectedCombatUnitsPB.tscn" id="17_qgjiy"]
 [ext_resource type="Script" path="res://view/combat_ui/attack_ablt_panel.gd" id="18_p5lpa"]
 [ext_resource type="Script" path="res://view/combat_ui/defend_ablt_panel.gd" id="19_26ink"]
 [ext_resource type="Script" path="res://view/combat_ui/select_units_panel.gd" id="20_sfpvi"]
@@ -312,6 +313,7 @@ anchor_top = 0.1
 anchor_right = 0.45
 anchor_bottom = 0.55
 script = ExtResource("16_s4a6g")
+combat_pb = ExtResource("17_qgjiy")
 
 [node name="Panel" type="ProgressBar" parent="CanvasLayer/UI-manager/CombatPanel/AttackUnitsPanel"]
 layout_mode = 1
