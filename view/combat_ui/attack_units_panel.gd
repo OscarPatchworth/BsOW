@@ -62,11 +62,9 @@ func update(combat_state: Contest):
 		else:
 			pb_top = (i * (PB_RATIO + PB_SPACE_RATIO)) * segment_height_perc + PB_MARGIN_PERC
 		
-		#new_pb.set_anchor_and_offset(SIDE_TOP, pb_top, 0.0, false)	
 		new_pb.anchor_top = pb_top
 
 		pb_bottom = pb_top + (PB_RATIO * segment_height_perc)
-		#new_pb.set_anchor_and_offset(SIDE_BOTTOM, pb_bottom, 0.0, false)	
 		new_pb.anchor_bottom = pb_bottom
 
 ## Get/Set (er)s

@@ -367,6 +367,7 @@ anchor_top = 0.1
 anchor_right = 0.85
 anchor_bottom = 0.55
 script = ExtResource("17_otoap")
+combat_pb = ExtResource("17_qgjiy")
 
 [node name="Panel2" type="ProgressBar" parent="CanvasLayer/UI-manager/CombatPanel/DefendUnitsPanel"]
 layout_mode = 1
