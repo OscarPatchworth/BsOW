@@ -33,7 +33,12 @@ func free_children(parent: Node) -> void:
 		i.queue_free()
 
 func update(combat_state: Contest):
-	pass
+	### Code taken from chatGPT
+	for child in get_children():
+		if child.has_method("update"):
+			child.update(combat_state)
+	###
+
 
 ### Connected Signals
 
@@ -42,6 +47,12 @@ func update(combat_state: Contest):
 func bind_combat_manager(cm: GameManager):
 	combat_manager = cm
 	#print("Combat UI | Combat Manager Bound")
+
+	### Code taken from chatGPT
+	for child in get_children():
+		if child.has_method("bind_combat_manager"):
+			child.bind_combat_manager(cm)
+	###
 
 
 func setup_combat_display(contest: Contest):
