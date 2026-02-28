@@ -1,9 +1,20 @@
-#attack_units_panel.gd
+#defend_units_panel.gd
 extends Panel
 
 # signals
 
 # enums
+enum AlignmentOptions {
+	LEFT_TO_RIGHT,
+	RIGHT_TO_LEFT,
+	CENTER
+}
+
+enum CombatSide {
+	DEFENDING,
+	ATTACKING
+}
+
 
 # constants
 const ATTACK_COLOUR = Color.MAROON
@@ -18,6 +29,8 @@ var combat_manager: GameManager
 
 # @export variables
 @export var combat_pb: PackedScene
+@export var fill_align: AlignmentOptions
+@export var combat_side: CombatSide
 
 # remaining regular variables
 
@@ -45,12 +58,21 @@ func update(combat_state: Contest):
 
 	# Call once and store. So if value changes during func() no out of bounds error. Just outdate display. 
 	# @onChange this func() will be recalled anyway so outdated info won't be a problem
-	var max_attack_units = combat_manager.get_max_attack_units()
+	var max_units:int = combat_manager.get_max_defend_units() if combat_side == CombatSide.DEFENDING else combat_manager.get_max_attack_units()
 
-	var segment_height_perc = (1 - 2 * PB_MARGIN_PERC) / ( max_attack_units * PB_RATIO + (max_attack_units-1) * PB_SPACE_RATIO)
+	# Calc the height% of each ratio/cell/tile for the pb spacing
+	var segment_height_perc = (1 - 2 * PB_MARGIN_PERC) / ( max_units * PB_RATIO + (max_units-1) * PB_SPACE_RATIO)
 
-	for i in range(max_attack_units):
+
+	for i in range(max_units):
 		var new_pb = combat_pb.instantiate()
+		
+		# Correct for Fill mode:
+		if(fill_align == AlignmentOptions.RIGHT_TO_LEFT):
+			new_pb.set_fill_mode(ProgressBar.FillMode.FILL_END_TO_BEGIN)
+
+		# Apply PB colour
+
 		self.add_child(new_pb)
 
 		new_pb.set_anchors_and_offsets_preset(LayoutPreset.PRESET_TOP_WIDE, LayoutPresetMode.PRESET_MODE_KEEP_SIZE, 0)
