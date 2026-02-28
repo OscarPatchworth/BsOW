@@ -1,4 +1,4 @@
-[gd_scene load_steps=33 format=3 uid="uid://cmnn2jtgwr4dw"]
+[gd_scene load_steps=34 format=3 uid="uid://cmnn2jtgwr4dw"]
 
 [ext_resource type="Script" path="res://logic/classes/player.gd" id="1_tftws"]
 [ext_resource type="Script" path="res://logic/classes/player_controler.gd" id="2_pm403"]
@@ -14,6 +14,7 @@
 [ext_resource type="Script" path="res://view/lander_panel/units/unit_shop_state.gd" id="12_u1vg3"]
 [ext_resource type="Script" path="res://view/turn_panel/turn_panel.gd" id="13_0hrky"]
 [ext_resource type="Script" path="res://view/lander_panel/landers/lander_control.gd" id="13_nfxjl"]
+[ext_resource type="Script" path="res://view/combat_ui/combat_panel.gd" id="15_1neg8"]
 
 [sub_resource type="GDScript" id="GDScript_ks4yd"]
 script/source = "extends Camera3D
@@ -295,6 +296,7 @@ anchor_right = 0.9
 anchor_bottom = 0.9
 grow_horizontal = 2
 grow_vertical = 2
+script = ExtResource("15_1neg8")
 
 [node name="AttackUnitsPanel" type="Panel" parent="CanvasLayer/UI-manager/CombatPanel"]
 layout_mode = 1

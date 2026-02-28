@@ -104,6 +104,8 @@ func fwd_move_units_action_completed(req: Action):
 
 func run_combat_display(contest: Contest):
 	print("PlayerUI | run_combat_display recieved")
-	combat_panel.show()
 	lander_panel.hide()
 	turn_panel.hide()
+
+	combat_panel.show()
+	combat_panel.setup_combat_display(contest)
