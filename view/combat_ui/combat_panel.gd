@@ -14,6 +14,15 @@ extends Panel
 # remaining regular variables
 
 # @onready variables
+@onready var attack_units_pannel: Panel = self.find_child("AttackUnitsPanel")
+@onready var defend_units_panel: Panel = self.find_child("DefendUnitsPanel")
+@onready var attack_ablt_panel: Panel = self.find_child("AttackAbilitiesPanel")
+@onready var defend_ablt_panel: Panel = self.find_child("DefendAbilitiesPanel")
+@onready var select_units_panel: Panel = self.find_child("SelectUnitsPanel")
+@onready var select_ablt_panel: Panel = self.find_child("SelectAbilitiesPanel")
+@onready var fight_btn: GameButton = self.find_child("FightBtn")
+
+
 
 ###################################################################################################
 ###	Methods
