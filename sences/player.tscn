@@ -313,6 +313,7 @@ anchor_right = 0.45
 anchor_bottom = 0.55
 script = ExtResource("16_ld1gm")
 combat_pb = ExtResource("17_qgjiy")
+bar_colour = Color(0.137255, 0.729412, 0.705882, 1)
 
 [node name="Panel" type="ProgressBar" parent="CanvasLayer/UI-manager/CombatPanel/AttackUnitsPanel"]
 layout_mode = 1
@@ -342,7 +343,8 @@ anchor_bottom = 0.62
 grow_horizontal = 2
 theme_override_styles/background = SubResource("StyleBoxFlat_lfu4p")
 theme_override_styles/fill = SubResource("StyleBoxFlat_hxse8")
-value = 65.0
+value = 200.0
+allow_greater = true
 show_percentage = false
 
 [node name="Panel3" type="ProgressBar" parent="CanvasLayer/UI-manager/CombatPanel/AttackUnitsPanel"]
@@ -369,6 +371,7 @@ script = ExtResource("16_ld1gm")
 combat_pb = ExtResource("17_qgjiy")
 fill_align = 1
 combat_side = 1
+bar_colour = Color(0.74, 0.1998, 0.36186, 1)
 
 [node name="Panel2" type="ProgressBar" parent="CanvasLayer/UI-manager/CombatPanel/DefendUnitsPanel"]
 layout_mode = 1

@@ -24,6 +24,9 @@ const PB_RATIO = int(2)
 const PB_SPACE_RATIO = int(1)
 const PB_MARGIN_PERC = float(0.02)
 
+const LENGTH_ANCHOR: float = 1.168
+const MARGIN_ANCHOR: float = 0.02
+
 # static variables
 var combat_manager: GameManager
 
@@ -31,6 +34,7 @@ var combat_manager: GameManager
 @export var combat_pb: PackedScene
 @export var fill_align: AlignmentOptions
 @export var combat_side: CombatSide
+@export var bar_colour: Color
 
 # remaining regular variables
 
@@ -72,6 +76,7 @@ func update(combat_state: Contest):
 			new_pb.set_fill_mode(ProgressBar.FillMode.FILL_END_TO_BEGIN)
 
 		# Apply PB colour
+		#new_pb.colour
 
 		self.add_child(new_pb)
 
@@ -85,9 +90,18 @@ func update(combat_state: Contest):
 			pb_top = (i * (PB_RATIO + PB_SPACE_RATIO)) * segment_height_perc + PB_MARGIN_PERC
 		
 		new_pb.anchor_top = pb_top
-
-		pb_bottom = pb_top + (PB_RATIO * segment_height_perc)
-		new_pb.anchor_bottom = pb_bottom
+		new_pb.anchor_bottom = pb_top + (PB_RATIO * segment_height_perc)
+		if(fill_align == AlignmentOptions.LEFT_TO_RIGHT):
+			new_pb.anchor_left = MARGIN_ANCHOR
+			new_pb.anchor_right = LENGTH_ANCHOR
+		else:
+			new_pb.anchor_left = (1 - LENGTH_ANCHOR)
+			new_pb.anchor_right = (1 - MARGIN_ANCHOR)
+			
+		# For testing Purposes
+		# Pls delete	
+		if(i == 2):
+			new_pb.set_value(100)
 
 ## Get/Set (er)s
 

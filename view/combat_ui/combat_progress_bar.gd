@@ -9,12 +9,12 @@ extends ProgressBar
 const delselected_fill_perc: int = 64
 const selected_fill_perc: int = 100
 
-
 # static variables
 
 # @export variables
 
 # remaining regular variables
+var bar_colour: Color
 
 # @onready variables
 
