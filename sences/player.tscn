@@ -52,7 +52,7 @@ variation_embolden = 1.0
 bg_color = Color(0, 0, 0, 0)
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_qvfbx"]
-bg_color = Color(0.164, 0.3239, 0.41, 1)
+bg_color = Color(0.168, 0.3318, 0.42, 1)
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_lfu4p"]
 bg_color = Color(0.6, 0.6, 0.6, 0)
@@ -70,7 +70,7 @@ bg_color = Color(0.164, 0.3239, 0.41, 1)
 bg_color = Color(0, 0, 0, 0)
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_e6wb7"]
-bg_color = Color(0.55, 0.2475, 0.252542, 1)
+bg_color = Color(0.55, 0.242, 0.247133, 1)
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_uklnw"]
 bg_color = Color(0, 0, 0, 0)
@@ -313,7 +313,7 @@ anchor_right = 0.45
 anchor_bottom = 0.55
 script = ExtResource("16_ld1gm")
 combat_pb = ExtResource("17_qgjiy")
-bar_colour = Color(0.137255, 0.729412, 0.705882, 1)
+bar_colour = Color(0.55, 0.242, 0.247133, 1)
 
 [node name="Panel" type="ProgressBar" parent="CanvasLayer/UI-manager/CombatPanel/AttackUnitsPanel"]
 layout_mode = 1
@@ -371,7 +371,7 @@ script = ExtResource("16_ld1gm")
 combat_pb = ExtResource("17_qgjiy")
 fill_align = 1
 combat_side = 1
-bar_colour = Color(0.74, 0.1998, 0.36186, 1)
+bar_colour = Color(0.168, 0.3318, 0.42, 1)
 
 [node name="Panel2" type="ProgressBar" parent="CanvasLayer/UI-manager/CombatPanel/DefendUnitsPanel"]
 layout_mode = 1

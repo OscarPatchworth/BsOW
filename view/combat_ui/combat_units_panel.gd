@@ -67,7 +67,6 @@ func update(combat_state: Contest):
 	# Calc the height% of each ratio/cell/tile for the pb spacing
 	var segment_height_perc = (1 - 2 * PB_MARGIN_PERC) / ( max_units * PB_RATIO + (max_units-1) * PB_SPACE_RATIO)
 
-
 	for i in range(max_units):
 		var new_pb = combat_pb.instantiate()
 		
@@ -99,9 +98,13 @@ func update(combat_state: Contest):
 			new_pb.anchor_right = (1 - MARGIN_ANCHOR)
 			
 		# For testing Purposes
-		# Pls delete	
+		# Pls delete
+		new_pb.set_filled(false)	
 		if(i == 2):
-			new_pb.set_value(100)
+			new_pb.set_filled(true)
+		
+		new_pb.set_colour(bar_colour)
+
 
 ## Get/Set (er)s
 

@@ -1,4 +1,6 @@
-[gd_scene load_steps=3 format=3 uid="uid://didndg1nkv2uy"]
+[gd_scene load_steps=4 format=3 uid="uid://didndg1nkv2uy"]
+
+[ext_resource type="Script" path="res://view/combat_ui/combat_progress_bar.gd" id="1_onh6r"]
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_4b4lc"]
 bg_color = Color(0, 0, 0, 0)
@@ -22,3 +24,4 @@ theme_override_styles/fill = SubResource("StyleBoxFlat_y7ufg")
 value = 65.0
 allow_greater = true
 show_percentage = false
+script = ExtResource("1_onh6r")
