@@ -11,6 +11,7 @@ extends Node
 var species: SpeciesData
 var turn_manager: GameManager
 var lander_manager: GameManager
+var combat_manager: GameManager
 
 # @export variables
 

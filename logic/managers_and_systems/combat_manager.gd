@@ -16,6 +16,7 @@ enum CombatLoop {
 # constants
 
 # static variables
+var match_settings: Node 
 
 # @export variables
 
@@ -40,6 +41,10 @@ func generate_contest_data(req: Action) -> Contest:
 
 
 ## Calls
+func bind_match_settings(ms: Node):
+	match_settings = ms
+
+
 func attack_action(req: Action):
 	#print("Combat Manager | Combat Req recieved")
 	combat_started.emit(generate_contest_data(req))

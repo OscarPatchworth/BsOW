@@ -46,6 +46,7 @@ func connect_wires():
 	wire_selector_manager()
 	wire_turn_manager()
 	wire_lander_manager()
+	wire_combat_manager()
 
 
 func wire_selector_manager():
@@ -64,6 +65,11 @@ func wire_turn_manager():
 func wire_lander_manager():
 	# Wire: manager -> Things
 	player_ui.bind_lander_manager(lander_manager)
+
+
+func wire_combat_manager():
+	# Wire: manager -> Things
+	player_ui.bind_combat_manager(combat_manager)
 
 ### Connected Signals
 func connect_signals():

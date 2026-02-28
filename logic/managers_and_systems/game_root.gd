@@ -40,6 +40,7 @@ func init_game_managers_and_systems():
 	init_action_manager()
 	init_lander_manager()
 	init_turn_manager()
+	init_combat_manager()
 
 
 # Init action manager
@@ -66,6 +67,14 @@ func init_turn_manager():
 	# Connect Signals
 	combat_manager.combat_started.connect(turn_manager.combat_started)
 	pass
+
+
+# Init combat manager
+func init_combat_manager():
+	# Connect Binders
+	combat_manager.bind_match_settings(match_settings)
+
+	# Connect Signals
 
 
 
@@ -116,6 +125,7 @@ func init_player(player_x: Player):
 	player_cntrl.action_manager = action_manager
 	player_x.turn_manager = self.turn_manager
 	player_x.lander_manager = self.lander_manager
+	player_x.combat_manager = self.combat_manager
 
 	# Connect Signals
 	# FROM player
