@@ -48,12 +48,16 @@ func set_invading_lander(lnd: Lander):
 
 
 func get_invading_units() -> Array[UnitObject]:
+	if invading_units == []:
+		return get_invading_lander().get_units()
 	return invading_units
 func set_invadining_units(units: Array[UnitObject]):
 	invading_units = units
 
 
 func get_defending_units() -> Array[UnitObject]:
+	if defending_units == []:
+		return get_contested_lander().get_units()
 	return defending_units
 func set_defending_units(units: Array[UnitObject]):
 	defending_units = units

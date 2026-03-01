@@ -9,7 +9,7 @@ extends Panel
 
 # static variables
 var combat_manager: GameManager
-
+var player_self: Player
 
 # @export variables
 
@@ -60,6 +60,11 @@ func setup_combat_display(contest: Contest):
 	update(contest)
 
 
+func bind_player(p: Player):
+	player_self = p
+	for child in get_children():
+		if child.has_method("bind_player"):
+			child.bind_player(p)
 ## Get/Set (er)s
 
 ### Connected Signals

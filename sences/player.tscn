@@ -343,7 +343,7 @@ anchor_bottom = 0.62
 grow_horizontal = 2
 theme_override_styles/background = SubResource("StyleBoxFlat_lfu4p")
 theme_override_styles/fill = SubResource("StyleBoxFlat_hxse8")
-value = 200.0
+value = 100.0
 allow_greater = true
 show_percentage = false
 

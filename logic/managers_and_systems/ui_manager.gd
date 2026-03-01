@@ -20,6 +20,7 @@ var turn_manager: GameManager
 var selector_manager:GameManager
 var lander_manager: GameManager
 var combat_manager: GameManager
+var player_self: Player
 
 # @onready variables
 @onready var lander_panel:Panel = self.find_child("LanderPanel")
@@ -73,6 +74,12 @@ func bind_combat_manager(cm: GameManager):
 	combat_manager = cm
 	combat_panel.bind_combat_manager(cm)
 
+
+func bind_player(p: Player):
+	player_self = p
+	for child in get_children():
+		if child.has_method("bind_player"):
+			child.bind_player(p)
 
 func display_landers_req(lander: Lander):
 	lander_panel.show()
