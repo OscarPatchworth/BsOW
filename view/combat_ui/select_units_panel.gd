@@ -46,13 +46,18 @@ func update(combat_state: Contest):
 	free_children(unit_btn_container)
 
 	var units: Array[UnitObject]
+	var selected_units: Array[UnitObject]
 
 	if combat_state.get_invading_actor() == player_self:
-		units = combat_state.get_invading_units()
+		units = combat_state.get_invading_lander().get_units()
+		selected_units = combat_state.get_invading_units()
 	else:
-		units = combat_state.get_defending_units()
+		units = combat_state.get_contested_lander().get_units()
+		selected_units = combat_state.get_defending_units()
 
 	for unit in units:
+		if unit in selected_units:
+			continue
 		var new_btn = GameButton.new()
 		new_btn.set_script(unit_btn_script)
 		new_btn.unit_selected.connect(fwd_unit_selected)

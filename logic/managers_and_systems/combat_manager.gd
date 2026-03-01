@@ -73,7 +73,8 @@ func actor_selected_unit(unit:UnitObject):
 			print("Combat Manager | Attacker selecting too many units to attack w/")
 		else:
 			current_combat.add_invading_unit(unit)
-			combat_updated.emit(current_combat.duplicate())
+			combat_updated.emit(current_combat)
+			#print("Combat Manager | actor_selected_unit| combat_updated emiited")
 			
 
 

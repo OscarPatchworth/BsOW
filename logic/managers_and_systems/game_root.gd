@@ -142,7 +142,7 @@ func init_player(player_x: Player):
 	turn_manager.combat_assign.connect(player_x.contest_lander)
 	combat_manager.combat_started.connect(player_x.combat_req)
 	combat_manager.combat_updated.connect(player_x.combat_update)
-
+	#combat_update
 
 	player_x.species = game_species.pick_random()
 	#print("Player Species randomly selected: " + str(player_x.species.name))
