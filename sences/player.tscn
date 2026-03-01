@@ -1,4 +1,4 @@
-[gd_scene load_steps=41 format=3 uid="uid://cmnn2jtgwr4dw"]
+[gd_scene load_steps=42 format=3 uid="uid://cmnn2jtgwr4dw"]
 
 [ext_resource type="Script" path="res://logic/classes/player.gd" id="1_tftws"]
 [ext_resource type="Script" path="res://logic/classes/player_controler.gd" id="2_pm403"]
@@ -20,6 +20,7 @@
 [ext_resource type="Script" path="res://view/combat_ui/attack_ablt_panel.gd" id="18_p5lpa"]
 [ext_resource type="Script" path="res://view/combat_ui/defend_ablt_panel.gd" id="19_26ink"]
 [ext_resource type="Script" path="res://view/combat_ui/select_units_panel.gd" id="20_sfpvi"]
+[ext_resource type="Script" path="res://view/combat_ui/combat_unit_btn.gd" id="21_4sch5"]
 [ext_resource type="Script" path="res://view/combat_ui/select_ablt_panel.gd" id="21_gsl2e"]
 [ext_resource type="Script" path="res://view/combat_ui/fight_btn.gd" id="22_oflah"]
 
@@ -443,6 +444,7 @@ anchor_right = 0.45
 anchor_bottom = 0.95
 grow_horizontal = 2
 script = ExtResource("20_sfpvi")
+unit_btn_script = ExtResource("21_4sch5")
 
 [node name="VFlowContainer" type="ScrollContainer" parent="CanvasLayer/UI-manager/CombatPanel/SelectUnitsPanel"]
 layout_mode = 1

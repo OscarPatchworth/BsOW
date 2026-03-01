@@ -3,6 +3,7 @@ extends GameManager
 
 # signals
 signal combat_started(contest: Contest)
+signal combat_updated(contest: Contest)
 
 # enums
 enum CombatLoop {
@@ -46,9 +47,6 @@ func action_to_contest(req: Action) -> Contest:
 	contest.set_invading_lander(req.selected_lander)
 	return contest
 
-### Connected Signals
-
-
 ## Calls
 func bind_match_settings(ms: Node):
 	match_settings = ms
@@ -67,6 +65,16 @@ func attack_action(req: Action):
 	current_combat = combat_state
 
 	combat_started.emit(current_combat)
+
+
+func actor_selected_unit(unit:UnitObject):
+	if current_combat.get_invading_actor() == unit.get_owned_by():
+		if current_combat.get_invading_units().size() >= max_attack_units:
+			print("Combat Manager | Attacker selecting too many units to attack w/")
+		else:
+			current_combat.add_invading_unit(unit)
+			combat_updated.emit(current_combat.duplicate())
+			
 
 
 ## Get/Set (er)s

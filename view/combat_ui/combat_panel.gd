@@ -2,6 +2,7 @@
 extends Panel
 
 # signals
+signal unit_selected(unit: UnitObject)
 
 # enums
 
@@ -32,6 +33,11 @@ func free_children(parent: Node) -> void:
 	for i in parent.get_children():
 		i.queue_free()
 
+
+func _ready() -> void:
+	setup_signals()
+
+
 func update(combat_state: Contest):
 	### Code taken from chatGPT
 	for child in get_children():
@@ -39,8 +45,8 @@ func update(combat_state: Contest):
 			child.update(combat_state)
 	###
 
-
-### Connected Signals
+func fwd_unit_selected(unit: UnitObject):
+	unit_selected.emit(unit)
 
 
 ## Calls
@@ -65,6 +71,15 @@ func bind_player(p: Player):
 	for child in get_children():
 		if child.has_method("bind_player"):
 			child.bind_player(p)
+
+
+func update_combat_display(contest: Contest):
+	update(contest)
+
+
 ## Get/Set (er)s
 
+
 ### Connected Signals
+func setup_signals():
+	select_units_panel.unit_selected.connect(self.fwd_unit_selected)

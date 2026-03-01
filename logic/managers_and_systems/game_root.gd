@@ -133,6 +133,7 @@ func init_player(player_x: Player):
 	player_x.buy_unit_action_req.connect(action_manager.action_request)
 	player_x.move_units_action_req.connect(action_manager.action_request)
 	player_x.attack_action_req.connect(action_manager.action_request)
+	player_x.combat_unit_selected.connect(combat_manager.actor_selected_unit)
 
 	# TO player
 	lander_manager.built_action_completed.connect(player_x.fwd_build_action_completed)
@@ -140,6 +141,7 @@ func init_player(player_x: Player):
 	lander_manager.move_units_action_completed.connect(player_x.fwd_move_units_action_completed)
 	turn_manager.combat_assign.connect(player_x.contest_lander)
 	combat_manager.combat_started.connect(player_x.combat_req)
+	combat_manager.combat_updated.connect(player_x.combat_update)
 
 
 	player_x.species = game_species.pick_random()

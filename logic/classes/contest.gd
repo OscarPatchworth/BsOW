@@ -33,6 +33,9 @@ func free_children(parent: Node) -> void:
 ### Connected Signals
 
 ## Calls
+func add_invading_unit(unit: UnitObject):
+	invading_units.append(unit)
+
 
 ## Get/Set (er)s
 func get_contested_lander() -> Lander:

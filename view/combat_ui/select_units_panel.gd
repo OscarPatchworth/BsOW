@@ -2,7 +2,7 @@
 extends Panel
 
 # signals
-
+signal unit_selected(unit: UnitObject)
 # enums
 
 # constants
@@ -10,7 +10,9 @@ extends Panel
 # static variables
 var combat_manager: GameManager
 var player_self: Player
+
 # @export variables
+@export var unit_btn_script: Script
 
 # remaining regular variables
 
@@ -52,10 +54,17 @@ func update(combat_state: Contest):
 
 	for unit in units:
 		var new_btn = GameButton.new()
+		new_btn.set_script(unit_btn_script)
+		new_btn.unit_selected.connect(fwd_unit_selected)
+		new_btn.set_unit(unit)
+
 		new_btn.text = unit.get_unit_data().name
 		unit_btn_container.add_child(new_btn)
 
 
 ## Get/Set (er)s
 
+
 ### Connected Signals
+func fwd_unit_selected(unit: UnitObject):
+	unit_selected.emit(unit)

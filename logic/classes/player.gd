@@ -7,6 +7,7 @@ signal build_action_req(build_req: Action)
 signal buy_unit_action_req(buy_unit_req: Action)
 signal move_units_action_req(move_units_req: Action)
 signal attack_action_req(req: Action)
+signal combat_unit_selected(unit: UnitObject)
 
 # enums
 #enum Element {EARTH,WATER,AIR,FIRE,}
@@ -92,6 +93,7 @@ func connect_ui_signals():
 	player_ui.buy_unit_action_req.connect(self.fwd_buy_unit_action_req)
 	player_ui.move_units_action_req.connect(self.fwd_move_units_req)
 	player_ui.attack_action_req.connect(self.fwd_attack_action_req)
+	player_ui.unit_selected.connect(self.fwd_combat_unit_selected)
 
 
 func fwd_build_req(build_req: Action):
@@ -156,3 +158,13 @@ func combat_req(contest: Contest):
 		var cmb_pos = "Attacker" if contest.get_invading_actor() == self else "Defender"
 		print("Player | Entering Combat as: " + cmb_pos)
 		player_ui.run_combat_display(contest)
+
+
+func fwd_combat_unit_selected(unit: UnitObject):
+	combat_unit_selected.emit(unit)
+
+
+func combat_update(contest: Contest):
+	print("Player | Combat update recieved")
+	if(contest.get_invading_actor() == self or contest.get_defending_actor() == self):
+		player_ui.update_combat_display(contest)
