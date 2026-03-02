@@ -59,13 +59,14 @@ func bind_combat_manager(cm: GameManager):
 func update(combat_state: Contest):
 	# Clear Panel
 	free_children(self)
-	generate_unit_pbs()
+	generate_unit_pbs(combat_state)
 
 
-func generate_unit_pbs():
+func generate_unit_pbs(combat_state: Contest):
 	# Call once and store. So if value changes during func() no out of bounds error. Just outdate display. 
 	# @onChange this func() will be recalled anyway so outdated info won't be a problem
 	var max_units:int = combat_manager.get_max_defend_units() if combat_side == CombatSide.DEFENDING else combat_manager.get_max_attack_units()
+	var selected_units: Array[UnitObject] = combat_state.get_defending_units() if combat_side == CombatSide.DEFENDING else combat_state.get_invading_units()
 
 	# Calc the height% of each ratio/cell/tile for the pb spacing
 	var segment_height_perc = (1 - 2 * PB_MARGIN_PERC) / ( max_units * PB_RATIO + (max_units-1) * PB_SPACE_RATIO)
@@ -77,19 +78,17 @@ func generate_unit_pbs():
 		if(fill_align == AlignmentOptions.RIGHT_TO_LEFT):
 			new_pb.set_fill_mode(ProgressBar.FillMode.FILL_END_TO_BEGIN)
 
-		# Apply PB colour
-		#new_pb.colour
-
 		self.add_child(new_pb)
 		anchor_unit_pb(new_pb, i, segment_height_perc)
-			
-		# For testing Purposes
-		# Pls delete
-		new_pb.set_filled(false)	
-		if(i == 2):
-			new_pb.set_filled(true)
-		
+
 		new_pb.set_colour(bar_colour)
+
+		if selected_units.size() >= i+1:
+			new_pb.set_unit(selected_units[i])
+			new_pb.set_filled(true)
+		else:
+			new_pb.set_filled(false)		
+		#
 
 
 func anchor_unit_pb(pb: ProgressBar, i: int, segment_perc: float):
