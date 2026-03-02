@@ -59,7 +59,10 @@ func bind_combat_manager(cm: GameManager):
 func update(combat_state: Contest):
 	# Clear Panel
 	free_children(self)
+	generate_unit_pbs()
 
+
+func generate_unit_pbs():
 	# Call once and store. So if value changes during func() no out of bounds error. Just outdate display. 
 	# @onChange this func() will be recalled anyway so outdated info won't be a problem
 	var max_units:int = combat_manager.get_max_defend_units() if combat_side == CombatSide.DEFENDING else combat_manager.get_max_attack_units()
@@ -78,24 +81,7 @@ func update(combat_state: Contest):
 		#new_pb.colour
 
 		self.add_child(new_pb)
-
-		new_pb.set_anchors_and_offsets_preset(LayoutPreset.PRESET_TOP_WIDE, LayoutPresetMode.PRESET_MODE_KEEP_SIZE, 0)
-		var pb_top: float
-		var pb_bottom: float
-
-		if(i == 0):
-			pb_top = PB_MARGIN_PERC
-		else:
-			pb_top = (i * (PB_RATIO + PB_SPACE_RATIO)) * segment_height_perc + PB_MARGIN_PERC
-		
-		new_pb.anchor_top = pb_top
-		new_pb.anchor_bottom = pb_top + (PB_RATIO * segment_height_perc)
-		if(fill_align == AlignmentOptions.LEFT_TO_RIGHT):
-			new_pb.anchor_left = MARGIN_ANCHOR
-			new_pb.anchor_right = LENGTH_ANCHOR
-		else:
-			new_pb.anchor_left = (1 - LENGTH_ANCHOR)
-			new_pb.anchor_right = (1 - MARGIN_ANCHOR)
+		anchor_unit_pb(new_pb, i, segment_height_perc)
 			
 		# For testing Purposes
 		# Pls delete
@@ -104,6 +90,25 @@ func update(combat_state: Contest):
 			new_pb.set_filled(true)
 		
 		new_pb.set_colour(bar_colour)
+
+
+func anchor_unit_pb(pb: ProgressBar, i: int, segment_perc: float):
+		pb.set_anchors_and_offsets_preset(LayoutPreset.PRESET_TOP_WIDE, LayoutPresetMode.PRESET_MODE_KEEP_SIZE, 0)
+		var pb_top: float
+
+		if(i == 0):
+			pb_top = PB_MARGIN_PERC
+		else:
+			pb_top = (i * (PB_RATIO + PB_SPACE_RATIO)) * segment_perc + PB_MARGIN_PERC
+		
+		pb.anchor_top = pb_top
+		pb.anchor_bottom = pb_top + (PB_RATIO * segment_perc)
+		if(fill_align == AlignmentOptions.LEFT_TO_RIGHT):
+			pb.anchor_left = MARGIN_ANCHOR
+			pb.anchor_right = LENGTH_ANCHOR
+		else:
+			pb.anchor_left = (1 - LENGTH_ANCHOR)
+			pb.anchor_right = (1 - MARGIN_ANCHOR)
 
 
 ## Get/Set (er)s
