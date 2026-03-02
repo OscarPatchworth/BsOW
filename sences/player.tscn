@@ -20,8 +20,8 @@
 [ext_resource type="Script" path="res://view/combat_ui/attack_ablt_panel.gd" id="18_p5lpa"]
 [ext_resource type="Script" path="res://view/combat_ui/defend_ablt_panel.gd" id="19_26ink"]
 [ext_resource type="Script" path="res://view/combat_ui/select_units_panel.gd" id="20_sfpvi"]
-[ext_resource type="Script" path="res://view/combat_ui/combat_unit_btn.gd" id="21_4sch5"]
 [ext_resource type="Script" path="res://view/combat_ui/select_ablt_panel.gd" id="21_gsl2e"]
+[ext_resource type="Script" path="res://view/combat_ui/select_unit_btn.gd" id="21_l1mcl"]
 [ext_resource type="Script" path="res://view/combat_ui/fight_btn.gd" id="22_oflah"]
 
 [sub_resource type="GDScript" id="GDScript_ks4yd"]
@@ -444,7 +444,7 @@ anchor_right = 0.45
 anchor_bottom = 0.95
 grow_horizontal = 2
 script = ExtResource("20_sfpvi")
-unit_btn_script = ExtResource("21_4sch5")
+unit_btn_script = ExtResource("21_l1mcl")
 
 [node name="VFlowContainer" type="ScrollContainer" parent="CanvasLayer/UI-manager/CombatPanel/SelectUnitsPanel"]
 layout_mode = 1
