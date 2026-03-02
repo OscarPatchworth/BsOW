@@ -1,4 +1,4 @@
-#combat_unit_btn.gd
+#select_unit_btn.gd
 extends GameButton
 
 # signals

@@ -1,6 +1,7 @@
-[gd_scene load_steps=4 format=3 uid="uid://didndg1nkv2uy"]
+[gd_scene load_steps=5 format=3 uid="uid://didndg1nkv2uy"]
 
 [ext_resource type="Script" path="res://view/combat_ui/combat_progress_bar.gd" id="1_onh6r"]
+[ext_resource type="Script" path="res://view/combat_ui/combat_unit_btn.gd" id="2_ok3gj"]
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_4b4lc"]
 bg_color = Color(0, 0, 0, 0)
@@ -25,3 +26,17 @@ value = 65.0
 allow_greater = true
 show_percentage = false
 script = ExtResource("1_onh6r")
+
+[node name="GameButton" type="Button" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("2_ok3gj")
+
+[node name="RichTextLabel" type="RichTextLabel" parent="GameButton"]
+layout_mode = 0
+offset_right = 40.0
+offset_bottom = 40.0
