@@ -16,7 +16,7 @@
 [ext_resource type="Script" path="res://view/lander_panel/landers/lander_control.gd" id="13_nfxjl"]
 [ext_resource type="Script" path="res://view/combat_ui/combat_panel.gd" id="15_1neg8"]
 [ext_resource type="Script" path="res://view/combat_ui/combat_units_panel.gd" id="16_ld1gm"]
-[ext_resource type="PackedScene" uid="uid://didndg1nkv2uy" path="res://view/combat_ui/SelectedCombatUnitsPB.tscn" id="17_qgjiy"]
+[ext_resource type="PackedScene" uid="uid://cv2tx1wgojvl4" path="res://view/combat_ui/SelectedCombatUnitsDisplay.tscn" id="17_o3itl"]
 [ext_resource type="Script" path="res://view/game_button.gd" id="18_2o7oj"]
 [ext_resource type="Script" path="res://view/combat_ui/attack_ablt_panel.gd" id="18_p5lpa"]
 [ext_resource type="Script" path="res://view/combat_ui/defend_ablt_panel.gd" id="19_26ink"]
@@ -314,7 +314,8 @@ anchor_top = 0.1
 anchor_right = 0.45
 anchor_bottom = 0.55
 script = ExtResource("16_ld1gm")
-combat_pb = ExtResource("17_qgjiy")
+unit_display_control = ExtResource("17_o3itl")
+combat_side = 1
 bar_colour = Color(0.55, 0.242, 0.247133, 1)
 
 [node name="Panel" type="ProgressBar" parent="CanvasLayer/UI-manager/CombatPanel/AttackUnitsPanel"]
@@ -389,9 +390,8 @@ anchor_top = 0.1
 anchor_right = 0.85
 anchor_bottom = 0.55
 script = ExtResource("16_ld1gm")
-combat_pb = ExtResource("17_qgjiy")
+unit_display_control = ExtResource("17_o3itl")
 fill_align = 1
-combat_side = 1
 bar_colour = Color(0.168, 0.3318, 0.42, 1)
 
 [node name="Panel2" type="ProgressBar" parent="CanvasLayer/UI-manager/CombatPanel/DefendUnitsPanel"]

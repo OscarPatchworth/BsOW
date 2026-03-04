@@ -20,9 +20,9 @@ enum CombatSide {
 const ATTACK_COLOUR = Color.MAROON
 const DEFEND_COLOUR = Color.TURQUOISE
 
-const PB_RATIO = int(2)
-const PB_SPACE_RATIO = int(1)
-const PB_MARGIN_PERC = float(0.02)
+const DISPLAY_RATIO = int(2)
+const DISPLAY_SPACE_RATIO = int(1)
+const DISPLAY_MARGIN_PERC = float(0.02)
 
 const LENGTH_ANCHOR: float = 1.168
 const MARGIN_ANCHOR: float = 0.02
@@ -31,7 +31,7 @@ const MARGIN_ANCHOR: float = 0.02
 var combat_manager: GameManager
 
 # @export variables
-@export var combat_pb: PackedScene
+@export var unit_display_control: PackedScene
 @export var fill_align: AlignmentOptions
 @export var combat_side: CombatSide
 @export var bar_colour: Color
@@ -69,44 +69,44 @@ func generate_unit_pbs(combat_state: Contest):
 	var selected_units: Array[UnitObject] = combat_state.get_defending_units() if combat_side == CombatSide.DEFENDING else combat_state.get_invading_units()
 
 	# Calc the height% of each ratio/cell/tile for the pb spacing
-	var segment_height_perc = (1 - 2 * PB_MARGIN_PERC) / ( max_units * PB_RATIO + (max_units-1) * PB_SPACE_RATIO)
+	var segment_height_perc = (1 - 2 * DISPLAY_MARGIN_PERC) / ( max_units * DISPLAY_RATIO + (max_units-1) * DISPLAY_SPACE_RATIO)
 
 	for i in range(max_units):
-		var new_pb = combat_pb.instantiate()
+		var new_display = unit_display_control.instantiate()
 		
 		# Correct for Fill mode:
 		if(fill_align == AlignmentOptions.RIGHT_TO_LEFT):
-			new_pb.set_fill_mode(ProgressBar.FillMode.FILL_END_TO_BEGIN)
+			new_display.set_fill_dir(new_display.FillDir.FILL_RIGHT_TO_LEFT)
 
-		self.add_child(new_pb)
-		anchor_unit_pb(new_pb, i, segment_height_perc)
+		self.add_child(new_display)
+		anchor_unit_display(new_display, i, segment_height_perc)
 
-		new_pb.set_colour(bar_colour)
+		new_display.set_colour(bar_colour)
 
 		if selected_units.size() >= i+1:
-			new_pb.set_unit(selected_units[i])
+			new_display.set_unit(selected_units[i])
 		else:
-			new_pb.set_unit(null)		
+			new_display.set_unit(null)		
 		#
 
 
-func anchor_unit_pb(pb: ProgressBar, i: int, segment_perc: float):
-		pb.set_anchors_and_offsets_preset(LayoutPreset.PRESET_TOP_WIDE, LayoutPresetMode.PRESET_MODE_KEEP_SIZE, 0)
-		var pb_top: float
+func anchor_unit_display(unit_display: Control, i: int, segment_perc: float):
+		#unit_display.set_anchors_and_offsets_preset(LayoutPreset.PRESET_TOP_WIDE, LayoutPresetMode.PRESET_MODE_KEEP_SIZE, 0)
+		var top_perc: float
 
 		if(i == 0):
-			pb_top = PB_MARGIN_PERC
+			top_perc = DISPLAY_MARGIN_PERC
 		else:
-			pb_top = (i * (PB_RATIO + PB_SPACE_RATIO)) * segment_perc + PB_MARGIN_PERC
+			top_perc = (i * (DISPLAY_RATIO + DISPLAY_SPACE_RATIO)) * segment_perc + DISPLAY_MARGIN_PERC
 		
-		pb.anchor_top = pb_top
-		pb.anchor_bottom = pb_top + (PB_RATIO * segment_perc)
+		unit_display.anchor_top = top_perc
+		unit_display.anchor_bottom = top_perc + (DISPLAY_RATIO * segment_perc)
 		if(fill_align == AlignmentOptions.LEFT_TO_RIGHT):
-			pb.anchor_left = MARGIN_ANCHOR
-			pb.anchor_right = LENGTH_ANCHOR
+			unit_display.anchor_left = MARGIN_ANCHOR
+			unit_display.anchor_right = LENGTH_ANCHOR
 		else:
-			pb.anchor_left = (1 - LENGTH_ANCHOR)
-			pb.anchor_right = (1 - MARGIN_ANCHOR)
+			unit_display.anchor_left = (1 - LENGTH_ANCHOR)
+			unit_display.anchor_right = (1 - MARGIN_ANCHOR)
 
 
 ## Get/Set (er)s
