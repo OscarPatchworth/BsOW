@@ -85,9 +85,8 @@ func generate_unit_pbs(combat_state: Contest):
 
 		if selected_units.size() >= i+1:
 			new_pb.set_unit(selected_units[i])
-			new_pb.set_filled(true)
 		else:
-			new_pb.set_filled(false)		
+			new_pb.set_unit(null)		
 		#
 
 

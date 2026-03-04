@@ -1,4 +1,4 @@
-[gd_scene load_steps=5 format=3 uid="uid://didndg1nkv2uy"]
+[gd_scene load_steps=6 format=3 uid="uid://didndg1nkv2uy"]
 
 [ext_resource type="Script" path="res://view/combat_ui/combat_progress_bar.gd" id="1_onh6r"]
 [ext_resource type="Script" path="res://view/combat_ui/combat_unit_btn.gd" id="2_ok3gj"]
@@ -8,6 +8,9 @@ bg_color = Color(0, 0, 0, 0)
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_y7ufg"]
 bg_color = Color(0.164, 0.3239, 0.41, 1)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_43etr"]
+bg_color = Color(0.6, 0.6, 0.6, 0)
 
 [node name="CombatSelectedUnitsPB" type="ProgressBar"]
 anchors_preset = -1
@@ -34,6 +37,7 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
+theme_override_styles/normal = SubResource("StyleBoxFlat_43etr")
 script = ExtResource("2_ok3gj")
 
 [node name="RichTextLabel" type="RichTextLabel" parent="GameButton"]

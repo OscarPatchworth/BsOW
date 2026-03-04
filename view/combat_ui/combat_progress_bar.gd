@@ -37,13 +37,22 @@ func free_children(parent: Node) -> void:
 		i.queue_free()
 
 
+func update_all():
+	update_colour()
+	update_filled()
+	update_txt()
+
 func update_colour():
 	pb_stylebox.bg_color = bar_colour
 
 
 func update_filled():
-	if is_filled: set_value(selected_fill_perc)  
-	else: set_value(delselected_fill_perc)
+	if is_filled: 
+		set_value(selected_fill_perc)  
+		btn.show()
+	else: 
+		btn.hide()
+		set_value(delselected_fill_perc)
 	
 
 func update_txt():
@@ -79,12 +88,12 @@ func get_unit() -> UnitObject:
 	return unit
 func set_unit(u: UnitObject):
 	unit = u 
-	
 	if u == null: 
 		set_filled(false)
-		update_txt()
+		update_all()
 	else: 
+		btn.show()
 		set_filled(true)
-		update_txt()
+		update_all()
 
 ### Connected Signals
