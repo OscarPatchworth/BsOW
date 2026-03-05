@@ -84,8 +84,17 @@ func actor_deselected_unit(unit: UnitObject):
 		#print("Combat Manager | actor_selected_unit| combat_updated emiited")
 
 
-func player_ready(player: Actor):
-	print("Combat Manager | Player Ready recieved")
+func player_ready(ready_player: Actor):
+	if current_combat.get_invading_actor() == ready_player:
+		current_combat.set_invading_ready(true)
+	elif current_combat.get_defending_actor() == ready_player:
+		current_combat.set_defending_ready(true)
+	else: 
+		print("Combat Manager | ERROR | Actor outside of combat declared Ready")
+		return
+	#print("Combat Manager | Player Ready recieved")
+	combat_updated.emit(current_combat)
+
 
 ## Get/Set (er)s
 func get_max_attack_units() -> int:

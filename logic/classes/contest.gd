@@ -22,6 +22,9 @@ var defending_units: Array[UnitObject] = []
 #var invading_abilities: Array[AbbilityInstance] = []
 #var defending_abilities: Array[AbbilityInstance] = []
 
+var invading_ready: bool = false
+var defending_ready: bool = false
+
 # @onready variables
 
 ###################################################################################################
@@ -70,14 +73,27 @@ func get_defending_actor() -> Actor:
 	return contested_lander.get_units()[0].get_owned_by()
 
 
+func get_invading_ready() -> bool:
+	return invading_ready
+func set_invading_ready(ready: bool):
+	invading_ready = ready
+
+
+func get_defending_ready() -> bool:
+	return defending_ready
+func set_defending_ready(ready: bool):
+	defending_ready = ready
+
+
 func get_dict() -> Dictionary:
 	var dict = {
 	"contested_lander" : contested_lander,
 	"invading_lander" : invading_lander,
 	"invading_units" : invading_units,
-	"defending_units" : defending_units
+	"defending_units" : defending_units,
+	"invading_ready" : invading_ready,
+	"defending_ready" : defending_ready
 	}
-
 
 	return dict
 

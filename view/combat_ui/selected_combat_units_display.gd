@@ -10,6 +10,11 @@ enum FillDir {
 	FILL_RIGHT_TO_LEFT = 2	# 2 corrosponds to right Anchor Side in set_anchor)
 }
 
+enum CombatState {
+	SELECTING,
+	READY
+}
+
 # constants
 const delselected_fill_perc: float = 0.64
 const selected_fill_perc: float = 1.0
@@ -26,6 +31,8 @@ var fill_dir: FillDir = FillDir.FILL_LEFT_TO_RIGHT
 var fill_stylebox = StyleBoxFlat.new()
 
 var unit: UnitObject
+
+var combat_state: CombatState = CombatState.SELECTING
 
 # @onready variables
 @onready var btn: GameButton = self.find_child("GameButton")
@@ -48,6 +55,8 @@ func update_all():
 	update_colour()
 	update_filled()
 	update_txt()
+	update_btn_style()
+
 
 func update_colour():
 	fill_stylebox.bg_color = bar_colour
@@ -72,7 +81,6 @@ func update_filled():
 			fill.set_anchor_and_offset(SIDE_RIGHT, 1, 0)
 			fill.set_anchor_and_offset(SIDE_LEFT, 1 - delselected_fill_perc, 0)
 
-	
 
 func update_txt():
 	if unit == null:
@@ -81,9 +89,24 @@ func update_txt():
 		btn.text = unit.get_unit_data().name
 
 
+func update_btn_style():
+	if(combat_state == CombatState.SELECTING):
+		btn.set_disabled(false)
+	else: btn.set_disabled(true)
+
 ### Connected Signals
 func connect_signals():
 	btn.pressed.connect(self.fwd_unit_deselected)
+	btn.mouse_entered.connect(btn_mouse_entered)
+	btn.mouse_exited.connect(btn_mouse_exit)
+
+
+func btn_mouse_entered():
+	#set_colour(Color.FOREST_GREEN)
+	pass
+func btn_mouse_exit():
+	#set_colour(Color.MAROON)
+	pass
 
 
 func fwd_unit_deselected():
@@ -121,5 +144,14 @@ func get_fill_dir() -> FillDir:
 	return fill_dir
 func set_fill_dir(dir: FillDir):
 	fill_dir = dir
+
+
+func get_combat_state() -> CombatState:
+	return combat_state
+func set_combat_state(state: CombatState):
+	combat_state = state
+	update_all()
+
+
 
 ### Connected Signals

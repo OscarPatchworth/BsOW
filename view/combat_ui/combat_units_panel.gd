@@ -16,6 +16,11 @@ enum CombatSide {
 	ATTACKING
 }
 
+enum CombatState {
+	SELECTING,
+	READY
+}
+
 
 # constants
 const ATTACK_COLOUR = Color.MAROON
@@ -38,6 +43,7 @@ var combat_manager: GameManager
 @export var bar_colour: Color
 
 # remaining regular variables
+var combat_state: CombatState = CombatState.SELECTING
 
 # @onready variables
 
@@ -46,7 +52,6 @@ var combat_manager: GameManager
 func free_children(parent: Node) -> void:
 	for i in parent.get_children():
 		i.queue_free()
-
 
 ### Connected Signals
 
@@ -85,6 +90,20 @@ func generate_unit_pbs(combat_state: Contest):
 		anchor_unit_display(new_display, i, segment_height_perc)
 
 		new_display.set_colour(bar_colour)
+
+		var display_state: CombatState
+	
+		if(combat_side == CombatSide.DEFENDING):
+			if combat_state.get_defending_ready():
+				display_state = new_display.CombatState.READY 
+			else: display_state = new_display.CombatState.SELECTING 		
+		else:	
+			if combat_state.get_invading_ready():
+				display_state = new_display.CombatState.READY 
+			else: display_state = new_display.CombatState.SELECTING 		
+				
+	
+		new_display.set_combat_state(display_state)
 
 		if selected_units.size() >= i+1:
 			new_display.set_unit(selected_units[i])
