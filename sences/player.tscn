@@ -1,4 +1,4 @@
-[gd_scene load_steps=30 format=3 uid="uid://cmnn2jtgwr4dw"]
+[gd_scene load_steps=32 format=3 uid="uid://cmnn2jtgwr4dw"]
 
 [ext_resource type="Script" path="res://logic/classes/player.gd" id="1_tftws"]
 [ext_resource type="Script" path="res://logic/classes/player_controler.gd" id="2_pm403"]
@@ -48,6 +48,12 @@ bg_color = Color(0.6, 0.5755, 0.39, 1)
 variation_embolden = 1.0
 
 [sub_resource type="LabelSettings" id="LabelSettings_cgt8w"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_hure4"]
+bg_color = Color(0.31, 0.2046, 0.24676, 1)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_c0y1c"]
+bg_color = Color(0.31, 0.2046, 0.24676, 1)
 
 [node name="Player" type="Node3D"]
 script = ExtResource("1_tftws")
@@ -322,6 +328,16 @@ grow_horizontal = 2
 script = ExtResource("20_sfpvi")
 unit_btn_script = ExtResource("21_l1mcl")
 
+[node name="LockOutPanel" type="Panel" parent="CanvasLayer/UI-manager/CombatPanel/SelectUnitsPanel"]
+z_index = 2
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_hure4")
+
 [node name="VFlowContainer" type="ScrollContainer" parent="CanvasLayer/UI-manager/CombatPanel/SelectUnitsPanel"]
 layout_mode = 1
 anchors_preset = 15
@@ -331,6 +347,7 @@ offset_right = -0.159973
 offset_bottom = -22.2
 grow_horizontal = 2
 grow_vertical = 2
+mouse_filter = 0
 follow_focus = true
 
 [node name="VBoxContainer" type="VBoxContainer" parent="CanvasLayer/UI-manager/CombatPanel/SelectUnitsPanel/VFlowContainer"]
@@ -389,6 +406,16 @@ anchor_right = 0.985
 anchor_bottom = 0.95
 grow_horizontal = 2
 script = ExtResource("21_gsl2e")
+
+[node name="LockOutPanel" type="Panel" parent="CanvasLayer/UI-manager/CombatPanel/SelectAbilitiesPanel"]
+z_index = 2
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_c0y1c")
 
 [node name="VFlowContainer2" type="ScrollContainer" parent="CanvasLayer/UI-manager/CombatPanel/SelectAbilitiesPanel"]
 layout_mode = 1
