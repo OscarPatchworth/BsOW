@@ -2,6 +2,7 @@
 extends GameButton
 
 # signals
+signal player_combat_ready
 
 # enums
 
@@ -23,6 +24,8 @@ func free_children(parent: Node) -> void:
 
 
 ### Connected Signals
+func _pressed() -> void:
+	player_combat_ready.emit()
 
 
 ## Calls

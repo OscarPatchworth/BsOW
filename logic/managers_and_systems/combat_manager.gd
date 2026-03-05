@@ -83,6 +83,10 @@ func actor_deselected_unit(unit: UnitObject):
 		combat_updated.emit(current_combat)
 		#print("Combat Manager | actor_selected_unit| combat_updated emiited")
 
+
+func player_ready(player: Actor):
+	print("Combat Manager | Player Ready recieved")
+
 ## Get/Set (er)s
 func get_max_attack_units() -> int:
 	return max_attack_units

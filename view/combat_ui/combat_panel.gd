@@ -4,6 +4,7 @@ extends Panel
 # signals
 signal unit_selected(unit: UnitObject)
 signal unit_deslected(unit: UnitObject)
+signal player_combat_ready
 
 # enums
 
@@ -78,10 +79,6 @@ func update_combat_display(contest: Contest):
 	update(contest)
 
 
-func fwd_unit_deslected(unit: UnitObject):
-	unit_deslected.emit(unit)
-	
-
 ## Get/Set (er)s
 
 
@@ -90,3 +87,12 @@ func setup_signals():
 	select_units_panel.unit_selected.connect(self.fwd_unit_selected)
 	attack_units_pannel.unit_deslected.connect(fwd_unit_deslected)
 	defend_units_panel.unit_deslected.connect(fwd_unit_deslected)
+	fight_btn.player_combat_ready.connect(fwd_player_combat_ready)
+
+
+func fwd_unit_deslected(unit: UnitObject):
+	unit_deslected.emit(unit)
+	
+
+func fwd_player_combat_ready():
+	player_combat_ready.emit()
