@@ -3,6 +3,7 @@ extends Panel
 
 # signals
 signal unit_selected(unit: UnitObject)
+signal unit_deslected(unit: UnitObject)
 
 # enums
 
@@ -77,9 +78,15 @@ func update_combat_display(contest: Contest):
 	update(contest)
 
 
+func fwd_unit_deslected(unit: UnitObject):
+	unit_deslected.emit(unit)
+	
+
 ## Get/Set (er)s
 
 
 ### Connected Signals
 func setup_signals():
 	select_units_panel.unit_selected.connect(self.fwd_unit_selected)
+	attack_units_pannel.unit_deslected.connect(fwd_unit_deslected)
+	defend_units_panel.unit_deslected.connect(fwd_unit_deslected)

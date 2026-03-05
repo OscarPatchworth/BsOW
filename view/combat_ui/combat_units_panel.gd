@@ -1,7 +1,8 @@
-#defend_units_panel.gd
+#combat_units_panel.gd.gd
 extends Panel
 
 # signals
+signal unit_deslected(unit: UnitObject)
 
 # enums
 enum AlignmentOptions {
@@ -78,6 +79,8 @@ func generate_unit_pbs(combat_state: Contest):
 		if(fill_align == AlignmentOptions.RIGHT_TO_LEFT):
 			new_display.set_fill_dir(new_display.FillDir.FILL_RIGHT_TO_LEFT)
 
+		new_display.unit_deslected.connect(self.fwd_unit_deslected)
+
 		self.add_child(new_display)
 		anchor_unit_display(new_display, i, segment_height_perc)
 
@@ -108,6 +111,9 @@ func anchor_unit_display(unit_display: Control, i: int, segment_perc: float):
 			unit_display.anchor_left = (1 - LENGTH_ANCHOR)
 			unit_display.anchor_right = (1 - MARGIN_ANCHOR)
 
+
+func fwd_unit_deslected(unit: UnitObject):
+	unit_deslected.emit(unit)
 
 ## Get/Set (er)s
 

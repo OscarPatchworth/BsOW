@@ -35,6 +35,8 @@ func free_children(parent: Node) -> void:
 ## Calls
 func add_invading_unit(unit: UnitObject):
 	invading_units.append(unit)
+func rmv_invading_unit(unit: UnitObject):
+	invading_units.erase(unit)
 
 
 ## Get/Set (er)s

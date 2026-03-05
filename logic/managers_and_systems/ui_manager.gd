@@ -6,6 +6,7 @@ signal buy_unit_action_req(buy_unit_req)
 signal move_units_action_req(move_units_req)
 signal attack_action_req(req: Action)
 signal unit_selected(unit: UnitObject)
+signal unit_deslected(unit: UnitObject)
 
 # enums
 #enum Element {EARTH,WATER,AIR,FIRE,}
@@ -35,6 +36,7 @@ func _ready() -> void:
 	connect_wires()
 
 	lander_panel.hide()
+	combat_panel.hide()
 		
 
 ### Signals and wires
@@ -45,6 +47,7 @@ func connect_signals():
 	lander_panel.attack_action_req.connect(self.fwd_attack_action_req)
 
 	combat_panel.unit_selected.connect(self.fwd_unit_selected)
+	combat_panel.unit_deslected.connect(self.fwd_unit_deslected)
 
 func connect_wires():
 	wire_selector_manager()
@@ -135,3 +138,7 @@ func run_combat_display(contest: Contest):
 func update_combat_display(contest: Contest):
 	print("PlayerUI | update combat recieved")
 	combat_panel.update_combat_display(contest)
+
+
+func fwd_unit_deslected(unit: UnitObject):
+	unit_deslected.emit(unit)

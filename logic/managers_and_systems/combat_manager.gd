@@ -77,6 +77,11 @@ func actor_selected_unit(unit:UnitObject):
 			#print("Combat Manager | actor_selected_unit| combat_updated emiited")
 			
 
+func actor_deselected_unit(unit: UnitObject):
+	if current_combat.get_invading_actor() == unit.get_owned_by():
+		current_combat.rmv_invading_unit(unit)
+		combat_updated.emit(current_combat)
+		#print("Combat Manager | actor_selected_unit| combat_updated emiited")
 
 ## Get/Set (er)s
 func get_max_attack_units() -> int:

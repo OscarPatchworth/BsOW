@@ -1,7 +1,8 @@
-#combat_progress_bar.gd
+#selected_combat_units_display.gd
 extends Control
 
 # signals
+signal unit_deslected(unit: UnitObject)
 
 # enums
 enum FillDir {
@@ -86,6 +87,7 @@ func connect_signals():
 
 
 func fwd_unit_deselected():
+	unit_deslected.emit(unit)
 	print("Combat progress bar | unit deselected")
 ## Calls
 
