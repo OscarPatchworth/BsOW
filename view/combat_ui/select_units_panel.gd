@@ -18,6 +18,7 @@ var player_self: Player
 
 # @onready variables
 @onready var unit_btn_container: Container = self.find_child("VBoxContainer")
+@onready var lockout_panel: Panel = self.find_child("LockOutPanel")
 
 ###################################################################################################
 ###	Methods
@@ -43,6 +44,16 @@ func bind_player(p: Player):
 
 
 func update(combat_state: Contest):
+	if (!combat_state.get_invading_ready() and !combat_state.get_defending_ready()) :
+		lockout_panel.hide()
+	elif(
+		combat_state.get_invading_actor() == player_self and combat_state.get_invading_ready()
+		or  combat_state.get_defending_actor() == player_self and combat_state.get_defending_ready()):
+			lockout_panel.show()
+	else: lockout_panel.hide()
+
+
+
 	free_children(unit_btn_container)
 
 	var units: Array[UnitObject]
