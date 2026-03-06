@@ -275,7 +275,7 @@ grow_horizontal = 2
 grow_vertical = 2
 script = ExtResource("15_1neg8")
 
-[node name="AttackUnitsPanel" type="Panel" parent="CanvasLayer/UI-manager/CombatPanel"]
+[node name="SelfUnitsPanel" type="Panel" parent="CanvasLayer/UI-manager/CombatPanel"]
 layout_mode = 1
 anchors_preset = -1
 anchor_left = 0.15
@@ -284,10 +284,9 @@ anchor_right = 0.45
 anchor_bottom = 0.55
 script = ExtResource("16_ld1gm")
 unit_display_control = ExtResource("17_o3itl")
-combat_side = 1
 bar_colour = Color(0.55, 0.242, 0.247133, 1)
 
-[node name="DefendUnitsPanel" type="Panel" parent="CanvasLayer/UI-manager/CombatPanel"]
+[node name="OppUnitsPanel" type="Panel" parent="CanvasLayer/UI-manager/CombatPanel"]
 layout_mode = 1
 anchors_preset = -1
 anchor_left = 0.55
@@ -329,6 +328,7 @@ script = ExtResource("20_sfpvi")
 unit_btn_script = ExtResource("21_l1mcl")
 
 [node name="LockOutPanel" type="Panel" parent="CanvasLayer/UI-manager/CombatPanel/SelectUnitsPanel"]
+visible = false
 z_index = 2
 layout_mode = 1
 anchors_preset = 15

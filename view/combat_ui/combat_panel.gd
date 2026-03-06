@@ -19,8 +19,8 @@ var player_self: Player
 # remaining regular variables
 
 # @onready variables
-@onready var attack_units_pannel: Panel = self.find_child("AttackUnitsPanel")
-@onready var defend_units_panel: Panel = self.find_child("DefendUnitsPanel")
+@onready var self_units_pannel: Panel = self.find_child("SelfUnitsPanel")
+@onready var opp_units_panel: Panel = self.find_child("OppUnitsPanel")
 @onready var attack_ablt_panel: Panel = self.find_child("AttackAbilitiesPanel")
 @onready var defend_ablt_panel: Panel = self.find_child("DefendAbilitiesPanel")
 @onready var select_units_panel: Panel = self.find_child("SelectUnitsPanel")
@@ -41,6 +41,15 @@ func _ready() -> void:
 
 
 func update(combat_state: Contest):
+
+	if(combat_state.get_invading_actor() == player_self):
+		self_units_pannel.set_combat_side(self_units_pannel.CombatSide.ATTACKING) 
+		opp_units_panel.set_combat_side(self_units_pannel.CombatSide.DEFENDING)	
+	else:
+		self_units_pannel.set_combat_side(self_units_pannel.CombatSide.DEFENDING) 
+		opp_units_panel.set_combat_side(self_units_pannel.CombatSide.ATTACKING)	# Atk
+
+
 	### Code taken from chatGPT
 	for child in get_children():
 		if child.has_method("update"):
@@ -85,8 +94,8 @@ func update_combat_display(contest: Contest):
 ### Connected Signals
 func setup_signals():
 	select_units_panel.unit_selected.connect(self.fwd_unit_selected)
-	attack_units_pannel.unit_deslected.connect(fwd_unit_deslected)
-	defend_units_panel.unit_deslected.connect(fwd_unit_deslected)
+	self_units_pannel.unit_deslected.connect(fwd_unit_deslected)
+	opp_units_panel.unit_deslected.connect(fwd_unit_deslected)
 	fight_btn.player_combat_ready.connect(fwd_player_combat_ready)
 
 

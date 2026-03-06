@@ -39,11 +39,11 @@ var combat_manager: GameManager
 # @export variables
 @export var unit_display_control: PackedScene
 @export var fill_align: AlignmentOptions
-@export var combat_side: CombatSide
 @export var bar_colour: Color
 
 # remaining regular variables
 var combat_state: CombatState = CombatState.SELECTING
+var combat_side: CombatSide
 
 # @onready variables
 
@@ -135,5 +135,10 @@ func fwd_unit_deslected(unit: UnitObject):
 	unit_deslected.emit(unit)
 
 ## Get/Set (er)s
+func get_combat_side() -> CombatSide:
+	return combat_side
+func set_combat_side(side: CombatSide):
+	combat_side = side
+
 
 ### Connected Signals

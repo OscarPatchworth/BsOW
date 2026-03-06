@@ -10,6 +10,6 @@ class_name UnitRes  # Optional, but helpful
 
 
 const defualt_dmg_ref = "res://Scripts/Resources/damage/defualt_dmg.tres"
-@export var damage: DamageRes = preload(defualt_dmg_ref)
+#@export var damage: DamageRes = preload(defualt_dmg_ref)
 
 #@export var abilities: Array[Ability]
