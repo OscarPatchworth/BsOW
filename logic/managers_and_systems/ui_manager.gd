@@ -8,6 +8,7 @@ signal attack_action_req(req: Action)
 signal unit_selected(unit: UnitObject)
 signal unit_deslected(unit: UnitObject)
 signal player_combat_ready
+signal player_combat_not_ready
 
 # enums
 #enum Element {EARTH,WATER,AIR,FIRE,}
@@ -50,6 +51,7 @@ func connect_signals():
 	combat_panel.unit_selected.connect(self.fwd_unit_selected)
 	combat_panel.unit_deslected.connect(self.fwd_unit_deslected)
 	combat_panel.player_combat_ready.connect(self.fwd_player_combat_ready)
+	combat_panel.player_combat_not_ready.connect(fwd_player_combat_not_ready)
 
 func connect_wires():
 	wire_selector_manager()
@@ -112,6 +114,10 @@ func fwd_attack_action_req(req: Action):
 
 func fwd_player_combat_ready():
 	player_combat_ready.emit()
+
+
+func fwd_player_combat_not_ready():
+	player_combat_not_ready.emit()
 
 ## Calls
 func received_build_action_completed(req: Action):

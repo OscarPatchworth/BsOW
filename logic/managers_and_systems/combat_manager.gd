@@ -96,6 +96,17 @@ func player_ready(ready_player: Actor):
 	combat_updated.emit(current_combat)
 
 
+func player_unready(unready_player: Actor):
+	if current_combat.get_invading_actor() == unready_player:
+		current_combat.set_invading_ready(false)
+	elif current_combat.get_defending_actor() == unready_player:
+		current_combat.set_defending_ready(false)
+	else: 
+		print("Combat Manager | ERROR | Actor outside of combat declared not Ready")
+		return
+	#print("Combat Manager | Player not Ready recieved")
+	combat_updated.emit(current_combat)
+
 ## Get/Set (er)s
 func get_max_attack_units() -> int:
 	return max_attack_units

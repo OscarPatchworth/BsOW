@@ -3,6 +3,7 @@ extends GameButton
 
 # signals
 signal player_combat_ready
+signal player_combat_not_ready
 
 # enums
 
@@ -15,6 +16,8 @@ var combat_manager: GameManager
 
 # remaining regular variables
 var player_self: Actor
+var ply_ready: bool = false
+
 # @onready variables
 
 ###################################################################################################
@@ -29,14 +32,19 @@ func update(combat_state: Contest):
 	or combat_state.get_invading_actor() == player_self and combat_state.get_invading_ready()):
 		text = "READY"
 		rotation = -FIGHT_BTN_ROT
+		ply_ready = true
 	else:
 		text = "FIGHT"
 		rotation = FIGHT_BTN_ROT
+		ply_ready = false
 
 
 ### Connected Signals
 func _pressed() -> void:
-	player_combat_ready.emit()
+	if(ply_ready):
+		player_combat_not_ready.emit()
+	else:
+		player_combat_ready.emit()
 
 
 ## Calls
@@ -46,7 +54,7 @@ func bind_combat_manager(cm: GameManager):
 
 func bind_player(p: Player):
 	player_self = p
-	
+
 ## Get/Set (er)s
 
 ### Connected Signals
