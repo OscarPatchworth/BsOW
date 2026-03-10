@@ -105,6 +105,9 @@ func player_ready(ready_player: Actor):
 	#print("Combat Manager | Player Ready recieved")
 	combat_updated.emit(current_combat)
 
+	if current_combat.get_invading_ready() and current_combat.get_defending_ready():
+		run_damage_phase()
+
 
 func player_unready(unready_player: Actor):
 	if current_combat.get_invading_actor() == unready_player:
@@ -116,6 +119,11 @@ func player_unready(unready_player: Actor):
 		return
 	#print("Combat Manager | Player not Ready recieved")
 	combat_updated.emit(current_combat)
+
+
+func run_damage_phase():
+	print("Combat Manager | @ run damage phase")
+
 
 ## Get/Set (er)s
 func get_max_attack_units() -> int:

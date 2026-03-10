@@ -118,8 +118,8 @@ func init_ai(sai: SimpleAI):
 	# FROM sai
 	sai.combat_unit_selected.connect(combat_manager.actor_selected_unit)
 	sai.unit_deslected.connect(combat_manager.actor_deselected_unit)
-	sai.player_combat_ready.connect(combat_manager.player_ready)
-	sai.player_combat_not_ready.connect(combat_manager.player_unready)
+	sai.combat_ready.connect(combat_manager.player_ready)
+	sai.combat_not_ready.connect(combat_manager.player_unready)
 
 	# Init Landers
 	for i in match_settings.starting_simple_troops:

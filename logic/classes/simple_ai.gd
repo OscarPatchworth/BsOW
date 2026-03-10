@@ -3,11 +3,10 @@ class_name SimpleAI
 extends Actor
 
 # signals
-signal combat_unit_selected
-signal combat_ready
-signal unit_deslected
-signal player_combat_ready
-signal player_combat_not_ready
+signal combat_unit_selected(unit: UnitObject)
+signal combat_ready(actor: Actor)
+signal unit_deslected(unit: UnitObject)
+signal combat_not_ready(actor: Actor)
 
 # enums
 
@@ -41,7 +40,7 @@ func enter_combat(contest: Contest):
 			var chosen_unit: UnitObject = units.pick_random()
 			combat_unit_selected.emit(chosen_unit)
 			units.erase(chosen_unit)
-	combat_ready.emit()
+	combat_ready.emit(self)
 
 
 func combat_update(contest: Contest):
