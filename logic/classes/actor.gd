@@ -18,11 +18,25 @@ var combat_manager: GameManager
 # remaining regular variables
 
 
-# Called when the node enters the scene tree for the first time.
-func _ready() -> void:
-	pass # Replace with function body.
+###################################################################################################
+# Methods
 
 
-# Called every frame. 'delta' is the elapsed time since the previous frame.
-func _process(delta: float) -> void:
+
+# Calls
+func contest_lander(contest: Contest):
+	#print("Player | Contest Lander call recieved")
+
+	# Check if this combat involves this player
+	if(contest.get_invading_actor() == self or contest.get_defending_actor() == self):
+		enter_combat(contest)
+		
+	else:
+		# Player is not involved in combat
+		# Do not need to do anything
+		# May want to put player in spectator mode or smth later
+		pass
+
+
+func enter_combat(contest: Contest):
 	pass

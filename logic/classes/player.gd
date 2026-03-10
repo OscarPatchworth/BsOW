@@ -155,18 +155,11 @@ func fwd_move_units_action_completed(req: Action):
 		player_ui.fwd_move_units_action_completed(req)
 
 
-func contest_lander(contest: Contest):
-	#print("Player | Contest Lander call recieved")
 
-	# Check if this combat involves this player
-	if(contest.get_invading_actor() == self or contest.get_defending_actor() == self):
-		print("Player | Entering lander contest")
-		player_ui.run_combat_display(contest)
-	else:
-		# Player is not involved in combat
-		# Do not need to do anything
-		# May want to put player in spectator mode or smth later
-		pass
+func enter_combat(contest: Contest):
+	print("Player | Entering lander contest")
+	player_ui.run_combat_display(contest)
+
 
 
 func combat_req(contest: Contest):
