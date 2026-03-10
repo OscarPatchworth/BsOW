@@ -16,7 +16,7 @@ var combat_manager: GameManager
 # @export variables
 
 # remaining regular variables
-
+var cmb_pos # Combat ATK/DEF
 
 ###################################################################################################
 # Methods
@@ -24,11 +24,12 @@ var combat_manager: GameManager
 
 
 # Calls
-func contest_lander(contest: Contest):
+func combat_req(contest: Contest):
 	#print("Player | Contest Lander call recieved")
 
 	# Check if this combat involves this player
 	if(contest.get_invading_actor() == self or contest.get_defending_actor() == self):
+		cmb_pos = "Attacker" if contest.get_invading_actor() == self else "Defender"
 		enter_combat(contest)
 		
 	else:
