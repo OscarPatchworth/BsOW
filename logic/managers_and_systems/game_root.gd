@@ -103,10 +103,25 @@ func add_ai():
 
 func init_ai(sai: SimpleAI):
 	#print(ai)
+	# AI congif
 	sai.species = game_species.pick_random()
+
+	# Wires
 	sai.turn_manager = self.turn_manager
 	sai.lander_manager = self.lander_manager
+	sai.combat_manager = self.combat_manager
 
+	# Signals
+	# TO sai
+	combat_manager.combat_started.connect(sai.combat_req)
+	combat_manager.combat_updated.connect(sai.combat_update)
+	# FROM sai
+	sai.combat_unit_selected.connect(combat_manager.actor_selected_unit)
+	sai.unit_deslected.connect(combat_manager.actor_deselected_unit)
+	sai.player_combat_ready.connect(combat_manager.player_ready)
+	sai.player_combat_not_ready.connect(combat_manager.player_unready)
+
+	# Init Landers
 	for i in match_settings.starting_simple_troops:
 		var place_pos = Vector3.ZERO
 		place_pos.x = randf() * match_settings.map_size * ((-1)**(randi()%2))

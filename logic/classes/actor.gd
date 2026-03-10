@@ -2,7 +2,10 @@ class_name Actor
 extends Node
 
 # enums
-#enum Element {EARTH,WATER,AIR,FIRE,}
+enum CombatSide {
+	ATTAKING,
+	DEFENDING
+}
 
 # constants
 #const MAX_SPEED = 200
@@ -16,7 +19,7 @@ var combat_manager: GameManager
 # @export variables
 
 # remaining regular variables
-var cmb_pos # Combat ATK/DEF
+var combat_pos # Combat ATK/DEF
 
 ###################################################################################################
 # Methods
@@ -29,7 +32,7 @@ func combat_req(contest: Contest):
 
 	# Check if this combat involves this player
 	if(contest.get_invading_actor() == self or contest.get_defending_actor() == self):
-		cmb_pos = "Attacker" if contest.get_invading_actor() == self else "Defender"
+		combat_pos = CombatSide.ATTAKING if contest.get_invading_actor() == self else CombatSide.DEFENDING
 		enter_combat(contest)
 		
 	else:

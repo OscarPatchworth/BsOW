@@ -42,6 +42,12 @@ func rmv_invading_unit(unit: UnitObject):
 	invading_units.erase(unit)
 
 
+func add_defending_unit(unit: UnitObject):
+	defending_units.append(unit)
+func rmv_defending_unit(unit: UnitObject):
+	defending_units.erase(unit)
+
+
 ## Get/Set (er)s
 func get_contested_lander() -> Lander:
 	return contested_lander

@@ -75,7 +75,17 @@ func actor_selected_unit(unit:UnitObject):
 			current_combat.add_invading_unit(unit)
 			combat_updated.emit(current_combat)
 			#print("Combat Manager | actor_selected_unit| combat_updated emiited")
-			
+	elif current_combat.get_defending_actor() == unit.get_owned_by():
+		if current_combat.get_defending_units().size() >= max_defend_units:
+			print("Combat Manager | Defender selecting too many units to attack w/")
+
+		else:
+			current_combat.add_defending_unit(unit)
+			combat_updated.emit(current_combat)
+			#print("Combat Manager | actor_selected_unit| combat_updated emiited")
+	else:
+		return # ERROR
+
 
 func actor_deselected_unit(unit: UnitObject):
 	if current_combat.get_invading_actor() == unit.get_owned_by():
