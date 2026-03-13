@@ -123,6 +123,12 @@ func player_unready(unready_player: Actor):
 
 func run_damage_phase():
 	print("Combat Manager | @ run damage phase")
+	# Calc Damage
+		 	
+	# Calc Outcome
+
+	# Apply Outcome
+
 
 
 ## Get/Set (er)s
