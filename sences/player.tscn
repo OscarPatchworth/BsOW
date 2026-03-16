@@ -1,4 +1,4 @@
-[gd_scene load_steps=32 format=3 uid="uid://cmnn2jtgwr4dw"]
+[gd_scene load_steps=33 format=3 uid="uid://cmnn2jtgwr4dw"]
 
 [ext_resource type="Script" path="res://logic/classes/player.gd" id="1_tftws"]
 [ext_resource type="Script" path="res://logic/classes/player_controler.gd" id="2_pm403"]
@@ -48,6 +48,9 @@ bg_color = Color(0.6, 0.5755, 0.39, 1)
 variation_embolden = 1.0
 
 [sub_resource type="LabelSettings" id="LabelSettings_cgt8w"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_62vnv"]
+bg_color = Color(0.50456, 0.2576, 0.56, 1)
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_hure4"]
 bg_color = Color(0.31, 0.2046, 0.24676, 1)
@@ -286,6 +289,25 @@ script = ExtResource("16_ld1gm")
 unit_display_control = ExtResource("17_o3itl")
 bar_colour = Color(0.55, 0.242, 0.247133, 1)
 
+[node name="ComabtSelectedUnitsDisplay" parent="CanvasLayer/UI-manager/CombatPanel/SelfUnitsPanel" instance=ExtResource("17_o3itl")]
+layout_mode = 1
+
+[node name="Fill" parent="CanvasLayer/UI-manager/CombatPanel/SelfUnitsPanel/ComabtSelectedUnitsDisplay" index="0"]
+offset_right = 153.416
+offset_bottom = -0.424004
+theme_override_styles/panel = SubResource("StyleBoxFlat_62vnv")
+
+[node name="RichTextLabel" type="RichTextLabel" parent="CanvasLayer/UI-manager/CombatPanel/SelfUnitsPanel/ComabtSelectedUnitsDisplay"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+bbcode_enabled = true
+text = "[b][char=0x00002680][/b]"
+fit_content = true
+
 [node name="OppUnitsPanel" type="Panel" parent="CanvasLayer/UI-manager/CombatPanel"]
 layout_mode = 1
 anchors_preset = -1
@@ -486,3 +508,5 @@ rotation = -0.20944
 pivot_offset = Vector2(50, 45)
 text = "Fight !"
 script = ExtResource("22_oflah")
+
+[editable path="CanvasLayer/UI-manager/CombatPanel/SelfUnitsPanel/ComabtSelectedUnitsDisplay"]
