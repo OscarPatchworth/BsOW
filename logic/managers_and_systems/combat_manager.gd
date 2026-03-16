@@ -169,7 +169,6 @@ func run_damage_phase():
 		defending_dmg.append(unit_dmg)
 	#print(invading_dmg)
 
-
 	# Calc Outcome
 	invading_dmg.sort_custom(func(a, b): return a.get_total() > b.get_total())
 	defending_dmg.sort_custom(func(a, b): return a.get_total() > b.get_total())
@@ -191,7 +190,19 @@ func run_damage_phase():
 		print(unit.get_debug())
 
 	# Apply Outcome
+	for attacker in invading_dmg:
+		if attacker.get_outcome() == CombatOutcome.Outcome.DEAD:
+			current_combat.get_invading_lander().rmv_units([attacker.get_unit()])
+	for defender in defending_dmg:
+		if defender.get_outcome() == CombatOutcome.Outcome.DEAD:
+			current_combat.get_contested_lander().rmv_units([defender.get_unit()])
 
+	current_combat.set_defending_ready(false)
+	current_combat.set_invading_ready(false)
+	current_combat.set_invadining_units([])
+	current_combat.set_defending_units([])
+
+	combat_started.emit(current_combat)
 
 
 ## Get/Set (er)s
