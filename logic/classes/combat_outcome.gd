@@ -15,7 +15,8 @@ enum Reasons {
 	COMBAT_WON,
 	ABILITY_SAVED,
 	ABILITY_LOST,
-	ABILITY_WON
+	ABILITY_WON,
+	NO_COMBAT
 }
 
 const REASON_TXT:= {
@@ -23,7 +24,8 @@ const REASON_TXT:= {
 	Reasons.COMBAT_WON : "Unit survived combat",
 	Reasons.ABILITY_SAVED : "Unit was doomed by saved by ability",
 	Reasons.ABILITY_LOST : "Unit had the high ground but was thawted by ability",
-	Reasons.ABILITY_WON : "Unit Clutched victory with help from ability"	
+	Reasons.ABILITY_WON : "Unit Clutched victory with help from ability",
+	Reasons.NO_COMBAT : "Unit slept in and missed the fight"	
 }
 
 
@@ -38,8 +40,8 @@ var unit: UnitObject
 var rolls: Array[int]
 var mods: Array[int]
 var total: int
-var outcome: Outcome
-var reason: Reasons
+var outcome: Outcome = Outcome.ALIVE
+var reason: Reasons = Reasons.NO_COMBAT
 
 # @onready variables
 
@@ -62,7 +64,8 @@ func sum(numbs: Array[int]) -> int:
 
 
 func get_reason_text(r: Reasons) -> String:
-	return REASON_TXT[r]
+	if r != null: return REASON_TXT[r]
+	else: return ""
 
 
 ### Connected Signals
@@ -118,5 +121,15 @@ func set_reason(r: Reasons):
 			print("Combat Outcome | ERR | Non valid reason set")
 			return
 	
+
+func get_debug() -> Dictionary:
+	return {
+		"unit" : unit.get_unit_data().get_unit_name(),
+		"rolls" : rolls,
+		"mods" : mods,
+		"total" : total,
+		"outcome" : outcome,
+		"reason" : get_reason_text(reason)
+	}
 
 ### Connected Signals

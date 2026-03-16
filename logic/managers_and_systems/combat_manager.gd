@@ -13,23 +13,6 @@ enum CombatLoop {
 	CLEANUP
 }
 
-enum Reasons {
-	COMBAT_LOST,
-	COMBAT_WON,
-	ABILITY_SAVED,
-	ABILITY_LOST,
-	ABILITY_WON
-}
-
-const REASON_TXT:= {
-	Reasons.COMBAT_LOST : "Unit fell in combat",
-	Reasons.COMBAT_WON : "Unit survived combat",
-	Reasons.ABILITY_SAVED : "Unit was doomed by saved by ability",
-	Reasons.ABILITY_LOST : "Unit had the high ground but was thawted by ability",
-	Reasons.ABILITY_WON : "Unit Clutched victory with help from ability"	
-}
-
-
 # constants
 
 # static variables
@@ -155,55 +138,57 @@ func run_damage_phase():
 	# Calc Invading
 	var invading_dmg = []
 	for unit in current_combat.invading_units:
+		var unit_dmg = CombatOutcome.new()
+		unit_dmg.set_unit(unit)
+
 		var unit_dmg_data = unit.get_unit_data().get_dmg()
-		var rolls: Array[int]
 		for die in unit_dmg_data.get_dice_amount():
 			var roll = (randi() % unit_dmg_data.get_damage_dice()) + 1
-			rolls.append(roll)
-		var unit_dmg_total = sum(rolls) + unit_dmg_data.get_damage_mod()
-		var unit_dmg = {
-			"rolls" : rolls.duplicate(),
-			"total" : unit_dmg_total
-		}
+			unit_dmg.add_roll(roll)
+		
+		unit_dmg.add_mod(unit_dmg_data.get_damage_mod())
+		unit_dmg.set_total(unit_dmg.calc_total())
 
-		invading_dmg.append({"unit" = unit,"dmg" = unit_dmg.duplicate()})
+		invading_dmg.append(unit_dmg)
 	#print(invading_dmg)
 
 	# Calc Defending
 	var defending_dmg = []
 	for unit in current_combat.defending_units:
+		var unit_dmg = CombatOutcome.new()
+		unit_dmg.set_unit(unit)
+
 		var unit_dmg_data = unit.get_unit_data().get_dmg()
-		var rolls: Array[int]
 		for die in unit_dmg_data.get_dice_amount():
 			var roll = (randi() % unit_dmg_data.get_damage_dice()) + 1
-			rolls.append(roll)
-		var unit_dmg_total = sum(rolls) + unit_dmg_data.get_damage_mod()
-		var unit_dmg = {
-			"rolls" : rolls.duplicate(),
-			"total" : unit_dmg_total
-		}
+			unit_dmg.add_roll(roll)
+		
+		unit_dmg.add_mod(unit_dmg_data.get_damage_mod())
+		unit_dmg.set_total(unit_dmg.calc_total())
 
-		defending_dmg.append({"unit" = unit,"dmg" = unit_dmg.duplicate()})
-	#print(defending_dmg)
+		defending_dmg.append(unit_dmg)
+	#print(invading_dmg)
 
 
 	# Calc Outcome
-	invading_dmg.sort_custom(func(a, b): return a["dmg"]["total"] > b["dmg"]["total"])
-	defending_dmg.sort_custom(func(a, b): return a["dmg"]["total"] > b["dmg"]["total"])
+	invading_dmg.sort_custom(func(a, b): return a.get_total() > b.get_total())
+	defending_dmg.sort_custom(func(a, b): return a.get_total() > b.get_total())
 
 	for i in range(min(invading_dmg.size(), defending_dmg.size())):
 		#if i >= defending_dmg.size():
 		# Use > bcs if tie give win to Defending
-		if invading_dmg[i]["dmg"]["total"] > defending_dmg[i]["dmg"]["total"]:
-			invading_dmg[i]["result"] = Reasons.COMBAT_WON
-			defending_dmg[i]["result"] = Reasons.COMBAT_LOST
+		if invading_dmg[i].get_total() > defending_dmg[i].get_total():
+			invading_dmg[i].set_reason(CombatOutcome.Reasons.COMBAT_WON)
+			defending_dmg[i].set_reason(CombatOutcome.Reasons.COMBAT_LOST)
 		else:
-			invading_dmg[i]["result"] = Reasons.COMBAT_LOST
-			defending_dmg[i]["result"] = Reasons.COMBAT_WON
+			invading_dmg[i].set_reason(CombatOutcome.Reasons.COMBAT_LOST)
+			defending_dmg[i].set_reason(CombatOutcome.Reasons.COMBAT_WON)
 
-	print(invading_dmg)
-	print("\n")
-	print(defending_dmg)
+	for unit in invading_dmg:
+		print(unit.get_debug())
+	print("#####")
+	for unit in defending_dmg:
+		print(unit.get_debug())
 
 	# Apply Outcome
 
