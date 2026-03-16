@@ -41,6 +41,17 @@ func free_children(parent: Node) -> void:
 		i.queue_free()
 
 
+func sum(numbs: Array[int]) -> int:
+	if numbs.size() == 1:
+		return numbs[0]
+	elif numbs == []:
+		return 0.0
+	else:
+		numbs[0] = numbs[0] + numbs[-1]
+		numbs.pop_back()
+		return sum(numbs)
+
+
 func action_to_contest(req: Action) -> Contest:
 	var contest = Contest.new()
 	contest.set_contested_lander(req.target_lander)
@@ -124,8 +135,46 @@ func player_unready(unready_player: Actor):
 func run_damage_phase():
 	print("Combat Manager | @ run damage phase")
 	# Calc Damage
-		 	
+
+	# Calc Invading
+	var invading_dmg = []
+	for unit in current_combat.invading_units:
+		var unit_dmg_data = unit.get_unit_data().get_dmg()
+		var rolls: Array[int]
+		for die in unit_dmg_data.get_dice_amount():
+			var roll = (randi() % unit_dmg_data.get_damage_dice()) + 1
+			rolls.append(roll)
+		var unit_dmg_total = sum(rolls) + unit_dmg_data.get_damage_mod()
+		var unit_dmg = {
+			"rolls" : rolls.duplicate(),
+			"total" : unit_dmg_total
+		}
+
+		invading_dmg.append({"unit" = unit,"dmg" = unit_dmg.duplicate()})
+	print(invading_dmg)
+
+	# Calc Defending
+	var defending_dmg = []
+	for unit in current_combat.defending_units:
+		var unit_dmg_data = unit.get_unit_data().get_dmg()
+		var rolls: Array[int]
+		for die in unit_dmg_data.get_dice_amount():
+			var roll = (randi() % unit_dmg_data.get_damage_dice()) + 1
+			rolls.append(roll)
+		var unit_dmg_total = sum(rolls) + unit_dmg_data.get_damage_mod()
+		var unit_dmg = {
+			"rolls" : rolls.duplicate(),
+			"total" : unit_dmg_total
+		}
+
+		defending_dmg.append({"unit" = unit,"dmg" = unit_dmg.duplicate()})
+	print(defending_dmg)
+
+
 	# Calc Outcome
+	
+
+
 
 	# Apply Outcome
 

@@ -1,8 +1,15 @@
-[gd_resource type="Resource" script_class="UnitData" load_steps=4 format=3 uid="uid://dmftxjfnr1n60"]
+[gd_resource type="Resource" script_class="UnitData" load_steps=6 format=3 uid="uid://dmftxjfnr1n60"]
 
 [ext_resource type="Texture2D" uid="uid://da7nmyq0ig5cv" path="res://visuals/textures/diamond_icons/yellow_diamond_icon.png" id="1_047v1"]
+[ext_resource type="Script" path="res://data/damage/damage_data.gd" id="1_71egg"]
 [ext_resource type="PackedScene" uid="uid://p5ih6l4koapk" path="res://sences/units/base_footsolider.tscn" id="1_h1bdb"]
 [ext_resource type="Script" path="res://data/units/unitData.gd" id="2_fxd0g"]
+
+[sub_resource type="Resource" id="Resource_cn5tj"]
+script = ExtResource("1_71egg")
+damage_dice_amount = 1
+damage_dice = 6
+damage_mod = 0
 
 [resource]
 resource_name = "Base Footsolider"
@@ -11,3 +18,4 @@ name = "Base Footsolider"
 mesh = ExtResource("1_h1bdb")
 icon = ExtResource("1_047v1")
 type = 1
+dmg = SubResource("Resource_cn5tj")

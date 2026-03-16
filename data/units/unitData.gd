@@ -17,6 +17,7 @@ enum UnitType {
 @export var icon: Texture2D
 #@export var cost: EnconData
 @export var type: UnitType = UnitType.NULL
+@export var dmg: DamageData
 
 ###################################################################################################
 ## Get/set (er)s 
@@ -54,6 +55,15 @@ func get_type() -> UnitType:
 		print(str(name) + "is missing mesh and base Type !!")
 		return UnitType.NULL
 
+
+func get_dmg() -> DamageData:
+	if dmg != null:
+		return dmg
+	elif(base != null and base.get_dmg() != null):
+		return base.get_dmg()
+	else:
+		return null
+		
 
 func get_base() -> UnitData:
 	return base
