@@ -6,8 +6,8 @@ class_name CombatOutcome
 
 # enums
 enum Outcome {
-	LOST,
-	WON
+	DEAD,
+	ALIVE
 }
 
 enum Reasons {
@@ -34,9 +34,12 @@ const REASON_TXT:= {
 # @export variables
 
 # remaining regular variables
-var invading_outcome: Dictionary = {}
-var defending_outcone: Dictionary = {}
-
+var unit: UnitObject
+var rolls: Array[int]
+var mods: Array[int]
+var total: int
+var outcome: Outcome
+var reason: Reasons
 
 # @onready variables
 
@@ -47,11 +50,73 @@ func free_children(parent: Node) -> void:
 		i.queue_free()
 
 
+func sum(numbs: Array[int]) -> int:
+	if numbs.size() == 1:
+		return numbs[0]
+	elif numbs == []:
+		return 0.0
+	else:
+		numbs[0] = numbs[0] + numbs[-1]
+		numbs.pop_back()
+		return sum(numbs)
+
+
+func get_reason_text(r: Reasons) -> String:
+	return REASON_TXT[r]
+
+
 ### Connected Signals
 
 
 ## Calls
 
 ## Get/Set (er)s
+func get_unit() -> UnitObject:
+	return unit
+func set_unit(unitobj: UnitObject):
+	unit = unitobj
+
+
+func get_rolls() -> Array[int]:
+	return rolls
+func add_roll(roll: int):
+	rolls.append(roll)
+func clear_rolls():
+	rolls = []
+
+
+func get_mods() -> Array[int]:
+	return mods
+func add_mod(mod: int):
+	mods.append(mod)
+func clear_mods():
+	mods = []
+
+
+func get_total() -> int:
+	return total
+func set_total(dmg_total: int):
+	total = dmg_total
+func calc_total() -> int:
+	return sum(rolls) + sum(mods)
+func clear_total():
+	total = -1 # null
+
+
+func get_outcome() -> Outcome:
+	return outcome
+func get_reason() -> Reasons:
+	return reason
+func set_reason(r: Reasons):
+	reason = r
+	match r:
+		Reasons.COMBAT_LOST, Reasons.ABILITY_LOST:
+			outcome = Outcome.DEAD
+		Reasons.COMBAT_WON, Reasons.ABILITY_SAVED, Reasons.ABILITY_WON:
+			outcome = Outcome.ALIVE
+		_:
+			print("Combat Outcome | ERR | Non valid reason set")
+			return
+	
 
 ### Connected Signals

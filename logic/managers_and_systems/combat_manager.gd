@@ -13,6 +13,22 @@ enum CombatLoop {
 	CLEANUP
 }
 
+enum Reasons {
+	COMBAT_LOST,
+	COMBAT_WON,
+	ABILITY_SAVED,
+	ABILITY_LOST,
+	ABILITY_WON
+}
+
+const REASON_TXT:= {
+	Reasons.COMBAT_LOST : "Unit fell in combat",
+	Reasons.COMBAT_WON : "Unit survived combat",
+	Reasons.ABILITY_SAVED : "Unit was doomed by saved by ability",
+	Reasons.ABILITY_LOST : "Unit had the high ground but was thawted by ability",
+	Reasons.ABILITY_WON : "Unit Clutched victory with help from ability"	
+}
+
 
 # constants
 
@@ -151,7 +167,7 @@ func run_damage_phase():
 		}
 
 		invading_dmg.append({"unit" = unit,"dmg" = unit_dmg.duplicate()})
-	print(invading_dmg)
+	#print(invading_dmg)
 
 	# Calc Defending
 	var defending_dmg = []
@@ -168,13 +184,26 @@ func run_damage_phase():
 		}
 
 		defending_dmg.append({"unit" = unit,"dmg" = unit_dmg.duplicate()})
-	print(defending_dmg)
+	#print(defending_dmg)
 
 
 	# Calc Outcome
-	
+	invading_dmg.sort_custom(func(a, b): return a["dmg"]["total"] > b["dmg"]["total"])
+	defending_dmg.sort_custom(func(a, b): return a["dmg"]["total"] > b["dmg"]["total"])
 
+	for i in range(min(invading_dmg.size(), defending_dmg.size())):
+		#if i >= defending_dmg.size():
+		# Use > bcs if tie give win to Defending
+		if invading_dmg[i]["dmg"]["total"] > defending_dmg[i]["dmg"]["total"]:
+			invading_dmg[i]["result"] = Reasons.COMBAT_WON
+			defending_dmg[i]["result"] = Reasons.COMBAT_LOST
+		else:
+			invading_dmg[i]["result"] = Reasons.COMBAT_LOST
+			defending_dmg[i]["result"] = Reasons.COMBAT_WON
 
+	print(invading_dmg)
+	print("\n")
+	print(defending_dmg)
 
 	# Apply Outcome
 
