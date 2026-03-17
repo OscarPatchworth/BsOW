@@ -37,6 +37,7 @@ var combat_state: CombatState = CombatState.SELECTING
 # @onready variables
 @onready var btn: GameButton = self.find_child("GameButton")
 @onready var fill: Panel = self.find_child("Fill")
+@onready var rtl: RichTextLabel = self.find_child("RichTextLabel")
 
 
 ###################################################################################################
@@ -84,9 +85,9 @@ func update_filled():
 
 func update_txt():
 	if unit == null:
-		btn.text = ""
+		rtl.set_text("")
 	else:
-		btn.text = unit.get_unit_data().name
+		rtl.set_text(unit.get_unit_data().name)
 
 
 func update_btn_style():
