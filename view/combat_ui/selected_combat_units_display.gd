@@ -16,9 +16,11 @@ enum CombatState {
 }
 
 # constants
-const delselected_fill_perc: float = 0.64
-const selected_fill_perc: float = 1.0
-
+const DESELECT_FILL: float = 0.64
+const SELECT_FILL: float = 1.0
+const DIE_UTF:String = "[char=0x00002680]"
+const WON_FILL: float = 1.3
+const LOST_FILL:float = 0.7
 # static variables
 
 # @export variables
@@ -67,20 +69,20 @@ func update_filled():
 	if is_filled: 
 		if(fill_dir == FillDir.FILL_LEFT_TO_RIGHT):
 			fill.set_anchor_and_offset(SIDE_LEFT, 0, 0)
-			fill.set_anchor_and_offset(SIDE_RIGHT, selected_fill_perc, 0)
+			fill.set_anchor_and_offset(SIDE_RIGHT, SELECT_FILL, 0)
 		if(fill_dir == FillDir.FILL_RIGHT_TO_LEFT):
 			fill.set_anchor_and_offset(SIDE_RIGHT, 1, 0)
-			fill.set_anchor_and_offset(SIDE_LEFT, 1 - selected_fill_perc, 0)
+			fill.set_anchor_and_offset(SIDE_LEFT, 1 - SELECT_FILL, 0)
 
 		btn.show()
 	else: 
 		btn.hide()
 		if(fill_dir == FillDir.FILL_LEFT_TO_RIGHT):
 			fill.set_anchor_and_offset(SIDE_LEFT, 0, 0)
-			fill.set_anchor_and_offset(SIDE_RIGHT, delselected_fill_perc, 0)
+			fill.set_anchor_and_offset(SIDE_RIGHT, DESELECT_FILL, 0)
 		if(fill_dir == FillDir.FILL_RIGHT_TO_LEFT):
 			fill.set_anchor_and_offset(SIDE_RIGHT, 1, 0)
-			fill.set_anchor_and_offset(SIDE_LEFT, 1 - delselected_fill_perc, 0)
+			fill.set_anchor_and_offset(SIDE_LEFT, 1 - DESELECT_FILL, 0)
 
 
 func update_txt():

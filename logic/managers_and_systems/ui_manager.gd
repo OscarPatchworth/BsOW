@@ -153,3 +153,7 @@ func update_combat_display(contest: Contest):
 
 func fwd_unit_deslected(unit: UnitObject):
 	unit_deslected.emit(unit)
+
+
+func combat_outcome(c_out: Array[CombatOutcome]):
+	combat_panel.combat_outcome(c_out)

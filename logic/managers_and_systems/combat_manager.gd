@@ -4,6 +4,7 @@ extends GameManager
 # signals
 signal combat_started(contest: Contest)
 signal combat_updated(contest: Contest)
+signal combat_outcome(c_out: Array[CombatOutcome])
 
 # enums
 enum CombatLoop {
@@ -136,7 +137,7 @@ func run_damage_phase():
 	# Calc Damage
 
 	# Calc Invading
-	var invading_dmg = []
+	var invading_dmg: Array[CombatOutcome] = []
 	for unit in current_combat.invading_units:
 		var unit_dmg = CombatOutcome.new()
 		unit_dmg.set_unit(unit)
@@ -153,7 +154,7 @@ func run_damage_phase():
 	#print(invading_dmg)
 
 	# Calc Defending
-	var defending_dmg = []
+	var defending_dmg: Array[CombatOutcome] = []
 	for unit in current_combat.defending_units:
 		var unit_dmg = CombatOutcome.new()
 		unit_dmg.set_unit(unit)
@@ -189,6 +190,8 @@ func run_damage_phase():
 	for unit in defending_dmg:
 		print(unit.get_debug())
 
+	combat_outcome.emit(invading_dmg + defending_dmg)
+
 	# Apply Outcome
 	for attacker in invading_dmg:
 		if attacker.get_outcome() == CombatOutcome.Outcome.DEAD:
@@ -202,7 +205,8 @@ func run_damage_phase():
 	current_combat.set_invadining_units([])
 	current_combat.set_defending_units([])
 
-	combat_started.emit(current_combat)
+	#print("Combat Manager | Combat outcome emitted")
+	#combat_started.emit(current_combat)
 
 
 ## Get/Set (er)s

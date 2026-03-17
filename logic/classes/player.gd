@@ -170,3 +170,8 @@ func combat_update(contest: Contest):
 	print("Player | Combat update recieved")
 	if(contest.get_invading_actor() == self or contest.get_defending_actor() == self):
 		player_ui.update_combat_display(contest)
+
+
+func combat_outcome(c_out: Array[CombatOutcome]):
+	#print("Player | Recieved Combat Outcome call")
+	player_ui.combat_outcome(c_out)

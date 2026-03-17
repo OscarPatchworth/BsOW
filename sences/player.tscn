@@ -297,17 +297,6 @@ offset_right = 153.416
 offset_bottom = -0.424004
 theme_override_styles/panel = SubResource("StyleBoxFlat_62vnv")
 
-[node name="RichTextLabel" type="RichTextLabel" parent="CanvasLayer/UI-manager/CombatPanel/SelfUnitsPanel/ComabtSelectedUnitsDisplay"]
-layout_mode = 1
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
-grow_horizontal = 2
-grow_vertical = 2
-bbcode_enabled = true
-text = "[b][char=0x00002680][/b]"
-fit_content = true
-
 [node name="OppUnitsPanel" type="Panel" parent="CanvasLayer/UI-manager/CombatPanel"]
 layout_mode = 1
 anchors_preset = -1

@@ -44,7 +44,7 @@ var combat_manager: GameManager
 # remaining regular variables
 var combat_state: CombatState = CombatState.SELECTING
 var combat_side: CombatSide
-
+var cur_combat: Contest
 # @onready variables
 
 ###################################################################################################
@@ -63,6 +63,7 @@ func bind_combat_manager(cm: GameManager):
 
 
 func update(combat_state: Contest):
+	cur_combat = combat_state
 	# Clear Panel
 	free_children(self)
 	generate_unit_pbs(combat_state)
@@ -133,6 +134,18 @@ func anchor_unit_display(unit_display: Control, i: int, segment_perc: float):
 
 func fwd_unit_deslected(unit: UnitObject):
 	unit_deslected.emit(unit)
+
+
+func combat_outcome(c_out: Array[CombatOutcome]):
+	var outcome: Array[CombatOutcome]
+	if combat_side == CombatSide.ATTACKING:
+		outcome = c_out.filter(func(i): return (i.get_unit() in cur_combat.get_invading_units()))
+		print("cur_combat: " + str(cur_combat.get_invading_units().size()) + " | " + 
+		"c_out: " + str(c_out.size()) + " | " + "combat_outcome: " + str(outcome.size()))
+
+	for display_bar in self.get_children():
+		pass
+
 
 ## Get/Set (er)s
 func get_combat_side() -> CombatSide:

@@ -18,6 +18,7 @@ var player_self: Player
 # @export variables
 
 # remaining regular variables
+var cur_contest: Contest
 
 # @onready variables
 @onready var self_units_pannel: Panel = self.find_child("SelfUnitsPanel")
@@ -42,7 +43,8 @@ func _ready() -> void:
 
 
 func update(combat_state: Contest):
-
+	cur_contest = combat_state
+	
 	if(combat_state.get_invading_actor() == player_self):
 		self_units_pannel.set_combat_side(self_units_pannel.CombatSide.ATTACKING) 
 		opp_units_panel.set_combat_side(self_units_pannel.CombatSide.DEFENDING)	
@@ -87,6 +89,12 @@ func bind_player(p: Player):
 
 func update_combat_display(contest: Contest):
 	update(contest)
+
+
+func combat_outcome(c_out: Array[CombatOutcome]):
+	for child in get_children():
+		if child.has_method("combat_outcome"):
+			child.combat_outcome(c_out)
 
 
 ## Get/Set (er)s
