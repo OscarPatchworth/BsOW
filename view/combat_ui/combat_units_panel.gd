@@ -46,6 +46,8 @@ var combat_state: CombatState = CombatState.SELECTING
 var combat_side: CombatSide
 var cur_combat: Contest
 # @onready variables
+@onready var view_port := get_viewport().get_visible_rect().size
+@onready var container_size:Vector2 = self.size
 
 ###################################################################################################
 ###	Methods
@@ -111,35 +113,46 @@ func generate_unit_pbs(combat_state: Contest):
 
 
 func anchor_unit_display(unit_display: Control, i: int):
-	# Calc the height% of each ratio/cell/tile for the pb spacing
-	var max_units:int = combat_manager.get_max_defend_units() if combat_side == CombatSide.DEFENDING else combat_manager.get_max_attack_units()
-	var segment_perc = (1 - 2 * DISPLAY_MARGIN_PERC) / ( max_units * DISPLAY_RATIO + (max_units-1) * DISPLAY_SPACE_RATIO)
-
-	#unit_display.set_anchors_and_offsets_preset(LayoutPreset.PRESET_TOP_WIDE, LayoutPresetMode.PRESET_MODE_KEEP_SIZE, 0)
-	var top_perc: float
-
-	if(i == 0):
-		top_perc = DISPLAY_MARGIN_PERC
-	else:
-		top_perc = (i * (DISPLAY_RATIO + DISPLAY_SPACE_RATIO)) * segment_perc + DISPLAY_MARGIN_PERC
-	
-	unit_display.anchor_top = top_perc
-	unit_display.anchor_bottom = top_perc + (DISPLAY_RATIO * segment_perc)
-	if(fill_align == AlignmentOptions.LEFT_TO_RIGHT):
-		unit_display.anchor_left = MARGIN_ANCHOR
-		unit_display.anchor_right = LENGTH_ANCHOR
-	else:
-		unit_display.anchor_left = (1 - LENGTH_ANCHOR)
-		unit_display.anchor_right = (1 - MARGIN_ANCHOR)
-
-
-func tween_anchor_unit_display(unit_display: Control, i: int, duration: float = 1.0):
 	# init anchor targets
 	var target_top: float
 	var target_bttm: float
 	var target_left: float
 	var target_right: float
-	var start_pos :=  unit_display.global_position
+
+	# Calc the height% of each ratio/cell/tile for the pb spacing
+	var max_units:int = combat_manager.get_max_defend_units() if combat_side == CombatSide.DEFENDING else combat_manager.get_max_attack_units()
+	var segment_perc = (1 - 2 * DISPLAY_MARGIN_PERC) / ( max_units * DISPLAY_RATIO + (max_units-1) * DISPLAY_SPACE_RATIO)
+
+	if(i == 0):
+		target_top = DISPLAY_MARGIN_PERC
+	else:
+		target_top = (i * (DISPLAY_RATIO + DISPLAY_SPACE_RATIO)) * segment_perc + DISPLAY_MARGIN_PERC
+	
+	target_bttm = target_top + (DISPLAY_RATIO * segment_perc)
+	if(fill_align == AlignmentOptions.LEFT_TO_RIGHT):
+		target_left = MARGIN_ANCHOR
+		target_right = LENGTH_ANCHOR
+	else:
+		target_left = (1 - LENGTH_ANCHOR)
+		target_right = (1 - MARGIN_ANCHOR)
+
+	# Apply anchors
+	#print("Container: " + str(container_size) + " | " +"left: " + str(target_left) + " | " + "right: " + str(target_right - target_left) )
+	unit_display.position.x = target_left * container_size.x
+	unit_display.size.x = (target_right - target_left) * container_size.x
+	unit_display.position.y = target_top * container_size.y
+	unit_display.size.y = (target_bttm - target_top) * container_size.y
+
+
+func tween_anchor_unit_display(unit_display: Control, i: int, duration: float = 1.0):
+	# Update container_size in case the panel resized
+	container_size = self.size
+	# init anchor targets
+	var target_top: float
+	var target_bttm: float
+	var target_left: float
+	var target_right: float
+	# var start_pos := unit_display.global_position  # Removed unused variable
 	# Calc the height% of each ratio/cell/tile for the pb spacing
 	var max_units:int = combat_manager.get_max_defend_units() if combat_side == CombatSide.DEFENDING else combat_manager.get_max_attack_units()
 	var segment_perc = (1 - 2 * DISPLAY_MARGIN_PERC) / ( max_units * DISPLAY_RATIO + (max_units-1) * DISPLAY_SPACE_RATIO)
@@ -158,24 +171,21 @@ func tween_anchor_unit_display(unit_display: Control, i: int, duration: float = 
 		target_left = (1 - LENGTH_ANCHOR)
 		target_right = (1 - MARGIN_ANCHOR)
 
-	# Apply Anchor Change:
-	#unit_display.anchor_top = target_top
-	#unit_display.anchor_left = target_left
-	#unit_display.anchor_bottom = target_bttm
-	#unit_display.anchor_right = target_right
-	#var end_pos := unit_display.global_position
-
-	#unit_display.global_position = start_pos
+	# Convert % size to px size
+	# Do the end converts bcs they're dependent on the start anchors .`. need to keep units the same
+	target_right = (target_right - target_left) * container_size.x
+	target_bttm = (target_bttm - target_top) * container_size.y
+	target_left = target_left * container_size.x
+	target_top = target_top * container_size.y
 
 	# Apply Tween:
-	print("Tweening unit %d: top=%.2f→%.2f" % [i, unit_display.anchor_top, target_top])
-	var tween := create_tween().set_parallel(true).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_OUT)
-	tween.tween_property(unit_display, "anchor_top", target_top, duration)
-	tween.tween_property(unit_display, "anchor_bottom", target_bttm, duration)
-	tween.tween_property(unit_display, "anchor_left", target_left, duration)
-	tween.tween_property(unit_display, "anchor_right", target_right, duration)
-	print("Tweening unit %d: top=%.2f→%.2f" % [i, unit_display.anchor_top, target_top])
+	var tween := create_tween().set_parallel(true).set_ease(Tween.EASE_IN_OUT).set_trans(Tween.TRANS_QUAD)
+	tween.tween_property(unit_display, "position:x", target_left, duration)
+	tween.tween_property(unit_display, "size:x", target_right, duration)
+	tween.tween_property(unit_display, "position:y", target_top , duration)
+	tween.tween_property(unit_display, "size:y", target_bttm, duration)
 
+	
 
 
 func fwd_unit_deslected(unit: UnitObject):
@@ -183,16 +193,21 @@ func fwd_unit_deslected(unit: UnitObject):
 
 
 func combat_outcome(c_out: Array[CombatOutcome]):
-	print("CombatOutcome RTL")
 	var outcome: Array[CombatOutcome]
 	if combat_side == CombatSide.ATTACKING:
 		outcome = c_out.filter(func(i): return (i.get_unit() in cur_combat.get_invading_units()))
 		print("cur_combat: " + str(cur_combat.get_invading_units().size()) + " | " + 
 		"c_out: " + str(c_out.size()) + " | " + "combat_outcome: " + str(outcome.size()))
-		for i in range(outcome.size()):
-			var unit_display = self.get_child(i)
-			unit_display.update_outcome(outcome[i]) 
-			tween_anchor_unit_display(unit_display, i)
+		
+		# Create a list of units in the new order
+	for i in range(self.get_child_count()):
+		var unit_display = self.get_child(i)
+		var target_unit = unit_display.get_unit()
+		for j in range(outcome.size()):
+			if outcome[j].get_unit() == target_unit:
+				unit_display.update_outcome(outcome[j])
+				tween_anchor_unit_display(unit_display, j)
+				break
 		
 
 
