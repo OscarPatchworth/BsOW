@@ -114,10 +114,11 @@ func player_ready(ready_player: Actor):
 		print("Combat Manager | ERROR | Actor outside of combat declared Ready")
 		return
 	#print("Combat Manager | Player Ready recieved")
-	combat_updated.emit(current_combat)
+	
 
 	if current_combat.get_invading_ready() and current_combat.get_defending_ready():
 		run_damage_phase()
+	else: combat_updated.emit(current_combat)
 
 
 func player_unready(unready_player: Actor):
@@ -193,17 +194,13 @@ func run_damage_phase():
 	combat_outcome.emit(invading_dmg + defending_dmg)
 
 	# Apply Outcome
-	for attacker in invading_dmg:
-		if attacker.get_outcome() == CombatOutcome.Outcome.DEAD:
-			current_combat.get_invading_lander().rmv_units([attacker.get_unit()])
-	for defender in defending_dmg:
-		if defender.get_outcome() == CombatOutcome.Outcome.DEAD:
-			current_combat.get_contested_lander().rmv_units([defender.get_unit()])
+	#for attacker in invading_dmg:
+	#	if attacker.get_outcome() == CombatOutcome.Outcome.DEAD:
+	#		current_combat.get_invading_lander().rmv_units([attacker.get_unit()])
+	#for defender in defending_dmg:
+	#	if defender.get_outcome() == CombatOutcome.Outcome.DEAD:
+	#		current_combat.get_contested_lander().rmv_units([defender.get_unit()])
 
-	current_combat.set_defending_ready(false)
-	current_combat.set_invading_ready(false)
-	current_combat.set_invadining_units([])
-	current_combat.set_defending_units([])
 
 	#print("Combat Manager | Combat outcome emitted")
 	#combat_started.emit(current_combat)

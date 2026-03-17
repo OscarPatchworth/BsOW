@@ -18,7 +18,7 @@ enum CombatState {
 # constants
 const DESELECT_FILL: float = 0.64
 const SELECT_FILL: float = 1.0
-const DIE_UTF:String = "[char=0x00002680]"
+const DIE_UTF:int = 00002680
 const WON_FILL: float = 1.3
 const LOST_FILL:float = 0.7
 # static variables
@@ -115,6 +115,14 @@ func btn_mouse_exit():
 func fwd_unit_deselected():
 	unit_deslected.emit(unit)
 	print("Combat progress bar | unit deselected")
+
+
+func update_outcome(c_out: CombatOutcome):
+	print("Jer ")
+	var dice_txt = "[char=0x" + str(DIE_UTF
+	+ c_out.get_rolls()[0]-1)  + "]"
+	rtl.set_text(dice_txt)
+
 ## Calls
 
 ## Get/Set (er)s
