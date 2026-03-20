@@ -5,13 +5,26 @@ extends GameManager
 signal combat_started(contest: Contest)
 signal combat_updated(contest: Contest)
 signal combat_outcome(c_out: Array[CombatOutcome])
+signal combat_finished()
 
 # enums
 enum CombatLoop {
 	START,
 	SELECT,
 	DAMAGE,
-	CLEANUP
+	CLEANUP,
+	INACTIVE
+}
+
+enum SelectAction {
+	SELECT,
+	DESELECT
+}
+
+enum SelectType {
+	UNIT,
+	ABILITY,
+	READY
 }
 
 # constants
@@ -32,9 +45,22 @@ var combat_phase: CombatLoop = CombatLoop.START
 
 var current_combat: Contest
 
+var combat_context: CombatContext
+
 # @onready variables
 
 ###################################################################################################
+# Internal Class
+class CombatContext:  # Local = private to this file only!
+	var contest: Contest
+	var selected_units: Array[UnitObject] = []
+	var outcomes: Array[CombatOutcome] = []
+	var phase := CombatLoop.INACTIVE
+
+	func _init(c: Contest):
+		contest = c
+
+
 ###	Methods
 func free_children(parent: Node) -> void:
 	for i in parent.get_children():
@@ -58,79 +84,51 @@ func action_to_contest(req: Action) -> Contest:
 	contest.set_invading_lander(req.selected_lander)
 	return contest
 
-## Calls
-func bind_match_settings(ms: Node):
-	match_settings = ms
+###################################################################################################
+# STATE Machine
+func update_combat():
+	match combat_phase:
+		CombatLoop.START:
+			print("Combat Manager | Err | Update_combat() in phase 'START'")
+			#run_combat_start()
+			return
+		CombatLoop.SELECT:
+			#run_combat_select_phase()
+			combat_updated.emit(current_combat)
+		CombatLoop.DAMAGE:
+			run_damage_phase()
+		CombatLoop.CLEANUP:
+			run_cleanup_phase()
+			combat_finished.emit()
+		CombatLoop.INACTIVE:
+			print("Comabat Manager | ERR | update_combat() called outside of Combat")
+			return
+		_:
+			print("Comabat Manager | ERR | update_combat() called with an in-valid combat-phase.")
+			return
 
-	max_attack_units = match_settings.max_attack_units
-	max_defend_units = match_settings.max_defend_units
-	max_attack_ablt = match_settings.max_attack_ablt
-	max_defend_ablt = match_settings.max_defend_ablt
 
+# State Proccesses
+func run_combat_start(req: Action):
+	# Reset Context
+	combat_context = null
+	current_combat = null
+	var current_combat = action_to_contest(req)
 
+	# Abilities or smth ...
 
-func attack_action(req: Action):
-	#print("Combat Manager | Combat Req recieved")
-	var combat_state = action_to_contest(req)
-	# other stuffs/edits
-	current_combat = combat_state
+	# Progress State Machine
+	combat_phase = CombatLoop.SELECT
+	# Update Context
+	combat_context = CombatContext.new(current_combat)
+	combat_context.phase = combat_phase
 
 	combat_started.emit(current_combat)
 
 
-func actor_selected_unit(unit:UnitObject):
-	if current_combat.get_invading_actor() == unit.get_owned_by():
-		if current_combat.get_invading_units().size() >= max_attack_units:
-			print("Combat Manager | Attacker selecting too many units to attack w/")
-		else:
-			current_combat.add_invading_unit(unit)
-			combat_updated.emit(current_combat)
-			#print("Combat Manager | actor_selected_unit| combat_updated emiited")
-	elif current_combat.get_defending_actor() == unit.get_owned_by():
-		if current_combat.get_defending_units().size() >= max_defend_units:
-			print("Combat Manager | Defender selecting too many units to attack w/")
+func run_combat_select_phase(s_action: SelectAction, s_type: SelectType, s_obj: UnitObject, s_actor: Actor):
+	pass
 
-		else:
-			current_combat.add_defending_unit(unit)
-			combat_updated.emit(current_combat)
-			#print("Combat Manager | actor_selected_unit| combat_updated emiited")
-	else:
-		return # ERROR
-
-
-func actor_deselected_unit(unit: UnitObject):
-	if current_combat.get_invading_actor() == unit.get_owned_by():
-		current_combat.rmv_invading_unit(unit)
-		combat_updated.emit(current_combat)
-		#print("Combat Manager | actor_selected_unit| combat_updated emiited")
-
-
-func player_ready(ready_player: Actor):
-	if current_combat.get_invading_actor() == ready_player:
-		current_combat.set_invading_ready(true)
-	elif current_combat.get_defending_actor() == ready_player:
-		current_combat.set_defending_ready(true)
-	else: 
-		print("Combat Manager | ERROR | Actor outside of combat declared Ready")
-		return
-	#print("Combat Manager | Player Ready recieved")
-	
-
-	if current_combat.get_invading_ready() and current_combat.get_defending_ready():
-		run_damage_phase()
-	else: combat_updated.emit(current_combat)
-
-
-func player_unready(unready_player: Actor):
-	if current_combat.get_invading_actor() == unready_player:
-		current_combat.set_invading_ready(false)
-	elif current_combat.get_defending_actor() == unready_player:
-		current_combat.set_defending_ready(false)
-	else: 
-		print("Combat Manager | ERROR | Actor outside of combat declared not Ready")
-		return
-	#print("Combat Manager | Player not Ready recieved")
-	combat_updated.emit(current_combat)
 
 
 func run_damage_phase():
@@ -204,6 +202,117 @@ func run_damage_phase():
 
 	#print("Combat Manager | Combat outcome emitted")
 	#combat_started.emit(current_combat)
+	
+	# Change to Cleanup
+	set_state_cleanup()
+
+
+func run_cleanup_phase():
+	# Abilities or smth ...
+
+	# Progress State Machine
+	set_state_inactive()
+	
+
+
+# State Transistions
+func set_state_damage():
+	if combat_phase != CombatLoop.SELECT:
+		print("Combat Manager | Err | Attempting to switch to Damage phase outside of Selecting Phase")
+		return
+	else:
+		combat_phase = CombatLoop.DAMAGE
+		update_combat()
+
+
+func set_state_cleanup():
+	if combat_phase != CombatLoop.DAMAGE:
+		print("Combat Manager | ERR | Atempt to set phase to Cleanup outside of Damage Phase")
+		return
+	else:
+		combat_phase = CombatLoop.CLEANUP
+
+
+func set_state_inactive():
+	if combat_phase != CombatLoop.CLEANUP:
+		print("Combat Manager | ERR | Attempt to set phase to inactive outside of Cleanup phase")
+		return
+	else:
+		combat_phase = CombatLoop.INACTIVE
+
+
+## Calls
+func bind_match_settings(ms: Node):
+	match_settings = ms
+
+	max_attack_units = match_settings.max_attack_units
+	max_defend_units = match_settings.max_defend_units
+	max_attack_ablt = match_settings.max_attack_ablt
+	max_defend_ablt = match_settings.max_defend_ablt
+
+
+
+func attack_action(req: Action):
+	#print("Combat Manager | Combat Req recieved")
+	# other stuffs/edits
+	combat_phase = CombatLoop.START
+	run_combat_start(req)
+	
+
+func actor_selected_unit(unit:UnitObject):
+	if current_combat.get_invading_actor() == unit.get_owned_by():
+		if current_combat.get_invading_units().size() >= max_attack_units:
+			print("Combat Manager | Attacker selecting too many units to attack w/")
+		else:
+			current_combat.add_invading_unit(unit)
+			combat_updated.emit(current_combat)
+			#print("Combat Manager | actor_selected_unit| combat_updated emiited")
+	elif current_combat.get_defending_actor() == unit.get_owned_by():
+		if current_combat.get_defending_units().size() >= max_defend_units:
+			print("Combat Manager | Defender selecting too many units to attack w/")
+
+		else:
+			current_combat.add_defending_unit(unit)
+			update_combat()
+			#print("Combat Manager | actor_selected_unit| combat_updated emiited")
+	else:
+		return # ERROR
+
+
+func actor_deselected_unit(unit: UnitObject):
+	if current_combat.get_invading_actor() != unit.get_owned_by():
+		print("Combat Manager | Err | Actor attempted to deslect un-owned unit")
+	else:
+		current_combat.rmv_invading_unit(unit)
+		update_combat()
+		#print("Combat Manager | actor_selected_unit| combat_updated emiited")
+
+
+func player_ready(ready_player: Actor):
+	if current_combat.get_invading_actor() == ready_player:
+		current_combat.set_invading_ready(true)
+	elif current_combat.get_defending_actor() == ready_player:
+		current_combat.set_defending_ready(true)
+	else: 
+		print("Combat Manager | ERROR | Actor outside of combat declared Ready")
+		return
+	#print("Combat Manager | Player Ready recieved")
+
+	if current_combat.get_invading_ready() and current_combat.get_defending_ready():
+		set_state_damage()
+	update_combat()
+
+
+func player_unready(unready_player: Actor):
+	if current_combat.get_invading_actor() == unready_player:
+		current_combat.set_invading_ready(false)
+	elif current_combat.get_defending_actor() == unready_player:
+		current_combat.set_defending_ready(false)
+	else: 
+		print("Combat Manager | ERROR | Actor outside of combat declared not Ready")
+		return
+	#print("Combat Manager | Player not Ready recieved")
+	update_combat()
 
 
 ## Get/Set (er)s

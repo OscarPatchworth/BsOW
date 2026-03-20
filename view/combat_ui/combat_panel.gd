@@ -20,6 +20,7 @@ var player_self: Player
 # remaining regular variables
 var cur_contest: Contest
 
+
 # @onready variables
 @onready var self_units_pannel: Panel = self.find_child("SelfUnitsPanel")
 @onready var opp_units_panel: Panel = self.find_child("OppUnitsPanel")
