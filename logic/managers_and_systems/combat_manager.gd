@@ -41,11 +41,9 @@ var max_defend_ablt: int
 # @export variables
 
 # remaining regular variables
-var combat_phase: CombatLoop = CombatLoop.START
-
 var current_combat: Contest
 
-var combat_context: CombatContext
+var combat_context: CombatContext = CombatContext.new(Contest.new())
 
 # @onready variables
 
@@ -87,13 +85,13 @@ func action_to_contest(req: Action) -> Contest:
 ###################################################################################################
 # STATE Machine
 func update_combat():
-	match combat_phase:
+	match combat_context.phase:
 		CombatLoop.START:
 			print("Combat Manager | Err | Update_combat() in phase 'START'")
 			#run_combat_start()
 			return
 		CombatLoop.SELECT:
-			#run_combat_select_phase()
+			#run_select_phase(combat_context)
 			combat_updated.emit(current_combat)
 		CombatLoop.DAMAGE:
 			run_damage_phase()
@@ -113,21 +111,24 @@ func run_combat_start(req: Action):
 	# Reset Context
 	combat_context = null
 	current_combat = null
-	var current_combat = action_to_contest(req)
+	current_combat = action_to_contest(req)
 
 	# Abilities or smth ...
 
 	# Progress State Machine
-	combat_phase = CombatLoop.SELECT
+	combat_context.phase = CombatLoop.SELECT
 	# Update Context
 	combat_context = CombatContext.new(current_combat)
-	combat_context.phase = combat_phase
+
 
 	combat_started.emit(current_combat)
 
 
-func run_combat_select_phase(s_action: SelectAction, s_type: SelectType, s_obj: UnitObject, s_actor: Actor):
-	pass
+func run_select_phase(context: CombatContext):
+	if context.phase != CombatLoop.SELECT:
+		print("Combat Manager | Err | run_select_phase called outside of select phase")
+		return
+	
 
 
 
@@ -217,28 +218,28 @@ func run_cleanup_phase():
 
 # State Transistions
 func set_state_damage():
-	if combat_phase != CombatLoop.SELECT:
+	if combat_context.phase != CombatLoop.SELECT:
 		print("Combat Manager | Err | Attempting to switch to Damage phase outside of Selecting Phase")
 		return
 	else:
-		combat_phase = CombatLoop.DAMAGE
+		combat_context.phase = CombatLoop.DAMAGE
 		update_combat()
 
 
 func set_state_cleanup():
-	if combat_phase != CombatLoop.DAMAGE:
+	if combat_context.phase != CombatLoop.DAMAGE:
 		print("Combat Manager | ERR | Atempt to set phase to Cleanup outside of Damage Phase")
 		return
 	else:
-		combat_phase = CombatLoop.CLEANUP
+		combat_context.phase = CombatLoop.CLEANUP
 
 
 func set_state_inactive():
-	if combat_phase != CombatLoop.CLEANUP:
+	if combat_context.phase != CombatLoop.CLEANUP:
 		print("Combat Manager | ERR | Attempt to set phase to inactive outside of Cleanup phase")
 		return
 	else:
-		combat_phase = CombatLoop.INACTIVE
+		combat_context.phase = CombatLoop.INACTIVE
 
 
 ## Calls
@@ -255,7 +256,7 @@ func bind_match_settings(ms: Node):
 func attack_action(req: Action):
 	#print("Combat Manager | Combat Req recieved")
 	# other stuffs/edits
-	combat_phase = CombatLoop.START
+	combat_context.phase = CombatLoop.START
 	run_combat_start(req)
 	
 
