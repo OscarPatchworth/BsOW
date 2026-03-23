@@ -9,8 +9,8 @@ signal move_units_action_req(move_units_req: Action)
 signal attack_action_req(req: Action)
 signal combat_unit_selected(unit: UnitObject)
 signal unit_deslected(unit: UnitObject)
-signal player_combat_ready(actor: Actor)
-signal player_combat_not_ready(actor: Actor)
+signal player_combat_ready(who: Actor, thing: Variant, select: bool)
+signal player_combat_not_ready(who: Actor, thing: Variant, select: bool)
 
 # enums
 #enum Element {EARTH,WATER,AIR,FIRE,}
@@ -128,11 +128,13 @@ func fwd_unit_deslected(unit: UnitObject):
 
 
 func fwd_player_combat_ready():
-	player_combat_ready.emit(self)
+	# who: Actor, thing: Variant, select: bool
+	player_combat_ready.emit(self, true, true)
 
 
 func fwd_player_combat_not_ready():
-	player_combat_not_ready.emit(self)
+	# who: Actor, thing: Variant, select: bool
+	player_combat_not_ready.emit(self, false, false)
 
 ## Calls
 func fwd_build_action_completed(req:Action):

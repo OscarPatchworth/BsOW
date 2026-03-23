@@ -16,16 +16,6 @@ enum CombatLoop {
 	INACTIVE
 }
 
-enum SelectAction {
-	SELECT,
-	DESELECT
-}
-
-enum SelectType {
-	UNIT,
-	ABILITY,
-	READY
-}
 
 # constants
 
@@ -51,12 +41,31 @@ var combat_context: CombatContext = CombatContext.new(Contest.new())
 # Internal Class
 class CombatContext:  # Local = private to this file only!
 	var contest: Contest
-	var selected_units: Array[UnitObject] = []
 	var outcomes: Array[CombatOutcome] = []
 	var phase := CombatLoop.INACTIVE
+	var select_req: CombatSelection
 
 	func _init(c: Contest):
 		contest = c
+
+
+class CombatSelection: # Local = private to this file only!
+	enum SelectAction {
+		SELECT,
+		DESELECT
+	}
+	
+	enum SelectType {
+	UNIT,
+	ABILITY,
+	READY
+	}
+
+	var who: Actor
+	var action: SelectAction
+	var type: SelectType
+	var selection: Variant 
+	var completed: bool = false
 
 
 ###	Methods
@@ -91,7 +100,7 @@ func update_combat():
 			#run_combat_start()
 			return
 		CombatLoop.SELECT:
-			#run_select_phase(combat_context)
+			run_select_phase()
 			combat_updated.emit(current_combat)
 		CombatLoop.DAMAGE:
 			run_damage_phase()
@@ -111,24 +120,67 @@ func run_combat_start(req: Action):
 	# Reset Context
 	combat_context = null
 	current_combat = null
-	current_combat = action_to_contest(req)
 
+	# Update Context
+	current_combat = action_to_contest(req)
+	combat_context = CombatContext.new(current_combat)
 	# Abilities or smth ...
 
 	# Progress State Machine
 	combat_context.phase = CombatLoop.SELECT
-	# Update Context
-	combat_context = CombatContext.new(current_combat)
-
-
+	# Emit
 	combat_started.emit(current_combat)
 
 
-func run_select_phase(context: CombatContext):
-	if context.phase != CombatLoop.SELECT:
+func run_select_phase():
+	if combat_context.phase != CombatLoop.SELECT:
 		print("Combat Manager | Err | run_select_phase called outside of select phase")
 		return
-	
+	if(combat_context.select_req == null):
+		# Idk how it null but it probbably possible
+		# Throw error msg
+		return
+	elif(combat_context.select_req.completed):
+		# No change to selection has been made .... return
+		return
+
+	match combat_context.select_req.type:
+		CombatSelection.SelectType.UNIT:
+			if not combat_context.select_req.selection is UnitObject:
+				print("Combat Manager | Selection-phase CombatSelection  | Selection and type not compatable")
+
+			match combat_context.select_req.action:
+				CombatSelection.SelectAction.SELECT:
+					pass
+				CombatSelection.SelectAction.DESELECT:
+					pass
+				_:
+					print("Combat Manager | Selection-phase CombatSelection | Action type invalid")
+					return
+
+		CombatSelection.SelectType.ABILITY:
+			match combat_context.select_req.action:
+				CombatSelection.SelectAction.SELECT:
+					pass
+				CombatSelection.SelectAction.DESELECT:
+					pass
+				_:
+					print("Combat Manager | Selection-phase CombatSelection | Action type invalid")
+					return
+
+		CombatSelection.SelectType.READY:
+			match combat_context.select_req.action:
+				CombatSelection.SelectAction.SELECT:
+					player_ready(combat_context.select_req.who)
+				CombatSelection.SelectAction.DESELECT:
+					player_unready(combat_context.select_req.who)
+				_:
+					print("Combat Manager | Selection-phase CombatSelection | Action type invalid")
+					return
+
+		_:
+			print("Combat Manager | Selection-phase CombatSelection | Selection Type invalid")
+			return
 
 
 
@@ -252,13 +304,33 @@ func bind_match_settings(ms: Node):
 	max_defend_ablt = match_settings.max_defend_ablt
 
 
-
 func attack_action(req: Action):
 	#print("Combat Manager | Combat Req recieved")
 	# other stuffs/edits
 	combat_context.phase = CombatLoop.START
 	run_combat_start(req)
 	
+
+func actor_selection_req(who: Actor, thing: Variant, select:bool): 
+	var new_selection_req = CombatSelection.new()
+	new_selection_req.who = who
+	new_selection_req.selection = thing
+	new_selection_req.action = CombatSelection.SelectAction.SELECT if select else CombatSelection.SelectAction.DESELECT 
+
+	### Co-Piolet converted if/else into match :3
+	match thing:
+		_ when thing is UnitObject:
+			new_selection_req.type = CombatSelection.SelectType.UNIT
+		_ when thing is bool:
+			new_selection_req.type = CombatSelection.SelectType.READY
+		#_ when thing is Ability:
+			#new_selection_req.type = CombatSelection.SelectType.ABILITY
+		_:
+			print("Combat Manager | Err | Selection request not of any compatable type")
+			return
+	
+	combat_context.select_req = new_selection_req
+	update_combat()
 
 func actor_selected_unit(unit:UnitObject):
 	if current_combat.get_invading_actor() == unit.get_owned_by():
