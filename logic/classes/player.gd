@@ -7,8 +7,10 @@ signal build_action_req(build_req: Action)
 signal buy_unit_action_req(buy_unit_req: Action)
 signal move_units_action_req(move_units_req: Action)
 signal attack_action_req(req: Action)
-signal combat_unit_selected(unit: UnitObject)
-signal unit_deslected(unit: UnitObject)
+
+signal combat_unit_selected(who: Actor, thing: UnitObject, select:bool)
+signal unit_deslected(who: Actor, thing: UnitObject, select:bool)
+
 signal player_combat_ready(who: Actor, thing: Variant, select: bool)
 signal player_combat_not_ready(who: Actor, thing: Variant, select: bool)
 
@@ -124,7 +126,8 @@ func fwd_attack_action_req(req: Action):
 
 
 func fwd_unit_deslected(unit: UnitObject):
-	unit_deslected.emit(unit)
+	# who: Actor, thing: UnitObject, select:bool
+	unit_deslected.emit(self, unit, false)
 
 
 func fwd_player_combat_ready():
@@ -165,7 +168,8 @@ func enter_combat(contest: Contest):
 
 
 func fwd_combat_unit_selected(unit: UnitObject):
-	combat_unit_selected.emit(unit)
+	# who: Actor, thing: UnitObject, select:bool
+	combat_unit_selected.emit(self, unit, true)
 
 
 func combat_update(contest: Contest):

@@ -118,9 +118,7 @@ func fwd_unit_deselected():
 
 
 func update_outcome(c_out: CombatOutcome):
-	var dice_txt = "[char=0x" + str(DIE_UTF
-	+ c_out.get_rolls()[0]-1)  + "]"
-	rtl.set_text(dice_txt)
+	rtl.set_text(str(c_out.get_total()))  # Temporarily show the total for debugging
 
 ## Calls
 

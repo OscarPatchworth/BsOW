@@ -196,19 +196,19 @@ func combat_outcome(c_out: Array[CombatOutcome]):
 	var outcome: Array[CombatOutcome]
 	if combat_side == CombatSide.ATTACKING:
 		outcome = c_out.filter(func(i): return (i.get_unit() in cur_combat.get_invading_units()))
-		print("cur_combat: " + str(cur_combat.get_invading_units().size()) + " | " + 
-		"c_out: " + str(c_out.size()) + " | " + "combat_outcome: " + str(outcome.size()))
-		
-		# Create a list of units in the new order
+	elif combat_side == CombatSide.DEFENDING:
+		outcome = c_out.filter(func(i): return (i.get_unit() in cur_combat.get_defending_units()))
+
+	# Create a list of units in the new order
 	for i in range(self.get_child_count()):
 		var unit_display = self.get_child(i)
 		var target_unit = unit_display.get_unit()
-		for j in range(outcome.size()):
-			if outcome[j].get_unit() == target_unit:
-				unit_display.update_outcome(outcome[j])
-				tween_anchor_unit_display(unit_display, j)
-				break
-		
+		if target_unit != null:
+			for j in range(outcome.size()):
+				if outcome[j].get_unit() == target_unit:
+					unit_display.update_outcome(outcome[j])
+					tween_anchor_unit_display(unit_display, j)
+					break
 
 
 ## Get/Set (er)s

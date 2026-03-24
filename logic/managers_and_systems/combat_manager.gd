@@ -35,7 +35,9 @@ var current_combat: Contest
 
 var combat_context: CombatContext = CombatContext.new(Contest.new())
 
-# @onready variables
+var outcome_emitted: bool = false
+
+# @onready variables	
 
 ###################################################################################################
 # Internal Class
@@ -94,19 +96,21 @@ func action_to_contest(req: Action) -> Contest:
 ###################################################################################################
 # STATE Machine
 func update_combat():
+	#print("update_combat called, phase:", combat_context.phase)
 	match combat_context.phase:
 		CombatLoop.START:
 			print("Combat Manager | Err | Update_combat() in phase 'START'")
-			#run_combat_start()
 			return
 		CombatLoop.SELECT:
 			run_select_phase()
-			combat_updated.emit(current_combat)
+			if not outcome_emitted:
+				combat_updated.emit(current_combat)
 		CombatLoop.DAMAGE:
 			run_damage_phase()
 		CombatLoop.CLEANUP:
-			run_cleanup_phase()
-			combat_finished.emit()
+			#run_cleanup_phase()
+			#combat_finished.emit()
+			return
 		CombatLoop.INACTIVE:
 			print("Comabat Manager | ERR | update_combat() called outside of Combat")
 			return
@@ -120,6 +124,7 @@ func run_combat_start(req: Action):
 	# Reset Context
 	combat_context = null
 	current_combat = null
+	outcome_emitted = false
 
 	# Update Context
 	current_combat = action_to_contest(req)
@@ -147,15 +152,15 @@ func run_select_phase():
 	match combat_context.select_req.type:
 		CombatSelection.SelectType.UNIT:
 			if not combat_context.select_req.selection is UnitObject:
-				print("Combat Manager | Selection-phase CombatSelection  | Selection and type not compatable")
+				print("Combat Manager | Err  | Selection and type not compatable")
 
 			match combat_context.select_req.action:
 				CombatSelection.SelectAction.SELECT:
-					pass
+					actor_selected_unit(combat_context.select_req.selection)
 				CombatSelection.SelectAction.DESELECT:
-					pass
+					actor_deselected_unit(combat_context.select_req.selection)
 				_:
-					print("Combat Manager | Selection-phase CombatSelection | Action type invalid")
+					print("Combat Manager |Err | Action type invalid")
 					return
 
 		CombatSelection.SelectType.ABILITY:
@@ -165,7 +170,7 @@ func run_select_phase():
 				CombatSelection.SelectAction.DESELECT:
 					pass
 				_:
-					print("Combat Manager | Selection-phase CombatSelection | Action type invalid")
+					print("Combat Manager |Err | Action type invalid")
 					return
 
 		CombatSelection.SelectType.READY:
@@ -175,17 +180,17 @@ func run_select_phase():
 				CombatSelection.SelectAction.DESELECT:
 					player_unready(combat_context.select_req.who)
 				_:
-					print("Combat Manager | Selection-phase CombatSelection | Action type invalid")
+					print("Combat Manager | Err | Action type invalid")
 					return
 
 		_:
-			print("Combat Manager | Selection-phase CombatSelection | Selection Type invalid")
+			print("Combat Manager | Err | Selection Type invalid")
 			return
 
 
 
 func run_damage_phase():
-	print("Combat Manager | @ run damage phase")
+	#print("Combat Manager | @ run damage phase")
 	# Calc Damage
 
 	# Calc Invading
@@ -243,6 +248,8 @@ func run_damage_phase():
 		print(unit.get_debug())
 
 	combat_outcome.emit(invading_dmg + defending_dmg)
+	outcome_emitted = true
+	print("Combat Manager | Emit | Combat outcome emitted")
 
 	# Apply Outcome
 	#for attacker in invading_dmg:
@@ -292,6 +299,7 @@ func set_state_inactive():
 		return
 	else:
 		combat_context.phase = CombatLoop.INACTIVE
+		outcome_emitted = false
 
 
 ## Calls
@@ -335,18 +343,17 @@ func actor_selection_req(who: Actor, thing: Variant, select:bool):
 func actor_selected_unit(unit:UnitObject):
 	if current_combat.get_invading_actor() == unit.get_owned_by():
 		if current_combat.get_invading_units().size() >= max_attack_units:
-			print("Combat Manager | Attacker selecting too many units to attack w/")
+			print("Combat Manager | Warning | Attacker selecting too many units to attack w/")
 		else:
 			current_combat.add_invading_unit(unit)
-			combat_updated.emit(current_combat)
+			#combat_updated.emit(current_combat)
 			#print("Combat Manager | actor_selected_unit| combat_updated emiited")
 	elif current_combat.get_defending_actor() == unit.get_owned_by():
 		if current_combat.get_defending_units().size() >= max_defend_units:
-			print("Combat Manager | Defender selecting too many units to attack w/")
+			print("Combat Manager | Warning | Defender selecting too many units to attack w/")
 
 		else:
 			current_combat.add_defending_unit(unit)
-			update_combat()
 			#print("Combat Manager | actor_selected_unit| combat_updated emiited")
 	else:
 		return # ERROR
@@ -357,7 +364,6 @@ func actor_deselected_unit(unit: UnitObject):
 		print("Combat Manager | Err | Actor attempted to deslect un-owned unit")
 	else:
 		current_combat.rmv_invading_unit(unit)
-		update_combat()
 		#print("Combat Manager | actor_selected_unit| combat_updated emiited")
 
 
@@ -373,7 +379,6 @@ func player_ready(ready_player: Actor):
 
 	if current_combat.get_invading_ready() and current_combat.get_defending_ready():
 		set_state_damage()
-	update_combat()
 
 
 func player_unready(unready_player: Actor):
@@ -385,7 +390,6 @@ func player_unready(unready_player: Actor):
 		print("Combat Manager | ERROR | Actor outside of combat declared not Ready")
 		return
 	#print("Combat Manager | Player not Ready recieved")
-	update_combat()
 
 
 ## Get/Set (er)s
