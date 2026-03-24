@@ -118,6 +118,7 @@ func fwd_unit_deselected():
 
 
 func update_outcome(c_out: CombatOutcome):
+	set_combat_state(CombatState.READY)
 	rtl.set_text(str(c_out.get_total()))  # Temporarily show the total for debugging
 
 ## Calls
