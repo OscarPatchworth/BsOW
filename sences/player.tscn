@@ -1,4 +1,4 @@
-[gd_scene load_steps=33 format=3 uid="uid://cmnn2jtgwr4dw"]
+[gd_scene load_steps=35 format=3 uid="uid://cmnn2jtgwr4dw"]
 
 [ext_resource type="Script" path="res://logic/classes/player.gd" id="1_tftws"]
 [ext_resource type="Script" path="res://logic/classes/player_controler.gd" id="2_pm403"]
@@ -57,6 +57,12 @@ bg_color = Color(0.31, 0.2046, 0.24676, 1)
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_c0y1c"]
 bg_color = Color(0.31, 0.2046, 0.24676, 1)
+
+[sub_resource type="Theme" id="Theme_gj51g"]
+default_font_size = 20
+
+[sub_resource type="Theme" id="Theme_8rfk8"]
+Label/font_sizes/font_size = 20
 
 [node name="Player" type="Node3D"]
 script = ExtResource("1_tftws")
@@ -190,7 +196,6 @@ text = "Stationed Units:"
 layout_mode = 2
 
 [node name="TurnPanel-old" type="Panel" parent="CanvasLayer/UI-manager"]
-visible = false
 layout_mode = 1
 anchors_preset = -1
 anchor_left = 0.008
@@ -531,6 +536,43 @@ anchor_left = 0.15
 anchor_top = 0.065
 anchor_right = 0.725
 anchor_bottom = 0.11
+
+[node name="HFlowContainer" type="HBoxContainer" parent="CanvasLayer/UI-manager/TurnPanel"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme = SubResource("Theme_gj51g")
+
+[node name="Upkeep" type="Label" parent="CanvasLayer/UI-manager/TurnPanel/HFlowContainer"]
+layout_mode = 2
+size_flags_horizontal = 6
+theme = SubResource("Theme_8rfk8")
+text = "Upkeep"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="Label" type="Label" parent="CanvasLayer/UI-manager/TurnPanel/HFlowContainer"]
+layout_mode = 2
+size_flags_horizontal = 6
+text = "Dustcload Collaspe"
+
+[node name="Label4" type="Label" parent="CanvasLayer/UI-manager/TurnPanel/HFlowContainer"]
+layout_mode = 2
+size_flags_horizontal = 6
+text = "Recruitment"
+
+[node name="Label2" type="Label" parent="CanvasLayer/UI-manager/TurnPanel/HFlowContainer"]
+layout_mode = 2
+size_flags_horizontal = 6
+text = "Combat"
+
+[node name="Label3" type="Label" parent="CanvasLayer/UI-manager/TurnPanel/HFlowContainer"]
+layout_mode = 2
+size_flags_horizontal = 6
+text = "Cleanup"
 
 [node name="PlayersPanel" type="Panel" parent="CanvasLayer/UI-manager"]
 layout_mode = 1
