@@ -1,4 +1,4 @@
-[gd_scene load_steps=34 format=3 uid="uid://cmnn2jtgwr4dw"]
+[gd_scene load_steps=41 format=3 uid="uid://cmnn2jtgwr4dw"]
 
 [ext_resource type="Script" path="res://logic/classes/player.gd" id="1_tftws"]
 [ext_resource type="Script" path="res://logic/classes/player_controler.gd" id="2_pm403"]
@@ -23,6 +23,7 @@
 [ext_resource type="Script" path="res://view/combat_ui/select_ablt_panel.gd" id="21_gsl2e"]
 [ext_resource type="Script" path="res://view/combat_ui/select_unit_btn.gd" id="21_l1mcl"]
 [ext_resource type="Script" path="res://view/combat_ui/fight_btn.gd" id="22_oflah"]
+[ext_resource type="Script" path="res://sences/item_list.gd" id="24_utqdd"]
 
 [sub_resource type="GDScript" id="GDScript_ks4yd"]
 script/source = "extends Camera3D
@@ -60,6 +61,29 @@ bg_color = Color(0.31, 0.2046, 0.24676, 1)
 
 [sub_resource type="Theme" id="Theme_gj51g"]
 default_font_size = 20
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_roo4e"]
+corner_radius_top_left = 10
+corner_radius_top_right = 10
+corner_radius_bottom_right = 10
+corner_radius_bottom_left = 10
+
+[sub_resource type="Theme" id="Theme_wo64t"]
+Label/styles/normal = SubResource("StyleBoxFlat_roo4e")
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_3ea1q"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_38g4l"]
+bg_color = Color(0.74032, 0.528718, 0.621729, 1)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_pim0p"]
+bg_color = Color(0.74032, 0.528718, 0.621729, 1)
+
+[sub_resource type="Theme" id="Theme_3lvok"]
+ItemList/colors/font_hovered_color = Color(0.65098, 0.65098, 0.65098, 1)
+ItemList/styles/hovered = SubResource("StyleBoxEmpty_3ea1q")
+ItemList/styles/selected = SubResource("StyleBoxFlat_38g4l")
+ItemList/styles/selected_focus = SubResource("StyleBoxFlat_pim0p")
 
 [node name="Player" type="Node3D"]
 script = ExtResource("1_tftws")
@@ -572,6 +596,7 @@ vertical_alignment = 1
 layout_mode = 2
 size_flags_horizontal = 3
 size_flags_vertical = 1
+theme = SubResource("Theme_wo64t")
 text = "Combat"
 horizontal_alignment = 1
 vertical_alignment = 1
@@ -591,5 +616,42 @@ anchor_left = 0.75
 anchor_top = 0.065
 anchor_right = 0.85
 anchor_bottom = 0.11
+
+[node name="Button" type="Button" parent="CanvasLayer/UI-manager/PlayersPanel"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+text = "PLAYER NAME	"
+
+[node name="ColorRect" type="ColorRect" parent="CanvasLayer/UI-manager/PlayersPanel"]
+layout_mode = 1
+anchors_preset = -1
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0.192256, 0.211339, 0.231785, 1)
+
+[node name="ItemList" type="ItemList" parent="CanvasLayer/UI-manager/PlayersPanel/ColorRect"]
+layout_mode = 1
+anchors_preset = 10
+anchor_right = 1.0
+offset_bottom = 89.0
+grow_horizontal = 2
+theme = SubResource("Theme_3lvok")
+allow_search = false
+max_text_lines = 8
+auto_height = true
+item_count = 3
+item_0/text = "Player 1"
+item_0/disabled = true
+item_1/text = "Player 2"
+item_2/text = "Player 3"
+item_2/disabled = true
+script = ExtResource("24_utqdd")
 
 [editable path="CanvasLayer/UI-manager/CombatPanel/SelfUnitsPanel/ComabtSelectedUnitsDisplay"]
