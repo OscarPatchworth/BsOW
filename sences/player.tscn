@@ -1,4 +1,4 @@
-[gd_scene load_steps=35 format=3 uid="uid://cmnn2jtgwr4dw"]
+[gd_scene load_steps=34 format=3 uid="uid://cmnn2jtgwr4dw"]
 
 [ext_resource type="Script" path="res://logic/classes/player.gd" id="1_tftws"]
 [ext_resource type="Script" path="res://logic/classes/player_controler.gd" id="2_pm403"]
@@ -60,9 +60,6 @@ bg_color = Color(0.31, 0.2046, 0.24676, 1)
 
 [sub_resource type="Theme" id="Theme_gj51g"]
 default_font_size = 20
-
-[sub_resource type="Theme" id="Theme_8rfk8"]
-Label/font_sizes/font_size = 20
 
 [node name="Player" type="Node3D"]
 script = ExtResource("1_tftws")
@@ -548,31 +545,44 @@ theme = SubResource("Theme_gj51g")
 
 [node name="Upkeep" type="Label" parent="CanvasLayer/UI-manager/TurnPanel/HFlowContainer"]
 layout_mode = 2
-size_flags_horizontal = 6
-theme = SubResource("Theme_8rfk8")
+size_flags_horizontal = 3
+size_flags_vertical = 1
 text = "Upkeep"
 horizontal_alignment = 1
 vertical_alignment = 1
 
 [node name="Label" type="Label" parent="CanvasLayer/UI-manager/TurnPanel/HFlowContainer"]
 layout_mode = 2
-size_flags_horizontal = 6
+size_flags_horizontal = 3
+size_flags_vertical = 1
+size_flags_stretch_ratio = 0.0
 text = "Dustcload Collaspe"
+horizontal_alignment = 1
+vertical_alignment = 1
 
 [node name="Label4" type="Label" parent="CanvasLayer/UI-manager/TurnPanel/HFlowContainer"]
 layout_mode = 2
-size_flags_horizontal = 6
+size_flags_horizontal = 3
+size_flags_vertical = 1
 text = "Recruitment"
+horizontal_alignment = 1
+vertical_alignment = 1
 
 [node name="Label2" type="Label" parent="CanvasLayer/UI-manager/TurnPanel/HFlowContainer"]
 layout_mode = 2
-size_flags_horizontal = 6
+size_flags_horizontal = 3
+size_flags_vertical = 1
 text = "Combat"
+horizontal_alignment = 1
+vertical_alignment = 1
 
 [node name="Label3" type="Label" parent="CanvasLayer/UI-manager/TurnPanel/HFlowContainer"]
 layout_mode = 2
-size_flags_horizontal = 6
+size_flags_horizontal = 3
+size_flags_vertical = 1
 text = "Cleanup"
+horizontal_alignment = 1
+vertical_alignment = 1
 
 [node name="PlayersPanel" type="Panel" parent="CanvasLayer/UI-manager"]
 layout_mode = 1
