@@ -87,11 +87,14 @@ layout_mode = 3
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
+offset_left = 6.0
+offset_right = 6.0
 grow_horizontal = 2
 grow_vertical = 2
 script = ExtResource("4_stx5a")
 
 [node name="LanderPanel" type="Panel" parent="CanvasLayer/UI-manager"]
+visible = false
 layout_mode = 1
 anchors_preset = -1
 anchor_left = 0.85
@@ -186,7 +189,8 @@ text = "Stationed Units:"
 [node name="Units" type="HFlowContainer" parent="CanvasLayer/UI-manager/LanderPanel/VBoxContainer/LanderControl"]
 layout_mode = 2
 
-[node name="TurnPanel" type="Panel" parent="CanvasLayer/UI-manager"]
+[node name="TurnPanel-old" type="Panel" parent="CanvasLayer/UI-manager"]
+visible = false
 layout_mode = 1
 anchors_preset = -1
 anchor_left = 0.008
@@ -201,7 +205,7 @@ defualt_label_font = SubResource("FontVariation_upk8h")
 active_label_stylebox = SubResource("StyleBoxFlat_7vh2u")
 active_label_font = SubResource("FontVariation_nfx7u")
 
-[node name="VBoxContainer" type="VBoxContainer" parent="CanvasLayer/UI-manager/TurnPanel"]
+[node name="VBoxContainer" type="VBoxContainer" parent="CanvasLayer/UI-manager/TurnPanel-old"]
 layout_mode = 1
 anchors_preset = 10
 anchor_right = 1.0
@@ -210,64 +214,65 @@ offset_bottom = 263.0
 grow_horizontal = 2
 alignment = 1
 
-[node name="TurnPanelLabel" type="Label" parent="CanvasLayer/UI-manager/TurnPanel/VBoxContainer"]
+[node name="TurnPanelLabel" type="Label" parent="CanvasLayer/UI-manager/TurnPanel-old/VBoxContainer"]
 layout_mode = 2
 text = "Turn Order:"
 horizontal_alignment = 1
 
-[node name="HSeparator" type="HSeparator" parent="CanvasLayer/UI-manager/TurnPanel/VBoxContainer"]
+[node name="HSeparator" type="HSeparator" parent="CanvasLayer/UI-manager/TurnPanel-old/VBoxContainer"]
 layout_mode = 2
 
-[node name="PhaseLabels" type="VBoxContainer" parent="CanvasLayer/UI-manager/TurnPanel/VBoxContainer"]
+[node name="PhaseLabels" type="VBoxContainer" parent="CanvasLayer/UI-manager/TurnPanel-old/VBoxContainer"]
 layout_mode = 2
 
-[node name="Upkeep" type="Label" parent="CanvasLayer/UI-manager/TurnPanel/VBoxContainer/PhaseLabels"]
+[node name="Upkeep" type="Label" parent="CanvasLayer/UI-manager/TurnPanel-old/VBoxContainer/PhaseLabels"]
 layout_mode = 2
 text = "Upkeep
 "
 
-[node name="DustcloudCollapse" type="Label" parent="CanvasLayer/UI-manager/TurnPanel/VBoxContainer/PhaseLabels"]
+[node name="DustcloudCollapse" type="Label" parent="CanvasLayer/UI-manager/TurnPanel-old/VBoxContainer/PhaseLabels"]
 layout_mode = 2
 text = "Dustcloud Collapse
 "
 
-[node name="Combat" type="Label" parent="CanvasLayer/UI-manager/TurnPanel/VBoxContainer/PhaseLabels"]
+[node name="Combat" type="Label" parent="CanvasLayer/UI-manager/TurnPanel-old/VBoxContainer/PhaseLabels"]
 layout_mode = 2
 text = "Combat"
 
-[node name="Reinforcement" type="Label" parent="CanvasLayer/UI-manager/TurnPanel/VBoxContainer/PhaseLabels"]
+[node name="Reinforcement" type="Label" parent="CanvasLayer/UI-manager/TurnPanel-old/VBoxContainer/PhaseLabels"]
 layout_mode = 2
 text = "Reinforcement"
 label_settings = SubResource("LabelSettings_cgt8w")
 
-[node name="Cleanup" type="Label" parent="CanvasLayer/UI-manager/TurnPanel/VBoxContainer/PhaseLabels"]
+[node name="Cleanup" type="Label" parent="CanvasLayer/UI-manager/TurnPanel-old/VBoxContainer/PhaseLabels"]
 layout_mode = 2
 text = "Cleanup"
 
-[node name="HSeparator2" type="HSeparator" parent="CanvasLayer/UI-manager/TurnPanel/VBoxContainer"]
+[node name="HSeparator2" type="HSeparator" parent="CanvasLayer/UI-manager/TurnPanel-old/VBoxContainer"]
 layout_mode = 2
 
-[node name="PlayerOrderLabel" type="Label" parent="CanvasLayer/UI-manager/TurnPanel/VBoxContainer"]
+[node name="PlayerOrderLabel" type="Label" parent="CanvasLayer/UI-manager/TurnPanel-old/VBoxContainer"]
 layout_mode = 2
 text = "Player Order:"
 horizontal_alignment = 1
 
-[node name="HSeparator3" type="HSeparator" parent="CanvasLayer/UI-manager/TurnPanel/VBoxContainer"]
+[node name="HSeparator3" type="HSeparator" parent="CanvasLayer/UI-manager/TurnPanel-old/VBoxContainer"]
 layout_mode = 2
 
-[node name="PlayerLabels" type="VBoxContainer" parent="CanvasLayer/UI-manager/TurnPanel/VBoxContainer"]
+[node name="PlayerLabels" type="VBoxContainer" parent="CanvasLayer/UI-manager/TurnPanel-old/VBoxContainer"]
 layout_mode = 2
 
-[node name="Label" type="Label" parent="CanvasLayer/UI-manager/TurnPanel/VBoxContainer/PlayerLabels"]
+[node name="Label" type="Label" parent="CanvasLayer/UI-manager/TurnPanel-old/VBoxContainer/PlayerLabels"]
 layout_mode = 2
 text = "You"
 
-[node name="Label2" type="Label" parent="CanvasLayer/UI-manager/TurnPanel/VBoxContainer/PlayerLabels"]
+[node name="Label2" type="Label" parent="CanvasLayer/UI-manager/TurnPanel-old/VBoxContainer/PlayerLabels"]
 layout_mode = 2
 text = "OPP 1:
 "
 
 [node name="CombatPanel" type="Panel" parent="CanvasLayer/UI-manager"]
+visible = false
 layout_mode = 1
 anchors_preset = -1
 anchor_left = 0.1
@@ -509,5 +514,30 @@ rotation = -0.20944
 pivot_offset = Vector2(50, 45)
 text = "Fight !"
 script = ExtResource("22_oflah")
+
+[node name="SeasonPanel" type="Panel" parent="CanvasLayer/UI-manager"]
+layout_mode = 1
+anchors_preset = -1
+anchor_left = 0.1
+anchor_top = 0.01
+anchor_right = 0.9
+anchor_bottom = 0.055
+grow_horizontal = 2
+
+[node name="TurnPanel" type="Panel" parent="CanvasLayer/UI-manager"]
+layout_mode = 1
+anchors_preset = -1
+anchor_left = 0.15
+anchor_top = 0.065
+anchor_right = 0.725
+anchor_bottom = 0.11
+
+[node name="PlayersPanel" type="Panel" parent="CanvasLayer/UI-manager"]
+layout_mode = 1
+anchors_preset = -1
+anchor_left = 0.75
+anchor_top = 0.065
+anchor_right = 0.85
+anchor_bottom = 0.11
 
 [editable path="CanvasLayer/UI-manager/CombatPanel/SelfUnitsPanel/ComabtSelectedUnitsDisplay"]

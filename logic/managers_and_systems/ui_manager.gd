@@ -72,7 +72,9 @@ func bind_turn_manager(tm: GameManager):
 	# Bind self
 	turn_manager = tm
 	# Bind Children
-	turn_panel.bind_turn_manager(tm)
+	for child in get_children():
+		if child.has_method("bind_turn_manager"):
+			child.bind_turn_manager(tm)
 
 
 func bind_lander_manager(lm: GameManager):
