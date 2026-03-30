@@ -1,4 +1,4 @@
-[gd_scene load_steps=49 format=3 uid="uid://cmnn2jtgwr4dw"]
+[gd_scene load_steps=45 format=3 uid="uid://cmnn2jtgwr4dw"]
 
 [ext_resource type="Script" path="res://logic/classes/player.gd" id="1_tftws"]
 [ext_resource type="Script" path="res://logic/classes/player_controler.gd" id="2_pm403"]
@@ -12,7 +12,6 @@
 [ext_resource type="Script" path="res://view/lander_panel/units/unit_control.gd" id="9_bf17q"]
 [ext_resource type="Script" path="res://view/lander_panel/units/unit_details_state.gd" id="11_8gxc8"]
 [ext_resource type="Script" path="res://view/lander_panel/units/unit_shop_state.gd" id="12_u1vg3"]
-[ext_resource type="Script" path="res://view/turn_panel/turn_panel.gd" id="13_0hrky"]
 [ext_resource type="Script" path="res://view/lander_panel/landers/lander_control.gd" id="13_nfxjl"]
 [ext_resource type="Script" path="res://view/combat_ui/combat_panel.gd" id="15_1neg8"]
 [ext_resource type="Script" path="res://view/combat_ui/combat_units_panel.gd" id="16_ld1gm"]
@@ -37,18 +36,6 @@ func _ready() -> void:
 func _process(delta: float) -> void:
 	pass
 "
-
-[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_uayee"]
-
-[sub_resource type="FontVariation" id="FontVariation_upk8h"]
-
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_7vh2u"]
-bg_color = Color(0.6, 0.5755, 0.39, 1)
-
-[sub_resource type="FontVariation" id="FontVariation_nfx7u"]
-variation_embolden = 1.0
-
-[sub_resource type="LabelSettings" id="LabelSettings_cgt8w"]
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_62vnv"]
 bg_color = Color(0.50456, 0.2576, 0.56, 1)
@@ -94,6 +81,12 @@ corner_radius_bottom_left = 10
 
 [sub_resource type="Theme" id="Theme_wo64t"]
 Label/styles/normal = SubResource("StyleBoxFlat_roo4e")
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_uy2sh"]
+bg_color = Color(0.55, 0.2475, 0.2475, 1)
+
+[sub_resource type="Theme" id="Theme_3s2ko"]
+Button/styles/normal = SubResource("StyleBoxFlat_uy2sh")
 
 [sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_3ea1q"]
 
@@ -237,88 +230,6 @@ text = "Stationed Units:"
 
 [node name="Units" type="HFlowContainer" parent="CanvasLayer/UI-manager/LanderPanel/VBoxContainer/LanderControl"]
 layout_mode = 2
-
-[node name="TurnPanel-old" type="Panel" parent="CanvasLayer/UI-manager"]
-visible = false
-layout_mode = 1
-anchors_preset = -1
-anchor_left = 0.008
-anchor_top = 0.35
-anchor_right = 0.1
-anchor_bottom = 0.659
-offset_left = -11.52
-offset_bottom = -9.72003
-script = ExtResource("13_0hrky")
-defualt_label_stylebox = SubResource("StyleBoxEmpty_uayee")
-defualt_label_font = SubResource("FontVariation_upk8h")
-active_label_stylebox = SubResource("StyleBoxFlat_7vh2u")
-active_label_font = SubResource("FontVariation_nfx7u")
-
-[node name="VBoxContainer" type="VBoxContainer" parent="CanvasLayer/UI-manager/TurnPanel-old"]
-layout_mode = 1
-anchors_preset = 10
-anchor_right = 1.0
-offset_right = -42.08
-offset_bottom = 263.0
-grow_horizontal = 2
-alignment = 1
-
-[node name="TurnPanelLabel" type="Label" parent="CanvasLayer/UI-manager/TurnPanel-old/VBoxContainer"]
-layout_mode = 2
-text = "Turn Order:"
-horizontal_alignment = 1
-
-[node name="HSeparator" type="HSeparator" parent="CanvasLayer/UI-manager/TurnPanel-old/VBoxContainer"]
-layout_mode = 2
-
-[node name="PhaseLabels" type="VBoxContainer" parent="CanvasLayer/UI-manager/TurnPanel-old/VBoxContainer"]
-layout_mode = 2
-
-[node name="Upkeep" type="Label" parent="CanvasLayer/UI-manager/TurnPanel-old/VBoxContainer/PhaseLabels"]
-layout_mode = 2
-text = "Upkeep
-"
-
-[node name="DustcloudCollapse" type="Label" parent="CanvasLayer/UI-manager/TurnPanel-old/VBoxContainer/PhaseLabels"]
-layout_mode = 2
-text = "Dustcloud Collapse
-"
-
-[node name="Combat" type="Label" parent="CanvasLayer/UI-manager/TurnPanel-old/VBoxContainer/PhaseLabels"]
-layout_mode = 2
-text = "Combat"
-
-[node name="Reinforcement" type="Label" parent="CanvasLayer/UI-manager/TurnPanel-old/VBoxContainer/PhaseLabels"]
-layout_mode = 2
-text = "Reinforcement"
-label_settings = SubResource("LabelSettings_cgt8w")
-
-[node name="Cleanup" type="Label" parent="CanvasLayer/UI-manager/TurnPanel-old/VBoxContainer/PhaseLabels"]
-layout_mode = 2
-text = "Cleanup"
-
-[node name="HSeparator2" type="HSeparator" parent="CanvasLayer/UI-manager/TurnPanel-old/VBoxContainer"]
-layout_mode = 2
-
-[node name="PlayerOrderLabel" type="Label" parent="CanvasLayer/UI-manager/TurnPanel-old/VBoxContainer"]
-layout_mode = 2
-text = "Player Order:"
-horizontal_alignment = 1
-
-[node name="HSeparator3" type="HSeparator" parent="CanvasLayer/UI-manager/TurnPanel-old/VBoxContainer"]
-layout_mode = 2
-
-[node name="PlayerLabels" type="VBoxContainer" parent="CanvasLayer/UI-manager/TurnPanel-old/VBoxContainer"]
-layout_mode = 2
-
-[node name="Label" type="Label" parent="CanvasLayer/UI-manager/TurnPanel-old/VBoxContainer/PlayerLabels"]
-layout_mode = 2
-text = "You"
-
-[node name="Label2" type="Label" parent="CanvasLayer/UI-manager/TurnPanel-old/VBoxContainer/PlayerLabels"]
-layout_mode = 2
-text = "OPP 1:
-"
 
 [node name="CombatPanel" type="Panel" parent="CanvasLayer/UI-manager"]
 visible = false
@@ -622,7 +533,7 @@ layout_mode = 1
 anchors_preset = -1
 anchor_left = 0.15
 anchor_top = 0.055
-anchor_right = 0.725
+anchor_right = 0.65
 anchor_bottom = 0.09
 
 [node name="HFlowContainer" type="HBoxContainer" parent="CanvasLayer/UI-manager/TurnPanel"]
@@ -676,6 +587,21 @@ text = "Cleanup"
 horizontal_alignment = 1
 vertical_alignment = 1
 
+[node name="Button" type="Button" parent="CanvasLayer/UI-manager/TurnPanel"]
+layout_mode = 1
+anchors_preset = -1
+anchor_left = 1.05
+anchor_top = 0.5
+anchor_right = 1.1
+anchor_bottom = 0.5
+offset_left = -45.0
+offset_top = -15.5
+offset_bottom = 15.5
+grow_horizontal = 0
+grow_vertical = 2
+theme = SubResource("Theme_3s2ko")
+text = "Next"
+
 [node name="PlayersPanel" type="Panel" parent="CanvasLayer/UI-manager"]
 layout_mode = 1
 anchors_preset = -1
@@ -720,5 +646,44 @@ item_1/text = "Player 2"
 item_2/text = "Player 3"
 item_2/disabled = true
 script = ExtResource("24_utqdd")
+
+[node name="Resource Panel" type="Panel" parent="CanvasLayer/UI-manager"]
+layout_mode = 1
+anchors_preset = -1
+anchor_top = 0.15
+anchor_right = 0.1
+anchor_bottom = 0.25
+offset_left = 10.0
+offset_right = 31.0
+offset_bottom = 67.0
+grow_vertical = 2
+
+[node name="VBoxContainer" type="VFlowContainer" parent="CanvasLayer/UI-manager/Resource Panel"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+last_wrap_alignment = 1
+
+[node name="RichTextLabel" type="RichTextLabel" parent="CanvasLayer/UI-manager/Resource Panel/VBoxContainer"]
+custom_minimum_size = Vector2(175, 45)
+layout_mode = 2
+bbcode_enabled = true
+text = "[font_size= 30]🪙: 10 000[/font_size]"
+
+[node name="RichTextLabel2" type="RichTextLabel" parent="CanvasLayer/UI-manager/Resource Panel/VBoxContainer"]
+custom_minimum_size = Vector2(175, 45)
+layout_mode = 2
+size_flags_vertical = 0
+bbcode_enabled = true
+text = "[font_size= 30]🪵: 10 000[/font_size]"
+
+[node name="RichTextLabel3" type="RichTextLabel" parent="CanvasLayer/UI-manager/Resource Panel/VBoxContainer"]
+custom_minimum_size = Vector2(175, 45)
+layout_mode = 2
+bbcode_enabled = true
+text = "[font_size= 30]🍖: 10 000[/font_size]"
 
 [editable path="CanvasLayer/UI-manager/CombatPanel/SelfUnitsPanel/ComabtSelectedUnitsDisplay"]

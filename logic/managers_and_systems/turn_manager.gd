@@ -36,7 +36,7 @@ enum CombatLoop {
 # remaining regular variables
 var game_state: Gamesequence = Gamesequence.GAME_LOOP
 var game_phase: GameLoop = GameLoop.UPKEEP
-var combat_phase: CombatLoop = CombatLoop.MOVE_UNITS
+var combat_phase: CombatLoop = CombatLoop.MOVE_UNITS 
 #var active_actor: Actor
 
 # @onready variables
