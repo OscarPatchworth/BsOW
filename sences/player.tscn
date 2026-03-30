@@ -1,4 +1,4 @@
-[gd_scene load_steps=48 format=3 uid="uid://cmnn2jtgwr4dw"]
+[gd_scene load_steps=49 format=3 uid="uid://cmnn2jtgwr4dw"]
 
 [ext_resource type="Script" path="res://logic/classes/player.gd" id="1_tftws"]
 [ext_resource type="Script" path="res://logic/classes/player_controler.gd" id="2_pm403"]
@@ -23,6 +23,7 @@
 [ext_resource type="Script" path="res://view/combat_ui/select_unit_btn.gd" id="21_l1mcl"]
 [ext_resource type="Script" path="res://view/combat_ui/fight_btn.gd" id="22_oflah"]
 [ext_resource type="Script" path="res://view/turn_panel/turn_panel.gd" id="23_on07q"]
+[ext_resource type="Script" path="res://view/game_button.gd" id="24_1p1b5"]
 [ext_resource type="Script" path="res://sences/item_list.gd" id="24_utqdd"]
 
 [sub_resource type="GDScript" id="GDScript_ks4yd"]
@@ -557,7 +558,7 @@ grow_horizontal = 2
 grow_vertical = 2
 theme = SubResource("Theme_gj51g")
 
-[node name="Button" type="Button" parent="CanvasLayer/UI-manager/TurnPanel"]
+[node name="NextButton" type="Button" parent="CanvasLayer/UI-manager/TurnPanel"]
 layout_mode = 1
 anchors_preset = -1
 anchor_left = 1.05
@@ -571,6 +572,7 @@ grow_horizontal = 0
 grow_vertical = 2
 theme = SubResource("Theme_3s2ko")
 text = "Next"
+script = ExtResource("24_1p1b5")
 
 [node name="PlayersPanel" type="Panel" parent="CanvasLayer/UI-manager"]
 layout_mode = 1

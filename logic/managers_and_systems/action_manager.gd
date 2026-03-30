@@ -37,6 +37,9 @@ func action_request(req: Action):
 			handle_buy_building(req)
 		Action.RequestType.BUY_UNIT:
 			handle_buy_unit(req)
+		Action.RequestType.NEXT_PHASE:
+			print("Action Manager | Req Recieved | Next Phase")
+			pass
 		_:
 			print("No Action Match type match!! \n match type: " + str(Action.RequestType.keys()[req.type] ))
 

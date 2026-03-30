@@ -156,7 +156,7 @@ func init_player(player_x: Player):
 	#player_x.player_combat_not_ready.connect(combat_manager.player_unready)
 	player_x.player_combat_ready.connect(combat_manager.actor_selection_req)
 	player_x.player_combat_not_ready.connect(combat_manager.actor_selection_req)
-	
+	player_x.next_phase_req.connect(action_manager.action_request)
 
 	# TO player
 	lander_manager.built_action_completed.connect(player_x.fwd_build_action_completed)

@@ -2,6 +2,8 @@
 extends Node
 
 # signals
+signal next_phase_req(req: Action)
+
 
 # enums
 
@@ -19,9 +21,13 @@ var turn_phases: Array
 
 # @onready @onready variables
 @onready var hbox: HBoxContainer = self.find_child("HBoxContainer")
+@onready var next_btn: GameButton = self.find_child("NextButton")
 
 ###################################################################################################
 ###	Methods
+func _ready() -> void:
+	ready_signals()
+
 func generate_phase_labels():
 	generate_turn_phases()
 
@@ -65,11 +71,19 @@ func update_turn_panel():
 			hbox.get_child(i).add_theme_stylebox_override("normal", defualt_label_stylebox)
 
 
+func next_phase_btn_pressed():
+	var new_action = Action.new()
+	new_action.set_type(Action.RequestType.NEXT_PHASE)
+	next_phase_req.emit(new_action)
+
 ### Connected Signals
 func bind_turn_manager(tm: GameManager):
 	self.turn_manager = tm
 	generate_phase_labels()
 	
+
+func ready_signals():
+	next_btn.pressed.connect(self.next_phase_btn_pressed)
 
 
 ## Calls

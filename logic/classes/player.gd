@@ -14,6 +14,8 @@ signal unit_deslected(who: Actor, thing: UnitObject, select:bool)
 signal player_combat_ready(who: Actor, thing: Variant, select: bool)
 signal player_combat_not_ready(who: Actor, thing: Variant, select: bool)
 
+signal next_phase_req(req: Action)
+
 # enums
 #enum Element {EARTH,WATER,AIR,FIRE,}
 
@@ -102,6 +104,7 @@ func connect_ui_signals():
 	player_ui.unit_deslected.connect(self.fwd_unit_deslected)
 	player_ui.player_combat_ready.connect(self.fwd_player_combat_ready)
 	player_ui.player_combat_not_ready.connect(self.fwd_player_combat_not_ready)
+	player_ui.next_phase_req.connect(self.fwd_next_phase_req)
 
 
 func fwd_build_req(build_req: Action):
@@ -160,11 +163,9 @@ func fwd_move_units_action_completed(req: Action):
 		player_ui.fwd_move_units_action_completed(req)
 
 
-
 func enter_combat(contest: Contest):
 	print("Player | Entering lander contest")
 	player_ui.run_combat_display(contest)
-
 
 
 func fwd_combat_unit_selected(unit: UnitObject):
@@ -181,3 +182,8 @@ func combat_update(contest: Contest):
 func combat_outcome(c_out: Array[CombatOutcome]):
 	#print("Player | Recieved Combat Outcome call")
 	player_ui.combat_outcome(c_out)
+
+
+func fwd_next_phase_req(req: Action):
+	req.actor = self
+	next_phase_req.emit(req)
