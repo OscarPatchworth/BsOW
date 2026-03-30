@@ -11,7 +11,7 @@ enum RequestType {
 	PLACE_LANDER,
 	BUY_BUILDING,
 	BUY_UNIT,
-	NEXT_PHASE,
+	PROGRESS_TURN,
 }
 
 # constants

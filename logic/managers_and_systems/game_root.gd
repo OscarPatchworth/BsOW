@@ -48,6 +48,7 @@ func init_action_manager():
 	# Connect Wires
 	action_manager.lander_manager = lander_manager
 	action_manager.combat_manager = combat_manager
+	action_manager.turn_manager = turn_manager
 
 
 # Init lander manager
@@ -66,7 +67,7 @@ func init_turn_manager():
 
 	# Connect Signals
 	combat_manager.combat_started.connect(turn_manager.combat_started)
-	pass
+	action_manager.progress_turn.connect(turn_manager.progress_turn)
 
 
 # Init combat manager
@@ -167,6 +168,8 @@ func init_player(player_x: Player):
 	combat_manager.combat_updated.connect(player_x.combat_update)
 	# combat_update
 	combat_manager.combat_outcome.connect(player_x.combat_outcome)
+	turn_manager.game_phased_changed.connect(player_x.game_phase_changed)
+
 
 	player_x.species = game_species.pick_random()
 	#print("Player Species randomly selected: " + str(player_x.species.name))

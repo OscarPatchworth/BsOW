@@ -166,3 +166,7 @@ func fwd_unit_deslected(unit: UnitObject):
 
 func combat_outcome(c_out: Array[CombatOutcome]):
 	combat_panel.combat_outcome(c_out)
+
+
+func game_phase_changed(game_phase):
+	turn_panel.game_phase_changed(game_phase)

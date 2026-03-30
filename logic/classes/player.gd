@@ -187,3 +187,7 @@ func combat_outcome(c_out: Array[CombatOutcome]):
 func fwd_next_phase_req(req: Action):
 	req.actor = self
 	next_phase_req.emit(req)
+
+
+func game_phase_changed(game_phase):
+	player_ui.game_phase_changed(game_phase)

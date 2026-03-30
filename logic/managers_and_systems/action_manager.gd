@@ -3,6 +3,7 @@ extends GameManager
 # signals
 signal build_action(req)
 signal buy_unit_action(req)
+signal progress_turn
 
 # enums
 
@@ -11,6 +12,7 @@ signal buy_unit_action(req)
 # static variables
 var movement_ctrl = load("res://logic/managers_and_systems/movement_controler.gd")
 var lander_manager: GameManager
+var turn_manager: GameManager
 var combat_manager: GameManager
 
 # @export variables
@@ -37,8 +39,9 @@ func action_request(req: Action):
 			handle_buy_building(req)
 		Action.RequestType.BUY_UNIT:
 			handle_buy_unit(req)
-		Action.RequestType.NEXT_PHASE:
-			print("Action Manager | Req Recieved | Next Phase")
+		Action.RequestType.PROGRESS_TURN:
+			#print("Action Manager | Req Recieved | Next Phase")
+			handle_progress_turn(req)
 			pass
 		_:
 			print("No Action Match type match!! \n match type: " + str(Action.RequestType.keys()[req.type] ))
@@ -112,3 +115,10 @@ func handle_attack(req: Action):
 	# Fwd the attack to combat manager
 	print("Fwd attack req")
 	combat_manager.attack_action(req)
+
+
+func handle_progress_turn(req: Action):
+	#if req.actor != turn_manager.get_active_player():
+		#print("Turn Manager | Err |")
+	#else:
+	progress_turn.emit()

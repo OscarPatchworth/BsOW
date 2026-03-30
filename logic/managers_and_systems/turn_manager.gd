@@ -4,6 +4,7 @@ extends GameManager
 # signals
 signal game_phased_changed(game_phase: GameLoop)
 signal combat_assign(contest: Contest)
+signal turn_phase_updated(phase: GameLoop)
 
 # enums
 enum Gamesequence {
@@ -52,7 +53,16 @@ func combat_started(contest: Contest):
 	# print("Turn Manager | Recieved start Combat Req")
 	set_combat_phase(CombatLoop.ASSIGN_COMBATANTS)
 	combat_assign.emit(contest)
-	pass
+
+
+func progress_turn():
+	if game_phase >= (GameLoop.size() -1 ):
+		game_phase = GameLoop.values()[0]
+	else:
+		game_phase = GameLoop.values()[game_phase + 1]
+	game_phased_changed.emit(game_phase)
+
+
 
 ## Get/Set (er)s
 func get_game_state() -> Gamesequence:

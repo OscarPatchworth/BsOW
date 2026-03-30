@@ -73,7 +73,7 @@ func update_turn_panel():
 
 func next_phase_btn_pressed():
 	var new_action = Action.new()
-	new_action.set_type(Action.RequestType.NEXT_PHASE)
+	new_action.set_type(Action.RequestType.PROGRESS_TURN)
 	next_phase_req.emit(new_action)
 
 ### Connected Signals
@@ -87,6 +87,8 @@ func ready_signals():
 
 
 ## Calls
+func game_phase_changed(game_phase):
+	update_turn_panel()
 
 ## Get/Set (er)s
 
