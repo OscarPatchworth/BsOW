@@ -17,7 +17,6 @@ enum GameLoop {
 	DUSTCLOUD_COLLASPE_PHASE,
 	BUYING_PHASE,
 	COMBAT_PHASE,
-	REINFORCEMENT_PHASE,
 	CLEANUP
 }
 
@@ -85,4 +84,9 @@ func get_turn_dict() -> Dictionary:
 
 	return dict
 
+func int_to_game_phase(phase: int) -> String:
+	for name in GameLoop.keys():
+		if GameLoop[name] == phase:
+			return name
+	return "UNKNOWN"
 ### Connected Signals
