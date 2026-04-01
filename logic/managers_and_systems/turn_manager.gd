@@ -37,6 +37,7 @@ enum CombatLoop {
 var game_state: Gamesequence = Gamesequence.GAME_LOOP
 var game_phase: GameLoop = GameLoop.UPKEEP
 var combat_phase: CombatLoop = CombatLoop.MOVE_UNITS 
+var actor_group: Array[Actor]
 #var active_actor: Actor
 
 # @onready variables
@@ -49,6 +50,19 @@ var combat_phase: CombatLoop = CombatLoop.MOVE_UNITS
 
 
 ## Calls
+func bind_actor_to_actor_group(a: Actor):
+	if not a in actor_group:
+		actor_group.append(a)
+
+
+func init_turn_order():
+	actor_group.shuffle()
+	var turn_order: Array[String]
+	for actor in actor_group:
+		turn_order.append(actor.name)
+	print(turn_order)
+
+
 func combat_started(contest: Contest):
 	# print("Turn Manager | Recieved start Combat Req")
 	set_combat_phase(CombatLoop.ASSIGN_COMBATANTS)

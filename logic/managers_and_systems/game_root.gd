@@ -1,7 +1,7 @@
 extends Node
 
 # signals
-
+signal root_setup_finished
 # enums
 
 # constants
@@ -21,6 +21,7 @@ var player_scene = preload("res://sences/player.tscn")
 @onready var turn_manager = self.find_child("TurnManager")
 @onready var match_settings = self.find_child("MatchSettings")
 @onready var combat_manager = self.find_child("CombatManager")
+@onready var actors_node = self.find_child("Actors")
 
 ### Sence Nodes
 @onready var landers_sence_node = self.find_child("Landers")
@@ -31,6 +32,7 @@ var player_scene = preload("res://sences/player.tscn")
 func _ready() -> void:
 	init_game_managers_and_systems()
 	init_actors()
+	root_setup_finished.emit()
 	
 
 ###################################################################################################
@@ -64,11 +66,10 @@ func init_lander_manager():
 ## Init turn manager
 func init_turn_manager():
 	# Connect Binders
-
 	# Connect Signals
 	combat_manager.combat_started.connect(turn_manager.combat_started)
 	action_manager.progress_turn.connect(turn_manager.progress_turn)
-
+	self.root_setup_finished.connect(turn_manager.init_turn_order)
 
 # Init combat manager
 func init_combat_manager():
@@ -90,7 +91,8 @@ func add_player():
 	var player_x = player_scene.instantiate()
 	init_player(player_x)
 	actor_node.add_child(player_x)
-	
+
+	turn_manager.bind_actor_to_actor_group(player_x)
 
 
 func add_ai():
@@ -100,6 +102,7 @@ func add_ai():
 	init_ai(new_ai)
 	actor_node.add_child(new_ai)
 
+	turn_manager.bind_actor_to_actor_group(new_ai)
 
 
 func init_ai(sai: SimpleAI):
