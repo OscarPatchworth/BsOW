@@ -31,6 +31,7 @@ var player_self: Player
 @onready var lander_panel:Panel = self.find_child("LanderPanel")
 @onready var turn_panel: Panel = self.find_child("TurnPanel")
 @onready var combat_panel: Panel = self.find_child("CombatPanel")
+@onready var players_panel: Panel = self.find_child("PlayersPanel")
 
 ###################################################################################################
 ###	Methods
@@ -170,3 +171,7 @@ func combat_outcome(c_out: Array[CombatOutcome]):
 
 func game_phase_changed(game_phase):
 	turn_panel.game_phase_changed(game_phase)
+
+
+func setup_turn_order_display():
+	players_panel.setup_turn_order_display()

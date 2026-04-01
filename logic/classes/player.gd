@@ -191,3 +191,7 @@ func fwd_next_phase_req(req: Action):
 
 func game_phase_changed(game_phase):
 	player_ui.game_phase_changed(game_phase)
+
+
+func setup_turn_order_display():
+	player_ui.setup_turn_order_display()

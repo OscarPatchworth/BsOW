@@ -5,6 +5,7 @@ extends GameManager
 signal game_phased_changed(game_phase: GameLoop)
 signal combat_assign(contest: Contest)
 signal turn_phase_updated(phase: GameLoop)
+signal turn_order_generated
 
 # enums
 enum Gamesequence {
@@ -37,7 +38,7 @@ enum CombatLoop {
 var game_state: Gamesequence = Gamesequence.GAME_LOOP
 var game_phase: GameLoop = GameLoop.UPKEEP
 var combat_phase: CombatLoop = CombatLoop.MOVE_UNITS 
-var actor_group: Array[Actor]
+var turn_order: Array[Actor]
 #var active_actor: Actor
 
 # @onready variables
@@ -51,16 +52,14 @@ var actor_group: Array[Actor]
 
 ## Calls
 func bind_actor_to_actor_group(a: Actor):
-	if not a in actor_group:
-		actor_group.append(a)
+	if not a in turn_order:
+		turn_order.append(a)
 
 
 func init_turn_order():
-	actor_group.shuffle()
-	var turn_order: Array[String]
-	for actor in actor_group:
-		turn_order.append(actor.name)
+	turn_order.shuffle()
 	print(turn_order)
+	turn_order_generated.emit()
 
 
 func combat_started(contest: Contest):
@@ -98,11 +97,21 @@ func set_combat_phase(phase: CombatLoop):
 	self.combat_phase = phase
 
 
+func get_turn_order() -> Array[Actor]:
+	return turn_order
+func get_turn_order_names() -> Array[String]:
+	var turn_names: Array[String]
+	for actor in turn_order:
+		turn_names.append(actor.name)
+	return turn_names
+
+
 func get_turn_dict() -> Dictionary:
 	var dict: Dictionary = {
 		"game_state" : game_state,
 		"game_phase" : game_phase,
 		"combat_phase" : combat_phase,
+		"turn_order" : get_turn_order_names()
 		#"active_actor" : active_actor
 	}
 

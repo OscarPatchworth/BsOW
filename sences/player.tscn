@@ -1,4 +1,4 @@
-[gd_scene load_steps=49 format=3 uid="uid://cmnn2jtgwr4dw"]
+[gd_scene load_steps=50 format=3 uid="uid://cmnn2jtgwr4dw"]
 
 [ext_resource type="Script" path="res://logic/classes/player.gd" id="1_tftws"]
 [ext_resource type="Script" path="res://logic/classes/player_controler.gd" id="2_pm403"]
@@ -25,6 +25,7 @@
 [ext_resource type="Script" path="res://view/turn_panel/turn_panel.gd" id="23_on07q"]
 [ext_resource type="Script" path="res://view/game_button.gd" id="24_1p1b5"]
 [ext_resource type="Script" path="res://sences/item_list.gd" id="24_utqdd"]
+[ext_resource type="Script" path="res://view/players_panel/players_panel.gd" id="25_7higi"]
 
 [sub_resource type="GDScript" id="GDScript_ks4yd"]
 script/source = "extends Camera3D
@@ -581,6 +582,7 @@ anchor_left = 0.75
 anchor_top = 0.055
 anchor_right = 0.85
 anchor_bottom = 0.09
+script = ExtResource("25_7higi")
 
 [node name="Button" type="Button" parent="CanvasLayer/UI-manager/PlayersPanel"]
 layout_mode = 1
