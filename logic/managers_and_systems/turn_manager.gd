@@ -6,6 +6,7 @@ signal game_phased_changed(game_phase: GameLoop)
 signal combat_assign(contest: Contest)
 signal turn_phase_updated(phase: GameLoop)
 signal turn_order_generated
+signal actor_turn_changed(active: Actor)
 
 # enums
 enum Gamesequence {
@@ -66,6 +67,7 @@ func init_turn_order():
 	print(turn_order)
 	active_actor = turn_order[0]
 	turn_order_generated.emit()
+	actor_turn_changed.emit(turn_order[0])
 
 
 func combat_started(contest: Contest):
@@ -91,6 +93,8 @@ func progress_turn_order():
 	else:
 		active_actor = turn_order[(active_actor_ind + 1)]
 	print(active_actor.name)
+	actor_turn_changed.emit(active_actor)
+
 
 ## Get/Set (er)s
 func get_game_state() -> Gamesequence:

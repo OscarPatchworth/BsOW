@@ -173,6 +173,7 @@ func init_player(player_x: Player):
 	combat_manager.combat_outcome.connect(player_x.combat_outcome)
 	turn_manager.game_phased_changed.connect(player_x.game_phase_changed)
 	turn_manager.turn_order_generated.connect(player_x.setup_turn_order_display)
+	turn_manager.actor_turn_changed.connect(player_x.actor_turn_changed)
 
 	player_x.species = game_species.pick_random()
 	#print("Player Species randomly selected: " + str(player_x.species.name))

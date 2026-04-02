@@ -37,6 +37,26 @@ func setup_turn_order_display():
 	for acotr_name in turn_manager.get_turn_order_names():
 		players_list.add_item(acotr_name, null, false)
 
+
+func actor_turn_changed(active_actor: Actor):
+	# Clear all first
+	players_list.deselect_all()
+	
+	for i in range(players_list.item_count):
+		var is_active = players_list.get_item_text(i) == active_actor.name
+		
+		if is_active:
+			players_list.set_item_custom_bg_color(i, Color.PEACH_PUFF)
+			players_list.set_item_custom_fg_color(i, Color.MEDIUM_BLUE)
+		else:
+			players_list.set_item_custom_bg_color(i, Color.TRANSPARENT)
+			players_list.set_item_custom_fg_color(i, Color.GRAY)
+	
+	# Force redraw
+	players_list.queue_redraw()
+			
+
+
 ## Get/Set (er)s
 
 ### Connected Signals

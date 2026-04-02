@@ -195,3 +195,7 @@ func game_phase_changed(game_phase):
 
 func setup_turn_order_display():
 	player_ui.setup_turn_order_display()
+
+
+func actor_turn_changed(active_player: Actor):
+	player_ui.actor_turn_changed(active_player)
