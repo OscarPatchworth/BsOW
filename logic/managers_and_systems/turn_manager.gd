@@ -39,13 +39,18 @@ var game_state: Gamesequence = Gamesequence.GAME_LOOP
 var game_phase: GameLoop = GameLoop.UPKEEP
 var combat_phase: CombatLoop = CombatLoop.MOVE_UNITS 
 var turn_order: Array[Actor]
-#var active_actor: Actor
+var active_actor: Actor
+var turn_number: int = 1
 
 # @onready variables
 
 ###################################################################################################
 ###	Methods
-
+func get_indx(value, array: Array) -> int:
+	for i in range(array.size()):
+		if array[i] == value:
+			return i
+	return -1
 
 ### Connected Signals
 
@@ -59,6 +64,7 @@ func bind_actor_to_actor_group(a: Actor):
 func init_turn_order():
 	turn_order.shuffle()
 	print(turn_order)
+	active_actor = turn_order[0]
 	turn_order_generated.emit()
 
 
@@ -71,11 +77,20 @@ func combat_started(contest: Contest):
 func progress_turn():
 	if game_phase >= (GameLoop.size() -1 ):
 		game_phase = GameLoop.values()[0]
+		progress_turn_order()
 	else:
 		game_phase = GameLoop.values()[game_phase + 1]
 	game_phased_changed.emit(game_phase)
 
 
+func progress_turn_order():
+	var active_actor_ind:int = get_indx(active_actor, turn_order)
+	if(active_actor_ind == turn_order.size()-1):
+		turn_number =+ 1
+		active_actor = turn_order[0]
+	else:
+		active_actor = turn_order[(active_actor_ind + 1)]
+	print(active_actor.name)
 
 ## Get/Set (er)s
 func get_game_state() -> Gamesequence:
