@@ -109,14 +109,31 @@ func progress_turn():
 
 func progress_turn_order():
 	var active_actor_ind:int = get_indx(active_actor, turn_order)
+	# If it was the last player in the turn order loop back to the start
 	if(active_actor_ind == turn_order.size()-1):
 		turn_number =+ 1
 		active_actor = turn_order[0]
+
+		# Since its the last player looping to the 1st,
+		# All code for starting a new round goes here too ....
+		# Should probs be a func() call but ...
+
+		progress_season()
+
 	else:
 		active_actor = turn_order[(active_actor_ind + 1)]
 	print(active_actor.name)
 	actor_turn_changed.emit(active_actor)
 
+
+func progress_season():
+	var cur_sea_ind:int = get_indx(cur_season, game_seasons)
+
+	if(cur_sea_ind == game_seasons.size()-1):
+		cur_season = game_seasons[0]
+	else:
+		cur_season = game_seasons[cur_sea_ind + 1]
+	print("Turn manager | Round update | Current season: " + str(Season.keys()[cur_season]))
 
 ## Get/Set (er)s
 func get_game_state() -> Gamesequence:
