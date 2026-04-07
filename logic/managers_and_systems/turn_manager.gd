@@ -90,6 +90,7 @@ func init_season():
 		game_seasons.append(sea)
 	cur_season = game_seasons[0]
 	print("Turn Manager | Setup | Starting Season: " + str(Season.keys()[cur_season]))
+	print("Turn Manager | Setup | Game Season Order: " + str(get_season_order_names()))
 
 
 func combat_started(contest: Contest):
@@ -162,6 +163,15 @@ func get_turn_order_names() -> Array[String]:
 	for actor in turn_order:
 		turn_names.append(actor.name)
 	return turn_names
+
+
+func get_season_order() -> Array[Season]:
+	return game_seasons
+func get_season_order_names() -> Array[String]:
+	var season_names: Array[String]
+	for sea in game_seasons:
+		season_names.append(Season.keys()[sea])
+	return season_names
 
 
 func get_turn_dict() -> Dictionary:
