@@ -29,6 +29,13 @@ enum CombatLoop {
 	DAMAGE
 }
 
+enum Season {
+	SUMMER,
+	AUTUM,
+	WINTER,
+	SPRING
+}
+
 # constants
 
 # static variables
@@ -42,6 +49,8 @@ var combat_phase: CombatLoop = CombatLoop.MOVE_UNITS
 var turn_order: Array[Actor]
 var active_actor: Actor
 var turn_number: int = 1
+var game_seasons: Array[Season]
+var cur_season: Season
 
 # @onready variables
 
@@ -62,12 +71,25 @@ func bind_actor_to_actor_group(a: Actor):
 		turn_order.append(a)
 
 
+func self_init():
+	init_turn_order()
+	init_season()
+
+
 func init_turn_order():
 	turn_order.shuffle()
 	print(turn_order)
 	active_actor = turn_order[0]
 	turn_order_generated.emit()
 	actor_turn_changed.emit(turn_order[0])
+
+
+func init_season():
+	# Generate game Seasons from Seasons enum
+	for sea in Season.values():
+		game_seasons.append(sea)
+	cur_season = game_seasons[0]
+	print("Turn Manager | Setup | Starting Season: " + str(Season.keys()[cur_season]))
 
 
 func combat_started(contest: Contest):

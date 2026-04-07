@@ -69,7 +69,7 @@ func init_turn_manager():
 	# Connect Signals
 	combat_manager.combat_started.connect(turn_manager.combat_started)
 	action_manager.progress_turn.connect(turn_manager.progress_turn)
-	self.root_setup_finished.connect(turn_manager.init_turn_order)
+	self.root_setup_finished.connect(turn_manager.self_init)
 
 # Init combat manager
 func init_combat_manager():
