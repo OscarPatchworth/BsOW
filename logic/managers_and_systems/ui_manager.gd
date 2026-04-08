@@ -32,6 +32,7 @@ var player_self: Player
 @onready var turn_panel: Panel = self.find_child("TurnPanel")
 @onready var combat_panel: Panel = self.find_child("CombatPanel")
 @onready var players_panel: Panel = self.find_child("PlayersPanel")
+@onready var seasons_panel: Panel = self.find_child("SeasonPanel")
 
 ###################################################################################################
 ###	Methods
@@ -179,3 +180,7 @@ func setup_turn_order_display():
 
 func actor_turn_changed(active_actor: Actor):
 	players_panel.actor_turn_changed(active_actor)
+
+
+func seasons_generated():
+	seasons_panel.seasons_generated()

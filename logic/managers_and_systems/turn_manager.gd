@@ -7,6 +7,8 @@ signal combat_assign(contest: Contest)
 signal turn_phase_updated(phase: GameLoop)
 signal turn_order_generated
 signal actor_turn_changed(active: Actor)
+signal season_order_generated
+signal season_changed(sea: Season)
 
 # enums
 enum Gamesequence {
@@ -91,6 +93,7 @@ func init_season():
 	cur_season = game_seasons[0]
 	print("Turn Manager | Setup | Starting Season: " + str(Season.keys()[cur_season]))
 	print("Turn Manager | Setup | Game Season Order: " + str(get_season_order_names()))
+	season_order_generated.emit()
 
 
 func combat_started(contest: Contest):
@@ -135,6 +138,8 @@ func progress_season():
 	else:
 		cur_season = game_seasons[cur_sea_ind + 1]
 	print("Turn manager | Round update | Current season: " + str(Season.keys()[cur_season]))
+	season_changed.emit(cur_season)
+
 
 ## Get/Set (er)s
 func get_game_state() -> Gamesequence:

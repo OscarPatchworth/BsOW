@@ -1,4 +1,4 @@
-[gd_scene load_steps=50 format=3 uid="uid://cmnn2jtgwr4dw"]
+[gd_scene load_steps=51 format=3 uid="uid://cmnn2jtgwr4dw"]
 
 [ext_resource type="Script" path="res://logic/classes/player.gd" id="1_tftws"]
 [ext_resource type="Script" path="res://logic/classes/player_controler.gd" id="2_pm403"]
@@ -22,6 +22,7 @@
 [ext_resource type="Script" path="res://view/combat_ui/select_ablt_panel.gd" id="21_gsl2e"]
 [ext_resource type="Script" path="res://view/combat_ui/select_unit_btn.gd" id="21_l1mcl"]
 [ext_resource type="Script" path="res://view/combat_ui/fight_btn.gd" id="22_oflah"]
+[ext_resource type="Script" path="res://view/seasons_panel/seasons_panel.gd" id="23_5erey"]
 [ext_resource type="Script" path="res://view/turn_panel/turn_panel.gd" id="23_on07q"]
 [ext_resource type="Script" path="res://view/game_button.gd" id="24_1p1b5"]
 [ext_resource type="Script" path="res://sences/item_list.gd" id="24_utqdd"]
@@ -494,8 +495,9 @@ anchor_top = 0.01
 anchor_right = 0.9
 anchor_bottom = 0.045
 grow_horizontal = 2
+script = ExtResource("23_5erey")
 
-[node name="HFlowContainer" type="HBoxContainer" parent="CanvasLayer/UI-manager/SeasonPanel"]
+[node name="HBoxContainer" type="HBoxContainer" parent="CanvasLayer/UI-manager/SeasonPanel"]
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
@@ -503,7 +505,7 @@ anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 
-[node name="Label" type="Label" parent="CanvasLayer/UI-manager/SeasonPanel/HFlowContainer"]
+[node name="Label" type="Label" parent="CanvasLayer/UI-manager/SeasonPanel/HBoxContainer"]
 layout_mode = 2
 size_flags_horizontal = 3
 size_flags_vertical = 1
@@ -512,7 +514,7 @@ text = "Autum"
 horizontal_alignment = 1
 vertical_alignment = 1
 
-[node name="Label2" type="Label" parent="CanvasLayer/UI-manager/SeasonPanel/HFlowContainer"]
+[node name="Label2" type="Label" parent="CanvasLayer/UI-manager/SeasonPanel/HBoxContainer"]
 layout_mode = 2
 size_flags_horizontal = 3
 size_flags_vertical = 1
@@ -521,7 +523,7 @@ text = "Winter"
 horizontal_alignment = 1
 vertical_alignment = 1
 
-[node name="Label3" type="Label" parent="CanvasLayer/UI-manager/SeasonPanel/HFlowContainer"]
+[node name="Label3" type="Label" parent="CanvasLayer/UI-manager/SeasonPanel/HBoxContainer"]
 layout_mode = 2
 size_flags_horizontal = 3
 size_flags_vertical = 1
@@ -530,7 +532,7 @@ text = "Spring"
 horizontal_alignment = 1
 vertical_alignment = 1
 
-[node name="Label4" type="Label" parent="CanvasLayer/UI-manager/SeasonPanel/HFlowContainer"]
+[node name="Label4" type="Label" parent="CanvasLayer/UI-manager/SeasonPanel/HBoxContainer"]
 layout_mode = 2
 size_flags_horizontal = 3
 size_flags_vertical = 1

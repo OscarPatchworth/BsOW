@@ -199,3 +199,11 @@ func setup_turn_order_display():
 
 func actor_turn_changed(active_player: Actor):
 	player_ui.actor_turn_changed(active_player)
+
+
+func seasons_generated():
+	player_ui.seasons_generated()
+
+
+func season_changed(cur_sea: int):
+	player_ui.season_changed(cur_sea)
