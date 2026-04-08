@@ -8,7 +8,7 @@ signal turn_phase_updated(phase: GameLoop)
 signal turn_order_generated
 signal actor_turn_changed(active: Actor)
 signal season_order_generated
-signal season_changed(sea: Season)
+signal season_changed(sea_indx: int)
 
 # enums
 enum Gamesequence {
@@ -33,12 +33,20 @@ enum CombatLoop {
 
 enum Season {
 	SUMMER,
-	AUTUM,
+	AUTUMN,
 	WINTER,
 	SPRING
 }
 
 # constants
+
+const SEASON_COLORS := {
+	Season.SPRING: Color("#32a832"),
+	Season.SUMMER: Color("#9e4266"),
+	Season.AUTUMN: Color("#a16a33"),
+	Season.WINTER: Color("#2a4d5e"),
+}
+
 
 # static variables
 
@@ -53,6 +61,7 @@ var active_actor: Actor
 var turn_number: int = 1
 var game_seasons: Array[Season]
 var cur_season: Season
+var cur_season_ind: int
 
 # @onready variables
 
@@ -91,10 +100,10 @@ func init_season():
 	for sea in Season.values():
 		game_seasons.append(sea)
 	cur_season = game_seasons[0]
+	cur_season_ind = 0
 	print("Turn Manager | Setup | Starting Season: " + str(Season.keys()[cur_season]))
 	print("Turn Manager | Setup | Game Season Order: " + str(get_season_order_names()))
 	season_order_generated.emit()
-
 
 func combat_started(contest: Contest):
 	# print("Turn Manager | Recieved start Combat Req")
@@ -131,14 +140,14 @@ func progress_turn_order():
 
 
 func progress_season():
-	var cur_sea_ind:int = get_indx(cur_season, game_seasons)
 
-	if(cur_sea_ind == game_seasons.size()-1):
-		cur_season = game_seasons[0]
+	if(cur_season_ind == game_seasons.size()-1):
+		cur_season_ind = 0
 	else:
-		cur_season = game_seasons[cur_sea_ind + 1]
+		cur_season_ind += 1
+	cur_season = game_seasons[cur_season_ind]	
 	print("Turn manager | Round update | Current season: " + str(Season.keys()[cur_season]))
-	season_changed.emit(cur_season)
+	season_changed.emit(cur_season_ind)
 
 
 ## Get/Set (er)s
@@ -177,6 +186,11 @@ func get_season_order_names() -> Array[String]:
 	for sea in game_seasons:
 		season_names.append(Season.keys()[sea])
 	return season_names
+func get_season(sea: String) -> Variant:
+	for i in range(Season.keys().size()):
+		if Season.keys()[i] == sea:
+			return Season.values()[i]
+	return null
 
 
 func get_turn_dict() -> Dictionary:
@@ -187,8 +201,12 @@ func get_turn_dict() -> Dictionary:
 		"turn_order" : get_turn_order_names()
 		#"active_actor" : active_actor
 	}
-
 	return dict
+
+
+func get_season_color(sea: Season) -> Color:
+	return SEASON_COLORS[sea]
+
 
 func int_to_game_phase(phase: int) -> String:
 	for name in GameLoop.keys():

@@ -184,3 +184,7 @@ func actor_turn_changed(active_actor: Actor):
 
 func seasons_generated():
 	seasons_panel.seasons_generated()
+
+
+func season_changed(sea_indx: int):
+	seasons_panel.season_changed(sea_indx)

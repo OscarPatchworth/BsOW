@@ -50,6 +50,23 @@ func seasons_generated():
 		new_label.size_flags_horizontal = Control.SIZE_FILL
 		new_label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	
+	# DEFER: Wait one frame for layout	
+	await get_tree().process_frame
+	season_changed(0)
+
+
+func season_changed(sea_indx: int):
+	print("Season panel | Season changed | Current season: " + str(game_seasons[sea_indx]))
+	for i in range(hbox.get_child_count()):
+		var label = hbox.get_child(i) as Label
+		var new_sb = StyleBoxFlat.new()
+
+		if i == sea_indx:
+			new_sb.bg_color = turn_manager.get_season_color(turn_manager.get_season(game_seasons[sea_indx]))
+		else:
+			new_sb.bg_color = Color.GRAY
+		label.add_theme_stylebox_override("normal", new_sb)
+
 
 ## Get/Set (er)s
 
