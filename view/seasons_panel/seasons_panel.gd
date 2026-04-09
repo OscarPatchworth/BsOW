@@ -64,7 +64,7 @@ func season_changed(sea_indx: int):
 		if i == sea_indx:
 			new_sb.bg_color = turn_manager.get_season_color(turn_manager.get_season(game_seasons[sea_indx]))
 		else:
-			new_sb.bg_color = Color.GRAY
+			new_sb.bg_color = Color.DIM_GRAY
 		label.add_theme_stylebox_override("normal", new_sb)
 
 

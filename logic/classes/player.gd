@@ -69,6 +69,7 @@ func wire_selector_manager():
 func wire_turn_manager():
 	# Wire: manager -> Things
 	player_ui.bind_turn_manager(turn_manager)
+	player_controller.bind_turn_manager(turn_manager)
 
 
 func wire_lander_manager():
@@ -182,6 +183,7 @@ func combat_update(contest: Contest):
 func combat_outcome(c_out: Array[CombatOutcome]):
 	#print("Player | Recieved Combat Outcome call")
 	player_ui.combat_outcome(c_out)
+	player_controller.exit_combat()
 
 
 func fwd_next_phase_req(req: Action):
@@ -190,6 +192,7 @@ func fwd_next_phase_req(req: Action):
 
 
 func game_phase_changed(game_phase):
+	player_controller.game_phase_changed(game_phase)
 	player_ui.game_phase_changed(game_phase)
 
 
@@ -199,6 +202,7 @@ func setup_turn_order_display():
 
 func actor_turn_changed(active_player: Actor):
 	player_ui.actor_turn_changed(active_player)
+	player_controller.actor_turn_changed(active_player)
 
 
 func seasons_generated():
@@ -207,3 +211,7 @@ func seasons_generated():
 
 func season_changed(cur_sea: int):
 	player_ui.season_changed(cur_sea)
+
+
+func combat_req(contest: Contest):
+	player_controller.enter_combat()
