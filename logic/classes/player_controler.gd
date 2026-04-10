@@ -26,7 +26,7 @@ const LANDER_LAYER: int = 2
 #static variables
 var selector_manager: GameManager
 var turn_manager: GameManager
-
+var draw_3d: Draw3D
 
 ### 
 #@export variables
@@ -48,16 +48,18 @@ var is_active_player: bool = false
 var player_state:PlayerState = PlayerState.IDLE
 
 # Input state controls
-var i_combat_ldown: bool = false
+var i_movement_ldown: bool = false
 
 # Process state controls
-var p_combat_timer: float = 0
-var p_combat_update_rate: float = 0.1
+var p_movement_timer: float = 0
+var p_movement_update_rate: float = 1.0/30.0 #update = 30FPS
 
 ## State controls
-# Combat
-var c_start_lander: Lander
-var c_end_lander: Lander
+# Movement
+var m_start_lander: Lander
+var m_end_lander: Lander
+var _mouse_line
+
 
 ### @onready variables
 @onready var cam: Camera3D = self.find_child("Camera3D")
@@ -71,8 +73,8 @@ func _input(event: InputEvent) -> void:
 			input_state_idle(event)
 		PlayerState.COLLASPING_DUSTCLOUD:
 			input_state_collapsing_dustcloud(event)
-		PlayerState.COMBAT:
-			input_state_combat(event)
+		PlayerState.MOVEMENT:
+			input_state_movement(event)
 		_:
 			input_state_idle(event)
 
@@ -81,8 +83,8 @@ func _process(delta: float) -> void:
 	match player_state:
 		PlayerState.IDLE:
 			process_state_idle(delta)
-		PlayerState.COMBAT:
-			process_state_combat(delta)
+		PlayerState.MOVEMENT:
+			process_state_movement(delta)
 		_:
 			process_state_idle(delta)
 
@@ -104,18 +106,18 @@ func input_state_collapsing_dustcloud(event: InputEvent) -> void:
 		view_lander_event()
 
 
-func input_state_combat(event):
+func input_state_movement(event):
 	# Left Click down/up
 	if event.is_action_released("left_click"):
-		i_combat_ldown = false
-		c_start_lander = null
-		c_end_lander = null
+		i_movement_ldown = false
+		m_start_lander = null
+		m_end_lander = null
 	elif event.is_action_pressed("left_click"):
-		i_combat_ldown = true
+		i_movement_ldown = true
 		
 		var raycast_hit = raycat_to_layer(LANDER_LAYER)
 		if raycast_hit:
-			c_start_lander = raycast_hit.collider
+			m_start_lander = raycast_hit.collider
 
 	#Right Click down/up
 	elif event.is_action_released("right_click"):
@@ -127,21 +129,29 @@ func process_state_idle(delta: float) -> void:
 	pass
 
 
-func process_state_combat(delta: float) -> void:
-	if i_combat_ldown and c_start_lander != null:
-		p_combat_timer += delta
-		if p_combat_timer >= p_combat_update_rate:
-			p_combat_timer = 0
-			# Update combat display
-			var raycast_hit = raycat_to_layer(LANDER_LAYER)
-			c_end_lander = raycast_hit.collider if raycast_hit else null
+func process_state_movement(delta: float) -> void:
+	if i_movement_ldown and m_start_lander != null:
+		p_movement_timer += delta
+		if p_movement_timer >= p_movement_update_rate:
+			p_movement_timer = 0
 
-			if c_end_lander == null:
-				pass
-				
+			var lander_raycast_hit = raycat_to_layer(LANDER_LAYER)
+			if lander_raycast_hit:
+				m_end_lander = lander_raycast_hit.collider
+			else:
+				m_end_lander = null
 
+			if m_end_lander != null:
+				_mouse_line = await draw_3d.line(m_start_lander.global_transform.origin + Vector3.UP, 
+				m_end_lander.global_transform.origin + Vector3.UP, Color.RED, p_movement_update_rate)
+			else:
+				var surface_raycast_hit = raycat_to_layer(WORLD_SURFACE_LAYER)
+				if surface_raycast_hit:
+					var mouse_pos_V3:Vector3 = surface_raycast_hit.position
+					_mouse_line = await draw_3d.line(m_start_lander.global_transform.origin + Vector3.UP, 
+					mouse_pos_V3, Color.LIGHT_BLUE, p_movement_update_rate)
 		else:
-			return
+			pass
 
 
 ### Methods
@@ -175,6 +185,29 @@ func init_raycast_mouse_pos() -> void:
 	#Get raycast points
 	mouse_ray_start = cam.project_ray_origin(mouse_pos)
 	mouse_ray_end = mouse_ray_start + cam.project_ray_normal(mouse_pos) * RAYCAST_WORLD_SURFACE_LENGHT
+
+
+#Returns the position in 3d that the mouse is hovering, or null if it isnt hovering anything
+func get_mouse_pos():
+	var space_state = get_parent().get_world_3d().get_direct_space_state()
+	var mouse_position = get_viewport().get_mouse_position()
+	var camera = get_tree().root.get_camera_3d()
+	
+	var ray_origin = camera.project_ray_origin(mouse_position)
+	var ray_end = ray_origin + camera.project_ray_normal(mouse_position) * 1000
+		
+	var params = PhysicsRayQueryParameters3D.new()
+	params.from = ray_origin
+	params.to = ray_end
+	params.collision_mask = LANDER_LAYER
+	params.exclude = []
+	
+	var rayDic = space_state.intersect_ray(params)	
+	
+	if rayDic.has("position"):
+		return rayDic["position"]
+	return null
+
 
 
 # Calls

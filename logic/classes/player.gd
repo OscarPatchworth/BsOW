@@ -23,6 +23,7 @@ signal next_phase_req(req: Action)
 #const MAX_SPEED = 200
 
 # static variables
+var draw_3d: Draw3D
 
 # @export variables
 
@@ -56,6 +57,7 @@ func connect_wires():
 	wire_lander_manager()
 	wire_combat_manager()
 	wire_self()
+	wire_draw_3d()
 
 
 func wire_selector_manager():
@@ -84,6 +86,10 @@ func wire_combat_manager():
 
 func wire_self():
 	player_ui.bind_player(self)
+
+
+func wire_draw_3d():
+	player_controller.draw_3d = draw_3d
 
 ### Connected Signals
 func connect_signals():

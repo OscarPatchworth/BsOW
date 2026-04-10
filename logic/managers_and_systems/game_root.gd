@@ -22,7 +22,7 @@ var player_scene = preload("res://sences/player.tscn")
 @onready var match_settings = self.find_child("MatchSettings")
 @onready var combat_manager = self.find_child("CombatManager")
 @onready var actors_node = self.find_child("Actors")
-
+@onready var draw_3d = self.find_child("Draw3D")
 ### Sence Nodes
 @onready var landers_sence_node = self.find_child("Landers")
 
@@ -43,6 +43,7 @@ func init_game_managers_and_systems():
 	init_lander_manager()
 	init_turn_manager()
 	init_combat_manager()
+	run_binders()
 
 
 # Init action manager
@@ -79,6 +80,9 @@ func init_combat_manager():
 	# Connect Signals
 
 
+# Run binders
+func run_binders():
+	pass	
 
 # Init Actors
 func init_actors():
@@ -145,6 +149,7 @@ func init_player(player_x: Player):
 	player_x.turn_manager = self.turn_manager
 	player_x.lander_manager = self.lander_manager
 	player_x.combat_manager = self.combat_manager
+	player_x.draw_3d = self.draw_3d
 
 	# Connect Signals
 	# FROM player
