@@ -1,7 +1,7 @@
 class_name PlayerControler
 extends ActorControler
 
-# signals
+### signals
 signal select_lander(target_lander)
 signal view_lander_requested(target_lander)
 
@@ -16,30 +16,50 @@ enum PlayerState {
 }
 
 
-# constants
+### constants
 const RAYCAST_WORLD_SURFACE_LENGHT = 100
 const WORLD_SURFACE_LAYER: int = 1
 const LANDER_LAYER: int = 2
 
-# static variables
+
+### 
+#static variables
 var selector_manager: GameManager
 var turn_manager: GameManager
 
-# @export variables
 
-# remaining regular variables
+### 
+#@export variables
+
+
+### 
+#remaining regular variables
 var mouse = Vector2()
 #Get cam and world space init
 var space_state
 var mouse_pos 
+
 #Get raycast points
 var mouse_ray_start 
 var mouse_ray_end
 
+# Player state controls
 var is_active_player: bool = false
 var player_state:PlayerState = PlayerState.IDLE
 
-# @onready variables
+# Input state controls
+var i_combat_ldown: bool = false
+
+# Process state controls
+var p_combat_timer: float = 0
+var p_combat_update_rate: float = 0.1
+
+## State controls
+# Combat
+var c_start_lander: Lander
+var c_end_lander: Lander
+
+### @onready variables
 @onready var cam: Camera3D = self.find_child("Camera3D")
 
 ###################################################################################################
@@ -51,14 +71,21 @@ func _input(event: InputEvent) -> void:
 			input_state_idle(event)
 		PlayerState.COLLASPING_DUSTCLOUD:
 			input_state_collapsing_dustcloud(event)
-		PlayerState.BUYING:
-			pass
-		PlayerState.MOVEMENT:
-			pass
 		PlayerState.COMBAT:
-			pass
-		PlayerState.DEAD:
-			pass
+			input_state_combat(event)
+		_:
+			input_state_idle(event)
+
+
+func _process(delta: float) -> void:
+	match player_state:
+		PlayerState.IDLE:
+			process_state_idle(delta)
+		PlayerState.COMBAT:
+			process_state_combat(delta)
+		_:
+			process_state_idle(delta)
+
 
 
 ###########################################################################################################
@@ -76,7 +103,46 @@ func input_state_collapsing_dustcloud(event: InputEvent) -> void:
 	elif event.is_action_released("right_click"):
 		view_lander_event()
 
+
+func input_state_combat(event):
+	# Left Click down/up
+	if event.is_action_released("left_click"):
+		i_combat_ldown = false
+		c_start_lander = null
+		c_end_lander = null
+	elif event.is_action_pressed("left_click"):
+		i_combat_ldown = true
+		
+		var raycast_hit = raycat_to_layer(LANDER_LAYER)
+		if raycast_hit:
+			c_start_lander = raycast_hit.collider
+
+	#Right Click down/up
+	elif event.is_action_released("right_click"):
+		view_lander_event()
+
+
 ### Process States
+func process_state_idle(delta: float) -> void:
+	pass
+
+
+func process_state_combat(delta: float) -> void:
+	if i_combat_ldown and c_start_lander != null:
+		p_combat_timer += delta
+		if p_combat_timer >= p_combat_update_rate:
+			p_combat_timer = 0
+			# Update combat display
+			var raycast_hit = raycat_to_layer(LANDER_LAYER)
+			c_end_lander = raycast_hit.collider if raycast_hit else null
+
+			if c_end_lander == null:
+				pass
+				
+
+		else:
+			return
+
 
 ### Methods
 func place_lander_event():
