@@ -55,6 +55,7 @@ func connect_signals():
 	combat_panel.unit_deslected.connect(self.fwd_unit_deslected)
 	combat_panel.player_combat_ready.connect(self.fwd_player_combat_ready)
 	combat_panel.player_combat_not_ready.connect(fwd_player_combat_not_ready)
+	combat_panel.combat_display_toggled.connect(self.combat_display_toggled)
 
 	turn_panel.next_phase_req.connect(self.fwd_next_phase_req)
 
@@ -188,3 +189,13 @@ func seasons_generated():
 
 func season_changed(sea_indx: int):
 	seasons_panel.season_changed(sea_indx)
+
+
+func combat_display_toggled(toggled_on: bool):
+	if toggled_on:
+		players_panel.show()
+		turn_panel.show()
+	else:
+		turn_panel.hide()
+		lander_panel.hide()
+		players_panel.hide()

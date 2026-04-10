@@ -1,4 +1,4 @@
-[gd_scene load_steps=55 format=3 uid="uid://cmnn2jtgwr4dw"]
+[gd_scene load_steps=56 format=3 uid="uid://cmnn2jtgwr4dw"]
 
 [ext_resource type="Script" path="res://logic/classes/player.gd" id="1_tftws"]
 [ext_resource type="Script" path="res://logic/classes/player_controler.gd" id="2_pm403"]
@@ -40,6 +40,8 @@ func _ready() -> void:
 func _process(delta: float) -> void:
 	pass
 "
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_4wrp8"]
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_62vnv"]
 bg_color = Color(0.50456, 0.2576, 0.56, 1)
@@ -281,7 +283,17 @@ anchor_right = 0.9
 anchor_bottom = 0.9
 grow_horizontal = 2
 grow_vertical = 2
+theme_override_styles/panel = SubResource("StyleBoxEmpty_4wrp8")
 script = ExtResource("15_1neg8")
+
+[node name="BgPanel" type="Panel" parent="CanvasLayer/UI-manager/CombatPanel"]
+z_index = -1
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
 
 [node name="SelfUnitsPanel" type="Panel" parent="CanvasLayer/UI-manager/CombatPanel"]
 layout_mode = 1
@@ -515,14 +527,16 @@ pivot_offset = Vector2(50, 45)
 text = "Fight !"
 script = ExtResource("22_oflah")
 
-[node name="DropBtn" type="Button" parent="CanvasLayer/UI-manager/CombatPanel"]
+[node name="ToggleDisplayBtn" type="Button" parent="CanvasLayer/UI-manager/CombatPanel"]
 layout_mode = 1
 anchors_preset = -1
 anchor_top = 1.0
 anchor_right = 1.0
 anchor_bottom = 1.05
 theme = SubResource("Theme_bq35r")
-text = "Hide Combat"
+toggle_mode = true
+text = "Hide Combat Display"
+script = ExtResource("24_1p1b5")
 
 [node name="SeasonPanel" type="Panel" parent="CanvasLayer/UI-manager"]
 layout_mode = 1

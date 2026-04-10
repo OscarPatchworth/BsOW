@@ -6,6 +6,7 @@ signal unit_selected(unit: UnitObject)
 signal unit_deslected(unit: UnitObject)
 signal player_combat_ready
 signal player_combat_not_ready
+signal combat_display_toggled(toggled_on: bool)
 
 # enums
 
@@ -29,8 +30,7 @@ var cur_contest: Contest
 @onready var select_units_panel: Panel = self.find_child("SelectUnitsPanel")
 @onready var select_ablt_panel: Panel = self.find_child("SelectAbilitiesPanel")
 @onready var fight_btn: GameButton = self.find_child("FightBtn")
-
-
+@onready var toggle_combat_display_btn: GameButton = self.find_child("ToggleDisplayBtn")
 
 ###################################################################################################
 ###	Methods
@@ -108,6 +108,7 @@ func setup_signals():
 	opp_units_panel.unit_deslected.connect(fwd_unit_deslected)
 	fight_btn.player_combat_ready.connect(fwd_player_combat_ready)
 	fight_btn.player_combat_not_ready.connect(fwd_player_combat_not_ready)
+	toggle_combat_display_btn.toggled.connect(self.toggle_combat_display)
 
 
 func fwd_unit_deslected(unit: UnitObject):
@@ -119,3 +120,19 @@ func fwd_player_combat_ready():
 
 func fwd_player_combat_not_ready():
 	player_combat_not_ready.emit()
+
+
+func toggle_combat_display(toggled_on: bool):
+	if toggled_on:
+		for child in get_children():
+			if child != toggle_combat_display_btn:
+				child.hide()
+			else:
+				child.text = "Show Combat Display"
+	else:
+		for child in get_children():
+			if child != toggle_combat_display_btn:
+				child.show()
+			else:
+				child.text = "Hide Combat Display"
+	combat_display_toggled.emit(toggled_on)
