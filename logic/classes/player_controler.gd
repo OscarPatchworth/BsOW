@@ -46,19 +46,52 @@ var player_state:PlayerState = PlayerState.IDLE
 ###	Methods
 # Called Whenever there is user input
 func _input(event: InputEvent) -> void: 
+	match player_state:
+		PlayerState.IDLE:
+			input_state_idle(event)
+		PlayerState.COLLASPING_DUSTCLOUD:
+			input_state_collapsing_dustcloud(event)
+		PlayerState.BUYING:
+			pass
+		PlayerState.MOVEMENT:
+			pass
+		PlayerState.COMBAT:
+			pass
+		PlayerState.DEAD:
+			pass
+
+
+###########################################################################################################
+# Player States:
+
+### Input States
+func input_state_idle(event: InputEvent) -> void:
+	if event.is_action_released("right_click"):
+		view_lander_event()
+
+
+func input_state_collapsing_dustcloud(event: InputEvent) -> void:
 	if event.is_action_released("left_click"):
-		var raycast_hit = raycat_to_layer(WORLD_SURFACE_LAYER)
-		if raycast_hit:
-			generate_place_lander_request(raycast_hit.position)
-
+		place_lander_event()
 	elif event.is_action_released("right_click"):
-		var raycast_hit = raycat_to_layer(LANDER_LAYER)
-		if raycast_hit:
-			select_lander.emit(raycast_hit.collider)
-			view_lander_requested.emit(raycast_hit.collider)
+		view_lander_event()
+
+### Process States
+
+### Methods
+func place_lander_event():
+	var raycast_hit = raycat_to_layer(WORLD_SURFACE_LAYER)
+	if raycast_hit:
+		generate_place_lander_request(raycast_hit.position)
+
+func view_lander_event():
+	var raycast_hit = raycat_to_layer(LANDER_LAYER)
+	if raycast_hit:
+		select_lander.emit(raycast_hit.collider)
+		view_lander_requested.emit(raycast_hit.collider)
 
 
-
+## 2ndary Methods
 func raycat_to_layer(layer: int) -> Dictionary:
 	#Get cam and world space init
 	init_raycast_mouse_pos()

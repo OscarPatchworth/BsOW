@@ -178,6 +178,7 @@ func combat_update(contest: Contest):
 	print("Player | Combat update recieved")
 	if(contest.get_invading_actor() == self or contest.get_defending_actor() == self):
 		player_ui.update_combat_display(contest)
+		player_controller.enter_combat()
 
 
 func combat_outcome(c_out: Array[CombatOutcome]):
@@ -211,7 +212,3 @@ func seasons_generated():
 
 func season_changed(cur_sea: int):
 	player_ui.season_changed(cur_sea)
-
-
-func combat_req(contest: Contest):
-	player_controller.enter_combat()

@@ -167,7 +167,7 @@ func init_player(player_x: Player):
 	lander_manager.buy_unit_action_completed.connect(player_x.fwd_buy_unit_action_completed)
 	lander_manager.move_units_action_completed.connect(player_x.fwd_move_units_action_completed)
 	# turn_manager.combat_assign.connect(player_x.contest_lander)
-	combat_manager.combat_started.connect(player_x.combat_req)
+	combat_manager.combat_started.connect(player_x.enter_combat)
 	combat_manager.combat_updated.connect(player_x.combat_update)
 	# combat_update
 	combat_manager.combat_outcome.connect(player_x.combat_outcome)

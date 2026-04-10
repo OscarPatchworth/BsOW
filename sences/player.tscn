@@ -1,4 +1,4 @@
-[gd_scene load_steps=51 format=3 uid="uid://cmnn2jtgwr4dw"]
+[gd_scene load_steps=55 format=3 uid="uid://cmnn2jtgwr4dw"]
 
 [ext_resource type="Script" path="res://logic/classes/player.gd" id="1_tftws"]
 [ext_resource type="Script" path="res://logic/classes/player_controler.gd" id="2_pm403"]
@@ -49,6 +49,35 @@ bg_color = Color(0.31, 0.2046, 0.24676, 1)
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_c0y1c"]
 bg_color = Color(0.31, 0.2046, 0.24676, 1)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_uoejg"]
+bg_color = Color(0.205117, 0.205117, 0.205117, 1)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(0.0745098, 0.435294, 0.435294, 1)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_okafx"]
+bg_color = Color(0.129412, 0.129412, 0.129412, 1)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(0.0745098, 0.435294, 0.435294, 1)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_etsqx"]
+bg_color = Color(0.129412, 0.129412, 0.129412, 1)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(0.866667, 0.435294, 0.435294, 1)
+
+[sub_resource type="Theme" id="Theme_bq35r"]
+Button/styles/hover = SubResource("StyleBoxFlat_uoejg")
+Button/styles/normal = SubResource("StyleBoxFlat_okafx")
+Button/styles/pressed = SubResource("StyleBoxFlat_etsqx")
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_ko88s"]
 bg_color = Color(0.63, 0.4158, 0.2016, 1)
@@ -244,7 +273,6 @@ text = "Stationed Units:"
 layout_mode = 2
 
 [node name="CombatPanel" type="Panel" parent="CanvasLayer/UI-manager"]
-visible = false
 layout_mode = 1
 anchors_preset = -1
 anchor_left = 0.1
@@ -486,6 +514,15 @@ rotation = -0.20944
 pivot_offset = Vector2(50, 45)
 text = "Fight !"
 script = ExtResource("22_oflah")
+
+[node name="DropBtn" type="Button" parent="CanvasLayer/UI-manager/CombatPanel"]
+layout_mode = 1
+anchors_preset = -1
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.05
+theme = SubResource("Theme_bq35r")
+text = "Hide Combat"
 
 [node name="SeasonPanel" type="Panel" parent="CanvasLayer/UI-manager"]
 layout_mode = 1
