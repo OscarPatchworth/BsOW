@@ -36,7 +36,7 @@ func update():
 	#Check for cur_lander
 	cur_lander = selector_manager.get_selected_lander()
 	if cur_lander == null:
-		print("Lander Control in player UI has null lander selected")
+		print("Lander Control in self_player UI has null lander selected")
 		return
 
 	update_connected_landers()

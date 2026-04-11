@@ -65,7 +65,7 @@ func wire_selector_manager():
 	player_controller.selector_manager = selector_manager
 	player_ui.bind_selector(selector_manager)
 	# Wire selector: Things->Manager
-	selector_manager.player = self
+	selector_manager.self_player = self
 
 
 func wire_turn_manager():
@@ -77,6 +77,7 @@ func wire_turn_manager():
 func wire_lander_manager():
 	# Wire: manager -> Things
 	player_ui.bind_lander_manager(lander_manager)
+	player_controller.bind_lander_manager(lander_manager)
 
 
 func wire_combat_manager():

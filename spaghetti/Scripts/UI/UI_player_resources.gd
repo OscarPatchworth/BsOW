@@ -41,8 +41,8 @@ func _process(delta: float) -> void:
 
 
 ### Custom Methods
-func update_active_player(player: Node) -> void:
-	active_player = player
+func update_active_player(self_player: Node) -> void:
+	active_player = self_player
 
 func update_food(food: int) -> void:
 	food_control.set_text("  " + str(food))

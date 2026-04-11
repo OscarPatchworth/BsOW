@@ -3,7 +3,7 @@ extends Node
 # signals
 signal players_generate_biome_resources
 signal player_change_state(state: int)
-signal update_active_player(player: Node)
+signal update_active_player(self_player: Node)
 
 # enums
 enum GameState {START, UPKEEP, PLACE_TERRIAN, MOVE_UNITS, COMBAT, RENFORCE, CLEANUP }
@@ -111,7 +111,7 @@ func cleanup_place_starting_terrian():
 	active_player.get_child(0).get_child(0).switch_state_inactive() # This is bad if multi-ply
 	
 	for character in (get_tree().get_nodes_in_group("players")):
-		if character is not player:
+		if character is not self_player:
 			character.generate_starting_terrian()
 			
 
@@ -138,9 +138,9 @@ func instance_terrian(spawn_spot: Dictionary) -> void:
 	newHex.position = newPos
 	newHex.set_biome(data_store_terrian.get_biome_res(data_store_terrian.next_biome))
 
-func set_active_player(player: Node) -> void:
-	active_player = player
-	update_active_player.emit(player)
+func set_active_player(self_player: Node) -> void:
+	active_player = self_player
+	update_active_player.emit(self_player)
 	print(active_player.name)
 
 
@@ -185,7 +185,7 @@ func update_terrian_pannel_info(terrain) -> void:
 	target.generate_and_emit_terrian_banner_info(terrain)
 
 
-func get_active_player() -> player:
+func get_active_player() -> self_player:
 	return active_player
 
 

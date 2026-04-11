@@ -28,7 +28,7 @@ var label_connected_lander: Label
 var hbox_connected_lander: HBoxContainer
 
 var terrian: Node3D
-var player: Node3D
+var self_player: Node3D
 
 var data_terrian
 var game_master
@@ -90,9 +90,9 @@ func _process(delta: float) -> void:
 
 
 ### Custom Methods
-func update_display_info(terrian_node = terrian, player_node = player) -> void:
+func update_display_info(terrian_node = terrian, player_node = self_player) -> void:
 	self.terrian = terrian_node
-	self.player = player_node
+	self.self_player = player_node
 	display_info = generate_diaplay_info()
 	
 	if(player_phase != game_master.GameState.MOVE_UNITS and player_phase != game_master.GameState.COMBAT ):
@@ -127,7 +127,7 @@ func update_display_info(terrian_node = terrian, player_node = player) -> void:
 
 func become_invisable() ->void:
 	self.terrian = null
-	self.player = null
+	self.self_player = null
 	self.hide()
 
 
@@ -178,7 +178,7 @@ func generate_build_opt_btns(build_opts: Array[BuildingRes]) -> void:
 			valid_build = true
 			var all_buildings = get_tree().get_nodes_in_group("buildings")
 			for build in all_buildings:
-				if(build.build_res.name == building_opt.name and build.controler == player.get_parent().get_parent()):
+				if(build.build_res.name == building_opt.name and build.controler == self_player.get_parent().get_parent()):
 					valid_build = false
 		else: valid_build = true
 
@@ -261,11 +261,11 @@ func generate_diaplay_info() -> Dictionary:
 	info["Biome"] = terrian.biome.name
 	info["Built"] = terrian.building_res.name if terrian.building_res else ""
 	info["Terrian_node"] = terrian
-	info["Race_buildings"] = player.race.buildings
+	info["Race_buildings"] = self_player.race.buildings
 
 	info["units"] = terrian.units
 	info["can_spawn"] = terrian.building_res.can_spawn if terrian.building_res else false
-	info["race_spawn"] = player.race.units
+	info["race_spawn"] = self_player.race.units
 
 	info["connected_landers"] = terrian.get_connected_landers()
 	return info
@@ -273,8 +273,8 @@ func generate_diaplay_info() -> Dictionary:
 
 func update_player_phase(player_state: int):
 	player_phase = player_state
-	if(player and terrian):
-		update_display_info(self.terrian, self.player)
+	if(self_player and terrian):
+		update_display_info(self.terrian, self.self_player)
 
 
 func update_units_hbox(display_info: Dictionary = display_info):
@@ -316,7 +316,7 @@ func move_selected_units_to_lander(lander: Terrian):
 	print("UI info pannel move_selected_units_to_lander triggered")
 	if lander.units.size() > 0:
 		for i in lander.units:
-			if i.owner != self.player:
+			if i.owner != self.self_player:
 				print("Entering Combat !... ")
 				temp_can_move_into_lander = false
 				break
@@ -338,7 +338,7 @@ func move_selected_units_to_lander(lander: Terrian):
 
 ### Connected Signals
 func ready_signals() -> void:
-	#GameMaster updates player state -> update self.UI
+	#GameMaster updates self_player state -> update self.UI
 	game_master.player_change_state.connect(self.update_player_phase)
 	#
 	self.update_terrian_pannel_info.connect(game_master.update_terrian_pannel_info)

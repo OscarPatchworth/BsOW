@@ -30,7 +30,7 @@ var combat_pos # Combat ATK/DEF
 func combat_req(contest: Contest):
 	#print("Player | Contest Lander call recieved")
 
-	# Check if this combat involves this player
+	# Check if this combat involves this self_player
 	if(contest.get_invading_actor() == self or contest.get_defending_actor() == self):
 		combat_pos = CombatSide.ATTAKING if contest.get_invading_actor() == self else CombatSide.DEFENDING
 		enter_combat(contest)
@@ -38,7 +38,7 @@ func combat_req(contest: Contest):
 	else:
 		# Player is not involved in combat
 		# Do not need to do anything
-		# May want to put player in spectator mode or smth later
+		# May want to put self_player in spectator mode or smth later
 		pass
 
 

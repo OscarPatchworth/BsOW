@@ -11,7 +11,7 @@ signal selected_units_changed
 #const MAX_SPEED = 200
 
 # static variables
-var player: Player
+var self_player: Player
 
 # @export variables
 
@@ -38,7 +38,7 @@ func set_target_lander(lander: Lander):
 
 
 func get_player() -> Player:
-	return player
+	return self_player
 
 
 func get_selected_units() -> Array[UnitObject]:

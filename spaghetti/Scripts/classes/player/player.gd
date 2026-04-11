@@ -1,4 +1,4 @@
-class_name player
+class_name self_player
 extends character
 
 # signals

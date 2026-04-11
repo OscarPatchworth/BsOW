@@ -44,7 +44,7 @@ func update():
 
 func update_shop_building_buttons():
 	free_children(shop_buttons)
-	var buildings = selector_manager.player.species.buildings
+	var buildings = selector_manager.self_player.species.buildings
 
 	for building in buildings:
 		var build_btn = BuildingShopButton.new()

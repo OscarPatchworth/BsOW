@@ -143,7 +143,7 @@ func init_ai(sai: SimpleAI):
 
 
 func init_player(player_x: Player):
-	# player.refrence = wire
+	# self_player.refrence = wire
 	var player_cntrl = player_x.find_child("PlayerController")
 	player_cntrl.action_manager = action_manager
 	player_x.turn_manager = self.turn_manager
@@ -152,7 +152,7 @@ func init_player(player_x: Player):
 	player_x.draw_3d = self.draw_3d
 
 	# Connect Signals
-	# FROM player
+	# FROM self_player
 	player_x.build_action_req.connect(action_manager.action_request)
 	player_x.buy_unit_action_req.connect(action_manager.action_request)
 	player_x.move_units_action_req.connect(action_manager.action_request)
@@ -167,7 +167,7 @@ func init_player(player_x: Player):
 	player_x.player_combat_not_ready.connect(combat_manager.actor_selection_req)
 	player_x.next_phase_req.connect(action_manager.action_request)
 
-	# TO player
+	# TO self_player
 	lander_manager.built_action_completed.connect(player_x.fwd_build_action_completed)
 	lander_manager.buy_unit_action_completed.connect(player_x.fwd_buy_unit_action_completed)
 	lander_manager.move_units_action_completed.connect(player_x.fwd_move_units_action_completed)

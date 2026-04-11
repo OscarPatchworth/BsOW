@@ -27,8 +27,9 @@ const LANDER_LAYER: int = 2
 #static variables
 var selector_manager: GameManager
 var turn_manager: GameManager
+var lander_manager: GameManager
 var draw_3d: Draw3D
-var player: Player
+var self_player: Player
 
 ### 
 #@export variables
@@ -61,6 +62,7 @@ var p_movement_update_rate: float = 1.0/30.0 #update = 30FPS
 var m_start_lander: Lander
 var m_end_lander: Lander
 var _mouse_line
+var m_connected_landers: Array[Lander]
 
 
 ### @onready variables
@@ -113,7 +115,7 @@ func input_state_movement(event):
 	if event.is_action_released("left_click"):
 		if m_start_lander != null and m_end_lander != null:
 			# If Attack send out attack req
-			if m_start_lander.get_ownr() == player and m_end_lander.get_ownr() != player:
+			if m_start_lander.get_ownr() == self_player and m_end_lander.get_ownr() != self_player:
 				var action_req = Action.new()
 				action_req.set_type(Action.RequestType.ATTACK)
 				action_req.set_selected_lander(m_start_lander)
@@ -132,6 +134,12 @@ func input_state_movement(event):
 		if raycast_hit:
 			m_start_lander = raycast_hit.collider
 
+			if m_start_lander.get_ownr() == self_player:
+				m_connected_landers = lander_manager.get_connected_landers(m_start_lander)
+			else:
+				m_connected_landers = []
+				
+
 	#Right Click down/up
 	elif event.is_action_released("right_click"):
 		view_lander_event()
@@ -147,21 +155,21 @@ func process_state_movement(delta: float) -> void:
 		p_movement_timer += delta
 		if p_movement_timer >= p_movement_update_rate:
 			p_movement_timer = 0
-			if m_start_lander.get_ownr() == player: # If moving from owned lander
+			if m_start_lander.get_ownr() == self_player: # If moving from owned lander
 				var lander_raycast_hit = raycat_to_layer(LANDER_LAYER)
 				if lander_raycast_hit:
 					m_end_lander = lander_raycast_hit.collider
 				else:
 					m_end_lander = null
 
-				if m_end_lander != null:
+				if m_end_lander != null and m_end_lander in m_connected_landers:
 					if m_end_lander.get_ownr() == null: # If unoccupied: line = yellow
 						_mouse_line = await draw_3d.line(m_start_lander.global_transform.origin + Vector3.UP, 
 						m_end_lander.global_transform.origin + Vector3.UP, Color.GOLD, p_movement_update_rate)
-					elif m_end_lander.get_ownr() == player: # If own both: line = purple
+					elif m_end_lander.get_ownr() == self_player: # If own both: line = purple
 						_mouse_line = await draw_3d.line(m_start_lander.global_transform.origin + Vector3.UP, 
 						m_end_lander.global_transform.origin + Vector3.UP, Color.MAGENTA, p_movement_update_rate)
-					elif m_end_lander.get_ownr() != player: #If owned by enemy: Line = red
+					elif m_end_lander.get_ownr() != self_player: #If owned by enemy: Line = red
 						_mouse_line = await draw_3d.line(m_start_lander.global_transform.origin + Vector3.UP, 
 						m_end_lander.global_transform.origin + Vector3.UP, Color.RED, p_movement_update_rate)
 					else: # Errror case: line = Green
@@ -237,12 +245,16 @@ func get_mouse_pos():
 
 # Calls
 func bind_player(p: Player):
-	player = p
+	self_player = p
+
+
+func bind_lander_manager(lm: GameManager):
+	lander_manager = lm
 
 
 func actor_turn_changed(active_actor: Actor):
-	is_active_player = true if active_actor == player else false
-	print("Player | Update | Active player changed to: " + active_actor.name)
+	is_active_player = true if active_actor == self_player else false
+	print("Player | Update | Active self_player changed to: " + active_actor.name)
 
 func game_phase_changed(game_phase):
 	if not is_active_player:
@@ -266,7 +278,7 @@ func game_phase_changed(game_phase):
 ### Action templates
 func generate_place_lander_request(pos: Vector3):
 	var action_req = Action.new()
-	action_req.set_actor(player)
+	action_req.set_actor(self_player)
 	action_req.set_pos(pos)
 	action_req.set_type(Action.RequestType.PLACE_LANDER)
 	action_manager.action_request(action_req)
@@ -277,7 +289,7 @@ func enter_combat():
 
 
 func exit_combat():
-	if turn_manager.get_active_actor() == player:
+	if turn_manager.get_active_actor() == self_player:
 		player_state = PlayerState.MOVEMENT
 	else:
 		player_state = PlayerState.IDLE

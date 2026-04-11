@@ -86,7 +86,7 @@ func handle_buy_unit(req:Action):
 
 func handle_movement(req:Action):
 	print("Movement Action Recieved")
-	# Check if(lander.units.owner == player)
+	# Check if(lander.units.owner == self_player)
 	var target_lander_owner = lander_manager.get_lander_occpied_actor(req.target_lander)
 	if(target_lander_owner == null or target_lander_owner == req.actor):
 		print("Can move landers to target")
@@ -108,9 +108,9 @@ func handle_attack(req: Action):
 	if(req.selected_lander.get_units()[0].get_owned_by() == req.target_lander.get_units()[0].get_owned_by()):
 		print("Action Manager Error | Attack Req: Selected and Target landers are allies")
 		return
-	# Check if the attacking units belong to the attacking player
+	# Check if the attacking units belong to the attacking self_player
 	if(req.selected_lander.get_units()[0].get_owned_by() != req.actor):
-		print("Action Manager Error | Attack Req: Attacking force doese not belong to the attacking player")
+		print("Action Manager Error | Attack Req: Attacking force doese not belong to the attacking self_player")
 		return
 	# Fwd the attack to combat manager
 	print("Fwd attack req")

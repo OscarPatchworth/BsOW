@@ -9,8 +9,8 @@ extends Node
 
 # static variables
 var build_res: BuildingRes
-var build_by: player
-var controler: player
+var build_by: self_player
+var controler: self_player
 var terrain: Terrian
 
 # @export variables

@@ -122,12 +122,12 @@ func progress_turn():
 
 func progress_turn_order():
 	var active_actor_ind:int = get_indx(active_actor, turn_order)
-	# If it was the last player in the turn order loop back to the start
+	# If it was the last self_player in the turn order loop back to the start
 	if(active_actor_ind == turn_order.size()-1):
 		turn_number =+ 1
 		active_actor = turn_order[0]
 
-		# Since its the last player looping to the 1st,
+		# Since its the last self_player looping to the 1st,
 		# All code for starting a new round goes here too ....
 		# Should probs be a func() call but ...
 

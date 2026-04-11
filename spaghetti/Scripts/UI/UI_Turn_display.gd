@@ -109,7 +109,7 @@ func ready_refs() -> void:
 	game_master = get_node("/" + data_node_ref.GAME_MASTER)
 
 func ready_signals() -> void:
-	#GameMaster updates player state -> update self.UI
+	#GameMaster updates self_player state -> update self.UI
 	game_master.player_change_state.connect(self.update_display)
 	
 	#next btn pressed -> GM update Turn phase

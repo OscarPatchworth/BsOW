@@ -31,7 +31,7 @@ func free_children(parent: Node) -> void:
 
 func update_shop_buttons():
 	free_children(shop_buttons)
-	var units = selector_manager.player.species.units
+	var units = selector_manager.self_player.species.units
 
 	for unit in units:
 		var unit_btn = UnitShopButton.new()

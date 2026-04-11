@@ -42,7 +42,7 @@ func free_children(parent: Node) -> void:
 func _pressed():
 	btn_pressed.emit(lander)
 
-	# Determine Action to emit based on lander-state-to-player
+	# Determine Action to emit based on lander-state-to-self_player
 	if(display_state == DisplayState.ENEMY):
 		# Attack Action Req
 		var attack_req = Action.new()
