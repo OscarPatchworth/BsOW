@@ -31,6 +31,8 @@ var cur_contest: Contest
 @onready var select_ablt_panel: Panel = self.find_child("SelectAbilitiesPanel")
 @onready var fight_btn: GameButton = self.find_child("FightBtn")
 @onready var toggle_combat_display_btn: GameButton = self.find_child("ToggleDisplayBtn")
+@onready var exit_combat_btn: GameButton = self.find_child("ExitCombatBtn")
+@onready var repeat_combat_btn: GameButton = self.find_child("RepeatCombatBtn")
 
 ###################################################################################################
 ###	Methods
@@ -46,6 +48,7 @@ func _ready() -> void:
 func update(combat_state: Contest):
 	cur_contest = combat_state
 	
+	# Set Combat Panels
 	if(combat_state.get_invading_actor() == player_self):
 		self_units_pannel.set_combat_side(self_units_pannel.CombatSide.ATTACKING) 
 		opp_units_panel.set_combat_side(self_units_pannel.CombatSide.DEFENDING)	
@@ -53,12 +56,12 @@ func update(combat_state: Contest):
 		self_units_pannel.set_combat_side(self_units_pannel.CombatSide.DEFENDING) 
 		opp_units_panel.set_combat_side(self_units_pannel.CombatSide.ATTACKING)	# Atk
 
-
 	### Code taken from chatGPT
 	for child in get_children():
 		if child.has_method("update"):
 			child.update(combat_state)
 	###
+
 
 func fwd_unit_selected(unit: UnitObject):
 	unit_selected.emit(unit)
@@ -78,6 +81,10 @@ func bind_combat_manager(cm: GameManager):
 
 func setup_combat_display(contest: Contest):
 	print("Combat UI | @ setup()")
+	# Hide End_combat btns
+	exit_combat_btn.hide()
+	repeat_combat_btn.hide()
+	# Redraw state
 	update(contest)
 
 
@@ -93,6 +100,13 @@ func update_combat_display(contest: Contest):
 
 
 func combat_outcome(c_out: Array[CombatOutcome]):
+	# Show end combat btns
+	exit_combat_btn.show()
+
+	if cur_contest.get_invading_actor() == player_self:
+		repeat_combat_btn.show()
+
+	# Update children end
 	for child in get_children():
 		if child.has_method("combat_outcome"):
 			child.combat_outcome(c_out)
