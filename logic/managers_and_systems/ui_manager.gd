@@ -56,8 +56,10 @@ func connect_signals():
 	combat_panel.player_combat_ready.connect(self.fwd_player_combat_ready)
 	combat_panel.player_combat_not_ready.connect(fwd_player_combat_not_ready)
 	combat_panel.combat_display_toggled.connect(self.combat_display_toggled)
+	combat_panel.attack_req.connect(self.fwd_attack_action_req)
 
 	turn_panel.next_phase_req.connect(self.fwd_next_phase_req)
+
 
 func connect_wires():
 	wire_selector_manager()
