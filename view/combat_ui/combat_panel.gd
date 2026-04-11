@@ -20,6 +20,7 @@ var player_self: Player
 
 # remaining regular variables
 var cur_contest: Contest
+var combat_finished:bool = false
 
 
 # @onready variables
@@ -81,6 +82,9 @@ func bind_combat_manager(cm: GameManager):
 
 func setup_combat_display(contest: Contest):
 	print("Combat UI | @ setup()")
+	# Reset in_combat flag
+	combat_finished = false
+
 	# Hide End_combat btns
 	exit_combat_btn.hide()
 	repeat_combat_btn.hide()
@@ -100,9 +104,11 @@ func update_combat_display(contest: Contest):
 
 
 func combat_outcome(c_out: Array[CombatOutcome]):
+	# update in_combat flage
+	combat_finished = true
+
 	# Show end combat btns
 	exit_combat_btn.show()
-
 	if cur_contest.get_invading_actor() == player_self:
 		repeat_combat_btn.show()
 
@@ -123,6 +129,7 @@ func setup_signals():
 	fight_btn.player_combat_ready.connect(fwd_player_combat_ready)
 	fight_btn.player_combat_not_ready.connect(fwd_player_combat_not_ready)
 	toggle_combat_display_btn.toggled.connect(self.toggle_combat_display)
+	exit_combat_btn.pressed.connect(self.exit_combat)
 
 
 func fwd_unit_deslected(unit: UnitObject):
@@ -131,6 +138,7 @@ func fwd_unit_deslected(unit: UnitObject):
 
 func fwd_player_combat_ready():
 	player_combat_ready.emit()
+
 
 func fwd_player_combat_not_ready():
 	player_combat_not_ready.emit()
@@ -150,3 +158,11 @@ func toggle_combat_display(toggled_on: bool):
 			else:
 				child.text = "Hide Combat Display"
 	combat_display_toggled.emit(toggled_on)
+
+
+func exit_combat():
+	if combat_finished:
+		cur_contest == null
+		self.hide()
+	else:
+		print("Combat UI | Err | Exit Combat called while in combat")
