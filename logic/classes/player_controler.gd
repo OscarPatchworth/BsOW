@@ -134,22 +134,34 @@ func process_state_movement(delta: float) -> void:
 		p_movement_timer += delta
 		if p_movement_timer >= p_movement_update_rate:
 			p_movement_timer = 0
+			if m_start_lander.get_ownr() == self.get_parent(): # If moving from owned lander
+				var lander_raycast_hit = raycat_to_layer(LANDER_LAYER)
+				if lander_raycast_hit:
+					m_end_lander = lander_raycast_hit.collider
+				else:
+					m_end_lander = null
 
-			var lander_raycast_hit = raycat_to_layer(LANDER_LAYER)
-			if lander_raycast_hit:
-				m_end_lander = lander_raycast_hit.collider
+				if m_end_lander != null:
+					if m_end_lander.get_ownr() == null: # If unoccupied: line = yellow
+						_mouse_line = await draw_3d.line(m_start_lander.global_transform.origin + Vector3.UP, 
+						m_end_lander.global_transform.origin + Vector3.UP, Color.GOLD, p_movement_update_rate)
+					elif m_end_lander.get_ownr() == self.get_parent(): # If own both: line = purple
+						_mouse_line = await draw_3d.line(m_start_lander.global_transform.origin + Vector3.UP, 
+						m_end_lander.global_transform.origin + Vector3.UP, Color.MAGENTA, p_movement_update_rate)
+					elif m_end_lander.get_ownr() != self.get_parent(): #If owned by enemy: Line = red
+						_mouse_line = await draw_3d.line(m_start_lander.global_transform.origin + Vector3.UP, 
+						m_end_lander.global_transform.origin + Vector3.UP, Color.RED, p_movement_update_rate)
+					else: # Errror case: line = Green
+						_mouse_line = await draw_3d.line(m_start_lander.global_transform.origin + Vector3.UP, 
+						m_end_lander.global_transform.origin + Vector3.UP, Color.SEA_GREEN, p_movement_update_rate)
+				else:
+					var surface_raycast_hit = raycat_to_layer(WORLD_SURFACE_LAYER)
+					if surface_raycast_hit:
+						var mouse_pos_V3:Vector3 = surface_raycast_hit.position
+						_mouse_line = await draw_3d.line(m_start_lander.global_transform.origin + Vector3.UP, 
+						mouse_pos_V3, Color.LIGHT_BLUE, p_movement_update_rate)
 			else:
-				m_end_lander = null
-
-			if m_end_lander != null:
-				_mouse_line = await draw_3d.line(m_start_lander.global_transform.origin + Vector3.UP, 
-				m_end_lander.global_transform.origin + Vector3.UP, Color.RED, p_movement_update_rate)
-			else:
-				var surface_raycast_hit = raycat_to_layer(WORLD_SURFACE_LAYER)
-				if surface_raycast_hit:
-					var mouse_pos_V3:Vector3 = surface_raycast_hit.position
-					_mouse_line = await draw_3d.line(m_start_lander.global_transform.origin + Vector3.UP, 
-					mouse_pos_V3, Color.LIGHT_BLUE, p_movement_update_rate)
+				pass
 		else:
 			pass
 
