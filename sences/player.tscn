@@ -1,4 +1,4 @@
-[gd_scene load_steps=56 format=3 uid="uid://cmnn2jtgwr4dw"]
+[gd_scene load_steps=60 format=3 uid="uid://cmnn2jtgwr4dw"]
 
 [ext_resource type="Script" path="res://logic/classes/player.gd" id="1_tftws"]
 [ext_resource type="Script" path="res://logic/classes/player_controler.gd" id="2_pm403"]
@@ -80,6 +80,18 @@ border_color = Color(0.866667, 0.435294, 0.435294, 1)
 Button/styles/hover = SubResource("StyleBoxFlat_uoejg")
 Button/styles/normal = SubResource("StyleBoxFlat_okafx")
 Button/styles/pressed = SubResource("StyleBoxFlat_etsqx")
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_b7gk5"]
+bg_color = Color(0.78, 0.1794, 0.1794, 1)
+
+[sub_resource type="Theme" id="Theme_dcwag"]
+Button/styles/normal = SubResource("StyleBoxFlat_b7gk5")
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_qcv73"]
+bg_color = Color(0.33, 0.55, 0.381333, 1)
+
+[sub_resource type="Theme" id="Theme_8tdq6"]
+Button/styles/normal = SubResource("StyleBoxFlat_qcv73")
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_ko88s"]
 bg_color = Color(0.63, 0.4158, 0.2016, 1)
@@ -536,6 +548,38 @@ anchor_bottom = 1.05
 theme = SubResource("Theme_bq35r")
 toggle_mode = true
 text = "Hide Combat Display"
+script = ExtResource("24_1p1b5")
+
+[node name="ExitCombatBtn" type="Button" parent="CanvasLayer/UI-manager/CombatPanel"]
+layout_mode = 1
+anchors_preset = -1
+offset_left = -16.0
+offset_top = -16.0
+offset_right = 48.0
+offset_bottom = 48.0
+rotation = 0.785398
+pivot_offset = Vector2(32, 32)
+theme = SubResource("Theme_dcwag")
+text = "x"
+script = ExtResource("24_1p1b5")
+
+[node name="ReCombatBtn" type="Button" parent="CanvasLayer/UI-manager/CombatPanel"]
+layout_mode = 1
+anchors_preset = 6
+anchor_left = 1.0
+anchor_top = 0.5
+anchor_right = 1.0
+anchor_bottom = 0.5
+offset_left = -32.0
+offset_top = 53.0
+offset_right = 32.0
+offset_bottom = 117.0
+grow_horizontal = 0
+grow_vertical = 2
+rotation = 0.349066
+pivot_offset = Vector2(32, 32)
+theme = SubResource("Theme_8tdq6")
+text = "O"
 script = ExtResource("24_1p1b5")
 
 [node name="SeasonPanel" type="Panel" parent="CanvasLayer/UI-manager"]
