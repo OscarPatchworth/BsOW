@@ -86,6 +86,7 @@ func wire_combat_manager():
 
 func wire_self():
 	player_ui.bind_player(self)
+	player_controller.bind_player(self)
 
 
 func wire_draw_3d():
@@ -112,6 +113,8 @@ func connect_ui_signals():
 	player_ui.player_combat_ready.connect(self.fwd_player_combat_ready)
 	player_ui.player_combat_not_ready.connect(self.fwd_player_combat_not_ready)
 	player_ui.next_phase_req.connect(self.fwd_next_phase_req)
+
+	player_controller.attack_action_req.connect(self.fwd_attack_action_req)
 
 
 func fwd_build_req(build_req: Action):
@@ -173,6 +176,7 @@ func fwd_move_units_action_completed(req: Action):
 func enter_combat(contest: Contest):
 	print("Player | Entering lander contest")
 	player_ui.run_combat_display(contest)
+	player_controller.enter_combat()
 
 
 func fwd_combat_unit_selected(unit: UnitObject):
@@ -184,7 +188,7 @@ func combat_update(contest: Contest):
 	print("Player | Combat update recieved")
 	if(contest.get_invading_actor() == self or contest.get_defending_actor() == self):
 		player_ui.update_combat_display(contest)
-		player_controller.enter_combat()
+		#player_controller.enter_combat()
 
 
 func combat_outcome(c_out: Array[CombatOutcome]):

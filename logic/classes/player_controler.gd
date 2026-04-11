@@ -4,6 +4,7 @@ extends ActorControler
 ### signals
 signal select_lander(target_lander)
 signal view_lander_requested(target_lander)
+signal attack_action_req(action_req)
 
 # enums
 enum PlayerState {
@@ -27,6 +28,7 @@ const LANDER_LAYER: int = 2
 var selector_manager: GameManager
 var turn_manager: GameManager
 var draw_3d: Draw3D
+var player: Player
 
 ### 
 #@export variables
@@ -109,9 +111,20 @@ func input_state_collapsing_dustcloud(event: InputEvent) -> void:
 func input_state_movement(event):
 	# Left Click down/up
 	if event.is_action_released("left_click"):
+		if m_start_lander != null and m_end_lander != null:
+			# If Attack send out attack req
+			if m_start_lander.get_ownr() == player and m_end_lander.get_ownr() != player:
+				var action_req = Action.new()
+				action_req.set_type(Action.RequestType.ATTACK)
+				action_req.set_selected_lander(m_start_lander)
+				action_req.set_target_lander(m_end_lander)
+				attack_action_req.emit(action_req)
+		# Reset movement state		
 		i_movement_ldown = false
 		m_start_lander = null
 		m_end_lander = null
+
+
 	elif event.is_action_pressed("left_click"):
 		i_movement_ldown = true
 		
@@ -134,7 +147,7 @@ func process_state_movement(delta: float) -> void:
 		p_movement_timer += delta
 		if p_movement_timer >= p_movement_update_rate:
 			p_movement_timer = 0
-			if m_start_lander.get_ownr() == self.get_parent(): # If moving from owned lander
+			if m_start_lander.get_ownr() == player: # If moving from owned lander
 				var lander_raycast_hit = raycat_to_layer(LANDER_LAYER)
 				if lander_raycast_hit:
 					m_end_lander = lander_raycast_hit.collider
@@ -145,10 +158,10 @@ func process_state_movement(delta: float) -> void:
 					if m_end_lander.get_ownr() == null: # If unoccupied: line = yellow
 						_mouse_line = await draw_3d.line(m_start_lander.global_transform.origin + Vector3.UP, 
 						m_end_lander.global_transform.origin + Vector3.UP, Color.GOLD, p_movement_update_rate)
-					elif m_end_lander.get_ownr() == self.get_parent(): # If own both: line = purple
+					elif m_end_lander.get_ownr() == player: # If own both: line = purple
 						_mouse_line = await draw_3d.line(m_start_lander.global_transform.origin + Vector3.UP, 
 						m_end_lander.global_transform.origin + Vector3.UP, Color.MAGENTA, p_movement_update_rate)
-					elif m_end_lander.get_ownr() != self.get_parent(): #If owned by enemy: Line = red
+					elif m_end_lander.get_ownr() != player: #If owned by enemy: Line = red
 						_mouse_line = await draw_3d.line(m_start_lander.global_transform.origin + Vector3.UP, 
 						m_end_lander.global_transform.origin + Vector3.UP, Color.RED, p_movement_update_rate)
 					else: # Errror case: line = Green
@@ -223,8 +236,12 @@ func get_mouse_pos():
 
 
 # Calls
+func bind_player(p: Player):
+	player = p
+
+
 func actor_turn_changed(active_actor: Actor):
-	is_active_player = true if active_actor == self.get_parent() else false
+	is_active_player = true if active_actor == player else false
 	print("Player | Update | Active player changed to: " + active_actor.name)
 
 func game_phase_changed(game_phase):
@@ -249,7 +266,7 @@ func game_phase_changed(game_phase):
 ### Action templates
 func generate_place_lander_request(pos: Vector3):
 	var action_req = Action.new()
-	action_req.set_actor(self.get_parent())
+	action_req.set_actor(player)
 	action_req.set_pos(pos)
 	action_req.set_type(Action.RequestType.PLACE_LANDER)
 	action_manager.action_request(action_req)
