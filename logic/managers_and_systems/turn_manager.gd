@@ -193,13 +193,17 @@ func get_season(sea: String) -> Variant:
 	return null
 
 
+func get_active_actor() -> Actor:
+	return active_actor
+
+
 func get_turn_dict() -> Dictionary:
 	var dict: Dictionary = {
 		"game_state" : game_state,
 		"game_phase" : game_phase,
 		"combat_phase" : combat_phase,
-		"turn_order" : get_turn_order_names()
-		#"active_actor" : active_actor
+		"turn_order" : get_turn_order_names(),
+		"active_actor" : active_actor,
 	}
 	return dict
 

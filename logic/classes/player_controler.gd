@@ -277,7 +277,11 @@ func enter_combat():
 
 
 func exit_combat():
-	player_state = PlayerState.IDLE
+	if turn_manager.get_active_actor() == player:
+		player_state = PlayerState.MOVEMENT
+	else:
+		player_state = PlayerState.IDLE
+
 
 
 ### Wires and Signals
