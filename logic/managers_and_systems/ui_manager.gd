@@ -33,6 +33,7 @@ var player_self: Player
 @onready var combat_panel: Panel = self.find_child("CombatPanel")
 @onready var players_panel: Panel = self.find_child("PlayersPanel")
 @onready var seasons_panel: Panel = self.find_child("SeasonPanel")
+@onready var list_box = self.find_child("ListBox")
 
 ###################################################################################################
 ###	Methods
@@ -42,7 +43,12 @@ func _ready() -> void:
 
 	lander_panel.hide()
 	combat_panel.hide()
-		
+
+	print([1, 2, 4, 7].map(func(i): return {"object": i, "text" : str(i)}))
+
+	list_box.set_objects([1, 2, 4, 7].map(func(i): return {"object": i, "text" : str(i)}))
+	list_box.make_list()
+
 
 ### Signals and wires
 func connect_signals():

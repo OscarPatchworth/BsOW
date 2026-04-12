@@ -1,4 +1,4 @@
-[gd_scene load_steps=60 format=3 uid="uid://cmnn2jtgwr4dw"]
+[gd_scene load_steps=61 format=3 uid="uid://cmnn2jtgwr4dw"]
 
 [ext_resource type="Script" path="res://logic/classes/player.gd" id="1_tftws"]
 [ext_resource type="Script" path="res://logic/classes/player_controler.gd" id="2_pm403"]
@@ -27,6 +27,7 @@
 [ext_resource type="Script" path="res://view/game_button.gd" id="24_1p1b5"]
 [ext_resource type="Script" path="res://sences/item_list.gd" id="24_utqdd"]
 [ext_resource type="Script" path="res://view/players_panel/players_panel.gd" id="25_7higi"]
+[ext_resource type="PackedScene" uid="uid://bmt2tq4wjcibr" path="res://sences/templates/list_box/ListBox.tscn" id="28_5ybm0"]
 
 [sub_resource type="GDScript" id="GDScript_ks4yd"]
 script/source = "extends Camera3D
@@ -287,6 +288,7 @@ text = "Stationed Units:"
 layout_mode = 2
 
 [node name="CombatPanel" type="Panel" parent="CanvasLayer/UI-manager"]
+visible = false
 layout_mode = 1
 anchors_preset = -1
 anchor_left = 0.1
@@ -757,6 +759,14 @@ layout_mode = 2
 bbcode_enabled = true
 text = "[font_size= 30]🍖: 10 000[/font_size]"
 
+[node name="ListBox" parent="CanvasLayer/UI-manager" instance=ExtResource("28_5ybm0")]
+layout_mode = 1
+anchors_preset = -1
+anchor_left = 0.3
+anchor_top = 0.3
+anchor_right = 0.7
+anchor_bottom = 0.7
+
 [node name="Control" type="Control" parent="CanvasLayer"]
 visible = false
 layout_mode = 3
@@ -839,3 +849,4 @@ theme = SubResource("Theme_3s2ko")
 text = "Next"
 
 [editable path="CanvasLayer/UI-manager/CombatPanel/SelfUnitsPanel/ComabtSelectedUnitsDisplay"]
+[editable path="CanvasLayer/UI-manager/ListBox"]
