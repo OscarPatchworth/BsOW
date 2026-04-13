@@ -26,12 +26,26 @@ var player_self: Player
 ###	Methods
 func _ready() -> void:
 	self.hide()
+	lander_listbox.list_btn_pressed.connect(self.lander_btn_pressed)
 
 
 func free_children(parent: Node) -> void:
 	for i in parent.get_children():
 		i.queue_free()
 
+
+func lander_btn_pressed(lnd: Lander):
+	# Get purchases from lander
+	var lander_purchases = []
+	# Add any building Upgrades
+	lander_purchases + lnd.get_purchases()["Building upgrades"]
+	for unit in player_self.get_species().units:
+		if unit.get_type() in lnd.get_purchases()["Unit Types"]:
+			lander_purchases.append(unit)
+
+
+	market_listbox.set_objects(lander_purchases, func(purchasable): return purchasable.name)
+	
 
 ### Connected Signals
 

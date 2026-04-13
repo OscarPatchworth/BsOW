@@ -116,6 +116,15 @@ func has_purchases() -> bool:
 			return false
 	return false
 
+func get_purchases() -> Dictionary:
+	var purchases = {}
+	if building != null and building.has_purchases():
+		purchases.merge(building.get_purchases())
+	if units != []:
+		purchases.merge(units[0].get_purchases())
+	return purchases
+
+
 ### Calls
 func build_action(req: Action):
 	var new_building = BuildingObject.new()

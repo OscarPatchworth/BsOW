@@ -44,3 +44,10 @@ func combat_req(contest: Contest):
 
 func enter_combat(contest: Contest):
 	pass
+
+
+## Get/Set (er)s
+func get_species() -> SpeciesData:
+	return species
+func set_species(s: SpeciesData):
+	species = s

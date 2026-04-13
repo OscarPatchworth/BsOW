@@ -44,5 +44,11 @@ func get_owned_by() -> Actor:
 func set_ownned_by(target: Actor):
 	ownned_by = target
 
+func has_purchases() -> bool:
+	return false
+func get_purchases() -> Dictionary:
+	return {}
+
+
 
 ### Connected Signals
