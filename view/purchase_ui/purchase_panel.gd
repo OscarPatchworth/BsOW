@@ -48,7 +48,8 @@ func bind_player(p: Player):
 func run_market():
 	self.show()
 	var landers = lander_manager.get_landers_actor_has(player_self)
-	lander_listbox.set_objects(landers.map(func(lnd): return {"object": lnd, "text" : lnd.get_biome().name}))
+	lander_listbox.set_objects(landers, func(lnd): return lnd.get_biome().name)
+	#lander_listbox.set_objects(landers.map(func(lnd): return {"object": lnd, "text" : lnd.get_biome().name}))
 
 ## Get/Set (er)s
 

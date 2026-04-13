@@ -51,12 +51,16 @@ func fwd_btn_pressed(thing):
 	list_btn_pressed.emit(thing)
 
 
+func _defualt_txt(obj) -> String:
+	return str(obj)
+
 ### Connected Signals
 
 
 ## Calls
-func set_objects(objs: Array):
-	list_items.assign(objs)
+func set_objects(objs: Array, text_formatter: Callable = _defualt_txt):
+	var formated_objs = objs.map(func(obj): return {"object" : obj, "text" : str(text_formatter.call(obj)) })
+	list_items.assign(formated_objs)
 	if list_items == []:
 		pass
 	else:

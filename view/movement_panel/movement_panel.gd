@@ -92,13 +92,9 @@ func run_movement(from: Lander, to: Lander,):
 		from_panel.find_child("Label").text = from_lander.get_biome().name
 		to_panel.find_child("Label").text = to_lander.get_biome().name
 		
-		# Format units for ListBox
-		var formated_from_units = from_lander.get_units().map(func(unit): return {"object" : unit, "text" : unit.get_unit_data().name})
-		var formated_to_units = to_lander.get_units().map(func(unit): return {"object" : unit, "text" : unit.get_unit_data().name})
-		
 		# update ListBoxs
-		from_list_box.set_objects(formated_from_units)
-		to_list_box.set_objects(formated_to_units)
+		from_list_box.set_objects(from_lander.get_units(), func(unit): return unit.get_unit_data().name)
+		to_list_box.set_objects(to_lander.get_units(), func(unit): return unit.get_unit_data().name)
 
 
 
