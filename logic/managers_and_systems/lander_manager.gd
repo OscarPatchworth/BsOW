@@ -92,6 +92,11 @@ func get_lander_occpied_actor(target: Lander) -> Actor:
 		return null
 
 
+func get_landers_actor_has(a: Actor) -> Array:
+	var return_landers = landers.map(func(lnd): if get_lander_occpied_actor(lnd) == a: return lnd )
+	return return_landers.filter(func(lnd): return bool(lnd != null))
+
+
 ### Wires and Signals
 func wire_and_signal_lander(lander: Lander):
 	lander.built_action_completed.connect(self.fwd_build_action_completed)

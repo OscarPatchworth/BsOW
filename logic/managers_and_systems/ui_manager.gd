@@ -34,7 +34,8 @@ var player_self: Player
 @onready var combat_panel: Panel = self.find_child("CombatPanel")
 @onready var players_panel: Panel = self.find_child("PlayersPanel")
 @onready var seasons_panel: Panel = self.find_child("SeasonPanel")
-@onready var movement_panel:Panel = self.find_child("MovementPanel")
+@onready var movement_panel: Panel = self.find_child("MovementPanel")
+@onready var purchase_panel: Panel = self.find_child("PurchasePanel")
 
 ###################################################################################################
 ###	Methods
@@ -93,6 +94,7 @@ func bind_lander_manager(lm: GameManager):
 	lander_manager = lm
 	lander_panel.bind_lander_manager(lm)
 	movement_panel.bind_lander_manager(lm)
+	purchase_panel.bind_lander_manager(lm)
 
 
 func bind_combat_manager(cm: GameManager):
@@ -105,6 +107,7 @@ func bind_player(p: Player):
 	for child in get_children():
 		if child.has_method("bind_player"):
 			child.bind_player(p)
+
 
 func display_landers_req(lander: Lander):
 	lander_panel.show()
@@ -180,6 +183,21 @@ func combat_outcome(c_out: Array[CombatOutcome]):
 
 func game_phase_changed(game_phase):
 	turn_panel.game_phase_changed(game_phase)
+
+	match game_phase:
+		turn_manager.GameLoop.UPKEEP:
+			pass
+		turn_manager.GameLoop.DUSTCLOUD_COLLASPE_PHASE:
+			pass
+		turn_manager.GameLoop.BUYING_PHASE:
+			if turn_manager.get_active_actor() == player_self:
+				purchase_panel.run_market()
+		turn_manager.GameLoop.COMBAT_PHASE:
+			if turn_manager.get_active_actor() == player_self:
+				purchase_panel.hide()
+		turn_manager.GameLoop.CLEANUP:
+			pass	
+
 
 
 func setup_turn_order_display():

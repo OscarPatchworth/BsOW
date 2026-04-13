@@ -1,4 +1,4 @@
-[gd_scene load_steps=72 format=3 uid="uid://cmnn2jtgwr4dw"]
+[gd_scene load_steps=73 format=3 uid="uid://cmnn2jtgwr4dw"]
 
 [ext_resource type="Script" path="res://logic/classes/player.gd" id="1_tftws"]
 [ext_resource type="Script" path="res://logic/classes/player_controler.gd" id="2_pm403"]
@@ -29,6 +29,7 @@
 [ext_resource type="Script" path="res://view/players_panel/players_panel.gd" id="25_7higi"]
 [ext_resource type="PackedScene" uid="uid://bmt2tq4wjcibr" path="res://sences/templates/list_box/ListBox.tscn" id="28_5ybm0"]
 [ext_resource type="Script" path="res://view/movement_panel/movement_panel.gd" id="28_fj3f5"]
+[ext_resource type="Script" path="res://view/purchase_ui/purchase_panel.gd" id="30_55tok"]
 
 [sub_resource type="GDScript" id="GDScript_ks4yd"]
 script/source = "extends Camera3D
@@ -932,6 +933,7 @@ offset_right = 40.0
 offset_bottom = 20.0
 grow_horizontal = 2
 grow_vertical = 2
+script = ExtResource("30_55tok")
 
 [node name="LandersListBox" parent="CanvasLayer/UI-manager/PurchasePanel" instance=ExtResource("28_5ybm0")]
 layout_mode = 1
@@ -949,7 +951,7 @@ anchor_top = 0.1
 anchor_right = 0.95
 anchor_bottom = 0.9
 
-[node name="FinishPurchase" type="Button" parent="CanvasLayer/UI-manager/PurchasePanel"]
+[node name="FinishBtn" type="Button" parent="CanvasLayer/UI-manager/PurchasePanel"]
 layout_mode = 1
 anchors_preset = -1
 anchor_left = 1.0
