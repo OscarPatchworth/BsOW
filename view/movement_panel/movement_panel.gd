@@ -3,6 +3,7 @@
 extends Panel
 
 # signals
+signal move_action_req(req: Action)
 
 # enums
 
@@ -34,6 +35,7 @@ var selected_units: Array[UnitObject]
 func _ready() -> void:
 	from_list_box.list_btn_pressed.connect(self.unit_selected)
 	cancle_btn.pressed.connect(self.cancel_movement)
+	move_btn.pressed.connect(self.req_move_action)
 
 
 func free_children(parent: Node) -> void:
@@ -50,10 +52,24 @@ func unit_selected(unit: UnitObject):
 
 
 func cancel_movement():
+	close_ui()
+
+
+func close_ui():
 	from_lander = null
 	to_lander = null
 	selected_units = []
 	self.hide()
+
+
+func req_move_action():
+	var new_action =  Action.new()
+	new_action.set_type(Action.RequestType.MOVEMENT)
+	new_action.set_selected_lander(from_lander)
+	new_action.set_target_lander(to_lander)
+	new_action.set_selected_units(selected_units)
+	move_action_req.emit(new_action)
+	close_ui()
 
 ### Connected Signals
 

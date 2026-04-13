@@ -10,6 +10,7 @@ signal unit_deslected(unit: UnitObject)
 signal player_combat_ready
 signal player_combat_not_ready
 signal next_phase_req(req: Action)
+signal move_action_req(req: Action)
 
 # enums
 #enum Element {EARTH,WATER,AIR,FIRE,}
@@ -62,6 +63,7 @@ func connect_signals():
 
 	turn_panel.next_phase_req.connect(self.fwd_next_phase_req)
 
+	movement_panel.move_action_req.connect(self.fwd_move_action_req)
 
 func connect_wires():
 	wire_selector_manager()
@@ -209,3 +211,7 @@ func combat_display_toggled(toggled_on: bool):
 func run_movement(from: Lander, to: Lander):
 	#print("Player UI | Call | Run movement UI call")
 	movement_panel.run_movement(from, to)
+
+
+func fwd_move_action_req(req: Action):
+	move_action_req.emit(req)

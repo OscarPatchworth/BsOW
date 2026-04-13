@@ -16,6 +16,7 @@ signal player_combat_not_ready(who: Actor, thing: Variant, select: bool)
 
 signal next_phase_req(req: Action)
 
+
 # enums
 #enum Element {EARTH,WATER,AIR,FIRE,}
 
@@ -114,6 +115,7 @@ func connect_ui_signals():
 	player_ui.player_combat_ready.connect(self.fwd_player_combat_ready)
 	player_ui.player_combat_not_ready.connect(self.fwd_player_combat_not_ready)
 	player_ui.next_phase_req.connect(self.fwd_next_phase_req)
+	player_ui.move_action_req.connect(self.fwd_move_action_req)
 
 	player_controller.attack_action_req.connect(self.fwd_attack_action_req)
 	player_controller.run_movement_ui.connect(player_ui.run_movement)
@@ -223,3 +225,8 @@ func seasons_generated():
 
 func season_changed(cur_sea: int):
 	player_ui.season_changed(cur_sea)
+
+
+func fwd_move_action_req(req: Action):
+	req.set_actor(self)
+	move_units_action_req.emit(req)

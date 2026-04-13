@@ -84,6 +84,13 @@ func set_unit_type(unit_data: UnitData):
 	self.unit_type = unit_data
 
 
+# Selected Units
+func get_selected_units() -> Array[UnitObject]:
+	return selected_units
+func set_selected_units(units: Array[UnitObject]):
+	selected_units = units
+
+
 # All
 func get_action_dict() -> Dictionary:
 	var build_name: String = str(null)
