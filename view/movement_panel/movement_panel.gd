@@ -25,11 +25,15 @@ var selected_units: Array[UnitObject]
 @onready var arrow_rtl: RichTextLabel = self.find_child("ArrowRTL")
 @onready var from_list_box: ListBox = from_panel.find_child("ListBox")
 @onready var to_list_box: ListBox = to_panel.find_child("ListBox")
+@onready var action_btns: HBoxContainer = self.find_child("ActionBtns")
+@onready var cancle_btn: GameButton = action_btns.find_child("CancleBtn")
+@onready var move_btn: GameButton = action_btns.find_child("MoveBtn")
 
 ###################################################################################################
 ###	Methods
 func _ready() -> void:
 	from_list_box.list_btn_pressed.connect(self.unit_selected)
+	cancle_btn.pressed.connect(self.cancel_movement)
 
 
 func free_children(parent: Node) -> void:
@@ -44,6 +48,12 @@ func unit_selected(unit: UnitObject):
 		selected_units.append(unit)
 	print(selected_units)
 
+
+func cancel_movement():
+	from_lander = null
+	to_lander = null
+	selected_units = []
+	self.hide()
 
 ### Connected Signals
 

@@ -1,4 +1,4 @@
-[gd_scene load_steps=63 format=3 uid="uid://cmnn2jtgwr4dw"]
+[gd_scene load_steps=72 format=3 uid="uid://cmnn2jtgwr4dw"]
 
 [ext_resource type="Script" path="res://logic/classes/player.gd" id="1_tftws"]
 [ext_resource type="Script" path="res://logic/classes/player_controler.gd" id="2_pm403"]
@@ -151,6 +151,34 @@ ItemList/styles/selected = SubResource("StyleBoxFlat_38g4l")
 ItemList/styles/selected_focus = SubResource("StyleBoxFlat_pim0p")
 
 [sub_resource type="Theme" id="Theme_64s43"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_mul0j"]
+bg_color = Color(0.6, 0.3912, 0.252, 1)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_4ayfa"]
+bg_color = Color(0.65, 0.65, 0.169, 1)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_pxlt6"]
+bg_color = Color(0.23, 0.401, 0.5, 1)
+
+[sub_resource type="Theme" id="Theme_vdaqx"]
+Button/styles/disabled = SubResource("StyleBoxFlat_mul0j")
+Button/styles/normal = SubResource("StyleBoxFlat_4ayfa")
+Button/styles/pressed = SubResource("StyleBoxFlat_pxlt6")
+
+[sub_resource type="Theme" id="Theme_6is6m"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_it45b"]
+bg_color = Color(1, 0.0470588, 0.0470588, 1)
+
+[sub_resource type="Theme" id="Theme_wbg4i"]
+Button/styles/normal = SubResource("StyleBoxFlat_it45b")
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_cpver"]
+bg_color = Color(0.6, 0.6, 0, 1)
+
+[sub_resource type="Theme" id="Theme_i3tle"]
+Button/styles/normal = SubResource("StyleBoxFlat_cpver")
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_roo4e"]
 corner_radius_top_left = 10
@@ -776,9 +804,9 @@ script = ExtResource("28_fj3f5")
 [node name="FromPanel" type="Panel" parent="CanvasLayer/UI-manager/MovementPanel"]
 layout_mode = 1
 anchors_preset = -1
-anchor_left = 0.05
+anchor_left = 0.03
 anchor_top = 0.05
-anchor_right = 0.45
+anchor_right = 0.4
 anchor_bottom = 0.9
 
 [node name="Label" type="Label" parent="CanvasLayer/UI-manager/MovementPanel/FromPanel"]
@@ -797,6 +825,10 @@ anchor_top = 0.1
 anchor_bottom = 0.75
 theme = SubResource("Theme_64s43")
 
+[node name="TemplateButton" parent="CanvasLayer/UI-manager/MovementPanel/FromPanel/ListBox/Container" index="0"]
+theme = SubResource("Theme_vdaqx")
+toggle_mode = true
+
 [node name="RichTextLabel" type="RichTextLabel" parent="CanvasLayer/UI-manager/MovementPanel/FromPanel"]
 layout_mode = 1
 anchors_preset = -1
@@ -812,9 +844,9 @@ rdfgfzg"
 [node name="ToPanel" type="Panel" parent="CanvasLayer/UI-manager/MovementPanel"]
 layout_mode = 1
 anchors_preset = -1
-anchor_left = 0.55
+anchor_left = 0.6
 anchor_top = 0.05
-anchor_right = 0.95
+anchor_right = 0.97
 anchor_bottom = 0.9
 
 [node name="ListBox" parent="CanvasLayer/UI-manager/MovementPanel/ToPanel" instance=ExtResource("28_5ybm0")]
@@ -849,20 +881,51 @@ waresgaewg"
 
 [node name="ArrowRTL" type="RichTextLabel" parent="CanvasLayer/UI-manager/MovementPanel"]
 layout_mode = 1
-anchors_preset = 8
+anchors_preset = -1
 anchor_left = 0.5
-anchor_top = 0.5
+anchor_top = 0.4
 anchor_right = 0.5
-anchor_bottom = 0.5
-offset_left = -22.0
-offset_top = -20.0
-offset_right = 42.0
-offset_bottom = 44.0
+anchor_bottom = 0.4
+offset_left = -32.0
+offset_top = -32.0
+offset_right = 32.0
+offset_bottom = 32.0
 grow_horizontal = 2
 grow_vertical = 2
 pivot_offset = Vector2(32, 32)
 bbcode_enabled = true
 text = "[font_size=32][center][b][char=0x00002192][/b][/center][/font_size]"
+
+[node name="ActionBtns" type="HBoxContainer" parent="CanvasLayer/UI-manager/MovementPanel"]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -64.0
+offset_top = -32.0
+offset_right = 64.0
+offset_bottom = 32.0
+grow_horizontal = 2
+grow_vertical = 2
+theme = SubResource("Theme_6is6m")
+theme_override_constants/separation = 5
+
+[node name="CancleBtn" type="Button" parent="CanvasLayer/UI-manager/MovementPanel/ActionBtns"]
+layout_mode = 2
+size_flags_vertical = 8
+theme = SubResource("Theme_wbg4i")
+text = "X"
+script = ExtResource("24_1p1b5")
+
+[node name="MoveBtn" type="Button" parent="CanvasLayer/UI-manager/MovementPanel/ActionBtns"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 8
+theme = SubResource("Theme_i3tle")
+text = "Move"
+script = ExtResource("24_1p1b5")
 
 [node name="Control" type="Control" parent="CanvasLayer"]
 visible = false
