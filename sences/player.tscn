@@ -180,14 +180,11 @@ bg_color = Color(0.6, 0.6, 0, 1)
 [sub_resource type="Theme" id="Theme_i3tle"]
 Button/styles/normal = SubResource("StyleBoxFlat_cpver")
 
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_roo4e"]
-corner_radius_top_left = 10
-corner_radius_top_right = 10
-corner_radius_bottom_right = 10
-corner_radius_bottom_left = 10
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_1jl2g"]
+bg_color = Color(0.48, 0.0576, 0.0646399, 1)
 
-[sub_resource type="Theme" id="Theme_wo64t"]
-Label/styles/normal = SubResource("StyleBoxFlat_roo4e")
+[sub_resource type="Theme" id="Theme_lv10k"]
+Button/styles/normal = SubResource("StyleBoxFlat_1jl2g")
 
 [node name="Player" type="Node3D"]
 script = ExtResource("1_tftws")
@@ -791,6 +788,7 @@ bbcode_enabled = true
 text = "[font_size= 30]🍖: 10 000[/font_size]"
 
 [node name="MovementPanel" type="Panel" parent="CanvasLayer/UI-manager"]
+visible = false
 layout_mode = 1
 anchors_preset = -1
 anchor_left = 0.25
@@ -837,9 +835,7 @@ anchor_right = 1.0
 anchor_bottom = 0.95
 grow_horizontal = 2
 grow_vertical = 0
-text = "ergedgrdgrdgfgdstz
-rfdgttdh
-rdfgfzg"
+text = "{ Lander Details }"
 
 [node name="ToPanel" type="Panel" parent="CanvasLayer/UI-manager/MovementPanel"]
 layout_mode = 1
@@ -875,9 +871,7 @@ anchor_right = 1.0
 anchor_bottom = 0.95
 grow_horizontal = 2
 grow_vertical = 0
-text = "wefesythtfsh
-fyghtrs
-waresgaewg"
+text = "{ Lander Details }"
 
 [node name="ArrowRTL" type="RichTextLabel" parent="CanvasLayer/UI-manager/MovementPanel"]
 layout_mode = 1
@@ -927,87 +921,51 @@ theme = SubResource("Theme_i3tle")
 text = "Move"
 script = ExtResource("24_1p1b5")
 
-[node name="Control" type="Control" parent="CanvasLayer"]
-visible = false
-layout_mode = 3
-anchors_preset = 0
-offset_right = 40.0
-offset_bottom = 40.0
-
-[node name="TurnPanel" type="Panel" parent="CanvasLayer/Control"]
+[node name="PurchasePanel" type="Panel" parent="CanvasLayer/UI-manager"]
 layout_mode = 1
 anchors_preset = -1
-anchor_left = 0.15
-anchor_top = 0.055
-anchor_right = 0.65
-anchor_bottom = 0.09
-
-[node name="HFlowContainer" type="HBoxContainer" parent="CanvasLayer/Control/TurnPanel"]
-layout_mode = 1
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
+anchor_left = 0.2
+anchor_top = 0.2
+anchor_right = 0.8
+anchor_bottom = 0.8
+offset_right = 40.0
+offset_bottom = 20.0
 grow_horizontal = 2
 grow_vertical = 2
-theme = SubResource("Theme_gj51g")
 
-[node name="Upkeep" type="Label" parent="CanvasLayer/Control/TurnPanel/HFlowContainer"]
-layout_mode = 2
-size_flags_horizontal = 3
-size_flags_vertical = 1
-text = "Upkeep"
-horizontal_alignment = 1
-vertical_alignment = 1
-
-[node name="Label2" type="Label" parent="CanvasLayer/Control/TurnPanel/HFlowContainer"]
-layout_mode = 2
-size_flags_horizontal = 3
-size_flags_vertical = 1
-size_flags_stretch_ratio = 0.0
-text = "Dustcload Collaspe"
-horizontal_alignment = 1
-vertical_alignment = 1
-
-[node name="Label4" type="Label" parent="CanvasLayer/Control/TurnPanel/HFlowContainer"]
-layout_mode = 2
-size_flags_horizontal = 3
-size_flags_vertical = 1
-text = "Recruitment"
-horizontal_alignment = 1
-vertical_alignment = 1
-
-[node name="Label3" type="Label" parent="CanvasLayer/Control/TurnPanel/HFlowContainer"]
-layout_mode = 2
-size_flags_horizontal = 3
-size_flags_vertical = 1
-theme = SubResource("Theme_wo64t")
-text = "Combat"
-horizontal_alignment = 1
-vertical_alignment = 1
-
-[node name="Label5" type="Label" parent="CanvasLayer/Control/TurnPanel/HFlowContainer"]
-layout_mode = 2
-size_flags_horizontal = 3
-size_flags_vertical = 1
-text = "Cleanup"
-horizontal_alignment = 1
-vertical_alignment = 1
-
-[node name="Button" type="Button" parent="CanvasLayer/Control/TurnPanel"]
+[node name="LandersListBox" parent="CanvasLayer/UI-manager/PurchasePanel" instance=ExtResource("28_5ybm0")]
 layout_mode = 1
 anchors_preset = -1
-anchor_left = 1.05
-anchor_top = 0.5
-anchor_right = 1.1
-anchor_bottom = 0.5
-offset_left = -45.0
-offset_top = -15.5
-offset_bottom = 15.5
-grow_horizontal = 0
-grow_vertical = 2
-theme = SubResource("Theme_3s2ko")
-text = "Next"
+anchor_left = 0.05
+anchor_top = 0.1
+anchor_right = 0.4
+anchor_bottom = 0.9
+
+[node name="MarketListBox" parent="CanvasLayer/UI-manager/PurchasePanel" instance=ExtResource("28_5ybm0")]
+layout_mode = 1
+anchors_preset = -1
+anchor_left = 0.6
+anchor_top = 0.1
+anchor_right = 0.95
+anchor_bottom = 0.9
+
+[node name="FinishPurchase" type="Button" parent="CanvasLayer/UI-manager/PurchasePanel"]
+layout_mode = 1
+anchors_preset = -1
+anchor_left = 1.0
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = -96.0
+offset_top = -48.0
+offset_right = 48.0
+offset_bottom = 24.0
+theme = SubResource("Theme_lv10k")
+text = "Finish Market"
+script = ExtResource("24_1p1b5")
 
 [editable path="CanvasLayer/UI-manager/CombatPanel/SelfUnitsPanel/ComabtSelectedUnitsDisplay"]
 [editable path="CanvasLayer/UI-manager/MovementPanel/FromPanel/ListBox"]
 [editable path="CanvasLayer/UI-manager/MovementPanel/ToPanel/ListBox"]
+[editable path="CanvasLayer/UI-manager/PurchasePanel/LandersListBox"]
+[editable path="CanvasLayer/UI-manager/PurchasePanel/MarketListBox"]
