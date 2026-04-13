@@ -208,4 +208,4 @@ func combat_display_toggled(toggled_on: bool):
 
 func run_movement(from: Lander, to: Lander):
 	#print("Player UI | Call | Run movement UI call")
-	movement_panel.show()
+	movement_panel.run_movement(from, to)

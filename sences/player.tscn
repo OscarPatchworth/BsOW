@@ -817,7 +817,7 @@ anchor_top = 0.05
 anchor_right = 0.95
 anchor_bottom = 0.9
 
-[node name="ListBox2" parent="CanvasLayer/UI-manager/MovementPanel/ToPanel" instance=ExtResource("28_5ybm0")]
+[node name="ListBox" parent="CanvasLayer/UI-manager/MovementPanel/ToPanel" instance=ExtResource("28_5ybm0")]
 layout_mode = 1
 anchors_preset = -1
 anchor_top = 0.1
@@ -947,4 +947,4 @@ text = "Next"
 
 [editable path="CanvasLayer/UI-manager/CombatPanel/SelfUnitsPanel/ComabtSelectedUnitsDisplay"]
 [editable path="CanvasLayer/UI-manager/MovementPanel/FromPanel/ListBox"]
-[editable path="CanvasLayer/UI-manager/MovementPanel/ToPanel/ListBox2"]
+[editable path="CanvasLayer/UI-manager/MovementPanel/ToPanel/ListBox"]

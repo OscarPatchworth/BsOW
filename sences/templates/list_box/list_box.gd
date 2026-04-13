@@ -1,6 +1,6 @@
 #list_box.gd
-#class_name ClassName
-extends Node
+class_name ListBox
+extends Control
 
 # signals
 signal list_btn_pressed(thing)
@@ -26,6 +26,7 @@ var runtime_flow: Container
 func _ready() -> void:
 	runtime_flow = template_flow.duplicate()
 	add_child(runtime_flow)
+	free_children(runtime_flow)
 	template_flow.hide()
 
 
@@ -57,7 +58,9 @@ func fwd_btn_pressed(thing):
 func set_objects(objs: Array):
 	list_items.assign(objs)
 	if list_items == []:
-		template_flow.show()
+		pass
+	else:
+		make_list()
 func get_objects() -> Array:
 	return list_items
 
