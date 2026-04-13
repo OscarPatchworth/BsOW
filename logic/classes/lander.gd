@@ -106,6 +106,16 @@ func get_ownr() -> Actor:
 	else: return units[0].get_owned_by()
 
 
+func has_purchases() -> bool:
+	if building != null and building.has_purchases():
+		return true
+	elif units != []:
+		for unit in units:
+			#if unit.has_purchases():
+				#return true
+			return false
+	return false
+
 ### Calls
 func build_action(req: Action):
 	var new_building = BuildingObject.new()

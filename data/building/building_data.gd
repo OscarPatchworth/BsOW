@@ -9,8 +9,10 @@ class_name BuildingData
 @export var unique_build = false
 @export var override_unit_capacity = false
 @export var unit_capacity = -1
-@export var can_spawn = false
+@export var can_spawn := false
 @export var spawn_type: Array[UnitData.UnitType]
+@export var can_upgrade := false
+@export var upgrades: Array[BuildingData]
 
 
 ## Get/Set (er)s
@@ -46,6 +48,14 @@ func get_can_spawn() -> bool:
 func get_spawn_type() -> Array:
 	return spawn_type
 
+# Can upgrade
+func get_can_upgrade() -> bool:
+	return can_upgrade
+
+# Upgrades
+func get_upgrades() -> Array:
+	return upgrades
+
 # All
 func get_building_dict() -> Dictionary:
 	var all = {
@@ -56,6 +66,8 @@ func get_building_dict() -> Dictionary:
 		"capacity_override" : override_unit_capacity,
 		"unit_capacity" : unit_capacity,
 		"can_spawn" : can_spawn,
-		"spawn_types" : spawn_type
+		"spawn_types" : spawn_type,
+		"can_upgrade" : can_upgrade,
+		"upgrades" : upgrades
 	}
 	return all

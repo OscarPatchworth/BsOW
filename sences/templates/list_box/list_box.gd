@@ -71,5 +71,8 @@ func get_objects() -> Array:
 
 
 ## Get/Set (er)s
+func get_btns() -> Array:
+	return runtime_flow.get_children()
+
 
 ### Connected Signals

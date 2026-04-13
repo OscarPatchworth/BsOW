@@ -49,7 +49,15 @@ func run_market():
 	self.show()
 	var landers = lander_manager.get_landers_actor_has(player_self)
 	lander_listbox.set_objects(landers, func(lnd): return lnd.get_biome().name)
+	
+	# Adjust btns
+	var lander_btns = lander_listbox.get_btns()
+	for i in range(lander_btns.size()):
+		# If lander doesn't have purchases disable it's btn
+		if !landers[i].has_purchases():
+			lander_btns[i].disabled = true
 
+			
 ## Get/Set (er)s
 
 ### Connected Signals

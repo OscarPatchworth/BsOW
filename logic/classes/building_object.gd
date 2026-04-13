@@ -55,4 +55,13 @@ func set_owner_actor(ownr: Actor):
 	owner_actor = ownr
 
 
+func get_purchases() -> Dictionary:
+	return {
+		"Building upgrades" : building_data.get_upgrades(),
+		"Unit Types" : building_data.get_spawn_type()
+	}
+func has_purchases() -> bool:
+	return building_data.get_can_upgrade() or building_data.get_can_spawn()
+
+
 ### Connected Signals
