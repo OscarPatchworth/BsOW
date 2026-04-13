@@ -116,7 +116,7 @@ func connect_ui_signals():
 	player_ui.next_phase_req.connect(self.fwd_next_phase_req)
 
 	player_controller.attack_action_req.connect(self.fwd_attack_action_req)
-
+	player_controller.run_movement_ui.connect(player_ui.run_movement)
 
 func fwd_build_req(build_req: Action):
 	build_req.actor = self

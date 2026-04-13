@@ -33,7 +33,7 @@ var player_self: Player
 @onready var combat_panel: Panel = self.find_child("CombatPanel")
 @onready var players_panel: Panel = self.find_child("PlayersPanel")
 @onready var seasons_panel: Panel = self.find_child("SeasonPanel")
-@onready var list_box = self.find_child("ListBox")
+@onready var movement_panel:Panel = self.find_child("MovementPanel")
 
 ###################################################################################################
 ###	Methods
@@ -43,11 +43,7 @@ func _ready() -> void:
 
 	lander_panel.hide()
 	combat_panel.hide()
-
-	print([1, 2, 4, 7].map(func(i): return {"object": i, "text" : str(i)}))
-
-	list_box.set_objects([1, 2, 4, 7].map(func(i): return {"object": i, "text" : str(i)}))
-	list_box.make_list()
+	movement_panel.hide()
 
 
 ### Signals and wires
@@ -94,6 +90,7 @@ func bind_turn_manager(tm: GameManager):
 func bind_lander_manager(lm: GameManager):
 	lander_manager = lm
 	lander_panel.bind_lander_manager(lm)
+	movement_panel.bind_lander_manager(lm)
 
 
 func bind_combat_manager(cm: GameManager):
@@ -207,3 +204,8 @@ func combat_display_toggled(toggled_on: bool):
 		turn_panel.hide()
 		lander_panel.hide()
 		players_panel.hide()
+
+
+func run_movement(from: Lander, to: Lander):
+	#print("Player UI | Call | Run movement UI call")
+	movement_panel.show()

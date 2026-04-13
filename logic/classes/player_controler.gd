@@ -5,6 +5,7 @@ extends ActorControler
 signal select_lander(target_lander)
 signal view_lander_requested(target_lander)
 signal attack_action_req(action_req)
+signal run_movement_ui(from:Lander, to:Lander)
 
 # enums
 enum PlayerState {
@@ -113,14 +114,19 @@ func input_state_collapsing_dustcloud(event: InputEvent) -> void:
 func input_state_movement(event):
 	# Left Click down/up
 	if event.is_action_released("left_click"):
-		if m_start_lander != null and m_end_lander != null:
+		if m_start_lander != null and m_end_lander != null and m_start_lander.get_ownr() == self_player :
+			# If neutral init movement UI
+			if m_end_lander.get_ownr() == null:
+				run_movement_ui.emit(m_start_lander, m_end_lander)
+				print("Player Controller | Emit | Run movement UI emitted")
 			# If Attack send out attack req
-			if m_start_lander.get_ownr() == self_player and m_end_lander.get_ownr() != self_player:
+			elif m_end_lander.get_ownr() != self_player:
 				var action_req = Action.new()
 				action_req.set_type(Action.RequestType.ATTACK)
 				action_req.set_selected_lander(m_start_lander)
 				action_req.set_target_lander(m_end_lander)
 				attack_action_req.emit(action_req)
+
 		# Reset movement state		
 		i_movement_ldown = false
 		m_start_lander = null
@@ -272,7 +278,7 @@ func game_phase_changed(game_phase):
 				player_state = PlayerState.MOVEMENT
 			turn_manager.GameLoop.CLEANUP:
 				player_state = PlayerState.IDLE
-	print("Player | Update | Player state changed to: " + str(PlayerState.keys()[player_state]))
+	#print("Player | Update | Player state changed to: " + str(PlayerState.keys()[player_state]))
 
 
 ### Action templates
