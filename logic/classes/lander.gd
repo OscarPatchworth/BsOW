@@ -99,16 +99,19 @@ func get_units() -> Array[UnitObject]:
 
 
 func get_ownr() -> Actor:
-	if units == []:
+	if building != null:
+		return building.get_owner_actor()
+	elif units == []:
 		return null
-	else:
-		return units[0].get_owned_by()
+	else: return units[0].get_owned_by()
+
 
 ### Calls
 func build_action(req: Action):
 	var new_building = BuildingObject.new()
 	new_building.set_building_data(req.get_building_type())
 	new_building.bind_building_node(building_node)
+	new_building.set_owner_actor(req.actor)
 	
 	#building_node.add_child(new_building)
 	building = new_building

@@ -85,11 +85,7 @@ func get_connected_landers(target_lander: Lander) -> Array[Lander]:
 
 
 func get_lander_occpied_actor(target: Lander) -> Actor:
-	var target_units = target.get_units()
-	if target_units != []:
-		return target_units[0].get_owned_by()
-	else:
-		return null
+	return target.get_ownr()
 
 
 func get_landers_actor_has(a: Actor) -> Array:

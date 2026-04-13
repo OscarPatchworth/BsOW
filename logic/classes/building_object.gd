@@ -15,6 +15,7 @@ var build_node: Node3D
 
 # remaining regular variables
 var hit_points: int = 1
+var owner_actor: Actor
 
 # @onready variables
 
@@ -46,6 +47,12 @@ func get_building_data() -> BuildingData:
 	return building_data
 func set_building_data(build: BuildingData):
 	self.building_data = build
+
+
+func get_owner_actor() -> Actor:
+	return owner_actor 
+func set_owner_actor(ownr: Actor):
+	owner_actor = ownr
 
 
 ### Connected Signals
