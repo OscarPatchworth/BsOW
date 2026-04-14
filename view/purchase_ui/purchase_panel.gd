@@ -3,6 +3,7 @@ extends Panel
 
 # signals
 
+signal purchase_action_req(req: Action)
 # enums
 
 # constants
@@ -15,6 +16,7 @@ var player_self: Player
 # @export variables
 
 # remaining regular variables
+var active_lander: Lander
 
 # @onready variables
 @onready var lander_listbox: ListBox = self.find_child("LandersListBox")
@@ -27,6 +29,7 @@ var player_self: Player
 func _ready() -> void:
 	self.hide()
 	lander_listbox.list_btn_pressed.connect(self.lander_btn_pressed)
+	market_listbox.list_btn_pressed.connect(self.market_btn_pressed)
 
 
 func free_children(parent: Node) -> void:
@@ -35,6 +38,7 @@ func free_children(parent: Node) -> void:
 
 
 func lander_btn_pressed(lnd: Lander):
+	active_lander = lnd
 	# Get purchases from lander
 	var lander_purchases = []
 	# Add any building Upgrades
@@ -46,6 +50,15 @@ func lander_btn_pressed(lnd: Lander):
 
 	market_listbox.set_objects(lander_purchases, func(purchasable): return purchasable.name)
 	
+
+func market_btn_pressed(item):
+	var buy_req = Action.new()
+	buy_req.set_type(Action.RequestType.BUY)
+	buy_req.set_actor(player_self)
+	buy_req.set_selected_lander(active_lander)
+	buy_req.set_purchasable(item)
+	purchase_action_req.emit(buy_req)
+
 
 ### Connected Signals
 

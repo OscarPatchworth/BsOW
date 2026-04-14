@@ -157,6 +157,7 @@ func init_player(player_x: Player):
 	player_x.buy_unit_action_req.connect(action_manager.action_request)
 	player_x.move_units_action_req.connect(action_manager.action_request)
 	player_x.attack_action_req.connect(action_manager.action_request)
+	player_x.purchase_action_req.connect(action_manager.action_request)
 	#player_x.combat_unit_selected.connect(combat_manager.actor_selected_unit)
 	#player_x.unit_deslected.connect(combat_manager.actor_deselected_unit)
 	player_x.combat_unit_selected.connect(combat_manager.actor_selection_req)

@@ -34,7 +34,7 @@ func action_request(req: Action):
 			#print("Attack Action Recieved! ")
 			handle_attack(req)
 		Action.RequestType.BUY:
-			pass
+			handle_buy(req)
 		Action.RequestType.BUY_BUILDING:
 			handle_buy_building(req)
 		Action.RequestType.BUY_UNIT:
@@ -122,3 +122,7 @@ func handle_progress_turn(req: Action):
 		#print("Turn Manager | Err |")
 	#else:
 	progress_turn.emit()
+
+
+func handle_buy(req: Action):
+	print(req.get_action_dict())

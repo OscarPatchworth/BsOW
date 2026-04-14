@@ -11,6 +11,7 @@ signal player_combat_ready
 signal player_combat_not_ready
 signal next_phase_req(req: Action)
 signal move_action_req(req: Action)
+signal purchase_action_req(req)
 
 # enums
 #enum Element {EARTH,WATER,AIR,FIRE,}
@@ -65,6 +66,8 @@ func connect_signals():
 	turn_panel.next_phase_req.connect(self.fwd_next_phase_req)
 
 	movement_panel.move_action_req.connect(self.fwd_move_action_req)
+
+	purchase_panel.purchase_action_req.connect(self.fwd_purchase_action_req)
 
 func connect_wires():
 	wire_selector_manager()
@@ -233,3 +236,7 @@ func run_movement(from: Lander, to: Lander):
 
 func fwd_move_action_req(req: Action):
 	move_action_req.emit(req)
+
+
+func fwd_purchase_action_req(req: Action):
+	purchase_action_req.emit(req)

@@ -25,6 +25,7 @@ var building_type: BuildingData
 var unit_type: UnitData
 var selected_lander: Lander
 var selected_units: Array[UnitObject]
+var purchasable
 
 # @export variables
 
@@ -91,6 +92,13 @@ func set_selected_units(units: Array[UnitObject]):
 	selected_units = units
 
 
+# Purchasables
+func get_purchasable():
+	return purchasable
+func set_purchasable(item):
+	purchasable = item
+
+
 # All
 func get_action_dict() -> Dictionary:
 	var build_name: String = str(null)
@@ -105,10 +113,10 @@ func get_action_dict() -> Dictionary:
 		"type": RequestType.find_key(type),
 		"actor": actor.name,
 		"pos": position,
-		"target lander" : target_lander.get_biome().name,
+		"target lander" :  target_lander.get_biome().name if target_lander else "",
 		"building type" : build_name,
 		"unit_type" : unit_name,
-		"selected_lander" : selected_lander.get_biome().name,
-		"selected_units" : selected_units
+		"selected_lander" : selected_lander.get_biome().name if selected_lander else "",
+		"purchasable" : purchasable.name
 	}
 	return all
