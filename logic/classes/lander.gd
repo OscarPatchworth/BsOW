@@ -117,11 +117,13 @@ func has_purchases() -> bool:
 	return false
 
 func get_purchases() -> Dictionary:
-	var purchases = {}
+	var purchases = {"Building upgrades": [], "Unit Types" : []}
 	if building != null and building.has_purchases():
-		purchases.merge(building.get_purchases())
+		purchases.merge(building.get_purchases(), true)
 	if units != []:
-		purchases.merge(units[0].get_purchases())
+		if self.building == null:
+			purchases.merge(units[0].get_purchases())
+		purchases.merge(units[0].get_purchases(), true)
 	return purchases
 
 

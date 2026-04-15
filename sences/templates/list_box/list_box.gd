@@ -72,6 +72,7 @@ func get_objects() -> Array:
 
 ## Get/Set (er)s
 func get_btns() -> Array:
+	await Engine.get_main_loop().process_frame
 	return runtime_flow.get_children()
 
 

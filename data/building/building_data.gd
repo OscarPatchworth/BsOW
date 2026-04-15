@@ -10,7 +10,7 @@ class_name BuildingData
 @export var override_unit_capacity = false
 @export var unit_capacity = -1
 @export var can_spawn := false
-@export var spawn_type: Array[UnitData.UnitType]
+@export var spawn_type: Array[UnitData.UnitType] = []
 @export var can_upgrade := false
 @export var upgrades: Array[BuildingData]
 

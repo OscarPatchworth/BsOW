@@ -1,0 +1,16 @@
+[gd_resource type="Resource" script_class="BuildingData" load_steps=3 format=3 uid="uid://ikctw3t6aoeq"]
+
+[ext_resource type="PackedScene" uid="uid://bcpmnehlfj0jq" path="res://sences/buildings/castle_tower.tscn" id="1_ojjku"]
+[ext_resource type="Script" path="res://data/building/building_data.gd" id="1_y1e7o"]
+
+[resource]
+script = ExtResource("1_y1e7o")
+name = "Castle Tower"
+build_mesh = ExtResource("1_ojjku")
+unique_build = false
+override_unit_capacity = false
+unit_capacity = -1
+can_spawn = true
+spawn_type = Array[int]([0, 2])
+can_upgrade = false
+upgrades = Array[ExtResource("1_y1e7o")]([])

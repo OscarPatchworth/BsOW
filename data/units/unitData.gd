@@ -74,7 +74,10 @@ func set_can_build(yn: bool):
 
 
 func get_buildables() -> Array[BuildingData]:
-	return buildables
+	if buildables != []:
+		return buildables
+	else:
+		return base.get_buildables()
 func add_buildable(b: BuildingData):
 	if b not in buildables:
 		buildables.append(b)

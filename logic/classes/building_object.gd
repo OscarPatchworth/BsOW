@@ -61,7 +61,9 @@ func get_purchases() -> Dictionary:
 		"Unit Types" : building_data.get_spawn_type()
 	}
 func has_purchases() -> bool:
-	return building_data.get_can_upgrade() or building_data.get_can_spawn()
+	if building_data.get_upgrades() != [] or building_data.get_spawn_type() != []:
+		return true
+	else: return false
 
 
 ### Connected Signals

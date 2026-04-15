@@ -1,0 +1,63 @@
+[gd_scene load_steps=10 format=3 uid="uid://bcpmnehlfj0jq"]
+
+[ext_resource type="Texture2D" uid="uid://5qd30vjdht08" path="res://visuals/textures/third_person_controller_assets/textures/grids/Light/texture_10.png" id="1_tkps2"]
+[ext_resource type="Texture2D" uid="uid://chfn1iyg8h86w" path="res://visuals/textures/third_person_controller_assets/textures/grids/Light/texture_09.png" id="2_3rsqu"]
+
+[sub_resource type="BoxMesh" id="BoxMesh_lgt4x"]
+size = Vector3(1, 1.75, 1)
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_uhyqb"]
+albedo_texture = ExtResource("1_tkps2")
+uv1_scale = Vector3(1, 0.75, 1)
+uv1_offset = Vector3(0.5, 0, 0.5)
+uv1_triplanar = true
+uv2_triplanar = true
+
+[sub_resource type="BoxMesh" id="BoxMesh_wgihe"]
+size = Vector3(0.3, 0.7, 0.3)
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_6xpmm"]
+albedo_texture = ExtResource("2_3rsqu")
+uv1_scale = Vector3(10, 10, 10)
+uv1_triplanar = true
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_12kco"]
+albedo_texture = ExtResource("2_3rsqu")
+uv1_scale = Vector3(10, 10, 10)
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_iw5is"]
+albedo_texture = ExtResource("2_3rsqu")
+uv1_scale = Vector3(10, 10, 10)
+uv1_triplanar = true
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_jmh36"]
+albedo_texture = ExtResource("2_3rsqu")
+uv1_scale = Vector3(10, 10, 10)
+uv1_triplanar = true
+
+[node name="CastleTower" type="CSGCombiner3D"]
+
+[node name="CSGMesh3D" type="CSGMesh3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.85, 0)
+mesh = SubResource("BoxMesh_lgt4x")
+material = SubResource("StandardMaterial3D_uhyqb")
+
+[node name="CSGMesh3D" type="CSGMesh3D" parent="CSGMesh3D"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.45, 0.9, 0.45)
+mesh = SubResource("BoxMesh_wgihe")
+material = SubResource("StandardMaterial3D_6xpmm")
+
+[node name="CSGMesh3D4" type="CSGMesh3D" parent="CSGMesh3D"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.45, 0.9, -0.45)
+mesh = SubResource("BoxMesh_wgihe")
+material = SubResource("StandardMaterial3D_12kco")
+
+[node name="CSGMesh3D2" type="CSGMesh3D" parent="CSGMesh3D"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.45, 0.9, 0.45)
+mesh = SubResource("BoxMesh_wgihe")
+material = SubResource("StandardMaterial3D_iw5is")
+
+[node name="CSGMesh3D3" type="CSGMesh3D" parent="CSGMesh3D"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.45, 0.9, -0.45)
+mesh = SubResource("BoxMesh_wgihe")
+material = SubResource("StandardMaterial3D_jmh36")

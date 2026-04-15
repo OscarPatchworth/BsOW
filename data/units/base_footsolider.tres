@@ -1,9 +1,11 @@
-[gd_resource type="Resource" script_class="UnitData" load_steps=6 format=3 uid="uid://dmftxjfnr1n60"]
+[gd_resource type="Resource" script_class="UnitData" load_steps=8 format=3 uid="uid://dmftxjfnr1n60"]
 
 [ext_resource type="Texture2D" uid="uid://da7nmyq0ig5cv" path="res://visuals/textures/diamond_icons/yellow_diamond_icon.png" id="1_047v1"]
 [ext_resource type="Script" path="res://data/damage/damage_data.gd" id="1_71egg"]
 [ext_resource type="PackedScene" uid="uid://p5ih6l4koapk" path="res://sences/units/base_footsolider.tscn" id="1_h1bdb"]
+[ext_resource type="Script" path="res://data/building/building_data.gd" id="1_x6wl6"]
 [ext_resource type="Script" path="res://data/units/unitData.gd" id="2_fxd0g"]
+[ext_resource type="Resource" uid="uid://ikctw3t6aoeq" path="res://data/building/castle_tower.tres" id="2_hsoce"]
 
 [sub_resource type="Resource" id="Resource_cn5tj"]
 script = ExtResource("1_71egg")
@@ -17,5 +19,7 @@ script = ExtResource("2_fxd0g")
 name = "Base Footsolider"
 mesh = ExtResource("1_h1bdb")
 icon = ExtResource("1_047v1")
-type = 1
+type = 0
 dmg = SubResource("Resource_cn5tj")
+can_build = true
+buildables = Array[ExtResource("1_x6wl6")]([ExtResource("2_hsoce")])

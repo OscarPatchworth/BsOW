@@ -47,7 +47,9 @@ func set_ownned_by(target: Actor):
 func has_purchases() -> bool:
 	return false
 func get_purchases() -> Dictionary:
-	return {}
+	var all_purchases := {"buildings" : [], "abilities" : []}
+	all_purchases["buildings"] = self.get_unit_data().get_buildables()
+	return all_purchases
 
 
 

@@ -61,6 +61,7 @@ func market_btn_pressed(item):
 func get_lander_purchasables(lnd: Lander) -> Array:
 	var all_purchases = []
 	# Building Upgrages
+	##print(lnd.get_purchases())
 	for upgrade in lnd.get_purchases()["Building upgrades"]:
 		all_purchases.append(upgrade)
 
@@ -71,15 +72,15 @@ func get_lander_purchasables(lnd: Lander) -> Array:
 
 	# Buildings
 	for unit in lnd.get_units():
-		if unit.get_unit_data().get_buildables() != []:
-			for building in unit.get_unit_data().get_buildables():
+		#print(unit.get_purchases())
+		if lnd.building == null and unit.get_purchases()["buildings"] != []:
+			for building in unit.get_purchases()["buildings"]:
 				if building not in all_purchases:
 					all_purchases.append(building)
 
 
 	# Abilites
 
-	print(all_purchases)
 	return all_purchases
 
 ### Connected Signals
@@ -98,12 +99,12 @@ func run_market():
 	self.show()
 	var landers = lander_manager.get_landers_actor_has(player_self)
 	lander_listbox.set_objects(landers, func(lnd): return lnd.get_biome().name)
-	
+
 	# Adjust btns
-	var lander_btns = lander_listbox.get_btns()
+	var lander_btns = await lander_listbox.get_btns()
 	for i in range(lander_btns.size()):
 		# If lander doesn't have purchases disable it's btn
-		if !landers[i].has_purchases():
+		if get_lander_purchasables(landers[i]) == []:
 			lander_btns[i].disabled = true
 
 			
