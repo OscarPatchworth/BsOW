@@ -18,6 +18,8 @@ enum UnitType {
 #@export var cost: EnconData
 @export var type: UnitType = UnitType.NULL
 @export var dmg: DamageData
+@export var can_build := false
+@export var buildables: Array[BuildingData]
 
 ###################################################################################################
 ## Get/set (er)s 
@@ -64,6 +66,22 @@ func get_dmg() -> DamageData:
 	else:
 		return null
 		
+
+func get_can_build() -> bool:
+	return can_build
+func set_can_build(yn: bool):
+	can_build = yn
+
+
+func get_buildables() -> Array[BuildingData]:
+	return buildables
+func add_buildable(b: BuildingData):
+	if b not in buildables:
+		buildables.append(b)
+func rmv_buildable(b: BuildingData):
+	if b in buildables:
+		buildables.erase(b)
+
 
 func get_base() -> UnitData:
 	return base

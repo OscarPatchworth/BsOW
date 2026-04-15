@@ -42,10 +42,8 @@ func lander_btn_pressed(lnd: Lander):
 	# Get purchases from lander
 	var lander_purchases = []
 	# Add any building Upgrades
-	lander_purchases + lnd.get_purchases()["Building upgrades"]
-	for unit in player_self.get_species().units:
-		if unit.get_type() in lnd.get_purchases()["Unit Types"]:
-			lander_purchases.append(unit)
+	lander_purchases = get_lander_purchasables(lnd)
+	
 
 
 	market_listbox.set_objects(lander_purchases, func(purchasable): return purchasable.name)
@@ -59,6 +57,30 @@ func market_btn_pressed(item):
 	buy_req.set_purchasable(item)
 	purchase_action_req.emit(buy_req)
 
+
+func get_lander_purchasables(lnd: Lander) -> Array:
+	var all_purchases = []
+	# Building Upgrages
+	for upgrade in lnd.get_purchases()["Building upgrades"]:
+		all_purchases.append(upgrade)
+
+	# Units
+	for unit in player_self.get_species().units:
+		if unit.get_type() in lnd.get_purchases()["Unit Types"]:
+			all_purchases.append(unit)
+
+	# Buildings
+	for unit in lnd.get_units():
+		if unit.get_unit_data().get_buildables() != []:
+			for building in unit.get_unit_data().get_buildables():
+				if building not in all_purchases:
+					all_purchases.append(building)
+
+
+	# Abilites
+
+	print(all_purchases)
+	return all_purchases
 
 ### Connected Signals
 
