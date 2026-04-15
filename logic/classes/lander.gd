@@ -128,7 +128,12 @@ func get_purchases() -> Dictionary:
 ### Calls
 func build_action(req: Action):
 	var new_building = BuildingObject.new()
-	new_building.set_building_data(req.get_building_type())
+	if req.get_building_type() != null:
+		new_building.set_building_data(req.get_building_type())
+	elif req.get_purchasable() != null:
+		new_building.set_building_data(req.get_purchasable())
+	else: return
+
 	new_building.bind_building_node(building_node)
 	new_building.set_owner_actor(req.actor)
 	
@@ -143,7 +148,13 @@ func build_action(req: Action):
 func buy_unit_action(req: Action):
 	#print("Lander Recieved Request to buy unit")
 	var new_unit = UnitObject.new()
-	new_unit.setup(req.get_unit_type(), req.get_actor() )
+	if req.get_unit_type() != null:
+		new_unit.setup(req.get_unit_type(), req.get_actor() )
+	elif req.get_purchasable() != null:
+		new_unit.setup(req.get_purchasable(), req.get_actor() )
+	else:
+		return
+
 	units.append(new_unit)
 	self.has_units = true
 	buy_unit_action_completed.emit(req)

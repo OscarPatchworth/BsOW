@@ -125,4 +125,24 @@ func handle_progress_turn(req: Action):
 
 
 func handle_buy(req: Action):
-	print(req.get_action_dict())
+	#print(req.get_action_dict())
+	if req.get_purchasable() is BuildingData:
+		print("Action Manager | Debug | handle_buy: Is BuildingData")
+		# Is Valid cecks
+
+		# Apply Costs
+
+		# Generate Building
+		req.selected_lander.build_action(req)
+
+	elif req.get_purchasable() is UnitData:
+		print("Action Manager | Debug | handle_buy: Is UnitData")
+		# Is Valid cecks
+
+		# Apply Costs
+
+		# Generate unit
+		req.selected_lander.buy_unit_action(req)
+
+	else:
+		print("Action Manager | Debug | handle_buy: purchasable is not a valid type")
