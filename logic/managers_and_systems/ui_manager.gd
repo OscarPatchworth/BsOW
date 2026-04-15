@@ -68,6 +68,8 @@ func connect_signals():
 	movement_panel.move_action_req.connect(self.fwd_move_action_req)
 
 	purchase_panel.purchase_action_req.connect(self.fwd_purchase_action_req)
+	purchase_panel.close_market.connect(self.fwd_close_market)
+
 
 func connect_wires():
 	wire_selector_manager()
@@ -240,3 +242,10 @@ func fwd_move_action_req(req: Action):
 
 func fwd_purchase_action_req(req: Action):
 	purchase_action_req.emit(req)
+
+
+func fwd_close_market():
+	if turn_manager.get_game_phase() == turn_manager.GameLoop.BUYING_PHASE:
+		var new_action = Action.new()
+		new_action.set_type(Action.RequestType.PROGRESS_TURN)
+		next_phase_req.emit(new_action)

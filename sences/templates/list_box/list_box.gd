@@ -58,6 +58,16 @@ func _defualt_txt(obj) -> String:
 
 
 ## Calls
+func clear():
+	free_children(runtime_flow)
+
+
+## Get/Set (er)s
+func get_btns() -> Array:
+	await Engine.get_main_loop().process_frame
+	return runtime_flow.get_children()
+
+
 func set_objects(objs: Array, text_formatter: Callable = _defualt_txt):
 	var formated_objs = objs.map(func(obj): return {"object" : obj, "text" : str(text_formatter.call(obj)) })
 	list_items.assign(formated_objs)
@@ -67,13 +77,5 @@ func set_objects(objs: Array, text_formatter: Callable = _defualt_txt):
 		make_list()
 func get_objects() -> Array:
 	return list_items
-
-
-
-## Get/Set (er)s
-func get_btns() -> Array:
-	await Engine.get_main_loop().process_frame
-	return runtime_flow.get_children()
-
 
 ### Connected Signals

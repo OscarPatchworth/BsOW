@@ -18,6 +18,8 @@ signal next_phase_req(req: Action)
 
 signal purchase_action_req(req: Action)
 
+signal close_market()
+
 # enums
 #enum Element {EARTH,WATER,AIR,FIRE,}
 
@@ -236,3 +238,7 @@ func fwd_move_action_req(req: Action):
 
 func fwd_purchase_action_req(req: Action):
 	purchase_action_req.emit(req)
+
+
+func fwd_close_market():
+	close_market.emit()

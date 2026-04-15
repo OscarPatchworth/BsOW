@@ -2,8 +2,9 @@
 extends Panel
 
 # signals
-
 signal purchase_action_req(req: Action)
+signal close_market()
+
 # enums
 
 # constants
@@ -30,6 +31,7 @@ func _ready() -> void:
 	self.hide()
 	lander_listbox.list_btn_pressed.connect(self.lander_btn_pressed)
 	market_listbox.list_btn_pressed.connect(self.market_btn_pressed)
+	finish_btn.pressed.connect(self.pressed_close_market)
 
 
 func free_children(parent: Node) -> void:
@@ -82,6 +84,12 @@ func get_lander_purchasables(lnd: Lander) -> Array:
 	# Abilites
 
 	return all_purchases
+
+
+func pressed_close_market():
+	lander_listbox.clear()
+	market_listbox.clear()
+	close_market.emit()
 
 ### Connected Signals
 
