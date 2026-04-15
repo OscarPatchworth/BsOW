@@ -126,6 +126,10 @@ func input_state_movement(event):
 				action_req.set_selected_lander(m_start_lander)
 				action_req.set_target_lander(m_end_lander)
 				attack_action_req.emit(action_req)
+			# If Ally init movement UI
+			elif m_end_lander.get_ownr() == self_player:
+				run_movement_ui.emit(m_start_lander, m_end_lander)
+				print("Player Controller | Emit | Run movement UI emitted")
 
 		# Reset movement state		
 		i_movement_ldown = false
