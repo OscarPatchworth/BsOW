@@ -20,6 +20,7 @@ var combat_manager: GameManager
 
 # remaining regular variables
 var combat_pos # Combat ATK/DEF
+var wallet: EconData
 
 ###################################################################################################
 # Methods

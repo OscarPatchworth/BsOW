@@ -113,6 +113,13 @@ func init_ai(sai: SimpleAI):
 	#print(ai)
 	# AI congif
 	sai.species = game_species.pick_random()
+	sai.wallet = EconData.new()
+	sai.wallet.set_resource_value("gold", 10)
+	sai.wallet.set_resource_value("food", 10)
+	sai.wallet.set_resource_value("mineral", 10)
+	sai.wallet.set_resource_value("wood", 10)
+	sai.wallet.set_resource_value("stone", 10)
+
 
 	# Wires
 	sai.turn_manager = self.turn_manager
@@ -186,3 +193,9 @@ func init_player(player_x: Player):
 
 	player_x.species = game_species.pick_random()
 	#print("Player Species randomly selected: " + str(player_x.species.name))
+	player_x.wallet = EconData.new()
+	player_x.wallet.set_resource_value("gold", 10)
+	player_x.wallet.set_resource_value("food", 10)
+	player_x.wallet.set_resource_value("mineral", 10)
+	player_x.wallet.set_resource_value("wood", 10)
+	player_x.wallet.set_resource_value("stone", 10)

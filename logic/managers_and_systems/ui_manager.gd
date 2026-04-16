@@ -37,6 +37,7 @@ var player_self: Player
 @onready var seasons_panel: Panel = self.find_child("SeasonPanel")
 @onready var movement_panel: Panel = self.find_child("MovementPanel")
 @onready var purchase_panel: Panel = self.find_child("PurchasePanel")
+@onready var wallet_panel: Panel = self.find_child("WalletPanel")
 
 ###################################################################################################
 ###	Methods
@@ -113,6 +114,9 @@ func bind_player(p: Player):
 		if child.has_method("bind_player"):
 			child.bind_player(p)
 
+
+func bind_wallet(w: EconData):
+	wallet_panel.bind_wallet(w)
 
 func display_landers_req(lander: Lander):
 	lander_panel.show()

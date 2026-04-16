@@ -1,4 +1,4 @@
-[gd_scene load_steps=73 format=3 uid="uid://cmnn2jtgwr4dw"]
+[gd_scene load_steps=74 format=3 uid="uid://cmnn2jtgwr4dw"]
 
 [ext_resource type="Script" path="res://logic/classes/player.gd" id="1_tftws"]
 [ext_resource type="Script" path="res://logic/classes/player_controler.gd" id="2_pm403"]
@@ -28,6 +28,7 @@
 [ext_resource type="Script" path="res://sences/item_list.gd" id="24_utqdd"]
 [ext_resource type="Script" path="res://view/players_panel/players_panel.gd" id="25_7higi"]
 [ext_resource type="PackedScene" uid="uid://bmt2tq4wjcibr" path="res://sences/templates/list_box/ListBox.tscn" id="28_5ybm0"]
+[ext_resource type="Script" path="res://view/wallet_ui/wallet_panel.gd" id="28_dfmpb"]
 [ext_resource type="Script" path="res://view/movement_panel/movement_panel.gd" id="28_fj3f5"]
 [ext_resource type="Script" path="res://view/purchase_ui/purchase_panel.gd" id="30_55tok"]
 
@@ -749,40 +750,40 @@ item_2/text = "Player 3"
 item_2/disabled = true
 script = ExtResource("24_utqdd")
 
-[node name="Resource Panel" type="Panel" parent="CanvasLayer/UI-manager"]
+[node name="WalletPanel" type="Panel" parent="CanvasLayer/UI-manager"]
 layout_mode = 1
 anchors_preset = -1
-anchor_top = 0.15
+anchor_top = 0.1
 anchor_right = 0.1
-anchor_bottom = 0.25
+anchor_bottom = 0.3
 offset_left = 10.0
 offset_right = 31.0
 offset_bottom = 67.0
 grow_vertical = 2
+script = ExtResource("28_dfmpb")
 
-[node name="VBoxContainer" type="VFlowContainer" parent="CanvasLayer/UI-manager/Resource Panel"]
+[node name="VBoxContainer" type="VBoxContainer" parent="CanvasLayer/UI-manager/WalletPanel"]
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
-last_wrap_alignment = 1
 
-[node name="RichTextLabel" type="RichTextLabel" parent="CanvasLayer/UI-manager/Resource Panel/VBoxContainer"]
+[node name="RichTextLabel" type="RichTextLabel" parent="CanvasLayer/UI-manager/WalletPanel/VBoxContainer"]
 custom_minimum_size = Vector2(175, 45)
 layout_mode = 2
 bbcode_enabled = true
 text = "[font_size= 30]🪙: 10 000[/font_size]"
 
-[node name="RichTextLabel2" type="RichTextLabel" parent="CanvasLayer/UI-manager/Resource Panel/VBoxContainer"]
+[node name="RichTextLabel2" type="RichTextLabel" parent="CanvasLayer/UI-manager/WalletPanel/VBoxContainer"]
 custom_minimum_size = Vector2(175, 45)
 layout_mode = 2
 size_flags_vertical = 0
 bbcode_enabled = true
 text = "[font_size= 30]🪵: 10 000[/font_size]"
 
-[node name="RichTextLabel3" type="RichTextLabel" parent="CanvasLayer/UI-manager/Resource Panel/VBoxContainer"]
+[node name="RichTextLabel3" type="RichTextLabel" parent="CanvasLayer/UI-manager/WalletPanel/VBoxContainer"]
 custom_minimum_size = Vector2(175, 45)
 layout_mode = 2
 bbcode_enabled = true

@@ -26,6 +26,11 @@ func get_resource_dict() -> Dictionary:
 func set_resource_value(key: String, value: int) -> void:
 	if key in ["gold", "food", "mineral", "wood", "stone"]:
 		self.set(key, value)  # modifies the exported property directly
+func get_resource_value(key: String) -> int:
+	if key in ["gold", "food", "mineral", "wood", "stone"]:
+		return self.get(key)
+	else: return -1
+
 
 
 ### Coded by Gemini ... I didn't know godot had obj.get() & obj.set() funcs ... thats rlly cool

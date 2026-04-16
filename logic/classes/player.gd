@@ -61,6 +61,7 @@ func connect_wires():
 	wire_lander_manager()
 	wire_combat_manager()
 	wire_self()
+	wire_wallet()
 	wire_draw_3d()
 
 
@@ -92,6 +93,10 @@ func wire_combat_manager():
 func wire_self():
 	player_ui.bind_player(self)
 	player_controller.bind_player(self)
+
+
+func wire_wallet():
+	player_ui.bind_wallet(wallet)
 
 
 func wire_draw_3d():
