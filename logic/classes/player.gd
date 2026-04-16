@@ -221,8 +221,10 @@ func game_phase_changed(game_phase):
 	player_ui.game_phase_changed(game_phase)
 
 
-func setup_turn_order_display():
+func setup_turn_order():
 	player_ui.setup_turn_order_display()
+	if turn_manager.get_active_actor() == self:
+		player_controller.set_is_active_player(true)
 
 
 func actor_turn_changed(active_player: Actor):

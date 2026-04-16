@@ -304,7 +304,9 @@ func exit_combat():
 	else:
 		player_state = PlayerState.IDLE
 
-
+func set_is_active_player(b: bool):
+	is_active_player = b
+	
 
 ### Wires and Signals
 func bind_selector(selector: GameManager):

@@ -64,6 +64,7 @@ var cur_season: Season
 var cur_season_ind: int
 
 var admin_game_phases := [GameLoop.UPKEEP, GameLoop.CLEANUP]
+var non_skipable_phases := [GameLoop.DUSTCLOUD_COLLASPE_PHASE]
 
 # @onready variables
 
@@ -121,6 +122,7 @@ func progress_turn():
 	else:
 		game_phase = GameLoop.values()[game_phase + 1]
 	game_phased_changed.emit(game_phase)
+
 	# After progressin turn, check in admin_phase. If so, the auto run it.
 	if game_phase in admin_game_phases:
 		progress_turn()
@@ -146,7 +148,6 @@ func progress_turn_order():
 
 
 func progress_season():
-
 	if(cur_season_ind == game_seasons.size()-1):
 		cur_season_ind = 0
 	else:
@@ -205,6 +206,10 @@ func get_active_actor() -> Actor:
 
 func get_admin_phases() -> Array:
 	return admin_game_phases
+
+
+func get_non_skipable_phases() -> Array:
+	return non_skipable_phases
 
 
 func get_turn_dict() -> Dictionary:

@@ -49,7 +49,10 @@ func action_request(req: Action):
 
 func handle_place_lander(req: Action):
 	if(lander_manager.is_valid_lander_placement(req.position)):
+		# Place lander
 		lander_manager.inst_lander(req.position)
+		# Progress turn
+		progress_turn.emit()
 	else:
 		print("Invalid Place Lander Request")
 
@@ -124,6 +127,9 @@ func handle_progress_turn(req: Action):
 	if turn_manager.get_game_phase() in turn_manager.get_admin_phases():
 		print("Action Manager | Rules Check | Actor atempting to progress admin phase")
 		return
+	if turn_manager.get_game_phase() in turn_manager.get_non_skipable_phases():
+		print("Action Manager | Rules Check | Actor Atempting to progress non-skipable phase")
+		#return 
 	progress_turn.emit()
 
 

@@ -187,7 +187,7 @@ func init_player(player_x: Player):
 	# combat_update
 	combat_manager.combat_outcome.connect(player_x.combat_outcome)
 	turn_manager.game_phased_changed.connect(player_x.game_phase_changed)
-	turn_manager.turn_order_generated.connect(player_x.setup_turn_order_display)
+	turn_manager.turn_order_generated.connect(player_x.setup_turn_order)
 	turn_manager.actor_turn_changed.connect(player_x.actor_turn_changed)
 	turn_manager.season_order_generated.connect(player_x.seasons_generated)
 	turn_manager.season_changed.connect(player_x.season_changed)
