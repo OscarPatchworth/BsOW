@@ -125,6 +125,8 @@ func connect_ui_signals():
 	player_ui.next_phase_req.connect(self.fwd_next_phase_req)
 	player_ui.move_action_req.connect(self.fwd_move_action_req)
 	player_ui.purchase_action_req.connect(self.fwd_purchase_action_req)
+	wallet.econ_changed.connect(player_ui.econ_changed)
+
 
 	player_controller.attack_action_req.connect(self.fwd_attack_action_req)
 	player_controller.run_movement_ui.connect(player_ui.run_movement)

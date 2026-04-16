@@ -32,7 +32,9 @@ func free_children(parent: Node) -> void:
 
 
 func run_wallet_display():
-	print(player_wallet.get_resource_dict())
+	update_display()
+
+func update_display():
 	free_children(vbox)
 	for game_resource in player_wallet.get_resource_dict().keys():
 		# Make new RTL
@@ -72,7 +74,10 @@ func bind_wallet(w: EconData):
 	player_wallet = w
 	run_wallet_display()
 
+func econ_changed():
+	update_display()
 
+	
 ## Get/Set (er)s
 
 ### Connected Signals

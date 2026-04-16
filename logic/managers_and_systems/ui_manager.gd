@@ -253,3 +253,7 @@ func fwd_close_market():
 		var new_action = Action.new()
 		new_action.set_type(Action.RequestType.PROGRESS_TURN)
 		next_phase_req.emit(new_action)
+
+
+func econ_changed():
+	wallet_panel.econ_changed()

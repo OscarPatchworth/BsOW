@@ -2,6 +2,7 @@
 class_name EconData
 extends Resource
 
+signal econ_changed()
 
 @export var gold: int = 0
 @export var food: int = 0
@@ -33,12 +34,13 @@ func cost_less_than(ec: EconData) -> bool:
 func rmv_resource(cost: EconData):
 	for key in keys:
 		self.set(key, self.get(key) - cost.get(key))
-	print(get_resource_dict())
+	econ_changed.emit()
 
 # Func coded by chatGPT
 func set_resource_value(key: String, value: int) -> void:
 	if key in ["gold", "food", "mineral", "wood", "stone"]:
 		self.set(key, value)  # modifies the exported property directly
+		econ_changed.emit()
 func get_resource_value(key: String) -> int:
 	if key in ["gold", "food", "mineral", "wood", "stone"]:
 		return self.get(key)
