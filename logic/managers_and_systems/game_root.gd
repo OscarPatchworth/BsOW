@@ -73,7 +73,6 @@ func init_turn_manager():
 	combat_manager.combat_started.connect(turn_manager.combat_started)
 	action_manager.progress_turn.connect(turn_manager.progress_turn)
 	self.root_setup_finished.connect(turn_manager.self_init)
-	lander_manager.completed_upkeep.connect(turn_manager.progress_admin_phase)
 
 # Init combat manager
 func init_combat_manager():

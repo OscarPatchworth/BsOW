@@ -132,4 +132,4 @@ func run_upkeep(who: Actor):
 	var ply_wallet = who.get_wallet()
 	for lander in get_landers_actor_has(who):
 		ply_wallet.add_resource(lander.get_upkeep_econ())
-	completed_upkeep.emit(0) # Zero == Upkeep
+	completed_upkeep.emit()

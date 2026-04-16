@@ -54,7 +54,7 @@ const SEASON_COLORS := {
 
 # remaining regular variables
 var game_state: Gamesequence = Gamesequence.GAME_LOOP
-var game_phase: GameLoop = GameLoop.DUSTCLOUD_COLLASPE_PHASE # Skip the 1st upkeep
+var game_phase: GameLoop = GameLoop.UPKEEP
 var combat_phase: CombatLoop = CombatLoop.MOVE_UNITS 
 var turn_order: Array[Actor]
 var active_actor: Actor
@@ -63,7 +63,7 @@ var game_seasons: Array[Season]
 var cur_season: Season
 var cur_season_ind: int
 
-var admin_game_phases := [GameLoop.UPKEEP, GameLoop.DUSTCLOUD_COLLASPE_PHASE, GameLoop.CLEANUP]
+var admin_game_phases := [GameLoop.UPKEEP, GameLoop.CLEANUP]
 
 # @onready variables
 
@@ -87,6 +87,7 @@ func bind_actor_to_actor_group(a: Actor):
 func self_init():
 	init_turn_order()
 	init_season()
+	progress_turn()
 
 
 func init_turn_order():
@@ -120,10 +121,8 @@ func progress_turn():
 	else:
 		game_phase = GameLoop.values()[game_phase + 1]
 	game_phased_changed.emit(game_phase)
-
-
-func progress_admin_phase(p: GameLoop):
-	if p in admin_game_phases and game_phase == p:
+	# After progressin turn, check in admin_phase. If so, the auto run it.
+	if game_phase in admin_game_phases:
 		progress_turn()
 
 
