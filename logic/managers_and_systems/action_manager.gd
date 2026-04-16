@@ -129,8 +129,18 @@ func handle_buy(req: Action):
 	if req.get_purchasable() is BuildingData:
 		print("Action Manager | Debug | handle_buy: Is BuildingData")
 		# Is Valid cecks
+		# Can Pay
+		var ply_wallet: EconData = req.actor.get_wallet()
+		if not req.purchasable.get_cost().cost_less_than(ply_wallet):
+			print("Action Mananger | Rules Check | Actor can not affor Building")
+			return
+		# Lander doesn't already have buildin ?
+		if req.selected_lander.get_building() != null:
+			print("Action Mananger | Rules Check | Lander already has building")
+			return
 
 		# Apply Costs
+		ply_wallet.rmv_resource(req.purchasable.get_cost())
 
 		# Generate Building
 		req.selected_lander.build_action(req)
@@ -138,8 +148,13 @@ func handle_buy(req: Action):
 	elif req.get_purchasable() is UnitData:
 		print("Action Manager | Debug | handle_buy: Is UnitData")
 		# Is Valid cecks
-
+		var ply_wallet: EconData = req.actor.get_wallet()
+		if not req.purchasable.get_cost().cost_less_than(ply_wallet):
+			print("Action Mananger | Rules Check | Actor can not affor unit")
+			return
+		
 		# Apply Costs
+		ply_wallet.rmv_resource(req.purchasable.get_cost())
 
 		# Generate unit
 		req.selected_lander.buy_unit_action(req)

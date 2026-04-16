@@ -9,6 +9,7 @@ extends Resource
 @export var wood: int = 0
 @export var stone: int = 0
 
+var keys = ["gold","food","mineral","wood","stone"]
 
 ###################################################################################################
 ###	Methods
@@ -21,6 +22,18 @@ func get_resource_dict() -> Dictionary:
 		"stone": stone,
 	}
 
+
+func cost_less_than(ec: EconData) -> bool:
+	for key in keys:
+		if self.get(key) > ec.get(key):
+			return false
+	return true
+
+
+func rmv_resource(cost: EconData):
+	for key in keys:
+		self.set(key, self.get(key) - cost.get(key))
+	print(get_resource_dict())
 
 # Func coded by chatGPT
 func set_resource_value(key: String, value: int) -> void:

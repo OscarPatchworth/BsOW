@@ -52,3 +52,6 @@ func get_species() -> SpeciesData:
 	return species
 func set_species(s: SpeciesData):
 	species = s
+
+func get_wallet() -> EconData:
+	return wallet
