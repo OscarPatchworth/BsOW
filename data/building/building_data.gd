@@ -3,7 +3,7 @@ extends Resource
 class_name BuildingData  
 
 @export var name: String
-#@export var cost: EconData 
+@export var cost: EconData 
 @export var build_mesh: PackedScene
 @export var build_icon: CompressedTexture2D
 @export var unique_build = false
@@ -56,6 +56,10 @@ func get_can_upgrade() -> bool:
 func get_upgrades() -> Array:
 	return upgrades
 
+# Cost
+func get_cost() -> EconData:
+	return cost
+
 # All
 func get_building_dict() -> Dictionary:
 	var all = {
@@ -68,6 +72,7 @@ func get_building_dict() -> Dictionary:
 		"can_spawn" : can_spawn,
 		"spawn_types" : spawn_type,
 		"can_upgrade" : can_upgrade,
-		"upgrades" : upgrades
+		"upgrades" : upgrades,
+		"cost" : cost,
 	}
 	return all

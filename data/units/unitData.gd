@@ -15,7 +15,7 @@ enum UnitType {
 @export var name: String
 @export var mesh: PackedScene
 @export var icon: Texture2D
-#@export var cost: EnconData
+@export var cost: EconData
 @export var type: UnitType = UnitType.NULL
 @export var dmg: DamageData
 @export var can_build := false
@@ -84,6 +84,11 @@ func add_buildable(b: BuildingData):
 func rmv_buildable(b: BuildingData):
 	if b in buildables:
 		buildables.erase(b)
+
+
+func get_cost() -> EconData:
+	if cost != null: return cost
+	else: return base.get_cost()
 
 
 func get_base() -> UnitData:
