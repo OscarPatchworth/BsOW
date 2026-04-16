@@ -62,6 +62,8 @@ func init_lander_manager():
 	# Connect Signals
 	action_manager.build_action.connect(lander_manager.build_action)
 	action_manager.buy_unit_action.connect(lander_manager.buy_unit_action)
+	turn_manager.game_phased_changed.connect(func(phase): 
+		if phase == turn_manager.GameLoop.UPKEEP: lander_manager.run_upkeep(turn_manager.get_active_actor()))
 
 
 ## Init turn manager
@@ -71,6 +73,7 @@ func init_turn_manager():
 	combat_manager.combat_started.connect(turn_manager.combat_started)
 	action_manager.progress_turn.connect(turn_manager.progress_turn)
 	self.root_setup_finished.connect(turn_manager.self_init)
+	lander_manager.completed_upkeep.connect(turn_manager.progress_admin_phase)
 
 # Init combat manager
 func init_combat_manager():

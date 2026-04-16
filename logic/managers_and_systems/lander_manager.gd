@@ -4,6 +4,7 @@ extends GameManager
 signal built_action_completed(req: Action)
 signal buy_unit_action_completed(req: Action)
 signal move_units_action_completed(req: Action)
+signal completed_upkeep()
 
 # enums
 
@@ -125,3 +126,10 @@ func move_units_action(req: Action):
 	req.target_lander.add_units(req.selected_units)
 	# Emit confirmation
 	move_units_action_completed.emit(req)
+
+
+func run_upkeep(who: Actor):
+	var ply_wallet = who.get_wallet()
+	for lander in get_landers_actor_has(who):
+		ply_wallet.add_resource(lander.get_upkeep_econ())
+	completed_upkeep.emit(0) # Zero == Upkeep

@@ -121,6 +121,9 @@ func handle_progress_turn(req: Action):
 	#if req.actor != turn_manager.get_active_player():
 		#print("Turn Manager | Err |")
 	#else:
+	if turn_manager.get_game_phase() in turn_manager.get_admin_phases():
+		print("Action Manager | Rules Check | Actor atempting to progress admin phase")
+		return
 	progress_turn.emit()
 
 

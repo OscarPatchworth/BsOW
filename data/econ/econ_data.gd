@@ -35,6 +35,10 @@ func rmv_resource(cost: EconData):
 	for key in keys:
 		self.set(key, self.get(key) - cost.get(key))
 	econ_changed.emit()
+func add_resource(ec: EconData):
+	for key in keys:
+		self.set(key, self.get(key) + ec.get(key))
+	econ_changed.emit()
 
 # Func coded by chatGPT
 func set_resource_value(key: String, value: int) -> void:

@@ -54,7 +54,7 @@ const SEASON_COLORS := {
 
 # remaining regular variables
 var game_state: Gamesequence = Gamesequence.GAME_LOOP
-var game_phase: GameLoop = GameLoop.UPKEEP
+var game_phase: GameLoop = GameLoop.DUSTCLOUD_COLLASPE_PHASE # Skip the 1st upkeep
 var combat_phase: CombatLoop = CombatLoop.MOVE_UNITS 
 var turn_order: Array[Actor]
 var active_actor: Actor
@@ -62,6 +62,8 @@ var turn_number: int = 1
 var game_seasons: Array[Season]
 var cur_season: Season
 var cur_season_ind: int
+
+var admin_game_phases := [GameLoop.UPKEEP, GameLoop.DUSTCLOUD_COLLASPE_PHASE, GameLoop.CLEANUP]
 
 # @onready variables
 
@@ -113,11 +115,16 @@ func combat_started(contest: Contest):
 
 func progress_turn():
 	if game_phase >= (GameLoop.size() -1 ):
-		game_phase = GameLoop.values()[0]
+		game_phase = GameLoop.values()[0] # Set turn to Upkeep
 		progress_turn_order()
 	else:
 		game_phase = GameLoop.values()[game_phase + 1]
 	game_phased_changed.emit(game_phase)
+
+
+func progress_admin_phase(p: GameLoop):
+	if p in admin_game_phases and game_phase == p:
+		progress_turn()
 
 
 func progress_turn_order():
@@ -195,6 +202,10 @@ func get_season(sea: String) -> Variant:
 
 func get_active_actor() -> Actor:
 	return active_actor
+
+
+func get_admin_phases() -> Array:
+	return admin_game_phases
 
 
 func get_turn_dict() -> Dictionary:

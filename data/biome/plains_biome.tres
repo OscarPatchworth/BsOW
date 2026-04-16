@@ -1,10 +1,19 @@
-[gd_resource type="Resource" script_class="BiomeData" load_steps=4 format=3 uid="uid://djyants1sgts1"]
+[gd_resource type="Resource" script_class="BiomeData" load_steps=6 format=3 uid="uid://djyants1sgts1"]
 
 [ext_resource type="Texture2D" uid="uid://co0nyanmr3u5t" path="res://visuals/textures/poker_dot_Icons/poker_yellow_icon.png" id="1_5cvlk"]
 [ext_resource type="Script" path="res://data/biome/biome_data.gd" id="2_pboum"]
+[ext_resource type="Script" path="res://data/econ/econ_data.gd" id="3_xxr4u"]
 
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_0cy03"]
 albedo_color = Color(0.669238, 0.628006, 0.332019, 1)
+
+[sub_resource type="Resource" id="Resource_uy21h"]
+script = ExtResource("3_xxr4u")
+gold = 0
+food = 1
+mineral = 0
+wood = 0
+stone = 0
 
 [resource]
 resource_name = "Plains"
@@ -12,3 +21,4 @@ script = ExtResource("2_pboum")
 name = "Plains"
 mesh_material = SubResource("StandardMaterial3D_0cy03")
 poker_icon = ExtResource("1_5cvlk")
+upkeep_econ = SubResource("Resource_uy21h")

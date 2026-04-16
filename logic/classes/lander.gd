@@ -165,3 +165,7 @@ func buy_unit_action(req: Action):
 	self.has_units = true
 	buy_unit_action_completed.emit(req)
 	update_unit_visuals()
+
+
+func get_upkeep_econ():
+	return biome_data.get_upkeep_econ()

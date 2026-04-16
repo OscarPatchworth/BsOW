@@ -1,10 +1,19 @@
-[gd_resource type="Resource" script_class="BiomeData" load_steps=4 format=3 uid="uid://d04jxtc7utmqq"]
+[gd_resource type="Resource" script_class="BiomeData" load_steps=6 format=3 uid="uid://d04jxtc7utmqq"]
 
 [ext_resource type="Texture2D" uid="uid://colyy3h8wgjuy" path="res://visuals/textures/poker_dot_Icons/poker_green_icon.png" id="1_87hpa"]
 [ext_resource type="Script" path="res://data/biome/biome_data.gd" id="2_fjgpp"]
+[ext_resource type="Script" path="res://data/econ/econ_data.gd" id="3_mnxuq"]
 
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_yy1fi"]
 albedo_color = Color(0.370833, 0.5, 0.25, 1)
+
+[sub_resource type="Resource" id="Resource_3cc8x"]
+script = ExtResource("3_mnxuq")
+gold = 0
+food = 0
+mineral = 0
+wood = 1
+stone = 0
 
 [resource]
 resource_name = "Forest"
@@ -12,3 +21,4 @@ script = ExtResource("2_fjgpp")
 name = "Forest"
 mesh_material = SubResource("StandardMaterial3D_yy1fi")
 poker_icon = ExtResource("1_87hpa")
+upkeep_econ = SubResource("Resource_3cc8x")
