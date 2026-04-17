@@ -56,6 +56,28 @@ func square(pos: Vector3, size: Vector2, color = Color.WHITE_SMOKE, persist_ms =
 
 	return await final_cleanup(mesh_instance, persist_ms)
 
+
+func circle(pos: Vector3, radi: float, color = Color.WHITE_SMOKE, persist_ms = 0):
+	var mesh_instance := MeshInstance3D.new()
+	var circle_mesh := CylinderMesh.new()
+	var material := ORMMaterial3D.new()
+
+	mesh_instance.mesh = circle_mesh
+	mesh_instance.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+	mesh_instance.position = pos
+
+	#circle_mesh.size = Vector3(size.x, size.y, 1)
+	circle_mesh.top_radius = radi
+	circle_mesh.bottom_radius = radi
+	circle_mesh.height = 1.5
+	circle_mesh.material = material
+
+	material.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
+	material.albedo_color = color
+
+	return await final_cleanup(mesh_instance, persist_ms)
+
+
 ## 1 -> Lasts ONLY for current physics frame
 ## >1 -> Lasts X time duration.
 ## <1 -> Stays indefinitely

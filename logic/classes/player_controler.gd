@@ -57,6 +57,8 @@ var i_movement_ldown: bool = false
 # Process state controls
 var p_movement_timer: float = 0
 var p_movement_update_rate: float = 1.0/30.0 #update = 30FPS
+var p_dc_timer: float = 0
+var p_dc_update_rate: float = 1.0/60.0 #update = 60FPS
 
 ## State controls
 # Movement
@@ -64,6 +66,8 @@ var m_start_lander: Lander
 var m_end_lander: Lander
 var _mouse_line
 var m_connected_landers: Array[Lander]
+# Dusctcloud Collaspe
+var _dc_mouse_lander
 
 
 ### @onready variables
@@ -88,6 +92,8 @@ func _process(delta: float) -> void:
 	match player_state:
 		PlayerState.IDLE:
 			process_state_idle(delta)
+		PlayerState.COLLASPING_DUSTCLOUD:
+			process_state_dustcloud_collaspe(delta)
 		PlayerState.MOVEMENT:
 			process_state_movement(delta)
 		_:
@@ -158,6 +164,32 @@ func input_state_movement(event):
 ### Process States
 func process_state_idle(delta: float) -> void:
 	pass
+
+
+func process_state_dustcloud_collaspe(delta: float):
+	p_dc_timer += delta
+	if p_dc_timer >= p_dc_update_rate:
+		p_dc_timer = 0
+		
+		var world_raycast_hit = raycat_to_layer(WORLD_SURFACE_LAYER)
+		if world_raycast_hit and world_raycast_hit.has("position"):
+			var mouse_pos = world_raycast_hit["position"]
+			# If mouse_pos overlapping lander: Red
+			if lander_manager.is_pos_min_distance_apart(mouse_pos) == false:
+				# make red
+				_dc_mouse_lander = await draw_3d.circle(mouse_pos, lander_manager.LANDER_RADIUS,
+				Color.RED, p_dc_update_rate)
+				pass
+			# If mouse_pos next to lander: Purple
+			elif lander_manager.is_pos_lander_adjacent(mouse_pos):
+				# make purple
+				_dc_mouse_lander = await draw_3d.circle(mouse_pos, lander_manager.LANDER_RADIUS,
+				Color.REBECCA_PURPLE, p_dc_update_rate)
+			# If not overlapping or next to a lander: Green
+			else:
+				# make green
+				_dc_mouse_lander = await draw_3d.circle(mouse_pos, lander_manager.LANDER_RADIUS,
+				Color.WEB_GREEN, p_dc_update_rate)
 
 
 func process_state_movement(delta: float) -> void:

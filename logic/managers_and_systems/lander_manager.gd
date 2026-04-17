@@ -75,6 +75,12 @@ func is_pos_min_distance_apart(pos: Vector3) -> bool:
 			return false
 	return true
 
+func is_pos_lander_adjacent(pos: Vector3) -> bool:
+	for lander in landers:
+		if (pos.distance_squared_to(lander.position) < connected_distance_sq):
+			return true
+	return false
+
 
 func get_connected_landers(target_lander: Lander) -> Array[Lander]:
 	var connected_landers: Array[Lander] = []
