@@ -1,4 +1,4 @@
-[gd_scene load_steps=73 format=3 uid="uid://cmnn2jtgwr4dw"]
+[gd_scene load_steps=76 format=3 uid="uid://cmnn2jtgwr4dw"]
 
 [ext_resource type="Script" path="res://logic/classes/player.gd" id="1_tftws"]
 [ext_resource type="Script" path="res://logic/classes/player_controler.gd" id="2_pm403"]
@@ -31,6 +31,9 @@
 [ext_resource type="Script" path="res://view/movement_panel/movement_panel.gd" id="28_fj3f5"]
 [ext_resource type="Script" path="res://view/purchase_ui/purchase_panel.gd" id="30_55tok"]
 [ext_resource type="PackedScene" uid="uid://2phj8lcdgtq6" path="res://sences/templates/list_box/VListBox/VListBox.tscn" id="30_h2p8k"]
+[ext_resource type="PackedScene" uid="uid://cpp2t3np2iv2f" path="res://sences/templates/list_box/HListBox/HListBox.tscn" id="32_85cnl"]
+[ext_resource type="Script" path="res://view/setup_panel/setup_panel.gd" id="32_nolq2"]
+[ext_resource type="Texture2D" uid="uid://cabd03uvto1pg" path="res://visuals/textures/poker_dot_Icons/poker_red_icon.png" id="33_517gy"]
 
 [sub_resource type="GDScript" id="GDScript_ks4yd"]
 script/source = "extends Camera3D
@@ -927,6 +930,7 @@ text = "Move"
 script = ExtResource("24_1p1b5")
 
 [node name="PurchasePanel" type="Panel" parent="CanvasLayer/UI-manager"]
+visible = false
 layout_mode = 1
 anchors_preset = -1
 anchor_left = 0.2
@@ -971,7 +975,6 @@ text = "Finish Market"
 script = ExtResource("24_1p1b5")
 
 [node name="SetupPanel" type="Panel" parent="CanvasLayer/UI-manager"]
-visible = false
 layout_mode = 1
 anchors_preset = -1
 anchor_top = 0.7
@@ -979,9 +982,42 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 0
+script = ExtResource("32_nolq2")
+
+[node name="HListBox" parent="CanvasLayer/UI-manager/SetupPanel" instance=ExtResource("32_85cnl")]
+layout_mode = 1
+anchors_preset = -1
+offset_left = 50.0
+offset_top = 50.0
+offset_right = -50.0
+offset_bottom = -50.0
+
+[node name="Container" parent="CanvasLayer/UI-manager/SetupPanel/HListBox" index="0"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_right = 0.0
+offset_bottom = 0.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/separation = 25
+
+[node name="TemplateButton" parent="CanvasLayer/UI-manager/SetupPanel/HListBox/Container" index="0"]
+size_flags_horizontal = 3
+text = ""
+icon = ExtResource("33_517gy")
+icon_alignment = 1
+expand_icon = true
+
+[node name="TemplateButton2" type="Button" parent="CanvasLayer/UI-manager/SetupPanel/HListBox/Container" index="1"]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "Sample Text"
 
 [editable path="CanvasLayer/UI-manager/CombatPanel/SelfUnitsPanel/ComabtSelectedUnitsDisplay"]
 [editable path="CanvasLayer/UI-manager/MovementPanel/FromPanel/VListBox"]
 [editable path="CanvasLayer/UI-manager/MovementPanel/ToPanel/VListBox"]
 [editable path="CanvasLayer/UI-manager/PurchasePanel/LandersListBox"]
 [editable path="CanvasLayer/UI-manager/PurchasePanel/MarketListBox"]
+[editable path="CanvasLayer/UI-manager/SetupPanel/HListBox"]

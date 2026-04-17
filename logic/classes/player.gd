@@ -28,6 +28,7 @@ signal close_market()
 
 # static variables
 var draw_3d: Draw3D
+var match_settings
 
 # @export variables
 
@@ -63,6 +64,7 @@ func connect_wires():
 	wire_self()
 	wire_wallet()
 	wire_draw_3d()
+	wire_match_settings()
 
 
 func wire_selector_manager():
@@ -101,6 +103,10 @@ func wire_wallet():
 
 func wire_draw_3d():
 	player_controller.draw_3d = draw_3d
+
+
+func wire_match_settings():
+	player_ui.bind_match_settings(match_settings)
 
 ### Connected Signals
 func connect_signals():
@@ -255,3 +261,7 @@ func fwd_purchase_action_req(req: Action):
 
 func fwd_close_market():
 	close_market.emit()
+
+
+func get_starting_biomes() -> Array:
+	return species.starting_landers

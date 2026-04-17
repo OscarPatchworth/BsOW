@@ -159,6 +159,7 @@ func init_player(player_x: Player):
 	player_x.lander_manager = self.lander_manager
 	player_x.combat_manager = self.combat_manager
 	player_x.draw_3d = self.draw_3d
+	player_x.match_settings = self.match_settings
 
 	# Connect Signals
 	# FROM self_player

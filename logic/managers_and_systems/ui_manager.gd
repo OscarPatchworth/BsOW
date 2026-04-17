@@ -20,6 +20,7 @@ signal purchase_action_req(req)
 
 # static variables
 var turn_manager: GameManager
+var match_settings
 
 # @export variables
 
@@ -38,6 +39,7 @@ var player_self: Player
 @onready var movement_panel: Panel = self.find_child("MovementPanel")
 @onready var purchase_panel: Panel = self.find_child("PurchasePanel")
 @onready var wallet_panel: Panel = self.find_child("WalletPanel")
+@onready var setup_panel: Panel = self.find_child("SetupPanel")
 
 ###################################################################################################
 ###	Methods
@@ -117,6 +119,15 @@ func bind_player(p: Player):
 
 func bind_wallet(w: EconData):
 	wallet_panel.bind_wallet(w)
+
+
+func bind_match_settings(ms):
+	match_settings = ms
+	for child in get_children():
+		if child.has_method("bind_match_settings"):
+			child.bind_match_settings(ms)
+
+
 
 func display_landers_req(lander: Lander):
 	lander_panel.show()
