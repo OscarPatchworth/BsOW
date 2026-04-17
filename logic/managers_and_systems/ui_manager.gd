@@ -257,3 +257,9 @@ func fwd_close_market():
 
 func econ_changed():
 	wallet_panel.econ_changed()
+
+
+func game_state_changed(game_state):
+	for child in self.get_children():
+		if child.has_method("game_state_changed"):
+			child.game_state_changed(game_state)

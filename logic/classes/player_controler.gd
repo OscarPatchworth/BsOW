@@ -15,6 +15,7 @@ enum PlayerState {
 	MOVEMENT,
 	COMBAT,
 	DEAD,
+	SETUP,
 }
 
 
@@ -50,6 +51,9 @@ var mouse_ray_end
 # Player state controls
 var is_active_player: bool = false
 var player_state:PlayerState = PlayerState.IDLE
+var is_in_setup: bool = false:
+	set(value):
+		if(value): player_state = PlayerState.SETUP
 
 # Input state controls
 var i_movement_ldown: bool = false
@@ -298,6 +302,7 @@ func actor_turn_changed(active_actor: Actor):
 	is_active_player = true if active_actor == self_player else false
 	print("Player | Update | Active self_player changed to: " + active_actor.name)
 
+
 func game_phase_changed(game_phase):
 	if not is_active_player:
 		player_state = PlayerState.IDLE
@@ -315,6 +320,18 @@ func game_phase_changed(game_phase):
 			turn_manager.GameLoop.CLEANUP:
 				player_state = PlayerState.IDLE
 	#print("Player | Update | Player state changed to: " + str(PlayerState.keys()[player_state]))
+
+
+func game_state_changed(game_state):
+	if not is_active_player:
+		player_state = PlayerState.IDLE
+		return
+	else:
+		if game_state == turn_manager.GameSequence.SETUP:
+			is_in_setup = true
+			print("Player Controller | Debug | Entering Game Setup")
+			return
+		else: is_in_setup = false
 
 
 ### Action templates

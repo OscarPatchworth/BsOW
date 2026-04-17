@@ -9,12 +9,13 @@ signal turn_order_generated
 signal actor_turn_changed(active: Actor)
 signal season_order_generated
 signal season_changed(sea_indx: int)
+signal current_game_state(state: GameSequence)
 
 # enums
-enum Gamesequence {
+enum GameSequence {
 	SETUP,
 	GAME_LOOP,
-	CLEANUP
+	END
 }
 
 enum GameLoop {
@@ -53,7 +54,7 @@ const SEASON_COLORS := {
 # @export variables
 
 # remaining regular variables
-var game_state: Gamesequence = Gamesequence.GAME_LOOP
+var game_state: GameSequence = GameSequence.SETUP
 var game_phase: GameLoop = GameLoop.UPKEEP
 var combat_phase: CombatLoop = CombatLoop.MOVE_UNITS 
 var turn_order: Array[Actor]
@@ -88,7 +89,7 @@ func bind_actor_to_actor_group(a: Actor):
 func self_init():
 	init_turn_order()
 	init_season()
-	progress_turn()
+	current_game_state.emit(game_state)
 
 
 func init_turn_order():
@@ -158,11 +159,11 @@ func progress_season():
 
 
 ## Get/Set (er)s
-func get_game_state() -> Gamesequence:
+func get_game_state() -> GameSequence:
 	return game_state
-func set_game_state(state: Gamesequence):
+func set_game_state(state: GameSequence):
 	self.game_state = state
-	game_phased_changed.emit(game_phase)
+	current_game_state.emit(game_state)
 
 
 func get_game_phase() -> GameLoop:

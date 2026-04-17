@@ -220,6 +220,10 @@ func game_phase_changed(game_phase):
 	player_controller.game_phase_changed(game_phase)
 	player_ui.game_phase_changed(game_phase)
 
+func game_state_changed(game_state):
+	player_controller.game_state_changed(game_state)
+	player_ui.game_state_changed(game_state)
+
 
 func setup_turn_order():
 	player_ui.setup_turn_order_display()

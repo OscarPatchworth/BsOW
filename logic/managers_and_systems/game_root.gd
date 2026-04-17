@@ -191,6 +191,7 @@ func init_player(player_x: Player):
 	turn_manager.actor_turn_changed.connect(player_x.actor_turn_changed)
 	turn_manager.season_order_generated.connect(player_x.seasons_generated)
 	turn_manager.season_changed.connect(player_x.season_changed)
+	turn_manager.current_game_state.connect(player_x.game_state_changed)
 
 
 	player_x.species = game_species.pick_random()
