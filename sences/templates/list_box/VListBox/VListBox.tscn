@@ -1,8 +1,8 @@
-[gd_scene load_steps=2 format=3 uid="uid://bmt2tq4wjcibr"]
+[gd_scene load_steps=2 format=3 uid="uid://2phj8lcdgtq6"]
 
 [ext_resource type="Script" path="res://sences/templates/list_box/list_box.gd" id="1_higar"]
 
-[node name="ListBox" type="Control"]
+[node name="VListBox" type="Control"]
 layout_mode = 3
 anchors_preset = 15
 anchor_right = 1.0

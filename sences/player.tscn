@@ -1,4 +1,4 @@
-[gd_scene load_steps=74 format=3 uid="uid://cmnn2jtgwr4dw"]
+[gd_scene load_steps=73 format=3 uid="uid://cmnn2jtgwr4dw"]
 
 [ext_resource type="Script" path="res://logic/classes/player.gd" id="1_tftws"]
 [ext_resource type="Script" path="res://logic/classes/player_controler.gd" id="2_pm403"]
@@ -27,10 +27,10 @@
 [ext_resource type="Script" path="res://view/game_button.gd" id="24_1p1b5"]
 [ext_resource type="Script" path="res://sences/item_list.gd" id="24_utqdd"]
 [ext_resource type="Script" path="res://view/players_panel/players_panel.gd" id="25_7higi"]
-[ext_resource type="PackedScene" uid="uid://bmt2tq4wjcibr" path="res://sences/templates/list_box/ListBox.tscn" id="28_5ybm0"]
 [ext_resource type="Script" path="res://view/wallet_ui/wallet_panel.gd" id="28_dfmpb"]
 [ext_resource type="Script" path="res://view/movement_panel/movement_panel.gd" id="28_fj3f5"]
 [ext_resource type="Script" path="res://view/purchase_ui/purchase_panel.gd" id="30_55tok"]
+[ext_resource type="PackedScene" uid="uid://2phj8lcdgtq6" path="res://sences/templates/list_box/VListBox/VListBox.tscn" id="30_h2p8k"]
 
 [sub_resource type="GDScript" id="GDScript_ks4yd"]
 script/source = "extends Camera3D
@@ -151,8 +151,6 @@ ItemList/colors/font_hovered_color = Color(0.65098, 0.65098, 0.65098, 1)
 ItemList/styles/hovered = SubResource("StyleBoxEmpty_3ea1q")
 ItemList/styles/selected = SubResource("StyleBoxFlat_38g4l")
 ItemList/styles/selected_focus = SubResource("StyleBoxFlat_pim0p")
-
-[sub_resource type="Theme" id="Theme_64s43"]
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_mul0j"]
 bg_color = Color(0.6, 0.3912, 0.252, 1)
@@ -615,6 +613,7 @@ text = "O"
 script = ExtResource("24_1p1b5")
 
 [node name="SeasonPanel" type="Panel" parent="CanvasLayer/UI-manager"]
+visible = false
 layout_mode = 1
 anchors_preset = -1
 anchor_left = 0.1
@@ -669,6 +668,7 @@ horizontal_alignment = 1
 vertical_alignment = 1
 
 [node name="TurnPanel" type="Panel" parent="CanvasLayer/UI-manager"]
+visible = false
 layout_mode = 1
 anchors_preset = -1
 anchor_left = 0.15
@@ -705,6 +705,7 @@ text = "Next"
 script = ExtResource("24_1p1b5")
 
 [node name="PlayersPanel" type="Panel" parent="CanvasLayer/UI-manager"]
+visible = false
 layout_mode = 1
 anchors_preset = -1
 anchor_left = 0.75
@@ -751,6 +752,7 @@ item_2/disabled = true
 script = ExtResource("24_utqdd")
 
 [node name="WalletPanel" type="Panel" parent="CanvasLayer/UI-manager"]
+visible = false
 layout_mode = 1
 anchors_preset = -1
 anchor_top = 0.1
@@ -818,17 +820,6 @@ offset_top = 5.0
 grow_horizontal = 2
 text = "Biome 1"
 
-[node name="ListBox" parent="CanvasLayer/UI-manager/MovementPanel/FromPanel" instance=ExtResource("28_5ybm0")]
-layout_mode = 1
-anchors_preset = -1
-anchor_top = 0.1
-anchor_bottom = 0.75
-theme = SubResource("Theme_64s43")
-
-[node name="TemplateButton" parent="CanvasLayer/UI-manager/MovementPanel/FromPanel/ListBox/Container" index="0"]
-theme = SubResource("Theme_vdaqx")
-toggle_mode = true
-
 [node name="RichTextLabel" type="RichTextLabel" parent="CanvasLayer/UI-manager/MovementPanel/FromPanel"]
 layout_mode = 1
 anchors_preset = -1
@@ -839,6 +830,16 @@ grow_horizontal = 2
 grow_vertical = 0
 text = "{ Lander Details }"
 
+[node name="VListBox" parent="CanvasLayer/UI-manager/MovementPanel/FromPanel" instance=ExtResource("30_h2p8k")]
+layout_mode = 1
+anchors_preset = -1
+anchor_top = 0.1
+anchor_bottom = 0.75
+
+[node name="TemplateButton" parent="CanvasLayer/UI-manager/MovementPanel/FromPanel/VListBox/Container" index="0"]
+theme = SubResource("Theme_vdaqx")
+toggle_mode = true
+
 [node name="ToPanel" type="Panel" parent="CanvasLayer/UI-manager/MovementPanel"]
 layout_mode = 1
 anchors_preset = -1
@@ -846,14 +847,6 @@ anchor_left = 0.6
 anchor_top = 0.05
 anchor_right = 0.97
 anchor_bottom = 0.9
-
-[node name="ListBox" parent="CanvasLayer/UI-manager/MovementPanel/ToPanel" instance=ExtResource("28_5ybm0")]
-layout_mode = 1
-anchors_preset = -1
-anchor_top = 0.1
-anchor_bottom = 0.75
-grow_horizontal = 1
-grow_vertical = 1
 
 [node name="Label" type="Label" parent="CanvasLayer/UI-manager/MovementPanel/ToPanel"]
 layout_mode = 1
@@ -874,6 +867,16 @@ anchor_bottom = 0.95
 grow_horizontal = 2
 grow_vertical = 0
 text = "{ Lander Details }"
+
+[node name="VListBox" parent="CanvasLayer/UI-manager/MovementPanel/ToPanel" instance=ExtResource("30_h2p8k")]
+layout_mode = 1
+anchors_preset = -1
+anchor_top = 0.1
+anchor_bottom = 0.75
+
+[node name="TemplateButton" parent="CanvasLayer/UI-manager/MovementPanel/ToPanel/VListBox/Container" index="0"]
+theme = SubResource("Theme_vdaqx")
+toggle_mode = true
 
 [node name="ArrowRTL" type="RichTextLabel" parent="CanvasLayer/UI-manager/MovementPanel"]
 layout_mode = 1
@@ -936,7 +939,7 @@ grow_horizontal = 2
 grow_vertical = 2
 script = ExtResource("30_55tok")
 
-[node name="LandersListBox" parent="CanvasLayer/UI-manager/PurchasePanel" instance=ExtResource("28_5ybm0")]
+[node name="LandersListBox" parent="CanvasLayer/UI-manager/PurchasePanel" instance=ExtResource("30_h2p8k")]
 layout_mode = 1
 anchors_preset = -1
 anchor_left = 0.05
@@ -944,7 +947,7 @@ anchor_top = 0.1
 anchor_right = 0.4
 anchor_bottom = 0.9
 
-[node name="MarketListBox" parent="CanvasLayer/UI-manager/PurchasePanel" instance=ExtResource("28_5ybm0")]
+[node name="MarketListBox" parent="CanvasLayer/UI-manager/PurchasePanel" instance=ExtResource("30_h2p8k")]
 layout_mode = 1
 anchors_preset = -1
 anchor_left = 0.6
@@ -967,8 +970,18 @@ theme = SubResource("Theme_lv10k")
 text = "Finish Market"
 script = ExtResource("24_1p1b5")
 
+[node name="SetupPanel" type="Panel" parent="CanvasLayer/UI-manager"]
+visible = false
+layout_mode = 1
+anchors_preset = -1
+anchor_top = 0.7
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 0
+
 [editable path="CanvasLayer/UI-manager/CombatPanel/SelfUnitsPanel/ComabtSelectedUnitsDisplay"]
-[editable path="CanvasLayer/UI-manager/MovementPanel/FromPanel/ListBox"]
-[editable path="CanvasLayer/UI-manager/MovementPanel/ToPanel/ListBox"]
+[editable path="CanvasLayer/UI-manager/MovementPanel/FromPanel/VListBox"]
+[editable path="CanvasLayer/UI-manager/MovementPanel/ToPanel/VListBox"]
 [editable path="CanvasLayer/UI-manager/PurchasePanel/LandersListBox"]
 [editable path="CanvasLayer/UI-manager/PurchasePanel/MarketListBox"]

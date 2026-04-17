@@ -11,7 +11,7 @@ signal list_btn_pressed(thing)
 # static variables
 
 # @export variables
-
+	
 # remaining regular variables
 var list_items: Array[Dictionary] # {object : Obj, text: ""}
 
@@ -19,7 +19,7 @@ var runtime_flow: Container
 
 # @onready variables
 @onready var template_btn: Button = self.find_child("TemplateButton")
-@onready var template_flow = self.find_child("Container")
+@onready var template_flow: Container = self.find_child("Container")
 
 ###################################################################################################
 ###	Methods
