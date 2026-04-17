@@ -68,6 +68,14 @@ func season_changed(sea_indx: int):
 		label.add_theme_stylebox_override("normal", new_sb)
 
 
+func game_state_changed(state):
+	if state == 0: #setup
+		self.hide()
+	elif state == 1: # Main game loop
+		self.show()
+	else: # Dead
+		pass
+
 ## Get/Set (er)s
 
 ### Connected Signals

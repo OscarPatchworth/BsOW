@@ -1,5 +1,5 @@
 #turn_panel.gd
-extends Node
+extends Panel
 
 # signals
 signal next_phase_req(req: Action)
@@ -89,6 +89,15 @@ func ready_signals():
 ## Calls
 func game_phase_changed(game_phase):
 	update_turn_panel()
+
+
+func game_state_changed(state):
+	if state == 0: #setup
+		self.hide()
+	elif state == 1: # Main game loop
+		self.show()
+	else: # Dead
+		pass
 
 ## Get/Set (er)s
 

@@ -77,6 +77,14 @@ func bind_wallet(w: EconData):
 func econ_changed():
 	update_display()
 
+
+func game_state_changed(state):
+	if state == 0: #setup
+		self.hide()
+	elif state == 1: # Main game loop
+		self.show()
+	else: # Dead
+		pass
 	
 ## Get/Set (er)s
 

@@ -12,6 +12,7 @@ var turn_manager: GameManager
 # @export variables
 
 # remaining regular variables
+var anchor_points := {}
 
 # @onready variables
 @onready var players_list: ItemList = self.find_child("ItemList")
@@ -56,6 +57,27 @@ func actor_turn_changed(active_actor: Actor):
 	players_list.queue_redraw()
 			
 
+func game_state_changed(state):
+	if state == 0: #setup
+		# Save current Anchors
+		anchor_points["top"] = self.anchor_top
+		anchor_points["bottom"] = self.anchor_bottom
+		anchor_points["left"] = self.anchor_left
+		anchor_points["right"] = self.anchor_right
+		
+		# Adjust Setup Anchors
+		anchor_top = 0.01
+		# Anchor Bottom = top + margin + height
+		anchor_bottom = 0.01 + (anchor_points["bottom"] - anchor_points["top"])
+		# Anchor Left = Far_right - margin - width
+		anchor_left = 1 - 0.005 - (anchor_points["right"] - anchor_points["left"])
+		anchor_right = 1 -0.005
+
+
+	elif state == 1: # Main game loop
+		self.show()
+	else: # Dead
+		pass
 
 ## Get/Set (er)s
 
