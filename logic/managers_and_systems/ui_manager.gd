@@ -13,6 +13,7 @@ signal next_phase_req(req: Action)
 signal move_action_req(req: Action)
 signal purchase_action_req(req)
 signal setup_biome_pressed(b: BiomeData)
+signal all_setup_landers_placed()
 
 # enums
 #enum Element {EARTH,WATER,AIR,FIRE,}
@@ -75,6 +76,7 @@ func connect_signals():
 	purchase_panel.close_market.connect(self.fwd_close_market)
 
 	setup_panel.setup_biome_pressed.connect(self.fwd_setup_biome_pressed)
+	setup_panel.all_setup_landers_placed.connect(self.fwd_all_setup_landers_placed)
 
 
 func connect_wires():
@@ -285,3 +287,7 @@ func fwd_setup_biome_pressed(b: BiomeData):
 
 func setup_biome_placed(req: Action):
 	setup_panel.setup_biome_placed(req)
+
+
+func fwd_all_setup_landers_placed():
+	all_setup_landers_placed.emit()

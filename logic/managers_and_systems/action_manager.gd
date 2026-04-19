@@ -36,8 +36,8 @@ func action_request(req: Action):
 			handle_attack(req)
 		Action.RequestType.BUY:
 			handle_buy(req)
-		Action.RequestType.BUY_BUILDING:
-			handle_buy_building(req)
+		Action.RequestType.PLACE_BUILDING:
+			handle_place_building(req)
 		Action.RequestType.BUY_UNIT:
 			handle_buy_unit(req)
 		Action.RequestType.PROGRESS_TURN:
@@ -59,7 +59,7 @@ func handle_place_lander(req: Action):
 		print("Invalid Place Lander Request")
 
 
-func handle_buy_building(req:Action):
+func handle_place_building(req:Action):
 	#print("Action recieved: " + str(req.get_action_dict()))
 	## Check if valid
 	if(req.target_lander.has_building):

@@ -7,6 +7,7 @@ signal view_lander_requested(target_lander)
 signal attack_action_req(action_req)
 signal run_movement_ui(from:Lander, to:Lander)
 signal place_biome_req(req: Action)
+signal place_command_tower(req: Action)
 
 # enums
 enum PlayerState {
@@ -75,6 +76,7 @@ var m_connected_landers: Array[Lander]
 var _dc_mouse_lander
 # Setup
 var s_select_biome: BiomeData
+var s_place_command_tower := false
 
 
 ### @onready variables
@@ -172,20 +174,34 @@ func input_state_movement(event):
 
 func input_state_setup(event):
 	if event.is_action_pressed("left_click"):
-		if s_select_biome == null:
-			print("Player Controller | Debug | No biome selected for Setup Input")
-			return
-		# Place setdup ln
-		var surface_ray = raycat_to_layer(WORLD_SURFACE_LAYER)
-		var lnd_ray = raycat_to_layer(LANDER_LAYER)
-		if surface_ray == {} or lnd_ray != {}:
-			print("Player Controler | Debug | Invalid lander placement in Setup Input")
+		if s_place_command_tower == false:
+			# Is at placing starting landers 
+			if s_select_biome == null:
+				print("Player Controller | Debug | No biome selected for Setup Input")
+				return
+			# Place setdup ln
+			var surface_ray = raycat_to_layer(WORLD_SURFACE_LAYER)
+			var lnd_ray = raycat_to_layer(LANDER_LAYER)
+			if surface_ray == {} or lnd_ray != {}:
+				print("Player Controler | Debug | Invalid lander placement in Setup Input")
+			else:
+				var new_req = Action.new()
+				new_req.type = Action.RequestType.PLACE_BIOME
+				new_req.position = surface_ray["position"]
+				new_req.biome_type = s_select_biome
+				place_biome_req.emit(new_req)
 		else:
-			var new_req = Action.new()
-			new_req.type = Action.RequestType.PLACE_BIOME
-			new_req.position = surface_ray["position"]
-			new_req.biome_type = s_select_biome
-			place_biome_req.emit(new_req)
+			# Is at placing Command Tower
+			var lnd_ray = raycat_to_layer(LANDER_LAYER)
+			if lnd_ray: # If hit
+				if lnd_ray["collider"].get_ownr() != null:
+					print("Player Controller | Debug | Commander Tower can not be placed on occupied lander")
+				else:
+					# Build Command Tower
+					var new_req = Action.new()
+					new_req.type = Action.RequestType.PLACE_BUILDING
+					new_req.target_lander = lnd_ray["collider"]
+					place_command_tower.emit(new_req)
 
 
 
@@ -391,3 +407,11 @@ func bind_selector(selector: GameManager):
 
 func bind_turn_manager(tm: GameManager):
 	turn_manager = tm
+
+
+func all_setup_landers_placed():
+	s_place_command_tower = true
+
+
+func command_tower_placed():
+	s_place_command_tower = false

@@ -20,7 +20,9 @@ signal purchase_action_req(req: Action)
 
 signal close_market()
 
-signal place_biome_req()
+signal place_biome_req(req: Action)
+
+signal place_command_tower(req: Action)
 
 # enums
 #enum Element {EARTH,WATER,AIR,FIRE,}
@@ -135,10 +137,13 @@ func connect_ui_signals():
 	player_ui.purchase_action_req.connect(self.fwd_purchase_action_req)
 	wallet.econ_changed.connect(player_ui.econ_changed)
 	player_ui.setup_biome_pressed.connect(player_controller.setup_biome_pressed)
+	player_ui.all_setup_landers_placed.connect(player_controller.all_setup_landers_placed)
 
 	player_controller.attack_action_req.connect(self.fwd_attack_action_req)
 	player_controller.run_movement_ui.connect(player_ui.run_movement)
 	player_controller.place_biome_req.connect(self.fwd_place_biome_req)
+	player_controller.place_command_tower.connect(self.fwd_place_command_tower)
+
 
 func fwd_build_req(build_req: Action):
 	build_req.actor = self
@@ -274,7 +279,18 @@ func fwd_place_biome_req(req: Action):
 	req.actor = self
 	place_biome_req.emit(req)
 
+
 func setup_biome_placed(req: Action):
 	print("Player | Debug | setup biome placed called")
 	player_controller.setup_biome_placed()
 	player_ui.setup_biome_placed(req)
+
+
+func fwd_place_command_tower(req: Action):
+	req.actor = self
+	req.building_type = self.species.command_tower
+	place_command_tower.emit(req)
+
+
+func command_tower_placed():
+	player_controller.command_tower_placed()

@@ -67,6 +67,8 @@ var cur_season_ind: int
 var admin_game_phases := [GameLoop.UPKEEP, GameLoop.CLEANUP]
 var non_skipable_phases := [GameLoop.DUSTCLOUD_COLLASPE_PHASE]
 
+var actors: Array
+
 # @onready variables
 
 ###################################################################################################
@@ -234,3 +236,9 @@ func int_to_game_phase(phase: int) -> String:
 			return name
 	return "UNKNOWN"
 ### Connected Signals
+
+func actor_finished_setup(a: Actor):
+	if game_state == GameSequence.SETUP:
+		await get_tree().process_frame
+		self.set_game_state(GameSequence.GAME_LOOP)
+		self.progress_turn()

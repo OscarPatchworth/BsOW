@@ -6,4 +6,5 @@ extends Resource
 @export var buildings: Array[BuildingData]
 @export var units: Array[UnitData]
 @export var starting_landers: Array[BiomeData]
+@export var command_tower: BuildingData
 ###################################################################################################

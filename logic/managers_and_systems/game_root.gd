@@ -69,10 +69,15 @@ func init_lander_manager():
 ## Init turn manager
 func init_turn_manager():
 	# Connect Binders
+	turn_manager.actors = actors_node.get_children()
 	# Connect Signals
 	combat_manager.combat_started.connect(turn_manager.combat_started)
 	action_manager.progress_turn.connect(turn_manager.progress_turn)
 	self.root_setup_finished.connect(turn_manager.self_init)
+
+	action_manager.build_action.connect(func(req): if turn_manager.get_game_state() == turn_manager.GameSequence.SETUP: 
+		return await turn_manager.actor_finished_setup(req.actor))
+	
 
 # Init combat manager
 func init_combat_manager():
@@ -178,6 +183,7 @@ func init_player(player_x: Player):
 	player_x.player_combat_not_ready.connect(combat_manager.actor_selection_req)
 	player_x.next_phase_req.connect(action_manager.action_request)
 	player_x.place_biome_req.connect(action_manager.action_request)
+	player_x.place_command_tower.connect(action_manager.action_request)
 
 	# TO self_player
 	lander_manager.built_action_completed.connect(player_x.fwd_build_action_completed)
@@ -197,6 +203,11 @@ func init_player(player_x: Player):
 	action_manager.place_biome.connect(func(req): if req.actor == player_x: 
 		if turn_manager.get_game_state() == turn_manager.GameSequence.SETUP: 
 			return player_x.setup_biome_placed(req))
+	action_manager.build_action.connect(func(req): if req.actor == player_x: 
+		if turn_manager.get_game_state() == turn_manager.GameSequence.SETUP: 
+			return player_x.command_tower_placed())
+	
+
 
 	player_x.species = game_species.pick_random()
 	#print("Player Species randomly selected: " + str(player_x.species.name))

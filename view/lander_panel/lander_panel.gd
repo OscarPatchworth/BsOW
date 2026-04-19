@@ -67,11 +67,12 @@ func update_lander_control(cur_lander: Lander):
 
 func update():
 	var cur_lander = selector_manager.get_selected_lander()
-	biome_label.text = str(cur_lander.biome_data.name)
+	if(cur_lander):
+		biome_label.text = str(cur_lander.biome_data.name)
 
-	update_building_control(cur_lander)
-	update_unit_control(cur_lander)	
-	update_lander_control(cur_lander)
+		update_building_control(cur_lander)
+		update_unit_control(cur_lander)	
+		update_lander_control(cur_lander)
 
 
 ### Connected Signals
