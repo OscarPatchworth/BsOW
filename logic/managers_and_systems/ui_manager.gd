@@ -12,6 +12,7 @@ signal player_combat_not_ready
 signal next_phase_req(req: Action)
 signal move_action_req(req: Action)
 signal purchase_action_req(req)
+signal setup_biome_pressed(b: BiomeData)
 
 # enums
 #enum Element {EARTH,WATER,AIR,FIRE,}
@@ -72,6 +73,8 @@ func connect_signals():
 
 	purchase_panel.purchase_action_req.connect(self.fwd_purchase_action_req)
 	purchase_panel.close_market.connect(self.fwd_close_market)
+
+	setup_panel.setup_biome_pressed.connect(self.fwd_setup_biome_pressed)
 
 
 func connect_wires():
@@ -274,3 +277,7 @@ func game_state_changed(game_state):
 	for child in self.get_children():
 		if child.has_method("game_state_changed"):
 			child.game_state_changed(game_state)
+
+
+func fwd_setup_biome_pressed(b: BiomeData):
+	setup_biome_pressed.emit(b)

@@ -20,6 +20,8 @@ signal purchase_action_req(req: Action)
 
 signal close_market()
 
+signal place_biome_req()
+
 # enums
 #enum Element {EARTH,WATER,AIR,FIRE,}
 
@@ -132,10 +134,11 @@ func connect_ui_signals():
 	player_ui.move_action_req.connect(self.fwd_move_action_req)
 	player_ui.purchase_action_req.connect(self.fwd_purchase_action_req)
 	wallet.econ_changed.connect(player_ui.econ_changed)
-
+	player_ui.setup_biome_pressed.connect(player_controller.setup_biome_pressed)
 
 	player_controller.attack_action_req.connect(self.fwd_attack_action_req)
 	player_controller.run_movement_ui.connect(player_ui.run_movement)
+	player_controller.place_biome_req.connect(self.fwd_place_biome_req)
 
 func fwd_build_req(build_req: Action):
 	build_req.actor = self
@@ -265,3 +268,8 @@ func fwd_close_market():
 
 func get_starting_biomes() -> Array:
 	return species.starting_landers
+
+
+func fwd_place_biome_req(req: Action):
+	req.actor = self
+	place_biome_req.emit(req)

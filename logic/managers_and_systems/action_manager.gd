@@ -42,7 +42,8 @@ func action_request(req: Action):
 		Action.RequestType.PROGRESS_TURN:
 			#print("Action Manager | Req Recieved | Next Phase")
 			handle_progress_turn(req)
-			pass
+		Action.RequestType.PLACE_BIOME:
+			handle_place_biome(req)
 		_:
 			print("No Action Match type match!! \n match type: " + str(Action.RequestType.keys()[req.type] ))
 
@@ -170,3 +171,11 @@ func handle_buy(req: Action):
 
 	else:
 		print("Action Manager | Debug | handle_buy: purchasable is not a valid type")
+
+
+func handle_place_biome(req):
+	if(lander_manager.is_valid_lander_placement(req.position)):
+		# Place lander
+		lander_manager.inst_biome(req.position, req.biome_type)
+	else:
+		print("Invalid Place Lander Request")

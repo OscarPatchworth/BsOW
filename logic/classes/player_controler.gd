@@ -6,6 +6,7 @@ signal select_lander(target_lander)
 signal view_lander_requested(target_lander)
 signal attack_action_req(action_req)
 signal run_movement_ui(from:Lander, to:Lander)
+signal place_biome_req(req: Action)
 
 # enums
 enum PlayerState {
@@ -72,6 +73,8 @@ var _mouse_line
 var m_connected_landers: Array[Lander]
 # Dusctcloud Collaspe
 var _dc_mouse_lander
+# Setup
+var s_select_biome: BiomeData
 
 
 ### @onready variables
@@ -88,6 +91,8 @@ func _input(event: InputEvent) -> void:
 			input_state_collapsing_dustcloud(event)
 		PlayerState.MOVEMENT:
 			input_state_movement(event)
+		PlayerState.SETUP:
+			input_state_setup(event)
 		_:
 			input_state_idle(event)
 
@@ -163,6 +168,25 @@ func input_state_movement(event):
 	#Right Click down/up
 	elif event.is_action_released("right_click"):
 		view_lander_event()
+
+
+func input_state_setup(event):
+	if event.is_action_pressed("left_click"):
+		if s_select_biome == null:
+			print("Player Controller | Debug | No biome selected for Setup Input")
+			return
+		# Place setdup ln
+		var surface_ray = raycat_to_layer(WORLD_SURFACE_LAYER)
+		var lnd_ray = raycat_to_layer(LANDER_LAYER)
+		if surface_ray == {} or lnd_ray != {}:
+			print("Player Controler | Debug | Invalid lander placement in Setup Input")
+		else:
+			var new_req = Action.new()
+			new_req.type = Action.RequestType.PLACE_BIOME
+			new_req.position = surface_ray["position"]
+			new_req.biome_type = s_select_biome
+			place_biome_req.emit(new_req)
+
 
 
 ### Process States
@@ -319,19 +343,15 @@ func game_phase_changed(game_phase):
 				player_state = PlayerState.MOVEMENT
 			turn_manager.GameLoop.CLEANUP:
 				player_state = PlayerState.IDLE
-	#print("Player | Update | Player state changed to: " + str(PlayerState.keys()[player_state]))
+		#print("Player | Update | Player state changed to: " + str(PlayerState.keys()[player_state]))
 
 
 func game_state_changed(game_state):
-	if not is_active_player:
-		player_state = PlayerState.IDLE
+	if game_state == turn_manager.GameSequence.SETUP:
+		is_in_setup = true
+		print("Player Controller | Debug | Entering Game Setup")
 		return
-	else:
-		if game_state == turn_manager.GameSequence.SETUP:
-			is_in_setup = true
-			print("Player Controller | Debug | Entering Game Setup")
-			return
-		else: is_in_setup = false
+	else: is_in_setup = false
 
 
 ### Action templates
@@ -353,9 +373,14 @@ func exit_combat():
 	else:
 		player_state = PlayerState.IDLE
 
+
 func set_is_active_player(b: bool):
 	is_active_player = b
 	
+
+func setup_biome_pressed(b: BiomeData):
+	s_select_biome = b
+
 
 ### Wires and Signals
 func bind_selector(selector: GameManager):

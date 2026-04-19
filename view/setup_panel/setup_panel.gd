@@ -2,7 +2,8 @@
 extends Panel
 
 # signals
-
+signal setup_biome_pressed(b: BiomeData)
+signal all_setup_landers_placed()
 # enums
 
 # constants
@@ -15,6 +16,7 @@ var match_settings
 # @export variables
 
 # remaining regular variables
+var starting_landers = []
 
 # @onready variables
 @onready var setup_landers: ListBox = self.find_child("HListBox")
@@ -30,7 +32,12 @@ func free_children(parent: Node) -> void:
 
 
 func list_btn_pressed(biome: BiomeData):
-	var place_lnd = Action.new()
+	setup_biome_pressed.emit(biome)
+	starting_landers.erase(biome)
+	if starting_landers == []:
+		all_setup_landers_placed.emit()
+	else:
+		setup_landers.set_objects(starting_landers, func(p): return "", func(b): return b.poker_icon) 
 
 
 ### Connected Signals
@@ -49,7 +56,6 @@ func bind_match_settings(ms):
 func game_state_changed(game_state):
 	if game_state == turn_manager.GameSequence.SETUP:
 		self.show()
-		var starting_landers = []
 		for i in match_settings.starting_biomes_amount:
 			if player_self.get_starting_biomes().size() > i and player_self.get_starting_biomes()[i] in match_settings.game_biomes:
 				starting_landers.append(player_self.get_starting_biomes()[i])

@@ -1,4 +1,4 @@
-[gd_scene load_steps=76 format=3 uid="uid://cmnn2jtgwr4dw"]
+[gd_scene load_steps=78 format=3 uid="uid://cmnn2jtgwr4dw"]
 
 [ext_resource type="Script" path="res://logic/classes/player.gd" id="1_tftws"]
 [ext_resource type="Script" path="res://logic/classes/player_controler.gd" id="2_pm403"]
@@ -188,6 +188,11 @@ bg_color = Color(0.48, 0.0576, 0.0646399, 1)
 
 [sub_resource type="Theme" id="Theme_lv10k"]
 Button/styles/normal = SubResource("StyleBoxFlat_1jl2g")
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_xbqmt"]
+
+[sub_resource type="Theme" id="Theme_4cr4f"]
+Panel/styles/panel = SubResource("StyleBoxEmpty_xbqmt")
 
 [node name="Player" type="Node3D"]
 script = ExtResource("1_tftws")
@@ -984,7 +989,18 @@ grow_horizontal = 2
 grow_vertical = 0
 script = ExtResource("32_nolq2")
 
+[node name="InputBlockPanel" type="Panel" parent="CanvasLayer/UI-manager/SetupPanel"]
+show_behind_parent = true
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme = SubResource("Theme_4cr4f")
+
 [node name="HListBox" parent="CanvasLayer/UI-manager/SetupPanel" instance=ExtResource("32_85cnl")]
+z_index = 2
 layout_mode = 1
 anchors_preset = -1
 offset_left = 50.0

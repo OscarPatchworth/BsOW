@@ -47,6 +47,20 @@ func inst_lander(pos: Vector3):
 	landers.append(new_lander)
 
 
+func inst_biome(pos: Vector3, biome: BiomeData):
+	var new_lander = lander_sence.instantiate()
+	#Acidental Feature:
+	#	Meant to have the lander slightly off the ground to prevent wobbling
+	#	Now has the lander fall to the ground when spawned	
+	new_lander.position = pos + FLOOR_OFFSET
+
+	wire_and_signal_lander(new_lander)
+
+	new_lander.set_biome(biome)
+	landers_sence_node.add_child(new_lander)
+	landers.append(new_lander)
+
+
 func spawn_protected_lander(pos: Vector3, ownr: Actor, amount_defenders: int):
 	inst_lander(pos)
 	#cmd ^ adds lander to end of landers[] and so below grabs the lander that was just instanced
