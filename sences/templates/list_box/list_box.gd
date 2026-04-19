@@ -13,7 +13,7 @@ signal list_btn_pressed(thing)
 # @export variables
 	
 # remaining regular variables
-var list_items: Array[Dictionary] # {object : Obj, text: ""}
+var list_items: Array[Dictionary] # {object : Obj, text: "", icon: texture2d}
 
 var runtime_flow: Container
 
@@ -38,9 +38,10 @@ func free_children(parent: Node) -> void:
 func make_list():
 	free_children(runtime_flow)
 	for item in list_items:
-		var new_btn = template_btn.duplicate()
+		var new_btn = template_btn.duplicate() as Button
 		runtime_flow.add_child(new_btn)
 		new_btn.text = item["text"]
+		new_btn.icon = item["icon"]
 
 		new_btn.pressed.connect(func(): fwd_btn_pressed(item["object"]))
 		
@@ -53,6 +54,10 @@ func fwd_btn_pressed(thing):
 
 func _defualt_txt(obj) -> String:
 	return str(obj)
+
+
+func _defualt_icon(obj) -> CompressedTexture2D:
+	return null
 
 ### Connected Signals
 
@@ -68,8 +73,8 @@ func get_btns() -> Array:
 	return runtime_flow.get_children()
 
 
-func set_objects(objs: Array, text_formatter: Callable = _defualt_txt):
-	var formated_objs = objs.map(func(obj): return {"object" : obj, "text" : str(text_formatter.call(obj)) })
+func set_objects(objs: Array, text_formatter: Callable = _defualt_txt, icon_formatter: Callable = _defualt_icon):
+	var formated_objs = objs.map(func(obj): return {"object" : obj, "text" : str(text_formatter.call(obj)), "icon" : icon_formatter.call(obj) })
 	list_items.assign(formated_objs)
 	if list_items == []:
 		pass

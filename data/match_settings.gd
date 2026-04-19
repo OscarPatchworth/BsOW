@@ -4,7 +4,7 @@ extends Node
 # Actor Settings
 @export var number_of_opponents: int = 1
 @export var starting_simple_troops: int = 3
-@export var starting_biomes_amount: int = 3
+@export var starting_biomes_amount: int = 4
 
 # Lander Settings
 @export var game_biomes: Array[BiomeData]

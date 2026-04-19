@@ -21,9 +21,16 @@ var match_settings
 
 ###################################################################################################
 ###	Methods
+func _ready() -> void:
+	setup_landers.list_btn_pressed.connect(self.list_btn_pressed)
+
 func free_children(parent: Node) -> void:
 	for i in parent.get_children():
 		i.queue_free()
+
+
+func list_btn_pressed(biome: BiomeData):
+	var place_lnd = Action.new()
 
 
 ### Connected Signals
@@ -44,11 +51,11 @@ func game_state_changed(game_state):
 		self.show()
 		var starting_landers = []
 		for i in match_settings.starting_biomes_amount:
-			if player_self.get_starting_biomes().size() < i and player_self.get_starting_biomes()[i] in match_settings.game_biomes:
+			if player_self.get_starting_biomes().size() > i and player_self.get_starting_biomes()[i] in match_settings.game_biomes:
 				starting_landers.append(player_self.get_starting_biomes()[i])
 			else:
 				starting_landers.append(match_settings.game_biomes.pick_random())
-		setup_landers.set_objects(starting_landers, func(lnd): return "Biome") 
+		setup_landers.set_objects(starting_landers, func(p): return "", func(b): return b.poker_icon) 
 	#setup_landers.set
 	else: self.hide()
 
