@@ -382,6 +382,9 @@ func setup_biome_pressed(b: BiomeData):
 	s_select_biome = b
 
 
+func setup_biome_placed():
+	s_select_biome = null
+
 ### Wires and Signals
 func bind_selector(selector: GameManager):
 	selector_manager = selector

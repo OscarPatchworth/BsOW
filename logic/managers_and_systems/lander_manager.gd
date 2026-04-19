@@ -47,16 +47,16 @@ func inst_lander(pos: Vector3):
 	landers.append(new_lander)
 
 
-func inst_biome(pos: Vector3, biome: BiomeData):
+func inst_biome(req: Action):
 	var new_lander = lander_sence.instantiate()
 	#Acidental Feature:
 	#	Meant to have the lander slightly off the ground to prevent wobbling
 	#	Now has the lander fall to the ground when spawned	
-	new_lander.position = pos + FLOOR_OFFSET
+	new_lander.position = req.get_pos() + FLOOR_OFFSET
 
 	wire_and_signal_lander(new_lander)
 
-	new_lander.set_biome(biome)
+	new_lander.set_biome(req.get_biome_type())
 	landers_sence_node.add_child(new_lander)
 	landers.append(new_lander)
 

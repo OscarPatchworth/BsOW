@@ -4,6 +4,7 @@ extends GameManager
 signal build_action(req)
 signal buy_unit_action(req)
 signal progress_turn
+signal place_biome(req)
 
 # enums
 
@@ -176,6 +177,6 @@ func handle_buy(req: Action):
 func handle_place_biome(req):
 	if(lander_manager.is_valid_lander_placement(req.position)):
 		# Place lander
-		lander_manager.inst_biome(req.position, req.biome_type)
+		place_biome.emit(req)
 	else:
 		print("Invalid Place Lander Request")

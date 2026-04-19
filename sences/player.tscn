@@ -1,4 +1,4 @@
-[gd_scene load_steps=78 format=3 uid="uid://cmnn2jtgwr4dw"]
+[gd_scene load_steps=79 format=3 uid="uid://cmnn2jtgwr4dw"]
 
 [ext_resource type="Script" path="res://logic/classes/player.gd" id="1_tftws"]
 [ext_resource type="Script" path="res://logic/classes/player_controler.gd" id="2_pm403"]
@@ -193,6 +193,8 @@ Button/styles/normal = SubResource("StyleBoxFlat_1jl2g")
 
 [sub_resource type="Theme" id="Theme_4cr4f"]
 Panel/styles/panel = SubResource("StyleBoxEmpty_xbqmt")
+
+[sub_resource type="ButtonGroup" id="ButtonGroup_xxa3a"]
 
 [node name="Player" type="Node3D"]
 script = ExtResource("1_tftws")
@@ -1021,6 +1023,8 @@ theme_override_constants/separation = 25
 
 [node name="TemplateButton" parent="CanvasLayer/UI-manager/SetupPanel/HListBox/Container" index="0"]
 size_flags_horizontal = 3
+toggle_mode = true
+button_group = SubResource("ButtonGroup_xxa3a")
 text = ""
 icon = ExtResource("33_517gy")
 icon_alignment = 1

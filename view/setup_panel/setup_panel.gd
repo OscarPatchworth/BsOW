@@ -32,12 +32,7 @@ func free_children(parent: Node) -> void:
 
 
 func list_btn_pressed(biome: BiomeData):
-	setup_biome_pressed.emit(biome)
-	starting_landers.erase(biome)
-	if starting_landers == []:
-		all_setup_landers_placed.emit()
-	else:
-		setup_landers.set_objects(starting_landers, func(p): return "", func(b): return b.poker_icon) 
+	setup_biome_pressed.emit(biome) 
 
 
 ### Connected Signals
@@ -65,6 +60,13 @@ func game_state_changed(game_state):
 	#setup_landers.set
 	else: self.hide()
 
+
+func setup_biome_placed(req: Action):
+	starting_landers.erase(req.get_biome_type())
+	setup_landers.set_objects(starting_landers, func(p): return "", func(b): return b.poker_icon)
+	
+	if starting_landers == []:
+		all_setup_landers_placed.emit()
 
 ## Get/Set (er)s
 

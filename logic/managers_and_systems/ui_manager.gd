@@ -281,3 +281,7 @@ func game_state_changed(game_state):
 
 func fwd_setup_biome_pressed(b: BiomeData):
 	setup_biome_pressed.emit(b)
+
+
+func setup_biome_placed(req: Action):
+	setup_panel.setup_biome_placed(req)

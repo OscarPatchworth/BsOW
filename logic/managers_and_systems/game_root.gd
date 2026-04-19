@@ -64,7 +64,7 @@ func init_lander_manager():
 	action_manager.buy_unit_action.connect(lander_manager.buy_unit_action)
 	turn_manager.game_phased_changed.connect(func(phase): 
 		if phase == turn_manager.GameLoop.UPKEEP: lander_manager.run_upkeep(turn_manager.get_active_actor()))
-
+	action_manager.place_biome.connect(lander_manager.inst_biome)
 
 ## Init turn manager
 func init_turn_manager():
@@ -194,7 +194,9 @@ func init_player(player_x: Player):
 	turn_manager.season_order_generated.connect(player_x.seasons_generated)
 	turn_manager.season_changed.connect(player_x.season_changed)
 	turn_manager.current_game_state.connect(player_x.game_state_changed)
-
+	action_manager.place_biome.connect(func(req): if req.actor == player_x: 
+		if turn_manager.get_game_state() == turn_manager.GameSequence.SETUP: 
+			return player_x.setup_biome_placed(req))
 
 	player_x.species = game_species.pick_random()
 	#print("Player Species randomly selected: " + str(player_x.species.name))

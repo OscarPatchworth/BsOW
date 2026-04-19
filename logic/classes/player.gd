@@ -273,3 +273,8 @@ func get_starting_biomes() -> Array:
 func fwd_place_biome_req(req: Action):
 	req.actor = self
 	place_biome_req.emit(req)
+
+func setup_biome_placed(req: Action):
+	print("Player | Debug | setup biome placed called")
+	player_controller.setup_biome_placed()
+	player_ui.setup_biome_placed(req)

@@ -76,8 +76,8 @@ func get_btns() -> Array:
 func set_objects(objs: Array, text_formatter: Callable = _defualt_txt, icon_formatter: Callable = _defualt_icon):
 	var formated_objs = objs.map(func(obj): return {"object" : obj, "text" : str(text_formatter.call(obj)), "icon" : icon_formatter.call(obj) })
 	list_items.assign(formated_objs)
-	if list_items == []:
-		pass
+	if objs == []:
+		clear()
 	else:
 		make_list()
 func get_objects() -> Array:
