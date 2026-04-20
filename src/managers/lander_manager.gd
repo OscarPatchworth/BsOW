@@ -14,18 +14,17 @@ signal completed_upkeep()
 const LANDER_RADIUS:float = 1
 const MIN_DIST_BETWEEN_LANDERS = 2
 const MIN_DIST_SQUARED = MIN_DIST_BETWEEN_LANDERS ** 2
-const FLOOR_OFFSET:Vector3 = Vector3.UP * 2
+const FLOOR_OFFSET:Vector3 = Vector3.UP
 
 # static variables
 var landers_sence_node: Node3D
-
-# @export variables
-@export var lander_sence: PackedScene
-@export var biome_types: Array[BiomeData]
-
-@export var connected_lander_distance: float:
+var lander_sence: PackedScene
+var biome_types: Array[BiomeData]
+var connected_lander_distance: float:
 	set(value):
 		connected_distance_sq = value ** 2
+
+# @export variables
 
 # remaining regular variables
 var landers:Array[Lander]

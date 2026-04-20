@@ -39,9 +39,9 @@ var match_settings
 # remaining regular variables
 
 # @onready variables
-@onready var player_controller: ActorControler = self.find_child("PlayerController")
+@onready var player_controller: Node = self.find_child("PlayerController")
 @onready var player_ui: Control = self.find_child("UI-manager")
-@onready var selector_manager:GameManager = self.find_child("SelectorManager")
+@onready var selector_manager:Node = self.find_child("SelectorManager")
 
 
 ###################################################################################################

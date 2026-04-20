@@ -1,7 +1,7 @@
 [gd_resource type="Resource" script_class="BiomeData" load_steps=6 format=3 uid="uid://djyants1sgts1"]
 
-[ext_resource type="Texture2D" uid="uid://co0nyanmr3u5t" path="res://visuals/textures/poker_dot_Icons/poker_yellow_icon.png" id="1_5cvlk"]
-[ext_resource type="Script" path="res://data/biome/biome_data.gd" id="2_pboum"]
+[ext_resource type="Texture2D" uid="uid://co0nyanmr3u5t" path="res://assets/textures/poker_dot_Icons/poker_yellow_icon.png" id="1_5cvlk"]
+[ext_resource type="Script" path="res://src/data/biome_data.gd" id="2_pboum"]
 [ext_resource type="Script" path="res://data/econ/econ_data.gd" id="3_xxr4u"]
 
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_0cy03"]

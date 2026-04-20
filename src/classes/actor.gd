@@ -12,9 +12,9 @@ enum CombatSide {
 
 # static variables
 var species: SpeciesData
-var turn_manager: GameManager
-var lander_manager: GameManager
-var combat_manager: GameManager
+var turn_manager: TurnManager
+var lander_manager: LanderManager
+var combat_manager: CombatManager
 
 # @export variables
 

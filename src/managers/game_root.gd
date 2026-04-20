@@ -9,22 +9,29 @@ signal root_setup_finished
 # constants
 
 # static variables
+### Managers
+var action_manager: Node
+var lander_manager: Node
+var turn_manager: Node
+var combat_manager: Node
+var player_manager: Node
+var draw_3d: Node
+var match_settings: Node
+
 ### Loadable sences
-var player_scene = preload("res://sences/player.tscn")
+var player_sence = preload("res://sences/player.tscn")
+var lander_sence = preload("res://sences/landerSene.tscn")
+var match_settings_data = preload("res://data/match_settings.gd")
 
 # @export variables
 @export var game_species: Array[SpeciesData]
+@export var biome_types: Array[BiomeData]
+
 # remaining regular variables
 
 # @onready vars
-### Managers
-@onready var action_manager = self.find_child("ActionManager")
-@onready var lander_manager = self.find_child("LanderManager")
-@onready var turn_manager = self.find_child("TurnManager")
-@onready var match_settings = self.find_child("MatchSettings")
-@onready var combat_manager = self.find_child("CombatManager")
-@onready var actors_node = self.find_child("Actors")
-@onready var draw_3d = self.find_child("Draw3D")
+@onready var managers_node = self.find_child("Managers")
+@onready var players_node = self.find_child("Actors")
 ### Sence Nodes
 @onready var landers_sence_node = self.find_child("Landers")
 
@@ -32,6 +39,7 @@ var player_scene = preload("res://sences/player.tscn")
 ###################################################################################################
 # Called when the node enters the scene tree for the first time.
 func _ready() -> void:
+	instance_managers()
 	init_game_managers_and_systems()
 	init_actors()
 	root_setup_finished.emit()
@@ -39,6 +47,35 @@ func _ready() -> void:
 
 ###################################################################################################
 ### Custom Funcs()
+
+# Inistance Managers
+func instance_managers():
+	# Action Manager
+	action_manager = ActionManager.new()
+	managers_node.add_child(action_manager)
+	# Lander Manager
+	lander_manager = LanderManager.new()
+	managers_node.add_child(action_manager)
+	# Turn Manager
+	turn_manager = TurnManager.new()
+	managers_node.add_child(turn_manager)
+	# Combat Manager
+	combat_manager = CombatManager.new()
+	managers_node.add_child(combat_manager)
+	# Actors Manager
+	player_manager = PlayerManager.new()
+	managers_node.add_child(player_manager)
+	# Draw3D
+	draw_3d = Draw3D.new()
+	managers_node.add_child(draw_3d)
+	# Match Settings
+	match_settings = Node.new()
+	match_settings.set_script(match_settings_data)
+	managers_node.add_child(match_settings)
+
+
+
+
 # Init Game Managers
 func init_game_managers_and_systems():
 	init_action_manager()
@@ -59,6 +96,9 @@ func init_action_manager():
 # Init lander manager
 func init_lander_manager():
 	lander_manager.landers_sence_node = self.landers_sence_node
+	lander_manager.lander_sence = self.lander_sence
+	lander_manager.biome_types = self.biome_types
+	lander_manager.connected_lander_distance = 1.5
 	lander_manager.inst_lander(Vector3.ZERO)
 	
 	# Connect Signals
@@ -71,7 +111,7 @@ func init_lander_manager():
 ## Init turn manager
 func init_turn_manager():
 	# Connect Binders
-	turn_manager.actors = actors_node.get_children()
+	turn_manager.actors = players_node.get_children()
 	# Connect Signals
 	combat_manager.combat_started.connect(turn_manager.combat_started)
 	action_manager.progress_turn.connect(turn_manager.progress_turn)
@@ -101,7 +141,7 @@ func init_actors():
 
 func add_player():
 	var actor_node = find_child("Actors")
-	var player_x = player_scene.instantiate()
+	var player_x = player_sence.instantiate()
 	init_player(player_x)
 	actor_node.add_child(player_x)
 

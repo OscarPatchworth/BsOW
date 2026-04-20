@@ -1,0 +1,54 @@
+[gd_scene load_steps=5 format=3 uid="uid://clx8h78aia5jy"]
+
+[ext_resource type="Script" path="res://src/managers/game_root.gd" id="1_3h0u6"]
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_r86o6"]
+size = Vector3(10, 0.1, 10)
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_16dx4"]
+uv1_triplanar = true
+
+[sub_resource type="BoxMesh" id="BoxMesh_05ysm"]
+lightmap_size_hint = Vector2i(104, 57)
+material = SubResource("StandardMaterial3D_16dx4")
+size = Vector3(10, 0.1, 10)
+
+[node name="Main" type="Node3D"]
+script = ExtResource("1_3h0u6")
+
+[node name="World" type="Node3D" parent="."]
+
+[node name="Floor" type="StaticBody3D" parent="World"]
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="World/Floor"]
+transform = Transform3D(4, 0, 0, 0, 4, 0, 0, 0, 4, 0, 0, 0)
+shape = SubResource("BoxShape3D_r86o6")
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="World/Floor"]
+transform = Transform3D(4, 0, 0, 0, 4, 0, 0, 0, 4, 0, 0, 0)
+mesh = SubResource("BoxMesh_05ysm")
+
+[node name="DirectionalLight3D" type="DirectionalLight3D" parent="World"]
+transform = Transform3D(0.766044, -0.55667, 0.321394, 0, 0.5, 0.866025, -0.642788, -0.663414, 0.383022, 0, 10, 0)
+
+[node name="Actors" type="Node3D" parent="."]
+
+[node name="Landers" type="Node3D" parent="."]
+
+[node name="Managers" type="Node" parent="."]
+
+[node name="TurnManager" type="Node" parent="Managers"]
+
+[node name="EconManager" type="Node" parent="Managers"]
+
+[node name="LanderManager" type="Node" parent="Managers"]
+
+[node name="ActionManager" type="Node" parent="Managers"]
+
+[node name="GravitySystem" type="Node" parent="Managers"]
+
+[node name="MatchSettings" type="Node" parent="Managers"]
+
+[node name="CombatManager" type="Node" parent="Managers"]
+
+[node name="Draw3D" type="Node" parent="Managers"]
