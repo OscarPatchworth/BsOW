@@ -1,9 +1,0 @@
-[gd_scene load_steps=3 format=3 uid="uid://crxhw2cugojad"]
-
-[ext_resource type="Script" path="res://spaghetti/Scripts/classes/player/player.gd" id="1_xxc56"]
-[ext_resource type="PackedScene" uid="uid://c4yv6kqjq6jor" path="res://spaghetti/Assest_Scenes/Player/player_controler.tscn" id="2_80akb"]
-
-[node name="Player" type="Node3D" groups=["players"]]
-script = ExtResource("1_xxc56")
-
-[node name="Player_controler" parent="." instance=ExtResource("2_80akb")]
