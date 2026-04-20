@@ -252,16 +252,15 @@ func run_damage_phase():
 	print("Combat Manager | Emit | Combat outcome emitted")
 
 	# Apply Outcome
-	#for attacker in invading_dmg:
-	#	if attacker.get_outcome() == CombatOutcome.Outcome.DEAD:
-	#		current_combat.get_invading_lander().rmv_units([attacker.get_unit()])
-	#for defender in defending_dmg:
-	#	if defender.get_outcome() == CombatOutcome.Outcome.DEAD:
-	#		current_combat.get_contested_lander().rmv_units([defender.get_unit()])
+	for attacker in invading_dmg:
+		if attacker.get_outcome() == CombatOutcome.Outcome.DEAD:
+			current_combat.get_invading_lander().rmv_units([attacker.get_unit()])
+	for defender in defending_dmg:
+		if defender.get_outcome() == CombatOutcome.Outcome.DEAD:
+			current_combat.get_contested_lander().rmv_units([defender.get_unit()])
 
 
-	#print("Combat Manager | Combat outcome emitted")
-	#combat_started.emit(current_combat)
+	print("Combat Manager | Combat outcome emitted")
 	
 	# Change to Cleanup
 	set_state_cleanup()

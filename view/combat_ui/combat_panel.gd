@@ -8,6 +8,7 @@ signal player_combat_ready
 signal player_combat_not_ready
 signal combat_display_toggled(toggled_on: bool)
 signal attack_req(req: Action)
+signal comabt_ui_closed()
 
 # enums
 
@@ -167,12 +168,13 @@ func exit_combat():
 		# Defer null to allow access to other end of combat funcs()
 		set_deferred("cur_contest", null) 
 		self.hide()
+		comabt_ui_closed.emit()
 	else:
 		print("Combat UI | Err | Exit Combat called while in combat")
 
 
 func repeat_attack():
-	if combat_finished and cur_contest.get_invading_actor() == player_self:
+	if combat_finished and cur_contest.get_invading_actor() == null and cur_contest.get_invading_actor() == player_self:
 		exit_combat()
 		# generate new attack req
 		var new_attack = Action.new()

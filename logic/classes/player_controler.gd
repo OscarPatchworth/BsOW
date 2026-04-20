@@ -131,7 +131,9 @@ func input_state_collapsing_dustcloud(event: InputEvent) -> void:
 func input_state_movement(event):
 	# Left Click down/up
 	if event.is_action_released("left_click"):
-		if m_start_lander != null and m_end_lander != null and m_start_lander.get_ownr() == self_player :
+		if (m_start_lander != null and m_end_lander != null 
+		and m_start_lander.get_ownr() == self_player
+		and m_end_lander in lander_manager.get_connected_landers(m_start_lander)) :
 			# If neutral init movement UI
 			if m_end_lander.get_ownr() == null:
 				run_movement_ui.emit(m_start_lander, m_end_lander)

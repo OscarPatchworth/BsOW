@@ -67,6 +67,7 @@ func connect_signals():
 	combat_panel.player_combat_not_ready.connect(fwd_player_combat_not_ready)
 	combat_panel.combat_display_toggled.connect(self.combat_display_toggled)
 	combat_panel.attack_req.connect(self.fwd_attack_action_req)
+	combat_panel.comabt_ui_closed.connect(self.comabt_ui_closed)
 
 	turn_panel.next_phase_req.connect(self.fwd_next_phase_req)
 
@@ -291,3 +292,7 @@ func setup_biome_placed(req: Action):
 
 func fwd_all_setup_landers_placed():
 	all_setup_landers_placed.emit()
+
+
+func comabt_ui_closed():
+	turn_panel.show()
