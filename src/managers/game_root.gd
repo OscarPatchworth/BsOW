@@ -1,3 +1,5 @@
+#game_root.gd
+class_name GameRoot
 extends Node
 
 # signals

@@ -1,4 +1,6 @@
-extends GameManager
+#lander_manager.gd
+class_name LanderManager
+extends Node
 
 #signals
 signal built_action_completed(req: Action)

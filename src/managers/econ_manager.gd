@@ -1,3 +1,5 @@
+#econ_manager.gd
+class_name EconManager
 extends Node
 
 

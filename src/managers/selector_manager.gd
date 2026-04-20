@@ -1,5 +1,5 @@
 #selector_manager.gd
-extends GameManager
+extends Node
 
 # signals
 signal selected_units_changed

@@ -1,4 +1,5 @@
-class_name GameManager
+#player_manager.gd
+class_name PlayerManager
 extends Node
 
 # signals
@@ -17,9 +18,16 @@ extends Node
 
 ###################################################################################################
 ###	Methods
+func free_children(parent: Node) -> void:
+	for i in parent.get_children():
+		i.queue_free()
 
 
-### Custom Methods
+### Connected Signals
 
+
+## Calls
+
+## Get/Set (er)s
 
 ### Connected Signals

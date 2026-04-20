@@ -1,5 +1,6 @@
 #turn_manager.gd
-extends GameManager
+class_name TurnManager
+extends Node
 
 # signals
 signal game_phased_changed(game_phase: GameLoop)

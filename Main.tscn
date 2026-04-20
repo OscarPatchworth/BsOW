@@ -1,24 +1,7 @@
-[gd_scene load_steps=23 format=3 uid="uid://clx8h78aia5jy"]
+[gd_scene load_steps=6 format=3 uid="uid://clx8h78aia5jy"]
 
-[ext_resource type="Texture2D" uid="uid://78pehu0r5g6w" path="res://visuals/textures/third_person_controller_assets/textures/grids/Dark/texture_04.png" id="1_bfc7u"]
-[ext_resource type="Script" path="res://logic/managers_and_systems/game_root.gd" id="1_fs3en"]
-[ext_resource type="Script" path="res://data/species/species_data.gd" id="2_xnbok"]
-[ext_resource type="Script" path="res://logic/managers_and_systems/turn_manager.gd" id="3_elh8a"]
-[ext_resource type="Resource" uid="uid://cojb8wwjom73a" path="res://data/species/lycanthrope.tres" id="3_loevq"]
-[ext_resource type="Script" path="res://logic/managers_and_systems/econ_manager.gd" id="4_k2s5q"]
-[ext_resource type="Resource" uid="uid://b6i0g0eoslsoo" path="res://data/species/ettercap.tres" id="4_sfa3f"]
-[ext_resource type="Script" path="res://logic/managers_and_systems/lander_manager.gd" id="5_igtti"]
-[ext_resource type="Script" path="res://logic/managers_and_systems/action_manager.gd" id="6_w5vq1"]
-[ext_resource type="Script" path="res://data/biome/biome_data.gd" id="7_5v68b"]
-[ext_resource type="Script" path="res://logic/managers_and_systems/gravity_system.gd" id="7_k8fui"]
-[ext_resource type="PackedScene" uid="uid://lwrx00g5nx8i" path="res://sences/landerSene.tscn" id="7_l1cnn"]
-[ext_resource type="Resource" uid="uid://c4kc36gl4hjpw" path="res://data/biome/badlands_biome.tres" id="8_5i0m8"]
-[ext_resource type="Resource" uid="uid://d04jxtc7utmqq" path="res://data/biome/forest_biome.tres" id="9_p6myw"]
-[ext_resource type="Resource" uid="uid://bo0vvivlki1y1" path="res://data/biome/mountain_biome.tres" id="10_33p1r"]
-[ext_resource type="Resource" uid="uid://djyants1sgts1" path="res://data/biome/plains_biome.tres" id="11_388a1"]
-[ext_resource type="Script" path="res://data/match_settings.gd" id="17_535i8"]
-[ext_resource type="Script" path="res://logic/managers_and_systems/combat_manager.gd" id="18_x7sqw"]
-[ext_resource type="Script" path="res://logic/classes/Draw3D.gd" id="19_67nka"]
+[ext_resource type="Script" path="res://src/managers/game_root.gd" id="1_3h0u6"]
+[ext_resource type="Texture2D" path="res://visuals/textures/third_person_controller_assets/textures/grids/Dark/texture_04.png" id="1_bfc7u"]
 
 [sub_resource type="BoxShape3D" id="BoxShape3D_r86o6"]
 size = Vector3(10, 0.1, 10)
@@ -33,8 +16,7 @@ material = SubResource("StandardMaterial3D_16dx4")
 size = Vector3(10, 0.1, 10)
 
 [node name="Main" type="Node3D"]
-script = ExtResource("1_fs3en")
-game_species = Array[ExtResource("2_xnbok")]([ExtResource("3_loevq"), ExtResource("4_sfa3f")])
+script = ExtResource("1_3h0u6")
 
 [node name="World" type="Node3D" parent="."]
 
@@ -58,29 +40,17 @@ transform = Transform3D(0.766044, -0.55667, 0.321394, 0, 0.5, 0.866025, -0.64278
 [node name="ManagersAndSystems" type="Node" parent="."]
 
 [node name="TurnManager" type="Node" parent="ManagersAndSystems"]
-script = ExtResource("3_elh8a")
 
 [node name="EconManager" type="Node" parent="ManagersAndSystems"]
-script = ExtResource("4_k2s5q")
 
 [node name="LanderManager" type="Node" parent="ManagersAndSystems"]
-script = ExtResource("5_igtti")
-lander_sence = ExtResource("7_l1cnn")
-biome_types = Array[ExtResource("7_5v68b")]([ExtResource("8_5i0m8"), ExtResource("9_p6myw"), ExtResource("10_33p1r"), ExtResource("11_388a1")])
-connected_lander_distance = 2.5
 
 [node name="ActionManager" type="Node" parent="ManagersAndSystems"]
-script = ExtResource("6_w5vq1")
 
 [node name="GravitySystem" type="Node" parent="ManagersAndSystems"]
-script = ExtResource("7_k8fui")
 
 [node name="MatchSettings" type="Node" parent="ManagersAndSystems"]
-script = ExtResource("17_535i8")
-game_biomes = Array[ExtResource("7_5v68b")]([ExtResource("8_5i0m8"), ExtResource("9_p6myw"), ExtResource("10_33p1r"), ExtResource("11_388a1")])
 
 [node name="CombatManager" type="Node" parent="ManagersAndSystems"]
-script = ExtResource("18_x7sqw")
 
 [node name="Draw3D" type="Node" parent="ManagersAndSystems"]
-script = ExtResource("19_67nka")

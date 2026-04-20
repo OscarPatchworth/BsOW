@@ -1,4 +1,6 @@
-extends GameManager
+#action_manager.gd
+class_name ActionManager
+extends Node
 
 # signals
 signal build_action(req)
@@ -12,9 +14,9 @@ signal place_biome(req)
 
 # static variables
 var movement_ctrl = load("res://logic/managers_and_systems/movement_controler.gd")
-var lander_manager: GameManager
-var turn_manager: GameManager
-var combat_manager: GameManager
+var lander_manager: Node
+var turn_manager: Node
+var combat_manager: Node
 
 # @export variables
 

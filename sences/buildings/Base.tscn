@@ -1,6 +1,6 @@
 [gd_scene load_steps=8 format=3 uid="uid://c84n2wywirjkd"]
 
-[ext_resource type="Texture2D" uid="uid://df5m2n8glf0tu" path="res://visuals/textures/third_person_controller_assets/textures/grids/Light/texture_11.png" id="1_2tpvk"]
+[ext_resource type="Texture2D" path="res://visuals/textures/third_person_controller_assets/textures/grids/Light/texture_11.png" id="1_2tpvk"]
 
 [sub_resource type="CylinderMesh" id="CylinderMesh_cqnnr"]
 bottom_radius = 0.7

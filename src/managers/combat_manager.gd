@@ -1,5 +1,6 @@
 #combat_manager.gd
-extends GameManager
+class_name CombatManager
+extends Node
 
 # signals
 signal combat_started(contest: Contest)

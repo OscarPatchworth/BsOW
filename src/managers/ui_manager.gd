@@ -1,3 +1,5 @@
+#ui_manager
+class_name UIManager
 extends Control
 
 # signals
@@ -21,15 +23,15 @@ signal all_setup_landers_placed()
 # constants
 
 # static variables
-var turn_manager: GameManager
+var turn_manager: Node
 var match_settings
 
 # @export variables
 
 # remaining regular variables
-var selector_manager:GameManager
-var lander_manager: GameManager
-var combat_manager: GameManager
+var selector_manager:Node
+var lander_manager: Node
+var combat_manager: Node
 var player_self: Player
 
 # @onready variables
@@ -88,14 +90,14 @@ func wire_selector_manager():
 	pass
 
 ### Connected Signals
-func bind_selector(selector: GameManager):
+func bind_selector(selector: Node):
 	selector_manager = selector
 	#print("UI manager selector bound")
 	
 	lander_panel.bind_selector(selector)
 
 
-func bind_turn_manager(tm: GameManager):
+func bind_turn_manager(tm: Node):
 	# Bind self
 	turn_manager = tm
 	# Bind Children
@@ -104,14 +106,14 @@ func bind_turn_manager(tm: GameManager):
 			child.bind_turn_manager(tm)
 
 
-func bind_lander_manager(lm: GameManager):
+func bind_lander_manager(lm: Node):
 	lander_manager = lm
 	lander_panel.bind_lander_manager(lm)
 	movement_panel.bind_lander_manager(lm)
 	purchase_panel.bind_lander_manager(lm)
 
 
-func bind_combat_manager(cm: GameManager):
+func bind_combat_manager(cm: Node):
 	combat_manager = cm
 	combat_panel.bind_combat_manager(cm)
 
