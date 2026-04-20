@@ -1,5 +1,5 @@
 class_name PlayerControler
-extends ActorControler
+extends Node3D
 
 ### signals
 signal select_lander(target_lander)
@@ -29,11 +29,12 @@ const LANDER_LAYER: int = 2
 
 ### 
 #static variables
-var selector_manager: GameManager
-var turn_manager: GameManager
-var lander_manager: GameManager
+var selector_manager: Node
+var turn_manager: TurnManager
+var lander_manager: LanderManager
 var draw_3d: Draw3D
 var self_player: Player
+var action_manager: ActionManager
 
 ### 
 #@export variables
@@ -336,7 +337,7 @@ func bind_player(p: Player):
 	self_player = p
 
 
-func bind_lander_manager(lm: GameManager):
+func bind_lander_manager(lm: LanderManager):
 	lander_manager = lm
 
 
@@ -404,10 +405,10 @@ func setup_biome_placed():
 	s_select_biome = null
 
 ### Wires and Signals
-func bind_selector(selector: GameManager):
+func bind_selector(selector: Node):
 	selector_manager = selector
 
-func bind_turn_manager(tm: GameManager):
+func bind_turn_manager(tm: TurnManager):
 	turn_manager = tm
 
 
