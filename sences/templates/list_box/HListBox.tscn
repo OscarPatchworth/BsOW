@@ -1,7 +1,7 @@
 [gd_scene load_steps=3 format=3 uid="uid://cpp2t3np2iv2f"]
 
 [ext_resource type="Script" path="res://sences/templates/list_box/list_box.gd" id="1_bofcv"]
-[ext_resource type="Texture2D" uid="uid://b0rkbj1ai81ht" path="res://visuals/textures/poker_dot_Icons/poker_blue_icon.png" id="2_ccyq2"]
+[ext_resource type="Texture2D" uid="uid://b0rkbj1ai81ht" path="res://assets/textures/poker_dot_Icons/poker_blue_icon.png" id="2_ccyq2"]
 
 [node name="HListBox" type="Control"]
 layout_mode = 3

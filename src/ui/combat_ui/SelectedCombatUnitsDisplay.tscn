@@ -1,7 +1,7 @@
 [gd_scene load_steps=5 format=3 uid="uid://cv2tx1wgojvl4"]
 
-[ext_resource type="Script" path="res://view/combat_ui/selected_combat_units_display.gd" id="1_4dgoy"]
-[ext_resource type="Script" path="res://view/game_button.gd" id="1_sdji2"]
+[ext_resource type="Script" path="res://src/ui/combat_ui/SelectedCombatUnitsDisplay.gd" id="1_4dgoy"]
+[ext_resource type="Script" path="res://src/ui/game_button.gd" id="1_sdji2"]
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_0qlhi"]
 bg_color = Color(0.558145, 0.478406, 0.257703, 1)

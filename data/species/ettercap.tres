@@ -1,7 +1,7 @@
 [gd_resource type="Resource" script_class="SpeciesData" load_steps=6 format=3 uid="uid://b6i0g0eoslsoo"]
 
 [ext_resource type="Script" path="res://src/data/building_data.gd" id="1_rh7g3"]
-[ext_resource type="Resource" uid="uid://c30rqnqmpoirn" path="res://data/building/base.tres" id="2_7bpwy"]
+[ext_resource type="Resource" uid="uid://vbqx37wk5ugu" path="res://data/building/base.tres" id="2_7bpwy"]
 [ext_resource type="Script" path="res://src/data/species_data.gd" id="2_fkjdq"]
 [ext_resource type="Script" path="res://src/data/biome_data.gd" id="4_h4pfu"]
 [ext_resource type="Script" path="res://src/data/unitData.gd" id="4_mng3l"]

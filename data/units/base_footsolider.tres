@@ -1,12 +1,12 @@
 [gd_resource type="Resource" script_class="UnitData" load_steps=10 format=3 uid="uid://dmftxjfnr1n60"]
 
-[ext_resource type="Texture2D" uid="uid://da7nmyq0ig5cv" path="res://visuals/textures/diamond_icons/yellow_diamond_icon.png" id="1_047v1"]
-[ext_resource type="Script" path="res://data/damage/damage_data.gd" id="1_71egg"]
+[ext_resource type="Texture2D" uid="uid://da7nmyq0ig5cv" path="res://assets/textures/diamond_icons/yellow_diamond_icon.png" id="1_047v1"]
+[ext_resource type="Script" path="res://src/data/damage_data.gd" id="1_71egg"]
 [ext_resource type="PackedScene" uid="uid://p5ih6l4koapk" path="res://sences/units/base_footsolider.tscn" id="1_h1bdb"]
-[ext_resource type="Script" path="res://data/building/building_data.gd" id="1_x6wl6"]
-[ext_resource type="Script" path="res://data/units/unitData.gd" id="2_fxd0g"]
+[ext_resource type="Script" path="res://src/data/building_data.gd" id="1_x6wl6"]
+[ext_resource type="Script" path="res://src/data/unitData.gd" id="2_fxd0g"]
 [ext_resource type="Resource" uid="uid://ikctw3t6aoeq" path="res://data/building/castle_tower.tres" id="2_hsoce"]
-[ext_resource type="Script" path="res://data/econ/econ_data.gd" id="3_t6t2s"]
+[ext_resource type="Script" path="res://src/data/econ_data.gd" id="3_t6t2s"]
 
 [sub_resource type="Resource" id="Resource_5iuxu"]
 script = ExtResource("3_t6t2s")

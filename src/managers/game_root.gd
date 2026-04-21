@@ -92,6 +92,9 @@ func init_lander_manager():
 	lander_manager.lander_sence = self.lander_sence
 	lander_manager.biome_types = self.biome_types
 	lander_manager.connected_lander_distance = 1.5
+	print("self.biome_types at init: " + str(self.biome_types))
+	lander_manager.biome_types = self.biome_types
+	print(str(lander_manager.biome_types) + " | " + str(biome_types))
 	lander_manager.inst_lander(Vector3.ZERO)
 	
 	# Connect Signals

@@ -53,7 +53,7 @@ func get_resource_value(key: String) -> int:
 
 
 ### Coded by Gemini ... I didn't know godot had obj.get() & obj.set() funcs ... thats rlly cool
-func add_cost(cost: CostRes) -> void:
+func add_cost(cost: EconData) -> void:
 	# Get the dictionary from the passed-in resource
 	var other_resources = cost.get_resource_dict()
 
