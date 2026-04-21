@@ -50,20 +50,6 @@ transform = Transform3D(0.766044, -0.55667, 0.321394, 0, 0.5, 0.866025, -0.64278
 
 [node name="Managers" type="Node" parent="."]
 
-[node name="TurnManager" type="Node" parent="Managers"]
-
-[node name="EconManager" type="Node" parent="Managers"]
-
-[node name="LanderManager" type="Node" parent="Managers"]
-
-[node name="ActionManager" type="Node" parent="Managers"]
-
-[node name="GravitySystem" type="Node" parent="Managers"]
-
 [node name="MatchSettings" type="Node" parent="Managers"]
 script = ExtResource("10_22a4b")
 game_biomes = Array[ExtResource("5_0u4q7")]([ExtResource("6_42vif"), ExtResource("7_s8tui"), ExtResource("8_0urn8"), ExtResource("9_a8gev")])
-
-[node name="CombatManager" type="Node" parent="Managers"]
-
-[node name="Draw3D" type="Node" parent="Managers"]

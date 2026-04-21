@@ -20,15 +20,12 @@ const FLOOR_OFFSET:Vector3 = Vector3.UP
 var landers_sence_node: Node3D
 var lander_sence: PackedScene
 var biome_types: Array[BiomeData]
-var connected_lander_distance: float:
-	set(value):
-		connected_distance_sq = value ** 2
+var connected_lander_distance: float
 
 # @export variables
 
 # remaining regular variables
 var landers:Array[Lander]
-var connected_distance_sq: float = 0.0
 
 # @onready variables
 
@@ -92,17 +89,21 @@ func is_pos_min_distance_apart(pos: Vector3) -> bool:
 
 func is_pos_lander_adjacent(pos: Vector3) -> bool:
 	for lander in landers:
-		if (pos.distance_squared_to(lander.position) < connected_distance_sq):
+		if (pos.distance_to(lander.position) < connected_lander_distance):
 			return true
 	return false
 
 
 func get_connected_landers(target_lander: Lander) -> Array[Lander]:
 	var connected_landers: Array[Lander] = []
+	print(landers)
+	print(connected_lander_distance)
 	for lander in landers:
-		if (target_lander.position.distance_squared_to(lander.position) < connected_distance_sq):
+		if (target_lander.global_position.distance_to(lander.global_position) < connected_lander_distance):
 			if(lander != target_lander):
 				connected_landers.append(lander)
+		print(target_lander.position.distance_to(lander.position) )
+	print(connected_landers)
 	return connected_landers
 
 

@@ -91,7 +91,7 @@ func init_lander_manager():
 	lander_manager.landers_sence_node = self.landers_sence_node
 	lander_manager.lander_sence = self.lander_sence
 	lander_manager.biome_types = self.biome_types
-	lander_manager.connected_lander_distance = 1.5
+	lander_manager.connected_lander_distance = 3
 	print("self.biome_types at init: " + str(self.biome_types))
 	lander_manager.biome_types = self.biome_types
 	print(str(lander_manager.biome_types) + " | " + str(biome_types))
