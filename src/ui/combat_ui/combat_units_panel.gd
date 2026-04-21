@@ -34,7 +34,7 @@ const LENGTH_ANCHOR: float = 1.168
 const MARGIN_ANCHOR: float = 0.02
 
 # static variables
-var combat_manager: GameManager
+var combat_manager: CombatManager
 
 # @export variables
 @export var unit_display_control: PackedScene
@@ -59,7 +59,7 @@ func free_children(parent: Node) -> void:
 
 
 ## Calls
-func bind_combat_manager(cm: GameManager):
+func bind_combat_manager(cm: CombatManager):
 	combat_manager = cm
 	#print("attak units Panel | comabt UI | Combat Manager Bound")
 

@@ -11,7 +11,7 @@ signal buy_unit_action_req(req: Action)
 #const MAX_SPEED = 200
 
 # static variables
-var selector_manager: GameManager
+var selector_manager: Node
 
 # @export variables
 
@@ -41,7 +41,7 @@ func update_shop_buttons():
 		shop_buttons.add_child(unit_btn)
 
 ### Connected Signals
-func bind_selector(selector: GameManager):
+func bind_selector(selector: Node):
 	selector_manager = selector
 	#print("UnitShop slector_manager bound")
 

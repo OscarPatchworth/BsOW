@@ -11,8 +11,8 @@ signal attack_action_req(req: Action)
 # constants
 
 # static vars
-var selector_manager: GameManager
-var lander_manager: GameManager
+var selector_manager: Node
+var lander_manager: LanderManager
 
 # @export variables
 @export var ui_player: Actor
@@ -93,12 +93,12 @@ func apply_selected_to_req(req: Action) -> Action:
 ### Connected Signals
 
 ## Calls
-func bind_selector(selector: GameManager):
+func bind_selector(selector: Node):
 	selector_manager = selector
 	#print("Lander Control selector_manager bound")
 
 
-func bind_lander_manager(lm: GameManager):
+func bind_lander_manager(lm: LanderManager):
 	lander_manager = lm
 	#print("Lander Manager bound to Lander_Control")
 

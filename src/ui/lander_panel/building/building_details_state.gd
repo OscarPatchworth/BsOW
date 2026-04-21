@@ -11,7 +11,7 @@ extends VBoxContainer
 #const MAX_SPEED = 200
 
 # static variables
-var selector_manager:GameManager
+var selector_manager:Node
 
 # @export variables
 
@@ -25,7 +25,7 @@ var selector_manager:GameManager
 
 
 ### Signals and Wires
-func bind_selector(selector: GameManager):
+func bind_selector(selector: Node):
 	selector_manager = selector
 	#print("BuildingDetails slector_manager bound")
 

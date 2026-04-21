@@ -15,8 +15,8 @@ signal attack_action_req(req: Action)
 # static variables
 
 # remaining regular variables
-var selector_manager: GameManager
-var lander_manager: GameManager
+var selector_manager: Node
+var lander_manager: LanderManager
 
 # @onready variables
 @onready var building_control: Control = self.find_child("BuildingControl")
@@ -41,7 +41,7 @@ func bind_selector(selector):
 
 	connect_selector_signals()
 
-func bind_lander_manager(lm: GameManager):
+func bind_lander_manager(lm: LanderManager):
 	lander_manager = lm
 	lander_control.bind_lander_manager(lm)
 

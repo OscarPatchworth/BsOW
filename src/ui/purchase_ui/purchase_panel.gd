@@ -10,7 +10,7 @@ signal close_market()
 # constants
 
 # static variables
-var lander_manager: GameManager
+var lander_manager: LanderManager
 var player_self: Player
 
 
@@ -95,7 +95,7 @@ func pressed_close_market():
 
 
 ## Calls
-func bind_lander_manager(lm: GameManager):
+func bind_lander_manager(lm: LanderManager):
 	lander_manager = lm
 
 

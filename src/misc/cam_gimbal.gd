@@ -18,7 +18,7 @@ extends Node3D
 
 var zoom = 1.5
 
-@onready var inner = $InnerGimbal
+@onready var inner = self.find_child("InnerGimbal")
 
 func _unhandled_input(event):
 	#if Input.mouse_mode != Input.MOUSE_MODE_CAPTURED:

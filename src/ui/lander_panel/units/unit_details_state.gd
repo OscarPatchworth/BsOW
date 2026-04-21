@@ -11,7 +11,7 @@ extends Node
 #const MAX_SPEED = 200
 
 # static variables
-var selector_manager: GameManager
+var selector_manager: Node
 
 # @export variables
 
@@ -27,7 +27,7 @@ var cur_actor: Actor
 
 
 ### Connected Signals
-func bind_selector(selector: GameManager):
+func bind_selector(selector: Node):
 	selector_manager = selector
 	#print("UnitDetails slector_manager bound")
 

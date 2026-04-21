@@ -9,7 +9,7 @@ signal all_setup_landers_placed()
 # constants
 
 # static variables
-var turn_manager: GameManager
+var turn_manager: TurnManager
 var player_self: Player
 var match_settings
 
@@ -36,7 +36,7 @@ func list_btn_pressed(biome: BiomeData):
 
 
 ### Connected Signals
-func bind_turn_manager(tm: GameManager):
+func bind_turn_manager(tm: TurnManager):
 	turn_manager = tm
 
 
@@ -56,6 +56,7 @@ func game_state_changed(game_state):
 				starting_landers.append(player_self.get_starting_biomes()[i])
 			else:
 				starting_landers.append(match_settings.game_biomes.pick_random())
+		print(player_self.get_starting_biomes())
 		setup_landers.set_objects(starting_landers, func(p): return "", func(b): return b.poker_icon) 
 	#setup_landers.set
 	else: self.hide()

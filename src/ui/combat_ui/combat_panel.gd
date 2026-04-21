@@ -15,7 +15,7 @@ signal comabt_ui_closed()
 # constants
 
 # static variables
-var combat_manager: GameManager
+var combat_manager: CombatManager
 var player_self: Player
 
 # @export variables
@@ -71,7 +71,7 @@ func fwd_unit_selected(unit: UnitObject):
 
 
 ## Calls
-func bind_combat_manager(cm: GameManager):
+func bind_combat_manager(cm: CombatManager):
 	combat_manager = cm
 	#print("Combat UI | Combat Manager Bound")
 

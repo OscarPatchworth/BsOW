@@ -10,7 +10,7 @@ signal move_action_req(req: Action)
 # constants
 
 # static variables
-var lander_manager: GameManager
+var lander_manager: LanderManager
 
 # @export variables
 
@@ -75,7 +75,7 @@ func req_move_action():
 
 
 ## Calls
-func bind_lander_manager(lm: GameManager):
+func bind_lander_manager(lm: LanderManager):
 	lander_manager = lm
 
 

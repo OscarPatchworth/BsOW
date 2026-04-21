@@ -11,7 +11,7 @@ signal build_action_req(action_request)
 #const MAX_SPEED = 200
 
 # static variables
-var selector_manager:GameManager
+var selector_manager:Node
 
 # @export variables
 
@@ -31,7 +31,7 @@ func free_children(parent: Node) -> void:
 
 
 ### Signals and Wires
-func bind_selector(selector: GameManager):
+func bind_selector(selector: Node):
 	selector_manager = selector
 	#print("BuildingShop slector_manager bound")
 

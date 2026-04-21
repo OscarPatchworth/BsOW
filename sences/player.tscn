@@ -29,8 +29,8 @@
 [ext_resource type="Script" path="res://src/ui/wallet_ui/wallet_panel.gd" id="28_dfmpb"]
 [ext_resource type="Script" path="res://src/ui/movement_panel/movement_panel.gd" id="28_fj3f5"]
 [ext_resource type="Script" path="res://src/ui/purchase_ui/purchase_panel.gd" id="30_55tok"]
-[ext_resource type="PackedScene" path="res://sences/templates/list_box/VListBox.tscn" id="30_h2p8k"]
-[ext_resource type="PackedScene" path="res://sences/templates/list_box/HListBox.tscn" id="32_85cnl"]
+[ext_resource type="PackedScene" uid="uid://2phj8lcdgtq6" path="res://sences/templates/list_box/VListBox.tscn" id="30_h2p8k"]
+[ext_resource type="PackedScene" uid="uid://cpp2t3np2iv2f" path="res://sences/templates/list_box/HListBox.tscn" id="32_85cnl"]
 [ext_resource type="Script" path="res://src/ui/setup_panel/setup_panel.gd" id="32_nolq2"]
 [ext_resource type="Texture2D" uid="uid://cabd03uvto1pg" path="res://assets/textures/poker_dot_Icons/poker_red_icon.png" id="33_517gy"]
 
@@ -196,14 +196,16 @@ Panel/styles/panel = SubResource("StyleBoxEmpty_xbqmt")
 [sub_resource type="ButtonGroup" id="ButtonGroup_xxa3a"]
 
 [node name="Player" type="Node3D"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.5, 0)
 script = ExtResource("1_tftws")
 
 [node name="PlayerController" type="Node3D" parent="."]
 script = ExtResource("2_pm403")
 
-[node name="CamGimbal" type="Node3D" parent="PlayerController"]
+[node name="CamGimbal" type="Node3D" parent="PlayerController" node_paths=PackedStringArray("target")]
 transform = Transform3D(1, 0, -1.67638e-08, 0, 1, 0, 1.67638e-08, 0, 1, -2, 1.5, 4)
 script = ExtResource("24_utqdd")
+target = NodePath("../..")
 max_zoom = 5
 zoom_speed = 0.1
 
@@ -762,7 +764,6 @@ item_0/disabled = true
 item_1/text = "Player 2"
 item_2/text = "Player 3"
 item_2/disabled = true
-script = ExtResource("24_utqdd")
 
 [node name="WalletPanel" type="Panel" parent="CanvasLayer/UI-manager"]
 visible = false

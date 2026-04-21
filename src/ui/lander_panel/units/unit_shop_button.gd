@@ -13,7 +13,7 @@ signal buy_unit_action_req(req: Action)
 
 # static variables
 var unit: UnitData
-var selector_manager: GameManager
+var selector_manager: Node
 
 # @export variables
 
@@ -34,7 +34,7 @@ func update_btn_view():
 	self.text = unit.name
 
 ### Connected Signals
-func bind_selector(selector: GameManager):
+func bind_selector(selector: Node):
 	selector_manager = selector
 	#print("Building_Shop_Button selector_manager bound")
 

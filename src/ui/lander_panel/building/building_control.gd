@@ -15,7 +15,7 @@ enum BuildingDisplay {
 #const MAX_SPEED = 200
 
 # static variables
-var selector_manager:GameManager
+var selector_manager: Node
 
 # @export variables
 
@@ -85,7 +85,7 @@ func update_building_shop():
 	shop_node.update()
 
 ### Signals and wires
-func bind_selector(selector: GameManager):
+func bind_selector(selector: Node):
 	selector_manager = selector
 	details_node.bind_selector(selector)
 	shop_node.bind_selector(selector)

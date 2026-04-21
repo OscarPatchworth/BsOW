@@ -10,7 +10,7 @@ signal next_phase_req(req: Action)
 # constants
 
 # static @onready variables
-var turn_manager = GameManager
+var turn_manager = TurnManager.new()
 
 # @export var variables
 @export var defualt_label_stylebox: StyleBox
@@ -77,7 +77,7 @@ func next_phase_btn_pressed():
 	next_phase_req.emit(new_action)
 
 ### Connected Signals
-func bind_turn_manager(tm: GameManager):
+func bind_turn_manager(tm: TurnManager):
 	self.turn_manager = tm
 	generate_phase_labels()
 	

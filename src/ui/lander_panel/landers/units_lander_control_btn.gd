@@ -12,7 +12,7 @@ signal unit_deselected(unit: UnitObject)
 
 # static variables
 var unit: UnitObject
-var selector_manager: GameManager
+var selector_manager: Node
 
 # @export variables
 
@@ -37,7 +37,7 @@ func _pressed():
 
 
 ## Calls
-func bind_selector(selector: GameManager):
+func bind_selector(selector: Node):
 	selector_manager = selector
 	#print("unit_lander_control_button selector_manager bound")
 

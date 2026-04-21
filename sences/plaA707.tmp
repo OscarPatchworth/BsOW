@@ -1,0 +1,1046 @@
+[gd_scene load_steps=78 format=3 uid="uid://cmnn2jtgwr4dw"]
+
+[ext_resource type="Script" path="res://src/classes/player.gd" id="1_tftws"]
+[ext_resource type="Script" path="res://src/classes/player_controler.gd" id="2_pm403"]
+[ext_resource type="Script" path="res://src/managers/ui_manager.gd" id="4_stx5a"]
+[ext_resource type="Script" path="res://src/managers/selector_manager.gd" id="4_w88om"]
+[ext_resource type="Script" path="res://src/ui/lander_panel/building/building_control.gd" id="6_3akxm"]
+[ext_resource type="Script" path="res://src/ui/lander_panel/lander_panel.gd" id="6_3ojsw"]
+[ext_resource type="Script" path="res://src/ui/lander_panel/building/building_details_state.gd" id="7_khele"]
+[ext_resource type="Script" path="res://src/ui/lander_panel/building/building_shop_state.gd" id="8_0d160"]
+[ext_resource type="Script" path="res://src/ui/lander_panel/units/unit_control.gd" id="9_bf17q"]
+[ext_resource type="Script" path="res://src/ui/lander_panel/units/unit_details_state.gd" id="11_8gxc8"]
+[ext_resource type="Script" path="res://src/ui/lander_panel/units/unit_shop_state.gd" id="12_u1vg3"]
+[ext_resource type="Script" path="res://src/ui/lander_panel/landers/lander_control.gd" id="13_nfxjl"]
+[ext_resource type="Script" path="res://src/ui/combat_ui/combat_panel.gd" id="15_1neg8"]
+[ext_resource type="Script" path="res://src/ui/combat_ui/combat_units_panel.gd" id="16_ld1gm"]
+[ext_resource type="PackedScene" uid="uid://cv2tx1wgojvl4" path="res://src/ui/combat_ui/SelectedCombatUnitsDisplay.tscn" id="17_o3itl"]
+[ext_resource type="Script" path="res://src/ui/combat_ui/attack_ablt_panel.gd" id="18_p5lpa"]
+[ext_resource type="Script" path="res://src/ui/combat_ui/defend_ablt_panel.gd" id="19_26ink"]
+[ext_resource type="Script" path="res://src/ui/combat_ui/select_units_panel.gd" id="20_sfpvi"]
+[ext_resource type="Script" path="res://src/ui/combat_ui/select_ablt_panel.gd" id="21_gsl2e"]
+[ext_resource type="Script" path="res://src/ui/combat_ui/select_unit_btn.gd" id="21_l1mcl"]
+[ext_resource type="Script" path="res://src/ui/combat_ui/fight_btn.gd" id="22_oflah"]
+[ext_resource type="Script" path="res://src/ui/seasons_panel/seasons_panel.gd" id="23_5erey"]
+[ext_resource type="Script" path="res://src/ui/turn_panel/turn_panel.gd" id="23_on07q"]
+[ext_resource type="Script" path="res://src/ui/game_button.gd" id="24_1p1b5"]
+[ext_resource type="Script" path="res://src/misc/cam_gimbal.gd" id="24_utqdd"]
+[ext_resource type="Script" path="res://src/ui/players_panel/players_panel.gd" id="25_7higi"]
+[ext_resource type="Script" path="res://src/ui/wallet_ui/wallet_panel.gd" id="28_dfmpb"]
+[ext_resource type="Script" path="res://src/ui/movement_panel/movement_panel.gd" id="28_fj3f5"]
+[ext_resource type="Script" path="res://src/ui/purchase_ui/purchase_panel.gd" id="30_55tok"]
+[ext_resource type="PackedScene" path="res://sences/templates/list_box/VListBox.tscn" id="30_h2p8k"]
+[ext_resource type="PackedScene" path="res://sences/templates/list_box/HListBox.tscn" id="32_85cnl"]
+[ext_resource type="Script" path="res://src/ui/setup_panel/setup_panel.gd" id="32_nolq2"]
+[ext_resource type="Texture2D" uid="uid://cabd03uvto1pg" path="res://assets/textures/poker_dot_Icons/poker_red_icon.png" id="33_517gy"]
+
+[sub_resource type="GDScript" id="GDScript_ks4yd"]
+script/source = "extends Camera3D
+
+# Called when the node enters the scene tree for the first time.
+func _ready() -> void:
+	pass # Replace with function body.
+
+
+# Called every frame. 'delta' is the elapsed time since the previous frame.
+func _process(delta: float) -> void:
+	pass
+"
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_4wrp8"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_62vnv"]
+bg_color = Color(0.50456, 0.2576, 0.56, 1)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_hure4"]
+bg_color = Color(0.31, 0.2046, 0.24676, 1)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_c0y1c"]
+bg_color = Color(0.31, 0.2046, 0.24676, 1)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_uoejg"]
+bg_color = Color(0.205117, 0.205117, 0.205117, 1)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(0.0745098, 0.435294, 0.435294, 1)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_okafx"]
+bg_color = Color(0.129412, 0.129412, 0.129412, 1)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(0.0745098, 0.435294, 0.435294, 1)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_etsqx"]
+bg_color = Color(0.129412, 0.129412, 0.129412, 1)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(0.866667, 0.435294, 0.435294, 1)
+
+[sub_resource type="Theme" id="Theme_bq35r"]
+Button/styles/hover = SubResource("StyleBoxFlat_uoejg")
+Button/styles/normal = SubResource("StyleBoxFlat_okafx")
+Button/styles/pressed = SubResource("StyleBoxFlat_etsqx")
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_b7gk5"]
+bg_color = Color(0.78, 0.1794, 0.1794, 1)
+
+[sub_resource type="Theme" id="Theme_dcwag"]
+Button/styles/normal = SubResource("StyleBoxFlat_b7gk5")
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_qcv73"]
+bg_color = Color(0.33, 0.55, 0.381333, 1)
+
+[sub_resource type="Theme" id="Theme_8tdq6"]
+Button/styles/normal = SubResource("StyleBoxFlat_qcv73")
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_ko88s"]
+bg_color = Color(0.63, 0.4158, 0.2016, 1)
+
+[sub_resource type="Theme" id="Theme_ut4wb"]
+Label/styles/normal = SubResource("StyleBoxFlat_ko88s")
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_7t6nb"]
+bg_color = Color(0.1665, 0.302167, 0.37, 1)
+
+[sub_resource type="Theme" id="Theme_ppr7y"]
+Label/styles/normal = SubResource("StyleBoxFlat_7t6nb")
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_ya6n6"]
+bg_color = Color(0.198, 0.66, 0.198, 1)
+
+[sub_resource type="Theme" id="Theme_5oirw"]
+Label/styles/normal = SubResource("StyleBoxFlat_ya6n6")
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_3eyal"]
+bg_color = Color(0.62, 0.2604, 0.398247, 1)
+
+[sub_resource type="Theme" id="Theme_m36os"]
+Label/styles/normal = SubResource("StyleBoxFlat_3eyal")
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_k6v0q"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_47egh"]
+corner_radius_top_left = 10
+corner_radius_top_right = 10
+corner_radius_bottom_right = 10
+corner_radius_bottom_left = 10
+
+[sub_resource type="Theme" id="Theme_gj51g"]
+default_font_size = 20
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_uy2sh"]
+bg_color = Color(0.55, 0.2475, 0.2475, 1)
+
+[sub_resource type="Theme" id="Theme_3s2ko"]
+Button/styles/normal = SubResource("StyleBoxFlat_uy2sh")
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_3ea1q"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_38g4l"]
+bg_color = Color(0.74032, 0.528718, 0.621729, 1)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_pim0p"]
+bg_color = Color(0.74032, 0.528718, 0.621729, 1)
+
+[sub_resource type="Theme" id="Theme_3lvok"]
+ItemList/colors/font_hovered_color = Color(0.65098, 0.65098, 0.65098, 1)
+ItemList/styles/hovered = SubResource("StyleBoxEmpty_3ea1q")
+ItemList/styles/selected = SubResource("StyleBoxFlat_38g4l")
+ItemList/styles/selected_focus = SubResource("StyleBoxFlat_pim0p")
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_mul0j"]
+bg_color = Color(0.6, 0.3912, 0.252, 1)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_4ayfa"]
+bg_color = Color(0.65, 0.65, 0.169, 1)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_pxlt6"]
+bg_color = Color(0.23, 0.401, 0.5, 1)
+
+[sub_resource type="Theme" id="Theme_vdaqx"]
+Button/styles/disabled = SubResource("StyleBoxFlat_mul0j")
+Button/styles/normal = SubResource("StyleBoxFlat_4ayfa")
+Button/styles/pressed = SubResource("StyleBoxFlat_pxlt6")
+
+[sub_resource type="Theme" id="Theme_6is6m"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_it45b"]
+bg_color = Color(1, 0.0470588, 0.0470588, 1)
+
+[sub_resource type="Theme" id="Theme_wbg4i"]
+Button/styles/normal = SubResource("StyleBoxFlat_it45b")
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_cpver"]
+bg_color = Color(0.6, 0.6, 0, 1)
+
+[sub_resource type="Theme" id="Theme_i3tle"]
+Button/styles/normal = SubResource("StyleBoxFlat_cpver")
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_1jl2g"]
+bg_color = Color(0.48, 0.0576, 0.0646399, 1)
+
+[sub_resource type="Theme" id="Theme_lv10k"]
+Button/styles/normal = SubResource("StyleBoxFlat_1jl2g")
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_xbqmt"]
+
+[sub_resource type="Theme" id="Theme_4cr4f"]
+Panel/styles/panel = SubResource("StyleBoxEmpty_xbqmt")
+
+[sub_resource type="ButtonGroup" id="ButtonGroup_xxa3a"]
+
+[node name="Player" type="Node3D"]
+script = ExtResource("1_tftws")
+
+[node name="PlayerController" type="Node3D" parent="."]
+script = ExtResource("2_pm403")
+
+[node name="CamGimbal" type="Node3D" parent="PlayerController"]
+transform = Transform3D(1, 0, -1.67638e-08, 0, 1, 0, 1.67638e-08, 0, 1, -2, 1.5, 4)
+script = ExtResource("24_utqdd")
+max_zoom = 5
+zoom_speed = 0.1
+
+[node name="InnerGimbal" type="Node3D" parent="PlayerController/CamGimbal"]
+
+[node name="Camera3D" type="Camera3D" parent="PlayerController/CamGimbal/InnerGimbal"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 4)
+current = true
+script = SubResource("GDScript_ks4yd")
+
+[node name="SelectorManager" type="Node" parent="."]
+script = ExtResource("4_w88om")
+
+[node name="CanvasLayer" type="CanvasLayer" parent="."]
+
+[node name="UI-manager" type="Control" parent="CanvasLayer"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("4_stx5a")
+
+[node name="LanderPanel" type="Panel" parent="CanvasLayer/UI-manager"]
+visible = false
+layout_mode = 1
+anchors_preset = -1
+anchor_left = 0.85
+anchor_right = 1.0
+anchor_bottom = 1.0
+script = ExtResource("6_3ojsw")
+
+[node name="VBoxContainer" type="VBoxContainer" parent="CanvasLayer/UI-manager/LanderPanel"]
+layout_mode = 1
+anchors_preset = 10
+anchor_right = 1.0
+offset_bottom = 182.0
+grow_horizontal = 2
+
+[node name="BiomeControl" type="VBoxContainer" parent="CanvasLayer/UI-manager/LanderPanel/VBoxContainer"]
+layout_mode = 2
+
+[node name="BiomeLabel" type="Label" parent="CanvasLayer/UI-manager/LanderPanel/VBoxContainer/BiomeControl"]
+layout_mode = 2
+text = "BIOME
+"
+horizontal_alignment = 1
+
+[node name="HSeparator" type="HSeparator" parent="CanvasLayer/UI-manager/LanderPanel/VBoxContainer/BiomeControl"]
+layout_mode = 2
+
+[node name="BuildingControl" type="VBoxContainer" parent="CanvasLayer/UI-manager/LanderPanel/VBoxContainer"]
+layout_mode = 2
+script = ExtResource("6_3akxm")
+
+[node name="DetailsState" type="VBoxContainer" parent="CanvasLayer/UI-manager/LanderPanel/VBoxContainer/BuildingControl"]
+layout_mode = 2
+script = ExtResource("7_khele")
+
+[node name="BuildingNameLabel" type="Label" parent="CanvasLayer/UI-manager/LanderPanel/VBoxContainer/BuildingControl/DetailsState"]
+layout_mode = 2
+text = "Building"
+
+[node name="ShopState" type="VBoxContainer" parent="CanvasLayer/UI-manager/LanderPanel/VBoxContainer/BuildingControl"]
+layout_mode = 2
+script = ExtResource("8_0d160")
+
+[node name="BuildingShopLabel" type="Label" parent="CanvasLayer/UI-manager/LanderPanel/VBoxContainer/BuildingControl/ShopState"]
+layout_mode = 2
+text = "Building Options"
+
+[node name="HSeparator" type="HSeparator" parent="CanvasLayer/UI-manager/LanderPanel/VBoxContainer/BuildingControl/ShopState"]
+layout_mode = 2
+
+[node name="BuildingButtons" type="HBoxContainer" parent="CanvasLayer/UI-manager/LanderPanel/VBoxContainer/BuildingControl/ShopState"]
+layout_mode = 2
+
+[node name="UnitControl" type="VBoxContainer" parent="CanvasLayer/UI-manager/LanderPanel/VBoxContainer"]
+layout_mode = 2
+script = ExtResource("9_bf17q")
+
+[node name="DetailsState" type="VBoxContainer" parent="CanvasLayer/UI-manager/LanderPanel/VBoxContainer/UnitControl"]
+layout_mode = 2
+script = ExtResource("11_8gxc8")
+
+[node name="Label" type="Label" parent="CanvasLayer/UI-manager/LanderPanel/VBoxContainer/UnitControl/DetailsState"]
+layout_mode = 2
+text = "Units:"
+
+[node name="ShopState" type="VBoxContainer" parent="CanvasLayer/UI-manager/LanderPanel/VBoxContainer/UnitControl"]
+layout_mode = 2
+script = ExtResource("12_u1vg3")
+
+[node name="Label" type="Label" parent="CanvasLayer/UI-manager/LanderPanel/VBoxContainer/UnitControl/ShopState"]
+layout_mode = 2
+text = "Train Units"
+
+[node name="UnitButtons" type="HBoxContainer" parent="CanvasLayer/UI-manager/LanderPanel/VBoxContainer/UnitControl/ShopState"]
+layout_mode = 2
+
+[node name="LanderControl" type="VBoxContainer" parent="CanvasLayer/UI-manager/LanderPanel/VBoxContainer" node_paths=PackedStringArray("ui_player")]
+layout_mode = 2
+script = ExtResource("13_nfxjl")
+ui_player = NodePath("../../../../..")
+
+[node name="Label" type="Label" parent="CanvasLayer/UI-manager/LanderPanel/VBoxContainer/LanderControl"]
+layout_mode = 2
+text = "Connected Landers: "
+
+[node name="Landers" type="HFlowContainer" parent="CanvasLayer/UI-manager/LanderPanel/VBoxContainer/LanderControl"]
+layout_mode = 2
+
+[node name="Label2" type="Label" parent="CanvasLayer/UI-manager/LanderPanel/VBoxContainer/LanderControl"]
+layout_mode = 2
+text = "Stationed Units:"
+
+[node name="Units" type="HFlowContainer" parent="CanvasLayer/UI-manager/LanderPanel/VBoxContainer/LanderControl"]
+layout_mode = 2
+
+[node name="CombatPanel" type="Panel" parent="CanvasLayer/UI-manager"]
+visible = false
+layout_mode = 1
+anchors_preset = -1
+anchor_left = 0.1
+anchor_top = 0.1
+anchor_right = 0.9
+anchor_bottom = 0.9
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_styles/panel = SubResource("StyleBoxEmpty_4wrp8")
+script = ExtResource("15_1neg8")
+
+[node name="BgPanel" type="Panel" parent="CanvasLayer/UI-manager/CombatPanel"]
+z_index = -1
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="SelfUnitsPanel" type="Panel" parent="CanvasLayer/UI-manager/CombatPanel"]
+layout_mode = 1
+anchors_preset = -1
+anchor_left = 0.15
+anchor_top = 0.1
+anchor_right = 0.45
+anchor_bottom = 0.55
+script = ExtResource("16_ld1gm")
+unit_display_control = ExtResource("17_o3itl")
+bar_colour = Color(0.55, 0.242, 0.247133, 1)
+
+[node name="ComabtSelectedUnitsDisplay" parent="CanvasLayer/UI-manager/CombatPanel/SelfUnitsPanel" instance=ExtResource("17_o3itl")]
+layout_mode = 1
+grow_horizontal = 2
+script = null
+
+[node name="Fill" parent="CanvasLayer/UI-manager/CombatPanel/SelfUnitsPanel/ComabtSelectedUnitsDisplay" index="0"]
+offset_right = 153.416
+offset_bottom = -0.424004
+theme_override_styles/panel = SubResource("StyleBoxFlat_62vnv")
+
+[node name="GameButton" parent="CanvasLayer/UI-manager/CombatPanel/SelfUnitsPanel/ComabtSelectedUnitsDisplay" index="1"]
+script = null
+
+[node name="RichTextLabel2" type="RichTextLabel" parent="CanvasLayer/UI-manager/CombatPanel/SelfUnitsPanel/ComabtSelectedUnitsDisplay"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+bbcode_enabled = true
+text = "[b][char=0x00002680][/b]"
+fit_content = true
+
+[node name="OppUnitsPanel" type="Panel" parent="CanvasLayer/UI-manager/CombatPanel"]
+layout_mode = 1
+anchors_preset = -1
+anchor_left = 0.55
+anchor_top = 0.1
+anchor_right = 0.85
+anchor_bottom = 0.55
+script = ExtResource("16_ld1gm")
+unit_display_control = ExtResource("17_o3itl")
+fill_align = 1
+bar_colour = Color(0.168, 0.3318, 0.42, 1)
+
+[node name="AttackAbilitiesPanel" type="Panel" parent="CanvasLayer/UI-manager/CombatPanel"]
+layout_mode = 1
+anchors_preset = -1
+anchor_left = 0.02
+anchor_top = 0.1
+anchor_right = 0.13
+anchor_bottom = 0.55
+script = ExtResource("18_p5lpa")
+
+[node name="DefendAbilitiesPanel" type="Panel" parent="CanvasLayer/UI-manager/CombatPanel"]
+layout_mode = 1
+anchors_preset = -1
+anchor_left = 0.87
+anchor_top = 0.1
+anchor_right = 0.98
+anchor_bottom = 0.55
+script = ExtResource("19_26ink")
+
+[node name="SelectUnitsPanel" type="Panel" parent="CanvasLayer/UI-manager/CombatPanel"]
+layout_mode = 1
+anchors_preset = -1
+anchor_left = 0.015
+anchor_top = 0.65
+anchor_right = 0.45
+anchor_bottom = 0.95
+grow_horizontal = 2
+script = ExtResource("20_sfpvi")
+unit_btn_script = ExtResource("21_l1mcl")
+
+[node name="LockOutPanel" type="Panel" parent="CanvasLayer/UI-manager/CombatPanel/SelectUnitsPanel"]
+z_index = 2
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_hure4")
+
+[node name="VFlowContainer" type="ScrollContainer" parent="CanvasLayer/UI-manager/CombatPanel/SelectUnitsPanel"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_right = -0.159973
+offset_bottom = -22.2
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 0
+follow_focus = true
+
+[node name="VBoxContainer" type="VBoxContainer" parent="CanvasLayer/UI-manager/CombatPanel/SelectUnitsPanel/VFlowContainer"]
+layout_mode = 2
+
+[node name="Button" type="Button" parent="CanvasLayer/UI-manager/CombatPanel/SelectUnitsPanel/VFlowContainer/VBoxContainer"]
+layout_mode = 2
+text = "gyjcjhdjggcjghc"
+
+[node name="Button2" type="Button" parent="CanvasLayer/UI-manager/CombatPanel/SelectUnitsPanel/VFlowContainer/VBoxContainer"]
+layout_mode = 2
+text = "gyjcjhdjggcjghc"
+
+[node name="Button3" type="Button" parent="CanvasLayer/UI-manager/CombatPanel/SelectUnitsPanel/VFlowContainer/VBoxContainer"]
+layout_mode = 2
+text = "gyjcjhdjggcjghc"
+
+[node name="Button4" type="Button" parent="CanvasLayer/UI-manager/CombatPanel/SelectUnitsPanel/VFlowContainer/VBoxContainer"]
+layout_mode = 2
+text = "gyjcjhdjggcjghc"
+
+[node name="Button5" type="Button" parent="CanvasLayer/UI-manager/CombatPanel/SelectUnitsPanel/VFlowContainer/VBoxContainer"]
+layout_mode = 2
+text = "gyjcjhdjggcjghc"
+
+[node name="Button6" type="Button" parent="CanvasLayer/UI-manager/CombatPanel/SelectUnitsPanel/VFlowContainer/VBoxContainer"]
+layout_mode = 2
+text = "gyjcjhdjggcjghc"
+
+[node name="Button7" type="Button" parent="CanvasLayer/UI-manager/CombatPanel/SelectUnitsPanel/VFlowContainer/VBoxContainer"]
+layout_mode = 2
+text = "gyjcjhdjggcjghc"
+
+[node name="Button8" type="Button" parent="CanvasLayer/UI-manager/CombatPanel/SelectUnitsPanel/VFlowContainer/VBoxContainer"]
+layout_mode = 2
+text = "gyjcjhdjggcjghc"
+
+[node name="Button9" type="Button" parent="CanvasLayer/UI-manager/CombatPanel/SelectUnitsPanel/VFlowContainer/VBoxContainer"]
+layout_mode = 2
+text = "gyjcjhdjggcjghc"
+
+[node name="Button10" type="Button" parent="CanvasLayer/UI-manager/CombatPanel/SelectUnitsPanel/VFlowContainer/VBoxContainer"]
+layout_mode = 2
+text = "gyjcjhdjggcjghc"
+
+[node name="Button11" type="Button" parent="CanvasLayer/UI-manager/CombatPanel/SelectUnitsPanel/VFlowContainer/VBoxContainer"]
+layout_mode = 2
+text = "gyjcjhdjggcjghc"
+
+[node name="SelectAbilitiesPanel" type="Panel" parent="CanvasLayer/UI-manager/CombatPanel"]
+layout_mode = 1
+anchors_preset = -1
+anchor_left = 0.55
+anchor_top = 0.65
+anchor_right = 0.985
+anchor_bottom = 0.95
+grow_horizontal = 2
+script = ExtResource("21_gsl2e")
+
+[node name="LockOutPanel" type="Panel" parent="CanvasLayer/UI-manager/CombatPanel/SelectAbilitiesPanel"]
+z_index = 2
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_c0y1c")
+
+[node name="VFlowContainer2" type="ScrollContainer" parent="CanvasLayer/UI-manager/CombatPanel/SelectAbilitiesPanel"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_right = -0.159973
+offset_bottom = -22.2
+grow_horizontal = 2
+grow_vertical = 2
+follow_focus = true
+
+[node name="VBoxContainer" type="VBoxContainer" parent="CanvasLayer/UI-manager/CombatPanel/SelectAbilitiesPanel/VFlowContainer2"]
+layout_mode = 2
+
+[node name="Button" type="Button" parent="CanvasLayer/UI-manager/CombatPanel/SelectAbilitiesPanel/VFlowContainer2/VBoxContainer"]
+layout_mode = 2
+text = "gyjcjhdjggcjghc"
+
+[node name="Button2" type="Button" parent="CanvasLayer/UI-manager/CombatPanel/SelectAbilitiesPanel/VFlowContainer2/VBoxContainer"]
+layout_mode = 2
+text = "gyjcjhdjggcjghc"
+
+[node name="Button3" type="Button" parent="CanvasLayer/UI-manager/CombatPanel/SelectAbilitiesPanel/VFlowContainer2/VBoxContainer"]
+layout_mode = 2
+text = "gyjcjhdjggcjghc"
+
+[node name="Button4" type="Button" parent="CanvasLayer/UI-manager/CombatPanel/SelectAbilitiesPanel/VFlowContainer2/VBoxContainer"]
+layout_mode = 2
+text = "gyjcjhdjggcjghc"
+
+[node name="Button5" type="Button" parent="CanvasLayer/UI-manager/CombatPanel/SelectAbilitiesPanel/VFlowContainer2/VBoxContainer"]
+layout_mode = 2
+text = "gyjcjhdjggcjghc"
+
+[node name="Button6" type="Button" parent="CanvasLayer/UI-manager/CombatPanel/SelectAbilitiesPanel/VFlowContainer2/VBoxContainer"]
+layout_mode = 2
+text = "gyjcjhdjggcjghc"
+
+[node name="Button7" type="Button" parent="CanvasLayer/UI-manager/CombatPanel/SelectAbilitiesPanel/VFlowContainer2/VBoxContainer"]
+layout_mode = 2
+text = "gyjcjhdjggcjghc"
+
+[node name="Button8" type="Button" parent="CanvasLayer/UI-manager/CombatPanel/SelectAbilitiesPanel/VFlowContainer2/VBoxContainer"]
+layout_mode = 2
+text = "gyjcjhdjggcjghc"
+
+[node name="Button9" type="Button" parent="CanvasLayer/UI-manager/CombatPanel/SelectAbilitiesPanel/VFlowContainer2/VBoxContainer"]
+layout_mode = 2
+text = "gyjcjhdjggcjghc"
+
+[node name="Button10" type="Button" parent="CanvasLayer/UI-manager/CombatPanel/SelectAbilitiesPanel/VFlowContainer2/VBoxContainer"]
+layout_mode = 2
+text = "gyjcjhdjggcjghc"
+
+[node name="Button11" type="Button" parent="CanvasLayer/UI-manager/CombatPanel/SelectAbilitiesPanel/VFlowContainer2/VBoxContainer"]
+layout_mode = 2
+text = "gyjcjhdjggcjghc"
+
+[node name="FightBtn" type="Button" parent="CanvasLayer/UI-manager/CombatPanel"]
+layout_mode = 1
+anchors_preset = -1
+anchor_left = 0.465
+anchor_top = 0.75
+anchor_right = 0.535
+anchor_bottom = 0.85
+grow_horizontal = 2
+rotation = -0.20944
+pivot_offset = Vector2(50, 45)
+text = "Fight !"
+script = ExtResource("22_oflah")
+
+[node name="ToggleDisplayBtn" type="Button" parent="CanvasLayer/UI-manager/CombatPanel"]
+layout_mode = 1
+anchors_preset = -1
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.05
+theme = SubResource("Theme_bq35r")
+toggle_mode = true
+text = "Hide Combat Display"
+script = ExtResource("24_1p1b5")
+
+[node name="ExitCombatBtn" type="Button" parent="CanvasLayer/UI-manager/CombatPanel"]
+layout_mode = 1
+anchors_preset = -1
+offset_left = -16.0
+offset_top = -16.0
+offset_right = 48.0
+offset_bottom = 48.0
+rotation = 0.785398
+pivot_offset = Vector2(32, 32)
+theme = SubResource("Theme_dcwag")
+text = "x"
+script = ExtResource("24_1p1b5")
+
+[node name="RepeatCombatBtn" type="Button" parent="CanvasLayer/UI-manager/CombatPanel"]
+layout_mode = 1
+anchors_preset = 6
+anchor_left = 1.0
+anchor_top = 0.5
+anchor_right = 1.0
+anchor_bottom = 0.5
+offset_left = -32.0
+offset_top = 53.0
+offset_right = 32.0
+offset_bottom = 117.0
+grow_horizontal = 0
+grow_vertical = 2
+rotation = 0.349066
+pivot_offset = Vector2(32, 32)
+theme = SubResource("Theme_8tdq6")
+text = "O"
+script = ExtResource("24_1p1b5")
+
+[node name="SeasonPanel" type="Panel" parent="CanvasLayer/UI-manager"]
+visible = false
+layout_mode = 1
+anchors_preset = -1
+anchor_left = 0.1
+anchor_top = 0.01
+anchor_right = 0.9
+anchor_bottom = 0.045
+grow_horizontal = 2
+script = ExtResource("23_5erey")
+
+[node name="HBoxContainer" type="HBoxContainer" parent="CanvasLayer/UI-manager/SeasonPanel"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="Label" type="Label" parent="CanvasLayer/UI-manager/SeasonPanel/HBoxContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 1
+theme = SubResource("Theme_ut4wb")
+text = "Autum"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="Label2" type="Label" parent="CanvasLayer/UI-manager/SeasonPanel/HBoxContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 1
+theme = SubResource("Theme_ppr7y")
+text = "Winter"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="Label3" type="Label" parent="CanvasLayer/UI-manager/SeasonPanel/HBoxContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 1
+theme = SubResource("Theme_5oirw")
+text = "Spring"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="Label4" type="Label" parent="CanvasLayer/UI-manager/SeasonPanel/HBoxContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 1
+theme = SubResource("Theme_m36os")
+text = "Summer"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="TurnPanel" type="Panel" parent="CanvasLayer/UI-manager"]
+visible = false
+layout_mode = 1
+anchors_preset = -1
+anchor_left = 0.15
+anchor_top = 0.055
+anchor_right = 0.65
+anchor_bottom = 0.09
+script = ExtResource("23_on07q")
+defualt_label_stylebox = SubResource("StyleBoxEmpty_k6v0q")
+active_label_stylebox = SubResource("StyleBoxFlat_47egh")
+
+[node name="HBoxContainer" type="HBoxContainer" parent="CanvasLayer/UI-manager/TurnPanel"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme = SubResource("Theme_gj51g")
+
+[node name="NextButton" type="Button" parent="CanvasLayer/UI-manager/TurnPanel"]
+layout_mode = 1
+anchors_preset = -1
+anchor_left = 1.05
+anchor_top = 0.5
+anchor_right = 1.1
+anchor_bottom = 0.5
+offset_left = -45.0
+offset_top = -15.5
+offset_bottom = 15.5
+grow_horizontal = 0
+grow_vertical = 2
+theme = SubResource("Theme_3s2ko")
+text = "Next"
+script = ExtResource("24_1p1b5")
+
+[node name="PlayersPanel" type="Panel" parent="CanvasLayer/UI-manager"]
+visible = false
+layout_mode = 1
+anchors_preset = -1
+anchor_left = 0.75
+anchor_top = 0.055
+anchor_right = 0.85
+anchor_bottom = 0.09
+script = ExtResource("25_7higi")
+
+[node name="Button" type="Button" parent="CanvasLayer/UI-manager/PlayersPanel"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+text = "PLAYER NAME	"
+
+[node name="ColorRect" type="ColorRect" parent="CanvasLayer/UI-manager/PlayersPanel"]
+layout_mode = 1
+anchors_preset = -1
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0.192256, 0.211339, 0.231785, 1)
+
+[node name="ItemList" type="ItemList" parent="CanvasLayer/UI-manager/PlayersPanel/ColorRect"]
+layout_mode = 1
+anchors_preset = 10
+anchor_right = 1.0
+offset_bottom = 89.0
+grow_horizontal = 2
+theme = SubResource("Theme_3lvok")
+allow_search = false
+max_text_lines = 8
+auto_height = true
+item_count = 3
+item_0/text = "Player 1"
+item_0/disabled = true
+item_1/text = "Player 2"
+item_2/text = "Player 3"
+item_2/disabled = true
+script = ExtResource("24_utqdd")
+
+[node name="WalletPanel" type="Panel" parent="CanvasLayer/UI-manager"]
+visible = false
+layout_mode = 1
+anchors_preset = -1
+anchor_top = 0.1
+anchor_right = 0.1
+anchor_bottom = 0.3
+offset_left = 10.0
+offset_right = 31.0
+offset_bottom = 67.0
+grow_vertical = 2
+script = ExtResource("28_dfmpb")
+
+[node name="VBoxContainer" type="VBoxContainer" parent="CanvasLayer/UI-manager/WalletPanel"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="RichTextLabel" type="RichTextLabel" parent="CanvasLayer/UI-manager/WalletPanel/VBoxContainer"]
+custom_minimum_size = Vector2(175, 45)
+layout_mode = 2
+bbcode_enabled = true
+text = "[font_size= 30]🪙: 10 000[/font_size]"
+
+[node name="RichTextLabel2" type="RichTextLabel" parent="CanvasLayer/UI-manager/WalletPanel/VBoxContainer"]
+custom_minimum_size = Vector2(175, 45)
+layout_mode = 2
+size_flags_vertical = 0
+bbcode_enabled = true
+text = "[font_size= 30]🪵: 10 000[/font_size]"
+
+[node name="RichTextLabel3" type="RichTextLabel" parent="CanvasLayer/UI-manager/WalletPanel/VBoxContainer"]
+custom_minimum_size = Vector2(175, 45)
+layout_mode = 2
+bbcode_enabled = true
+text = "[font_size= 30]🍖: 10 000[/font_size]"
+
+[node name="MovementPanel" type="Panel" parent="CanvasLayer/UI-manager"]
+visible = false
+layout_mode = 1
+anchors_preset = -1
+anchor_left = 0.25
+anchor_top = 0.25
+anchor_right = 0.75
+anchor_bottom = 0.75
+offset_right = 40.0
+offset_bottom = 40.0
+script = ExtResource("28_fj3f5")
+
+[node name="FromPanel" type="Panel" parent="CanvasLayer/UI-manager/MovementPanel"]
+layout_mode = 1
+anchors_preset = -1
+anchor_left = 0.03
+anchor_top = 0.05
+anchor_right = 0.4
+anchor_bottom = 0.9
+
+[node name="Label" type="Label" parent="CanvasLayer/UI-manager/MovementPanel/FromPanel"]
+layout_mode = 1
+anchors_preset = -1
+anchor_left = 0.5
+anchor_right = 0.5
+offset_top = 5.0
+grow_horizontal = 2
+text = "Biome 1"
+
+[node name="RichTextLabel" type="RichTextLabel" parent="CanvasLayer/UI-manager/MovementPanel/FromPanel"]
+layout_mode = 1
+anchors_preset = -1
+anchor_top = 0.8
+anchor_right = 1.0
+anchor_bottom = 0.95
+grow_horizontal = 2
+grow_vertical = 0
+text = "{ Lander Details }"
+
+[node name="VListBox" parent="CanvasLayer/UI-manager/MovementPanel/FromPanel" instance=ExtResource("30_h2p8k")]
+layout_mode = 1
+anchors_preset = -1
+anchor_top = 0.1
+anchor_bottom = 0.75
+
+[node name="TemplateButton" parent="CanvasLayer/UI-manager/MovementPanel/FromPanel/VListBox/Container" index="0"]
+theme = SubResource("Theme_vdaqx")
+toggle_mode = true
+
+[node name="ToPanel" type="Panel" parent="CanvasLayer/UI-manager/MovementPanel"]
+layout_mode = 1
+anchors_preset = -1
+anchor_left = 0.6
+anchor_top = 0.05
+anchor_right = 0.97
+anchor_bottom = 0.9
+
+[node name="Label" type="Label" parent="CanvasLayer/UI-manager/MovementPanel/ToPanel"]
+layout_mode = 1
+anchors_preset = -1
+anchor_left = 0.5
+anchor_right = 0.5
+offset_top = 5.0
+grow_horizontal = 2
+text = "Biome 2
+"
+
+[node name="RichTextLabel" type="RichTextLabel" parent="CanvasLayer/UI-manager/MovementPanel/ToPanel"]
+layout_mode = 1
+anchors_preset = -1
+anchor_top = 0.8
+anchor_right = 1.0
+anchor_bottom = 0.95
+grow_horizontal = 2
+grow_vertical = 0
+text = "{ Lander Details }"
+
+[node name="VListBox" parent="CanvasLayer/UI-manager/MovementPanel/ToPanel" instance=ExtResource("30_h2p8k")]
+layout_mode = 1
+anchors_preset = -1
+anchor_top = 0.1
+anchor_bottom = 0.75
+
+[node name="TemplateButton" parent="CanvasLayer/UI-manager/MovementPanel/ToPanel/VListBox/Container" index="0"]
+theme = SubResource("Theme_vdaqx")
+toggle_mode = true
+
+[node name="ArrowRTL" type="RichTextLabel" parent="CanvasLayer/UI-manager/MovementPanel"]
+layout_mode = 1
+anchors_preset = -1
+anchor_left = 0.5
+anchor_top = 0.4
+anchor_right = 0.5
+anchor_bottom = 0.4
+offset_left = -32.0
+offset_top = -32.0
+offset_right = 32.0
+offset_bottom = 32.0
+grow_horizontal = 2
+grow_vertical = 2
+pivot_offset = Vector2(32, 32)
+bbcode_enabled = true
+text = "[font_size=32][center][b][char=0x00002192][/b][/center][/font_size]"
+
+[node name="ActionBtns" type="HBoxContainer" parent="CanvasLayer/UI-manager/MovementPanel"]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -64.0
+offset_top = -32.0
+offset_right = 64.0
+offset_bottom = 32.0
+grow_horizontal = 2
+grow_vertical = 2
+theme = SubResource("Theme_6is6m")
+theme_override_constants/separation = 5
+
+[node name="CancleBtn" type="Button" parent="CanvasLayer/UI-manager/MovementPanel/ActionBtns"]
+layout_mode = 2
+size_flags_vertical = 8
+theme = SubResource("Theme_wbg4i")
+text = "X"
+script = ExtResource("24_1p1b5")
+
+[node name="MoveBtn" type="Button" parent="CanvasLayer/UI-manager/MovementPanel/ActionBtns"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 8
+theme = SubResource("Theme_i3tle")
+text = "Move"
+script = ExtResource("24_1p1b5")
+
+[node name="PurchasePanel" type="Panel" parent="CanvasLayer/UI-manager"]
+visible = false
+layout_mode = 1
+anchors_preset = -1
+anchor_left = 0.2
+anchor_top = 0.2
+anchor_right = 0.8
+anchor_bottom = 0.8
+offset_right = 40.0
+offset_bottom = 20.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("30_55tok")
+
+[node name="LandersListBox" parent="CanvasLayer/UI-manager/PurchasePanel" instance=ExtResource("30_h2p8k")]
+layout_mode = 1
+anchors_preset = -1
+anchor_left = 0.05
+anchor_top = 0.1
+anchor_right = 0.4
+anchor_bottom = 0.9
+
+[node name="MarketListBox" parent="CanvasLayer/UI-manager/PurchasePanel" instance=ExtResource("30_h2p8k")]
+layout_mode = 1
+anchors_preset = -1
+anchor_left = 0.6
+anchor_top = 0.1
+anchor_right = 0.95
+anchor_bottom = 0.9
+
+[node name="FinishBtn" type="Button" parent="CanvasLayer/UI-manager/PurchasePanel"]
+layout_mode = 1
+anchors_preset = -1
+anchor_left = 1.0
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = -96.0
+offset_top = -48.0
+offset_right = 48.0
+offset_bottom = 24.0
+theme = SubResource("Theme_lv10k")
+text = "Finish Market"
+script = ExtResource("24_1p1b5")
+
+[node name="SetupPanel" type="Panel" parent="CanvasLayer/UI-manager"]
+layout_mode = 1
+anchors_preset = -1
+anchor_top = 0.7
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 0
+script = ExtResource("32_nolq2")
+
+[node name="InputBlockPanel" type="Panel" parent="CanvasLayer/UI-manager/SetupPanel"]
+show_behind_parent = true
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme = SubResource("Theme_4cr4f")
+
+[node name="HListBox" parent="CanvasLayer/UI-manager/SetupPanel" instance=ExtResource("32_85cnl")]
+z_index = 2
+layout_mode = 1
+anchors_preset = -1
+offset_left = 50.0
+offset_top = 50.0
+offset_right = -50.0
+offset_bottom = -50.0
+
+[node name="Container" parent="CanvasLayer/UI-manager/SetupPanel/HListBox" index="0"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_right = 0.0
+offset_bottom = 0.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/separation = 25
+
+[node name="TemplateButton" parent="CanvasLayer/UI-manager/SetupPanel/HListBox/Container" index="0"]
+size_flags_horizontal = 3
+toggle_mode = true
+button_group = SubResource("ButtonGroup_xxa3a")
+text = ""
+icon = ExtResource("33_517gy")
+icon_alignment = 1
+expand_icon = true
+
+[node name="TemplateButton2" type="Button" parent="CanvasLayer/UI-manager/SetupPanel/HListBox/Container" index="1"]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "Sample Text"
+
+[editable path="CanvasLayer/UI-manager/CombatPanel/SelfUnitsPanel/ComabtSelectedUnitsDisplay"]
+[editable path="CanvasLayer/UI-manager/MovementPanel/FromPanel/VListBox"]
+[editable path="CanvasLayer/UI-manager/MovementPanel/ToPanel/VListBox"]
+[editable path="CanvasLayer/UI-manager/PurchasePanel/LandersListBox"]
+[editable path="CanvasLayer/UI-manager/PurchasePanel/MarketListBox"]
+[editable path="CanvasLayer/UI-manager/SetupPanel/HListBox"]

@@ -11,7 +11,7 @@ signal player_combat_not_ready
 const FIGHT_BTN_ROT: float = 12.0
 
 # static variables
-var combat_manager: GameManager
+var combat_manager: CombatManager
 # @export variables
 
 # remaining regular variables
@@ -48,7 +48,7 @@ func _pressed() -> void:
 
 
 ## Calls
-func bind_combat_manager(cm: GameManager):
+func bind_combat_manager(cm: CombatManager):
 	combat_manager = cm
 	#print("Fight Btn | comabt UI | Combat Manager Bound")
 

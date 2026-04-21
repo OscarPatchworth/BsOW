@@ -8,7 +8,7 @@ extends Panel
 # constants
 
 # static variables
-var turn_manager: GameManager
+var turn_manager: TurnManager
 # @export variables
 
 # remaining regular variables
@@ -28,7 +28,7 @@ func free_children(parent: Node) -> void:
 
 
 ## Calls
-func bind_turn_manager(tm: GameManager):
+func bind_turn_manager(tm: TurnManager):
 	# Bind self
 	turn_manager = tm
 

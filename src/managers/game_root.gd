@@ -16,12 +16,12 @@ var turn_manager: Node
 var combat_manager: Node
 var player_manager: Node
 var draw_3d: Node
-var match_settings: Node
+#var match_settings: Node
 
 ### Loadable sences
 var player_sence = preload("res://sences/player.tscn")
 var lander_sence = preload("res://sences/landerSene.tscn")
-var match_settings_data = preload("res://data/match_settings.gd")
+#var match_settings_data = preload("res://data/match_settings.gd")
 
 # @export variables
 @export var game_species: Array[SpeciesData]
@@ -32,9 +32,8 @@ var match_settings_data = preload("res://data/match_settings.gd")
 # @onready vars
 @onready var managers_node = self.find_child("Managers")
 @onready var players_node = self.find_child("Actors")
-### Sence Nodes
 @onready var landers_sence_node = self.find_child("Landers")
-
+@onready var match_settings = self.find_child("MatchSettings")
 
 ###################################################################################################
 # Called when the node enters the scene tree for the first time.
@@ -68,12 +67,6 @@ func instance_managers():
 	# Draw3D
 	draw_3d = Draw3D.new()
 	managers_node.add_child(draw_3d)
-	# Match Settings
-	match_settings = Node.new()
-	match_settings.set_script(match_settings_data)
-	managers_node.add_child(match_settings)
-
-
 
 
 # Init Game Managers

@@ -8,7 +8,7 @@ extends Panel
 # constants
 
 # static variables
-var combat_manager: GameManager
+var combat_manager: CombatManager
 var player_self: Player
 # @export variables
 
@@ -29,7 +29,7 @@ func free_children(parent: Node) -> void:
 
 
 ## Calls
-func bind_combat_manager(cm: GameManager):
+func bind_combat_manager(cm: CombatManager):
 	combat_manager = cm
 	#print("Select units Panel | comabt UI | Combat Manager Bound")
 

@@ -17,11 +17,11 @@ enum DisplayState {
 # constants
 
 # static variables
-var selector_manager: GameManager
+var selector_manager: Node
 
-var style_box_defualt: StyleBox = preload("res://view/lander_panel/landers/lander_btn_defualt.res")
-var style_box_enemy: StyleBox = preload("res://view/lander_panel/landers/lander_btn_enemy.res")
-var style_box_ally: StyleBox = preload("res://view/lander_panel/landers/lander_btn_ally.res")
+var style_box_defualt: StyleBox = preload("res://src/ui/lander_panel/landers/lander_btn_defualt.res")
+var style_box_enemy: StyleBox = preload("res://src/ui/lander_panel/landers/lander_btn_enemy.res")
+var style_box_ally: StyleBox = preload("res://src/ui/lander_panel/landers/lander_btn_ally.res")
 # remaining regular variables
 var lander: Lander
 var display_state: DisplayState = DisplayState.NEUTRAL
@@ -55,7 +55,7 @@ func _pressed():
 		move_units_action_req.emit(move_units_req)
 
 ## Calls
-func bind_selector(selector: GameManager):
+func bind_selector(selector: Node):
 	selector_manager = selector
 	#print("lander_control_button selector_manager bound")
 

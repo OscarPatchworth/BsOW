@@ -1,4 +1,4 @@
-[gd_scene load_steps=13 format=3 uid="uid://clx8h78aia5jy"]
+[gd_scene load_steps=15 format=3 uid="uid://clx8h78aia5jy"]
 
 [ext_resource type="Script" path="res://src/managers/game_root.gd" id="1_3h0u6"]
 [ext_resource type="Script" path="res://src/data/species_data.gd" id="2_edhu4"]
@@ -9,11 +9,14 @@
 [ext_resource type="Resource" uid="uid://d04jxtc7utmqq" path="res://data/biome/forest_biome.tres" id="7_s8tui"]
 [ext_resource type="Resource" uid="uid://bo0vvivlki1y1" path="res://data/biome/mountain_biome.tres" id="8_0urn8"]
 [ext_resource type="Resource" uid="uid://djyants1sgts1" path="res://data/biome/plains_biome.tres" id="9_a8gev"]
+[ext_resource type="Texture2D" uid="uid://c3tsgpq3k48ho" path="res://assets/textures/third_person_controller_assets/textures/grids/Dark/texture_02.png" id="10_8bgol"]
+[ext_resource type="Script" path="res://data/match_settings.gd" id="10_22a4b"]
 
 [sub_resource type="BoxShape3D" id="BoxShape3D_r86o6"]
 size = Vector3(10, 0.1, 10)
 
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_16dx4"]
+albedo_texture = ExtResource("10_8bgol")
 uv1_triplanar = true
 
 [sub_resource type="BoxMesh" id="BoxMesh_05ysm"]
@@ -58,6 +61,8 @@ transform = Transform3D(0.766044, -0.55667, 0.321394, 0, 0.5, 0.866025, -0.64278
 [node name="GravitySystem" type="Node" parent="Managers"]
 
 [node name="MatchSettings" type="Node" parent="Managers"]
+script = ExtResource("10_22a4b")
+game_biomes = Array[ExtResource("5_0u4q7")]([ExtResource("6_42vif"), ExtResource("7_s8tui"), ExtResource("8_0urn8"), ExtResource("9_a8gev")])
 
 [node name="CombatManager" type="Node" parent="Managers"]
 

@@ -7,7 +7,7 @@ extends Panel
 # constants
 
 # static variables
-var turn_manager: GameManager
+var turn_manager: TurnManager
 # @export variables
 
 # remaining regular variables
@@ -31,7 +31,7 @@ func to_sentence_case(txt: String) -> String:
 
 
 ### Connected Signals
-func bind_turn_manager(tm: GameManager):
+func bind_turn_manager(tm: TurnManager):
 	# Bind self
 	turn_manager = tm
 
