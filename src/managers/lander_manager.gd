@@ -96,14 +96,11 @@ func is_pos_lander_adjacent(pos: Vector3) -> bool:
 
 func get_connected_landers(target_lander: Lander) -> Array[Lander]:
 	var connected_landers: Array[Lander] = []
-	print(landers)
-	print(connected_lander_distance)
 	for lander in landers:
 		if (target_lander.global_position.distance_to(lander.global_position) < connected_lander_distance):
 			if(lander != target_lander):
 				connected_landers.append(lander)
 		print(target_lander.position.distance_to(lander.position) )
-	print(connected_landers)
 	return connected_landers
 
 
