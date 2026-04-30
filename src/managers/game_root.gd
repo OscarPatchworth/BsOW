@@ -47,7 +47,7 @@ var draw_3d: Node
 func _ready() -> void:
 	instance_managers()
 	init_game_managers_and_systems()
-	init_actors()
+	add_actors()
 	root_setup_finished.emit()
 
 
@@ -61,7 +61,7 @@ func instance_managers():
 	managers_node.add_child(action_manager)
 	# Lander Manager
 	lander_manager = LanderManager.new()
-	managers_node.add_child(action_manager)
+	managers_node.add_child(lander_manager)
 	# Turn Manager
 	turn_manager = TurnManager.new()
 	managers_node.add_child(turn_manager)
@@ -104,19 +104,132 @@ func init_combat_manager():
 
 
 # Player Setup
-func init_actors():
+func add_actors():
 	add_players()
 	add_ai()
 
 
 func add_players() 	:
-	pass
+	var player_x = player_sence.instantiate()
+	players_node.add_child(player_x)
+	setup_player(player_x)
 
 
 func add_ai():
-	pass
-	
-		
+	var new_ai = SimpleAI.new()
+	players_node.add_child(new_ai)
+	setup_ai(new_ai)
+
+#endregion
+
+#region Player Init
+func setup_player(player_x):
+	# setup temp vars
+	var player_cntrl = player_x.find_child("PlayerController")
+	# Binders
+	turn_manager.bind_actor_to_actor_group(player_x)
+	player_cntrl.action_manager = action_manager
+	player_x.turn_manager = self.turn_manager
+	player_x.lander_manager = self.lander_manager
+	player_x.combat_manager = self.combat_manager
+	player_x.draw_3d = self.draw_3d
+	player_x.match_settings = self.match_settings
+
+	# Connect Signals
+	# FROM self_player
+	# To Action Manager
+	player_x.build_action_req.connect(action_manager.action_request) # Build
+	player_x.buy_unit_action_req.connect(action_manager.action_request) # Buy Unit
+	player_x.move_units_action_req.connect(action_manager.action_request) # Move units
+	player_x.attack_action_req.connect(action_manager.action_request) # Attack
+	player_x.purchase_action_req.connect(action_manager.action_request) # Purchase
+	player_x.next_phase_req.connect(action_manager.action_request) # Progress turn
+	player_x.place_biome_req.connect(action_manager.action_request) # Place Biome
+	player_x.place_command_tower.connect(action_manager.action_request) # Place CT
+	# To Combat Manager
+	player_x.combat_unit_selected.connect(combat_manager.actor_selection_req) # Select Units
+	player_x.unit_deslected.connect(combat_manager.actor_selection_req) # Deselect Units
+	player_x.player_combat_ready.connect(combat_manager.actor_selection_req) # Combat Ready
+	player_x.player_combat_not_ready.connect(combat_manager.actor_selection_req) # Combat UnReady
+
+	# TO self_player
+	# From Lander Manager
+	lander_manager.built_action_completed.connect(player_x.fwd_build_action_completed) #  BuildA complete
+	lander_manager.buy_unit_action_completed.connect(player_x.fwd_buy_unit_action_completed) # BuyA complete
+	lander_manager.move_units_action_completed.connect(player_x.fwd_move_units_action_completed) # MoveA complete
+	# From Turn Manager
+	turn_manager.game_phased_changed.connect(player_x.game_phase_changed) # Game Phase delta
+	turn_manager.turn_order_generated.connect(player_x.setup_turn_order) # Turn Order gen
+	turn_manager.actor_turn_changed.connect(player_x.actor_turn_changed) # Actor Turn delta
+	turn_manager.season_order_generated.connect(player_x.seasons_generated) # Season gen
+	turn_manager.season_changed.connect(player_x.season_changed) # Season delta
+	turn_manager.current_game_state.connect(player_x.game_state_changed) # Game State delta
+	# From Combat Manager
+	combat_manager.combat_started.connect(player_x.enter_combat) # Combat Started
+	combat_manager.combat_updated.connect(player_x.combat_update) # Combat updated
+	combat_manager.combat_outcome.connect(player_x.combat_outcome) # Combat Outcome
+	# From Action Manager	
+	action_manager.place_biome.connect(func(req): if req.actor == player_x:  # Placed Setup Biome
+		if turn_manager.get_game_state() == turn_manager.GameSequence.SETUP: 
+			return player_x.setup_biome_placed(req))
+	action_manager.build_action.connect(func(req): if req.actor == player_x:  # Build Setup CT
+		if turn_manager.get_game_state() == turn_manager.GameSequence.SETUP: 
+			return player_x.command_tower_placed())
+
+	# Setup Player Settings
+	player_x.species = game_species.pick_random() # Species
+	# Wallet
+	player_x.wallet = EconData.new()	
+	player_x.wallet.set_resource_value("gold", 10)
+	player_x.wallet.set_resource_value("food", 10)
+	player_x.wallet.set_resource_value("mineral", 10)
+	player_x.wallet.set_resource_value("wood", 10)
+	player_x.wallet.set_resource_value("stone", 10)
+
+#endregion
+
+
+#region AI Init
+func setup_ai(sai: SimpleAI):
+	# Setup temp vars
+
+	# Binders
+	sai.turn_manager = self.turn_manager
+	sai.lander_manager = self.lander_manager
+	sai.combat_manager = self.combat_manager
+
+	# Signals
+	# To
+	combat_manager.combat_started.connect(sai.combat_req)
+	combat_manager.combat_updated.connect(sai.combat_update)
+	# From
+	sai.combat_unit_selected.connect(combat_manager.actor_selection_req)
+	sai.unit_deslected.connect(combat_manager.actor_selection_req)
+	sai.combat_ready.connect(combat_manager.actor_selection_req)
+	sai.combat_not_ready.connect(combat_manager.actor_selection_req)
+
+	# Setup AI settings
+	sai.species = game_species.pick_random() # Species
+	# Wallet
+	sai.wallet = EconData.new()
+	sai.wallet.set_resource_value("gold", 10)
+	sai.wallet.set_resource_value("food", 10)
+	sai.wallet.set_resource_value("mineral", 10)
+	sai.wallet.set_resource_value("wood", 10)
+	sai.wallet.set_resource_value("stone", 10)
+
+	# Temp fix
+	# Init Landers
+	for i in match_settings.starting_simple_troops:
+		var place_pos = Vector3.ZERO
+		place_pos.x = randf() * match_settings.map_size * ((-1)**(randi()%2))
+		place_pos.z = randf() * match_settings.map_size * ((-1)**(randi()%2))
+		if lander_manager.is_pos_min_distance_apart(place_pos):
+			lander_manager.spawn_protected_lander(place_pos, sai, match_settings.starting_simple_troops )
+		else:
+			print("AI init lander spawn error: out of bounds")
+
+
 #endregion
 
 #region Binders
@@ -177,26 +290,5 @@ func wire_from_combat_manager():
 
 #endregion
 
-#region Forwarders
 
-#endregion
-
-#region Callbacks
-
-#endregion
-
-#region State Queries
-
-#endregion
-
-#region Helpers
-
-#endregion
-
-
-
-
-
-
-
-
+# End of File

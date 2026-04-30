@@ -35,6 +35,9 @@ func run_wallet_display():
 	update_display()
 
 func update_display():
+	if player_wallet == null:
+		print("Wallet Panel | Err | Calling Null player wallet")
+		return
 	free_children(vbox)
 	for game_resource in player_wallet.get_resource_dict().keys():
 		# Make new RTL

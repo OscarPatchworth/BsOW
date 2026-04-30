@@ -34,6 +34,9 @@ func bind_turn_manager(tm: TurnManager):
 
 
 func setup_turn_order_display():
+	if turn_manager == null:
+		print("Players Panel | Err | Calling null on turn_manager")
+		return
 	players_list.clear()
 	for acotr_name in turn_manager.get_turn_order_names():
 		players_list.add_item(acotr_name, null, false)

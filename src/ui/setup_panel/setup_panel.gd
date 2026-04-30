@@ -49,6 +49,9 @@ func bind_match_settings(ms):
 
 ## Calls
 func game_state_changed(game_state):
+	if match_settings == null:
+		print("Setup Panel | Err | Calling null on match settings")
+		return
 	if game_state == turn_manager.GameSequence.SETUP:
 		self.show()
 		for i in match_settings.starting_biomes_amount:

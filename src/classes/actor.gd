@@ -20,7 +20,7 @@ var combat_manager: CombatManager
 
 # remaining regular variables
 var combat_pos # Combat ATK/DEF
-var wallet: EconData
+var wallet:  = EconData.new()
 
 ###################################################################################################
 # Methods

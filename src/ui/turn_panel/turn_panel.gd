@@ -8,9 +8,8 @@ signal next_phase_req(req: Action)
 # enums
 
 # constants
-
+var turn_manager: TurnManager
 # static @onready variables
-var turn_manager = TurnManager.new()
 
 # @export var variables
 @export var defualt_label_stylebox: StyleBox
@@ -27,6 +26,8 @@ var turn_phases: Array
 ###	Methods
 func _ready() -> void:
 	ready_signals()
+
+
 
 func generate_phase_labels():
 	generate_turn_phases()
@@ -58,6 +59,9 @@ func to_sentence_case(txt: String) -> String:
 
 
 func update_turn_panel():
+	if turn_manager == null:
+		print("Turn Panel | Err | calling null turn_mangaer")
+		return
 	# to_sentnce_case wrapper to compare states equally in for-loop below
 	var current_phase = to_sentence_case(
 		turn_manager.int_to_game_phase(

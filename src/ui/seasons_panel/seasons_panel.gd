@@ -38,6 +38,9 @@ func bind_turn_manager(tm: TurnManager):
 
 ## Calls
 func seasons_generated():
+	if turn_manager == null:
+		print("Season Panel | Err | Calling null on a null turn manager")
+		return
 	free_children(hbox)
 	game_seasons = turn_manager.get_season_order_names()
 	for season in game_seasons:
