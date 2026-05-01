@@ -166,7 +166,6 @@ func fwd_move_units_req(move_units_req: Action):
 	move_units_action_req.emit(move_units_req)
 
 
-
 func fwd_attack_action_req(req: Action):
 	req.actor = self
 	attack_action_req.emit(req)
@@ -186,7 +185,7 @@ func fwd_player_combat_not_ready():
 	# who: Actor, thing: Variant, select: bool
 	player_combat_not_ready.emit(self, false, false)
 
-## Calls
+
 func fwd_build_action_completed(req:Action):
 	if req.actor == self:
 		#print("Player recieved comfirmation of build action completed !!")
@@ -233,6 +232,7 @@ func fwd_close_market():
 func fwd_place_biome_req(req: Action):
 	req.actor = self
 	place_biome_req.emit(req)
+
 
 func fwd_place_command_tower(req: Action):
 	req.actor = self
@@ -297,7 +297,7 @@ func command_tower_placed():
 
 #endregion
 
-#region State 
+#region State Q
 # Gettets
 func get_starting_biomes() -> Array:
 	return species.starting_landers
