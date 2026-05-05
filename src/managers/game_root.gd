@@ -5,7 +5,7 @@
 class_name GameRoot
 extends Node
 
-#region Value
+#region Values
 # signals
 signal root_setup_finished
 
