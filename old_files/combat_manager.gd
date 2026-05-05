@@ -1,4 +1,5 @@
 #combat_manager.gd
+
 #class_name CombatManager
 extends Node
 

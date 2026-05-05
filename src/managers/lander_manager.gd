@@ -1,36 +1,51 @@
 #lander_manager.gd
+
+# Holds refs to all landers and run lander/lander + lander/Pos API
+
 class_name LanderManager
 extends Node
 
-#signals
+#region Declarations
+# Signals
 signal built_action_completed(req: Action)
 signal buy_unit_action_completed(req: Action)
 signal move_units_action_completed(req: Action)
 signal completed_upkeep()
 
-# enums
-
-# constants
+# Enums
+# Constants
 const LANDER_RADIUS:float = 1
 const MIN_DIST_BETWEEN_LANDERS = 2
 const MIN_DIST_SQUARED = MIN_DIST_BETWEEN_LANDERS ** 2
 const FLOOR_OFFSET:Vector3 = Vector3.UP
 
-# static variables
+# Static Variables
 var landers_sence_node: Node3D
 var lander_sence: PackedScene
 var biome_types: Array[BiomeData]
 var connected_lander_distance: float
 
-# @export variables
-
-# remaining regular variables
+# Exported Data
+# Scene Refs
+# Runtime Refs
 var landers:Array[Lander]
 
-# @onready variables
+#endregion
+
+#region Internal Types
+#endregion
+
 
 ###################################################################################################
-###	Methods
+#region Lifecycle
+#endregion
+
+#region Setup Flow
+func wire_and_signal_lander(lander: Lander):
+	lander.built_action_completed.connect(self.fwd_build_action_completed)
+	lander.buy_unit_action_completed.connect(self.fwd_buy_unit_action_completed)
+
+
 func inst_lander(pos: Vector3):
 	var new_lander = lander_sence.instantiate()
 	#Acidental Feature:
@@ -58,7 +73,9 @@ func inst_biome(req: Action):
 	landers_sence_node.add_child(new_lander)
 	landers.append(new_lander)
 
+#endregion
 
+#region Public API
 func spawn_protected_lander(pos: Vector3, ownr: Actor, amount_defenders: int):
 	inst_lander(pos)
 	#cmd ^ adds lander to end of landers[] and so below grabs the lander that was just instanced
@@ -78,6 +95,11 @@ func spawn_protected_lander(pos: Vector3, ownr: Actor, amount_defenders: int):
 		else:
 			print("Failed to spawn troops on protected lander. \n error: species has no units with base of \'Base Footsolider\'")
 
+
+
+#endregion
+
+#region State Queries
 func is_pos_min_distance_apart(pos: Vector3) -> bool:
 	# Here using the LANDER_RADIUS as the min distance between landers
 	# Squaring this value to make it compariable to the squared distance between lander positions
@@ -87,20 +109,19 @@ func is_pos_min_distance_apart(pos: Vector3) -> bool:
 			return false
 	return true
 
+
 func is_pos_lander_adjacent(pos: Vector3) -> bool:
 	for lander in landers:
 		if (pos.distance_to(lander.position) < connected_lander_distance):
 			return true
 	return false
 
-
 func get_connected_landers(target_lander: Lander) -> Array[Lander]:
 	var connected_landers: Array[Lander] = []
 	for lander in landers:
 		if (target_lander.global_position.distance_to(lander.global_position) < connected_lander_distance):
 			if(lander != target_lander):
-				connected_landers.append(lander)
-		print(target_lander.position.distance_to(lander.position) )
+				connected_landers.append(lander)		
 	return connected_landers
 
 
@@ -113,19 +134,6 @@ func get_landers_actor_has(a: Actor) -> Array:
 	return return_landers.filter(func(lnd): return bool(lnd != null))
 
 
-### Wires and Signals
-func wire_and_signal_lander(lander: Lander):
-	lander.built_action_completed.connect(self.fwd_build_action_completed)
-	lander.buy_unit_action_completed.connect(self.fwd_buy_unit_action_completed)
-
-func fwd_build_action_completed(req: Action):
-	built_action_completed.emit(req)
-
-
-func fwd_buy_unit_action_completed(req: Action):
-	buy_unit_action_completed.emit(req)
-
-### Calls
 func is_valid_lander_placement(req_pos: Vector3) -> bool:
 	return is_pos_min_distance_apart(req_pos)
 
@@ -147,8 +155,27 @@ func move_units_action(req: Action):
 	move_units_action_completed.emit(req)
 
 
+#endregion
+
+#region Callbacks
+func fwd_build_action_completed(req: Action):
+	built_action_completed.emit(req)
+
+
+func fwd_buy_unit_action_completed(req: Action):
+	buy_unit_action_completed.emit(req)
+
+
 func run_upkeep(who: Actor):
 	var ply_wallet = who.get_wallet()
 	for lander in get_landers_actor_has(who):
 		ply_wallet.add_resource(lander.get_upkeep_econ())
 	completed_upkeep.emit()
+
+
+#endregion
+
+#region Helpers
+#endregion
+
+# End Of File
