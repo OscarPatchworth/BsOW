@@ -14,6 +14,10 @@
 # Runtime Refs
 #endregion
 
+#region Internal Types
+#endregion
+
+
 ###################################################################################################
 #region Lifecycle
 #endregion

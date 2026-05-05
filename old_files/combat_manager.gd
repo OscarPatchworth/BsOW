@@ -1,5 +1,5 @@
 #combat_manager.gd
-class_name CombatManager
+#class_name CombatManager
 extends Node
 
 # signals
