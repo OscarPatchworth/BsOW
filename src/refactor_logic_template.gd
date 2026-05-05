@@ -31,8 +31,6 @@
 #region State Transitions
 #endregion
 
-#region Accessors
-#endregion
 
 #region State Queries
 #endregion
