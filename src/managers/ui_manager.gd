@@ -1,7 +1,7 @@
 # ui_manager.gd
 # Controls flow between player and UI sections
 
-class_name UIManager
+#class_name UIManager
 extends Control
 
 #region Signals
