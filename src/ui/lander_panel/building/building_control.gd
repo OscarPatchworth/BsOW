@@ -1,104 +1,77 @@
-#Building_control.gd
+# building_control.gd
 extends VBoxContainer
 
-# signals
-signal build_action_req(build_req)
+#region Signals
+signal build_action_req(req: Action)
+#endregion
 
-# enums
+#region Enums
 enum BuildingDisplay {
 	HIDE_ALL,
 	BUILDING_DETAILS,
 	BUILDING_SHOP
 }
+#endregion
 
-# constants
-#const MAX_SPEED = 200
-
-# static variables
-var selector_manager: Node
-
-# @export variables
-
-# remaining regular variables
+#region Scene Refs
+var selector: Dictionary
 var display_state: BuildingDisplay = BuildingDisplay.HIDE_ALL
-
-# @onready variables
-@onready var details_node:VBoxContainer = self.find_child("DetailsState")
-@onready var shop_node:VBoxContainer = self.find_child("ShopState")
-
+@onready var details_node: VBoxContainer = self.find_child("DetailsState")
+@onready var shop_node: VBoxContainer = self.find_child("ShopState")
+#endregion
 
 ###################################################################################################
-###	Methods
+#region Lifecycle
 func _ready() -> void:
 	connect_signals()
-	connect_wires()
+	update_display()
+#endregion
 
+#region Binders
+func bind_selector(sel: Dictionary) -> void:
+	selector = sel
+	details_node.bind_selector(sel)
+	shop_node.bind_selector(sel)
+#endregion
+
+#region State Setters
+func set_state_hide() -> void:
+	display_state = BuildingDisplay.HIDE_ALL
 	update_display()
 
-
-func get_display_state() -> BuildingDisplay:
-	return display_state
-func set_display_state(new_state: BuildingDisplay):
-	display_state = new_state
+func set_state_building_details() -> void:
+	display_state = BuildingDisplay.BUILDING_DETAILS
 	update_display()
 
-##
-func set_state_hide():
-	set_display_state(BuildingDisplay.HIDE_ALL)
+func set_state_building_shop() -> void:
+	display_state = BuildingDisplay.BUILDING_SHOP
 	update_display()
+#endregion
 
-func set_state_building_details():
-	set_display_state(BuildingDisplay.BUILDING_DETAILS)
-	update_display()
-
-func set_state_building_shop():
-	set_display_state(BuildingDisplay.BUILDING_SHOP)
-	update_display()
-##
-
-func update_display():
+#region Display Updates
+func update_display() -> void:
 	match display_state:
 		BuildingDisplay.HIDE_ALL:
-			update_hide_all()
-
+			details_node.hide()
+			shop_node.hide()
 		BuildingDisplay.BUILDING_DETAILS:
-			update_building_details()
-
+			shop_node.hide()
+			details_node.show()
+			details_node.update()
 		BuildingDisplay.BUILDING_SHOP:
-			update_building_shop()
+			details_node.hide()
+			shop_node.show()
+			shop_node.update()
+#endregion
 
+#region Signal Connections
+func connect_signals() -> void:
+	shop_node.build_action_req.connect(fwd_build_req)
+#endregion
 
-func update_hide_all():
-	details_node.hide()
-	shop_node.hide()
-
-
-func update_building_details():
-	shop_node.hide()
-	details_node.show()
-	details_node.update()
-
-
-func update_building_shop():
-	details_node.hide()
-	shop_node.show()
-	shop_node.update()
-
-### Signals and wires
-func bind_selector(selector: Node):
-	selector_manager = selector
-	details_node.bind_selector(selector)
-	shop_node.bind_selector(selector)
-	#print("Building Control selector_manager bound")
-
-
-func connect_signals():
-	shop_node.build_action_req.connect(self.fwd_build_req)
-
-
-func connect_wires():
-	pass
-
-
-func fwd_build_req(build_req: Action):
+#region Forwarders
+func fwd_build_req(build_req: Action) -> void:
 	build_action_req.emit(build_req)
+#endregion
+
+# End Of File

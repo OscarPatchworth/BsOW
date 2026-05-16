@@ -1,60 +1,45 @@
-#building_shop_state.gd
+# building_shop_state.gd
+# Is logic for Shop state of DebugPanel->Building
+
 extends VBoxContainer
 
-# signals
-signal build_action_req(action_request)
+#region Signals
+signal build_action_req(req: Action)
+#endregion
 
-# enums
-#enum Element {EARTH,WATER,AIR,FIRE,}
-
-# constants
-#const MAX_SPEED = 200
-
-# static variables
-var selector_manager:Node
-
-# @export variables
-
-# remaining regular variables
-var cur_lander: Lander
-
-
-# @onready variables
-@onready var shop_label: Label = self.find_child("BuildingShopLabel")
-@onready var shop_buttons: HBoxContainer = self.find_child("BuildingButtons")
+#region Scene Refs
+var selector: Dictionary
+@onready var shop_list: ListBox = self.find_child("HListBox")
+#endregion
 
 ###################################################################################################
-###	Methods
-func free_children(parent: Node) -> void:
-	for i in parent.get_children():
-		i.queue_free()
+#region Lifecycle
+func update() -> void:
+	var buildings = selector.player.species.buildings
+	shop_list.set_objects(
+		buildings,
+		func(b): return b.name
+	)
+#endregion
 
+#region Binders
+func bind_selector(sel: Dictionary) -> void:
+	selector = sel
+	connect_signals()
+#endregion
 
-### Signals and Wires
-func bind_selector(selector: Node):
-	selector_manager = selector
-	#print("BuildingShop slector_manager bound")
+#region Signal Connections
+func connect_signals() -> void:
+	shop_list.list_btn_pressed.connect(on_building_pressed)
+#endregion
 
-
-func update():
-	cur_lander = selector_manager.get_selected_lander()
-	#shop_label.text = cur_lander.biome_data.name
-	update_shop_building_buttons()
-
-
-func update_shop_building_buttons():
-	free_children(shop_buttons)
-	var buildings = selector_manager.self_player.species.buildings
-
-	for building in buildings:
-		var build_btn = BuildingShopButton.new()
-		build_btn.bind_selector(selector_manager)
-		build_btn.set_building(building)
-		build_btn.build_action_req.connect(self.fwd_build_action_req)
-
-		shop_buttons.add_child(build_btn)
-
-
-func fwd_build_action_req(action_req: Action):
-	action_req.target_lander = cur_lander
+#region Callbacks
+func on_building_pressed(building: BuildingData) -> void:
+	var action_req = Action.new()
+	action_req.type = Action.RequestType.PLACE_BUILDING
+	action_req.building_type = building
+	action_req.target_lander = selector.selected_lander
 	build_action_req.emit(action_req)
+#endregion
+
+# End Of File

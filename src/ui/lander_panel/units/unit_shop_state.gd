@@ -1,58 +1,45 @@
-#unit_shop_state.gd
+# unit_shop_state.gd
+# Is logic for shop state of DebugPanel->Units
+
 extends VBoxContainer
 
-# signals
+#region Signals
 signal buy_unit_action_req(req: Action)
+#endregion
 
-# enums
-#enum Element {EARTH,WATER,AIR,FIRE,}
-
-# constants
-#const MAX_SPEED = 200
-
-# static variables
-var selector_manager: Node
-
-# @export variables
-
-# remaining regular variables
-var cur_lander: Lander
-var cur_actor: Actor
-
-# @onready variables
-@onready var shop_buttons: HBoxContainer = self.find_child("UnitButtons")
+#region Scene Refs
+var selector: Dictionary
+@onready var shop_list: ListBox = self.find_child("HListBox")
+#endregion
 
 ###################################################################################################
-###	Methods
-func free_children(parent: Node) -> void:
-	for i in parent.get_children():
-		i.queue_free()
+#region Lifecycle
+func update() -> void:
+	var units = selector.player.species.units
+	shop_list.set_objects(
+		units,
+		func(u): return u.name
+	)
+#endregion
 
+#region Binders
+func bind_selector(sel: Dictionary) -> void:
+	selector = sel
+	connect_signals()
+#endregion
 
-func update_shop_buttons():
-	free_children(shop_buttons)
-	var units = selector_manager.self_player.species.units
+#region Signal Connections
+func connect_signals() -> void:
+	shop_list.list_btn_pressed.connect(on_unit_pressed)
+#endregion
 
-	for unit in units:
-		var unit_btn = UnitShopButton.new()
-		unit_btn.bind_selector(selector_manager)
-		unit_btn.set_unit(unit)
-		unit_btn.buy_unit_action_req.connect(self.fwd_buy_unit_action_req)
-		shop_buttons.add_child(unit_btn)
+#region Callbacks
+func on_unit_pressed(unit: UnitData) -> void:
+	var action_req = Action.new()
+	action_req.type = Action.RequestType.BUY_UNIT
+	action_req.unit_type = unit
+	action_req.target_lander = selector.selected_lander
+	buy_unit_action_req.emit(action_req)
+#endregion
 
-### Connected Signals
-func bind_selector(selector: Node):
-	selector_manager = selector
-	#print("UnitShop slector_manager bound")
-
-
-func fwd_buy_unit_action_req(req:Action):
-	buy_unit_action_req.emit(req)
-	
-
-## Calls
-func update():
-	cur_lander = selector_manager.get_selected_lander()
-	cur_actor = selector_manager.get_player()
-
-	update_shop_buttons()
+# End Of File

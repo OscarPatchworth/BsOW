@@ -1,36 +1,22 @@
-#building_details_state.gd
+# building_details_state.gd
+# Is logic for defualt state of DebugPanel->Building
+
 extends VBoxContainer
 
-# signals
-#signal score_changed
-
-# enums
-#enum Element {EARTH,WATER,AIR,FIRE,}
-
-# constants
-#const MAX_SPEED = 200
-
-# static variables
-var selector_manager:Node
-
-# @export variables
-
-# remaining regular variables
-
-# @onready variables
+#region Scene Refs
+var selector: Dictionary
 @onready var building_label: Label = self.find_child("BuildingNameLabel")
+#endregion
 
 ###################################################################################################
-###	Methods
+#region Lifecycle
+func update() -> void:
+	building_label.text = selector.selected_lander.get_building_data().get_building_name()
+#endregion
 
+#region Binders
+func bind_selector(sel: Dictionary) -> void:
+	selector = sel
+#endregion
 
-### Signals and Wires
-func bind_selector(selector: Node):
-	selector_manager = selector
-	#print("BuildingDetails slector_manager bound")
-
-
-## Calls
-func update():
-	var cur_lander = selector_manager.get_selected_lander()
-	building_label.text = cur_lander.get_building_data().get_building_name()
+# End Of File

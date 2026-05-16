@@ -1,37 +1,21 @@
-#unit_details_state.gd
-extends Node
+# unit_details_state.gd
+# Is logic for shop defualt of DebugPanel->Units
 
-# signals
-#signal score_changed
+extends VBoxContainer
 
-# enums
-#enum Element {EARTH,WATER,AIR,FIRE,}
-
-# constants
-#const MAX_SPEED = 200
-
-# static variables
-var selector_manager: Node
-
-# @export variables
-
-# remaining regular variables
-var cur_lander: Lander
-var cur_actor: Actor
-
-
-# @onready variables
+#region Scene Refs
+var selector: Dictionary
+#endregion
 
 ###################################################################################################
-###	Methods
-
-
-### Connected Signals
-func bind_selector(selector: Node):
-	selector_manager = selector
-	#print("UnitDetails slector_manager bound")
-
-
-## Calls
-func update():
+#region Lifecycle
+func update() -> void:
 	pass
+#endregion
+
+#region Binders
+func bind_selector(sel: Dictionary) -> void:
+	selector = sel
+#endregion
+
+# End Of File

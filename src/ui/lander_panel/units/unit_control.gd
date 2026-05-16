@@ -1,107 +1,77 @@
-#unit_control.gd
+# unit_control.gd
 extends VBoxContainer
 
-# signals
+#region Signals
 signal buy_unit_action_req(req: Action)
+#endregion
 
-# enums
+#region Enums
 enum UnitDisplay {
 	HIDE_ALL,
 	DETAILS,
 	SHOP
 }
+#endregion
 
-# constants
-#const MAX_SPEED = 200
-
-# static variables
-var selector_manager:Node
-
-# @export variables
-
-# remaining regular variables
+#region Scene Refs
+var selector: Dictionary
 var display_state: UnitDisplay = UnitDisplay.HIDE_ALL
-
-# @onready variables
-@onready var details_node:VBoxContainer = self.find_child("DetailsState")
-@onready var shop_node:VBoxContainer = self.find_child("ShopState")
-
+@onready var details_node: VBoxContainer = self.find_child("DetailsState")
+@onready var shop_node: VBoxContainer = self.find_child("ShopState")
+#endregion
 
 ###################################################################################################
-###	Methods
+#region Lifecycle
 func _ready() -> void:
 	connect_signals()
-	connect_wires()
+	update_display()
+#endregion
 
+#region Binders
+func bind_selector(sel: Dictionary) -> void:
+	selector = sel
+	details_node.bind_selector(sel)
+	shop_node.bind_selector(sel)
+#endregion
+
+#region State Setters
+func set_state_hide() -> void:
+	display_state = UnitDisplay.HIDE_ALL
 	update_display()
 
-
-func get_display_state() -> UnitDisplay:
-	return display_state
-func set_display_state(new_state: UnitDisplay):
-	display_state = new_state
+func set_state_details() -> void:
+	display_state = UnitDisplay.DETAILS
 	update_display()
 
-##
-func set_state_hide():
-	set_display_state(UnitDisplay.HIDE_ALL)
+func set_state_shop() -> void:
+	display_state = UnitDisplay.SHOP
 	update_display()
+#endregion
 
-func set_state_details():
-	set_display_state(UnitDisplay.DETAILS)
-	update_display()
-
-func set_state_shop():
-	set_display_state(UnitDisplay.SHOP)
-	update_display()
-##
-
-func update_display():
+#region Display Updates
+func update_display() -> void:
 	match display_state:
 		UnitDisplay.HIDE_ALL:
-			update_hide_all()
-
+			details_node.hide()
+			shop_node.hide()
 		UnitDisplay.DETAILS:
-			update_details()
-
+			shop_node.hide()
+			details_node.show()
+			details_node.update()
 		UnitDisplay.SHOP:
-			update_shop()
+			details_node.hide()
+			shop_node.show()
+			shop_node.update()
+#endregion
 
+#region Signal Connections
+func connect_signals() -> void:
+	shop_node.buy_unit_action_req.connect(fwd_buy_unit_action_req)
+#endregion
 
-func update_hide_all():
-	details_node.hide()
-	shop_node.hide()
-
-
-func update_details():
-	shop_node.hide()
-	details_node.show()
-	details_node.update()
-
-
-func update_shop():
-	details_node.hide()
-	shop_node.show()
-	shop_node.update()
-
-### Signals and wires
-func bind_selector(selector: Node):
-	selector_manager = selector
-	#print("Unit Control selector_manager bound")
-
-	details_node.bind_selector(selector)
-	shop_node.bind_selector(selector)
-	
-
-
-func connect_signals():
-	shop_node.buy_unit_action_req.connect(self.fwd_buy_unit_action_req)
-	pass
-
-
-func connect_wires():
-	pass
-
-
-func fwd_buy_unit_action_req(buy_unit_req: Action):
+#region Forwarders
+func fwd_buy_unit_action_req(buy_unit_req: Action) -> void:
 	buy_unit_action_req.emit(buy_unit_req)
+#endregion
+
+# End Of File
