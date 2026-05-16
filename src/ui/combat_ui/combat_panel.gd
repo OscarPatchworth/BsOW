@@ -8,7 +8,7 @@ signal player_combat_ready
 signal player_combat_not_ready
 signal combat_display_toggled(toggled_on: bool)
 signal attack_req(req: Action)
-signal comabt_ui_closed()
+signal combat_ui_closed()
 
 # enums
 
@@ -168,7 +168,7 @@ func exit_combat():
 		# Defer null to allow access to other end of combat funcs()
 		set_deferred("cur_contest", null) 
 		self.hide()
-		comabt_ui_closed.emit()
+		combat_ui_closed.emit()
 	else:
 		print("Combat UI | Err | Exit Combat called while in combat")
 

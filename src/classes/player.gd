@@ -50,7 +50,6 @@ func _ready() -> void:
 	connect_signals()
 
 func connect_wires():
-	bind_selector_manager()
 	bind_turn_manager()
 	bind_lander_manager()
 	bind_combat_manager()
@@ -69,13 +68,6 @@ func connect_signals():
 #endregion
 
 #region Binders
-func bind_selector_manager():
-	# Wire selector: manager->Things
-	player_controller.selector_manager = selector_manager
-	player_ui.bind_selector(selector_manager)
-	# Wire selector: Things->Manager
-	selector_manager.self_player = self
-
 
 func bind_turn_manager():
 	# Wire: manager -> Things
@@ -116,9 +108,7 @@ func connect_controller_signals():
 	# Redirect to UI
 	player_controller.view_lander_requested.connect(player_ui.display_landers_req) # View Lander Debug
 	player_controller.run_movement_ui.connect(player_ui.run_movement) # Run movement UI
-	# Misc
-	player_controller.select_lander.connect(selector_manager.select_lander_req) # Add to selector
-	# Forwarders
+
 	player_controller.attack_action_req.connect(self.fwd_attack_action_req) # Fwd Attack
 	player_controller.place_biome_req.connect(self.fwd_place_biome_req) # Fwd Biome place
 	player_controller.place_command_tower.connect(self.fwd_place_command_tower) # Fwd CT place

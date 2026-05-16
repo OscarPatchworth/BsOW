@@ -231,7 +231,6 @@ grow_vertical = 2
 script = ExtResource("4_stx5a")
 
 [node name="LanderPanel" type="Panel" parent="CanvasLayer/UI-manager"]
-visible = false
 layout_mode = 1
 anchors_preset = -1
 anchor_left = 0.85
@@ -281,7 +280,7 @@ text = "Building Options"
 [node name="HSeparator" type="HSeparator" parent="CanvasLayer/UI-manager/LanderPanel/VBoxContainer/BuildingControl/ShopState"]
 layout_mode = 2
 
-[node name="BuildingButtons" type="HBoxContainer" parent="CanvasLayer/UI-manager/LanderPanel/VBoxContainer/BuildingControl/ShopState"]
+[node name="HListBox" parent="CanvasLayer/UI-manager/LanderPanel/VBoxContainer/BuildingControl/ShopState" instance=ExtResource("32_85cnl")]
 layout_mode = 2
 
 [node name="UnitControl" type="VBoxContainer" parent="CanvasLayer/UI-manager/LanderPanel/VBoxContainer"]
@@ -304,7 +303,7 @@ script = ExtResource("12_u1vg3")
 layout_mode = 2
 text = "Train Units"
 
-[node name="UnitButtons" type="HBoxContainer" parent="CanvasLayer/UI-manager/LanderPanel/VBoxContainer/UnitControl/ShopState"]
+[node name="HListBox" parent="CanvasLayer/UI-manager/LanderPanel/VBoxContainer/UnitControl/ShopState" instance=ExtResource("32_85cnl")]
 layout_mode = 2
 
 [node name="LanderControl" type="VBoxContainer" parent="CanvasLayer/UI-manager/LanderPanel/VBoxContainer" node_paths=PackedStringArray("ui_player")]
@@ -327,7 +326,6 @@ text = "Stationed Units:"
 layout_mode = 2
 
 [node name="CombatPanel" type="Panel" parent="CanvasLayer/UI-manager"]
-visible = false
 layout_mode = 1
 anchors_preset = -1
 anchor_left = 0.1
@@ -986,6 +984,7 @@ text = "Finish Market"
 script = ExtResource("24_1p1b5")
 
 [node name="SetupPanel" type="Panel" parent="CanvasLayer/UI-manager"]
+visible = false
 layout_mode = 1
 anchors_preset = -1
 anchor_top = 0.7
@@ -1039,6 +1038,8 @@ layout_mode = 2
 size_flags_horizontal = 3
 text = "Sample Text"
 
+[editable path="CanvasLayer/UI-manager/LanderPanel/VBoxContainer/BuildingControl/ShopState/HListBox"]
+[editable path="CanvasLayer/UI-manager/LanderPanel/VBoxContainer/UnitControl/ShopState/HListBox"]
 [editable path="CanvasLayer/UI-manager/CombatPanel/SelfUnitsPanel/ComabtSelectedUnitsDisplay"]
 [editable path="CanvasLayer/UI-manager/MovementPanel/FromPanel/VListBox"]
 [editable path="CanvasLayer/UI-manager/MovementPanel/ToPanel/VListBox"]

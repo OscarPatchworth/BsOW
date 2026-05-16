@@ -2,7 +2,7 @@
 
 # Holds refs to all landers and run lander/lander + lander/Pos API
 
-class_name LanderManager
+#class_name LanderManager
 extends Node
 
 #region Declarations
