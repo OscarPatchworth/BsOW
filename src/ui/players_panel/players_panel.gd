@@ -1,87 +1,44 @@
-#players_panel.gd
+# players_panel.gd
 extends Panel
 
-# signals
-
-# enums
-
-# constants
-
-# static variables
+#region Scene Refs
 var turn_manager: TurnManager
-# @export variables
-
-# remaining regular variables
-var anchor_points := {}
-
-# @onready variables
 @onready var players_list: ItemList = self.find_child("ItemList")
+#endregion
 
 ###################################################################################################
-###	Methods
-func free_children(parent: Node) -> void:
-	for i in parent.get_children():
-		i.queue_free()
+#region Lifecycle
+func game_state_changed(state: int) -> void:
+	match state:
+		0: pass  # Setup — position handled by scene layout
+		1: self.show()  # Game Loop
+#endregion
 
-
-### Connected Signals
-
-
-## Calls
-func bind_turn_manager(tm: TurnManager):
-	# Bind self
+#region Binders
+func bind_turn_manager(tm: TurnManager) -> void:
 	turn_manager = tm
+#endregion
 
-
-func setup_turn_order_display():
+#region Callbacks
+func setup_turn_order_display() -> void:
 	if turn_manager == null:
 		print("Players Panel | Err | Calling null on turn_manager")
 		return
 	players_list.clear()
-	for acotr_name in turn_manager.get_turn_order_names():
-		players_list.add_item(acotr_name, null, false)
+	for actor_name in turn_manager.get_turn_order_names():
+		players_list.add_item(actor_name, null, false)
 
-
-func actor_turn_changed(active_actor: Actor):
-	# Clear all first
+func actor_turn_changed(active_actor: Actor) -> void:
 	players_list.deselect_all()
-	
 	for i in range(players_list.item_count):
 		var is_active = players_list.get_item_text(i) == active_actor.name
-		
 		if is_active:
 			players_list.set_item_custom_bg_color(i, Color.PEACH_PUFF)
 			players_list.set_item_custom_fg_color(i, Color.MEDIUM_BLUE)
 		else:
 			players_list.set_item_custom_bg_color(i, Color.TRANSPARENT)
 			players_list.set_item_custom_fg_color(i, Color.GRAY)
-	
-	# Force redraw
 	players_list.queue_redraw()
-			
+#endregion
 
-func game_state_changed(state):
-	if state == 0: #setup
-		# Save current Anchors
-		anchor_points["top"] = self.anchor_top
-		anchor_points["bottom"] = self.anchor_bottom
-		anchor_points["left"] = self.anchor_left
-		anchor_points["right"] = self.anchor_right
-		
-		# Adjust Setup Anchors
-		anchor_top = 0.01
-		# Anchor Bottom = top + margin + height
-		anchor_bottom = 0.01 + (anchor_points["bottom"] - anchor_points["top"])
-		# Anchor Left = Far_right - margin - width
-		anchor_left = 1 - 0.005 - (anchor_points["right"] - anchor_points["left"])
-		anchor_right = 1 -0.005
-
-
-	elif state == 1: # Main game loop
-		self.show()
-	else: # Dead
-		pass
-
-## Get/Set (er)s
-
-### Connected Signals
+# End Of File
