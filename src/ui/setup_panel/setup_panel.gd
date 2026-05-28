@@ -1,57 +1,48 @@
-#setup_panel.gd
+# setup_panel.gd
 extends Panel
 
-# signals
+#region Signals
 signal setup_biome_pressed(b: BiomeData)
 signal all_setup_landers_placed()
-# enums
+#endregion
 
-# constants
-
-# static variables
+#region Scene Refs
 var turn_manager: TurnManager
 var player_self: Player
 var match_settings
-
-# @export variables
-
-# remaining regular variables
-var starting_landers = []
-
-# @onready variables
+var starting_landers: Array[BiomeData] = []
 @onready var setup_landers: ListBox = self.find_child("HListBox")
+#endregion
 
 ###################################################################################################
-###	Methods
+#region Lifecycle
 func _ready() -> void:
-	setup_landers.list_btn_pressed.connect(self.list_btn_pressed)
+	connect_signals()
+#endregion
 
-func free_children(parent: Node) -> void:
-	for i in parent.get_children():
-		i.queue_free()
-
-
-func list_btn_pressed(biome: BiomeData):
-	setup_biome_pressed.emit(biome) 
-
-
-### Connected Signals
-func bind_turn_manager(tm: TurnManager):
+#region Binders
+func bind_turn_manager(tm: TurnManager) -> void:
 	turn_manager = tm
 
-
-func bind_player(p: Player):
+func bind_player(p: Player) -> void:
 	player_self = p
 
-
-func bind_match_settings(ms):
+func bind_match_settings(ms) -> void:
 	match_settings = ms
+#endregion
 
-## Calls
-func game_state_changed(game_state):
-	print("Setup Panel | game_state_changed | match_settings: ", match_settings)
-	print("Setup Panel | game_state_changed | game_state: ", game_state)
+#region Signal Connections
+func connect_signals() -> void:
+	setup_landers.list_btn_pressed.connect(biome_btn_pressed)
+#endregion
 
+#region Handlers
+func biome_btn_pressed(biome: BiomeData) -> void:
+	setup_biome_pressed.emit(biome)
+#endregion
+
+#region Callbacks
+func game_state_changed(game_state) -> void:
 	if match_settings == null:
 		print("Setup Panel | Err | Calling null on match settings")
 		return
@@ -62,19 +53,15 @@ func game_state_changed(game_state):
 				starting_landers.append(player_self.get_starting_biomes()[i])
 			else:
 				starting_landers.append(match_settings.game_biomes.pick_random())
-		print(player_self.get_starting_biomes())
-		setup_landers.set_objects(starting_landers, func(p): return "", func(b): return b.poker_icon) 
-	#setup_landers.set
-	else: self.hide()
+		setup_landers.set_objects(starting_landers, func(_p): return "", func(b): return b.poker_icon)
+	else:
+		self.hide()
 
-
-func setup_biome_placed(req: Action):
+func setup_biome_placed(req: Action) -> void:
 	starting_landers.erase(req.get_biome_type())
-	setup_landers.set_objects(starting_landers, func(p): return "", func(b): return b.poker_icon)
-	
+	setup_landers.set_objects(starting_landers, func(_p): return "", func(b): return b.poker_icon)
 	if starting_landers == []:
 		all_setup_landers_placed.emit()
+#endregion
 
-## Get/Set (er)s
-
-### Connected Signals
+# End Of File
