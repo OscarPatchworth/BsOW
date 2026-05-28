@@ -72,7 +72,7 @@ func update(combat_state: Contest):
 		pass
 
 	#for ablt in ablts:
-		#var new_btn = GameButton.new()
+		#var new_btn = Button.new()
 		#new_btn.icon = ablt.icon
 		#new_btn.add_hover_text(ablt.get_detials())
 

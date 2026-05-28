@@ -1,5 +1,5 @@
 #select_unit_btn.gd
-extends GameButton
+extends Button
 
 # signals
 signal unit_selected(unit: UnitObject)

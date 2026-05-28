@@ -37,7 +37,7 @@ var unit: UnitObject
 var combat_state: CombatState = CombatState.SELECTING
 
 # @onready variables
-@onready var btn: GameButton = self.find_child("GameButton")
+@onready var btn: Button = self.find_child("Button")
 @onready var fill: Panel = self.find_child("Fill")
 @onready var rtl: RichTextLabel = self.find_child("RichTextLabel")
 

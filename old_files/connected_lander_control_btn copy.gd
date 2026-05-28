@@ -1,6 +1,6 @@
 #ConnectedLanderControlButton.gd
-class_name ConnectedLanderControlButton
-extends GameButton
+#class_name ConnectedLanderControlButton
+extends Button
 
 # signals
 signal btn_pressed(lander: Lander)

@@ -32,10 +32,10 @@ var combat_finished:bool = false
 @onready var defend_ablt_panel: Panel = self.find_child("DefendAbilitiesPanel")
 @onready var select_units_panel: Panel = self.find_child("SelectUnitsPanel")
 @onready var select_ablt_panel: Panel = self.find_child("SelectAbilitiesPanel")
-@onready var fight_btn: GameButton = self.find_child("FightBtn")
-@onready var toggle_combat_display_btn: GameButton = self.find_child("ToggleDisplayBtn")
-@onready var exit_combat_btn: GameButton = self.find_child("ExitCombatBtn")
-@onready var repeat_combat_btn: GameButton = self.find_child("RepeatCombatBtn")
+@onready var fight_btn: Button = self.find_child("FightBtn")
+@onready var toggle_combat_display_btn: Button = self.find_child("ToggleDisplayBtn")
+@onready var exit_combat_btn: Button = self.find_child("ExitCombatBtn")
+@onready var repeat_combat_btn: Button = self.find_child("RepeatCombatBtn")
 
 ###################################################################################################
 ###	Methods

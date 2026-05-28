@@ -1,4 +1,4 @@
-[gd_scene load_steps=77 format=3 uid="uid://cmnn2jtgwr4dw"]
+[gd_scene load_steps=76 format=3 uid="uid://cmnn2jtgwr4dw"]
 
 [ext_resource type="Script" path="res://src/classes/player.gd" id="1_tftws"]
 [ext_resource type="Script" path="res://src/classes/player_controller.gd" id="2_pm403"]
@@ -22,7 +22,6 @@
 [ext_resource type="Script" path="res://src/ui/combat_ui/fight_btn.gd" id="22_oflah"]
 [ext_resource type="Script" path="res://src/ui/seasons_panel/seasons_panel.gd" id="23_5erey"]
 [ext_resource type="Script" path="res://src/ui/turn_panel/turn_panel.gd" id="23_on07q"]
-[ext_resource type="Script" path="res://src/ui/game_button.gd" id="24_1p1b5"]
 [ext_resource type="Script" path="res://src/misc/cam_gimbal.gd" id="24_utqdd"]
 [ext_resource type="Script" path="res://src/ui/players_panel/players_panel.gd" id="25_7higi"]
 [ext_resource type="Script" path="res://src/ui/wallet_ui/wallet_panel.gd" id="28_dfmpb"]
@@ -86,6 +85,21 @@ Button/styles/hover = SubResource("StyleBoxFlat_uoejg")
 Button/styles/normal = SubResource("StyleBoxFlat_okafx")
 Button/styles/pressed = SubResource("StyleBoxFlat_etsqx")
 
+[sub_resource type="GDScript" id="GDScript_gcqox"]
+script/source = "
+extends Button
+
+
+# Called when the node enters the scene tree for the first time.
+func _ready() -> void:
+	pass # Replace with function body.
+
+
+# Called every frame. 'delta' is the elapsed time since the previous frame.
+func _process(delta: float) -> void:
+	pass
+"
+
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_b7gk5"]
 bg_color = Color(0.78, 0.1794, 0.1794, 1)
 
@@ -121,8 +135,6 @@ bg_color = Color(0.62, 0.2604, 0.398247, 1)
 
 [sub_resource type="Theme" id="Theme_m36os"]
 Label/styles/normal = SubResource("StyleBoxFlat_3eyal")
-
-[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_k6v0q"]
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_47egh"]
 corner_radius_top_left = 10
@@ -365,9 +377,6 @@ offset_right = 153.416
 offset_bottom = -0.424004
 theme_override_styles/panel = SubResource("StyleBoxFlat_62vnv")
 
-[node name="GameButton" parent="CanvasLayer/UI-manager/CombatPanel/SelfUnitsPanel/ComabtSelectedUnitsDisplay" index="1"]
-script = null
-
 [node name="RichTextLabel2" type="RichTextLabel" parent="CanvasLayer/UI-manager/CombatPanel/SelfUnitsPanel/ComabtSelectedUnitsDisplay"]
 layout_mode = 1
 anchors_preset = 15
@@ -532,7 +541,7 @@ anchor_bottom = 1.05
 theme = SubResource("Theme_bq35r")
 toggle_mode = true
 text = "Hide Combat Display"
-script = ExtResource("24_1p1b5")
+script = SubResource("GDScript_gcqox")
 
 [node name="ExitCombatBtn" type="Button" parent="CanvasLayer/UI-manager/CombatPanel"]
 layout_mode = 1
@@ -545,7 +554,7 @@ rotation = 0.785398
 pivot_offset = Vector2(32, 32)
 theme = SubResource("Theme_dcwag")
 text = "x"
-script = ExtResource("24_1p1b5")
+script = SubResource("GDScript_gcqox")
 
 [node name="RepeatCombatBtn" type="Button" parent="CanvasLayer/UI-manager/CombatPanel"]
 layout_mode = 1
@@ -564,7 +573,7 @@ rotation = 0.349066
 pivot_offset = Vector2(32, 32)
 theme = SubResource("Theme_8tdq6")
 text = "O"
-script = ExtResource("24_1p1b5")
+script = SubResource("GDScript_gcqox")
 
 [node name="SeasonPanel" type="Panel" parent="CanvasLayer/UI-manager"]
 layout_mode = 1
@@ -629,7 +638,6 @@ anchor_top = 0.055
 anchor_right = 0.65
 anchor_bottom = 0.09
 script = ExtResource("23_on07q")
-defualt_label_stylebox = SubResource("StyleBoxEmpty_k6v0q")
 active_label_stylebox = SubResource("StyleBoxFlat_47egh")
 
 [node name="HBoxContainer" type="HBoxContainer" parent="CanvasLayer/UI-manager/TurnPanel"]
@@ -655,7 +663,7 @@ grow_horizontal = 0
 grow_vertical = 2
 theme = SubResource("Theme_3s2ko")
 text = "Next"
-script = ExtResource("24_1p1b5")
+script = SubResource("GDScript_gcqox")
 
 [node name="PlayersPanel" type="Panel" parent="CanvasLayer/UI-manager"]
 layout_mode = 1
@@ -865,7 +873,7 @@ layout_mode = 2
 size_flags_vertical = 8
 theme = SubResource("Theme_wbg4i")
 text = "X"
-script = ExtResource("24_1p1b5")
+script = SubResource("GDScript_gcqox")
 
 [node name="MoveBtn" type="Button" parent="CanvasLayer/UI-manager/MovementPanel/ActionBtns"]
 layout_mode = 2
@@ -873,7 +881,7 @@ size_flags_horizontal = 3
 size_flags_vertical = 8
 theme = SubResource("Theme_i3tle")
 text = "Move"
-script = ExtResource("24_1p1b5")
+script = SubResource("GDScript_gcqox")
 
 [node name="PurchasePanel" type="Panel" parent="CanvasLayer/UI-manager"]
 layout_mode = 1
@@ -917,7 +925,7 @@ offset_right = 48.0
 offset_bottom = 24.0
 theme = SubResource("Theme_lv10k")
 text = "Finish Market"
-script = ExtResource("24_1p1b5")
+script = SubResource("GDScript_gcqox")
 
 [node name="SetupPanel" type="Panel" parent="CanvasLayer/UI-manager"]
 layout_mode = 1

@@ -1,6 +1,6 @@
 #building_shop_button.gd
 #class_name BuildingShopButton
-extends GameButton
+extends Button
 
 # signals
 signal build_action_req(action_request)

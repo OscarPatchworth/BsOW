@@ -680,7 +680,7 @@ offset_right = 153.416
 offset_bottom = -0.424004
 theme_override_styles/panel = SubResource("StyleBoxFlat_62vnv")
 
-[node name="GameButton" parent="CanvasLayer/UI-manager/CombatPanel/SelfUnitsPanel/ComabtSelectedUnitsDisplay" index="1"]
+[node name="Button" parent="CanvasLayer/UI-manager/CombatPanel/SelfUnitsPanel/ComabtSelectedUnitsDisplay" index="1"]
 script = null
 
 [node name="RichTextLabel2" type="RichTextLabel" parent="CanvasLayer/UI-manager/CombatPanel/SelfUnitsPanel/ComabtSelectedUnitsDisplay"]

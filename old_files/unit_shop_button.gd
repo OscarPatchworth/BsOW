@@ -1,6 +1,6 @@
 #unit_shop_button.gd
 class_name UnitShopButton
-extends GameButton
+extends Button
 
 # signals
 signal buy_unit_action_req(req: Action)

@@ -11,7 +11,7 @@ var turn_phases: Array
 @export var default_label_stylebox: StyleBox
 @export var active_label_stylebox: StyleBox
 @onready var hbox: HBoxContainer = self.find_child("HBoxContainer")
-@onready var next_btn: GameButton = self.find_child("NextButton")
+@onready var next_btn: Button = self.find_child("NextButton")
 #endregion
 
 ###################################################################################################

@@ -1,5 +1,5 @@
 #combat_unit_btn.gd
-extends GameButton
+extends Button
 
 # signals
 

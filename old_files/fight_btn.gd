@@ -1,5 +1,5 @@
 #fight_btn.gd
-extends GameButton
+extends Button
 
 # signals
 signal player_combat_ready

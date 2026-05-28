@@ -27,8 +27,8 @@ var origin_units: Array[UnitObject]
 @onready var from_list_box: ListBox = from_panel.find_child("VListBox")
 @onready var to_list_box: ListBox = to_panel.find_child("VListBox")
 @onready var action_btns: HBoxContainer = self.find_child("ActionBtns")
-@onready var cancle_btn: GameButton = action_btns.find_child("CancleBtn")
-@onready var move_btn: GameButton = action_btns.find_child("MoveBtn")
+@onready var cancle_btn: Button = action_btns.find_child("CancleBtn")
+@onready var move_btn: Button = action_btns.find_child("MoveBtn")
 
 ###################################################################################################
 ###	Methods

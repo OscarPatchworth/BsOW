@@ -20,7 +20,7 @@ var turn_phases: Array
 
 # @onready @onready variables
 @onready var hbox: HBoxContainer = self.find_child("HBoxContainer")
-@onready var next_btn: GameButton = self.find_child("NextButton")
+@onready var next_btn: Button = self.find_child("NextButton")
 
 ###################################################################################################
 ###	Methods

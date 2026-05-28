@@ -69,7 +69,7 @@ func update(combat_state: Contest):
 	for unit in units:
 		if unit in origin_units:
 			continue
-		var new_btn = GameButton.new()
+		var new_btn = Button.new()
 		new_btn.set_script(unit_btn_script)
 		new_btn.unit_selected.connect(fwd_unit_selected)
 		new_btn.set_unit(unit)

@@ -25,7 +25,7 @@ const LOST_FILL: float = 0.7
 
 #region Scene Refs
 var fill_stylebox = StyleBoxFlat.new()
-@onready var btn: GameButton = self.find_child("GameButton")
+@onready var btn: Button = self.find_child("Button")
 @onready var fill: Panel = self.find_child("Fill")
 @onready var rtl: RichTextLabel = self.find_child("RichTextLabel")
 #endregion

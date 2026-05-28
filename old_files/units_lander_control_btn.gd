@@ -1,6 +1,6 @@
 #unit_lander_control_button.gd
-class_name UnitLanderControlButton
-extends GameButton
+#class_name UnitLanderControlButton
+extends Button
 
 # signals
 signal unit_selected(unit: UnitObject)

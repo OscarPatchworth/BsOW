@@ -19,6 +19,9 @@ var cur_lander: Lander
 @export var unit_lander_btn_script: Script
 @onready var lander_hflow: HFlowContainer = self.find_child("Landers")
 @onready var units_hflow: HFlowContainer = self.find_child("Units")
+
+const ConnectedLanderControlButton = preload("res://src/ui/lander_panel/landers/connected_lander_control_btn.gd")
+const UnitLanderControlButton = preload("res://src/ui/lander_panel/landers/units_lander_control_btn.gd")
 #endregion
 
 ###################################################################################################

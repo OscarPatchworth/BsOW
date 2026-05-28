@@ -12,7 +12,7 @@ var player_self: Player
 var active_lander: Lander
 @onready var lander_listbox: ListBox = self.find_child("LandersListBox")
 @onready var market_listbox: ListBox = self.find_child("MarketListBox")
-@onready var finish_btn: GameButton = self.find_child("FinishBtn")
+@onready var finish_btn: Button = self.find_child("FinishBtn")
 #endregion
 
 ###################################################################################################
