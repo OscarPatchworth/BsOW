@@ -194,7 +194,7 @@ func fwd_move_units_req(req: Action):
 
 
 func fwd_move_units_action_completed(req: Action):
-	selector_manager.clear_selected_units()
+	selector_manager.clear_origin_units()
 	selector_manager.set_target_lander(null)
 	lander_panel.update()
 
@@ -303,6 +303,10 @@ func combat_display_toggled(toggled_on: bool):
 
 func combat_ui_closed():
 	turn_panel.show()
+
+
+func setup_biome_placed(req: Action):
+	setup_panel.setup_biome_placed(req)
 
 
 # Players

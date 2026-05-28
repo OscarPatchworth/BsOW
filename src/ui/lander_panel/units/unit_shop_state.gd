@@ -38,7 +38,7 @@ func on_unit_pressed(unit: UnitData) -> void:
 	var action_req = Action.new()
 	action_req.type = Action.RequestType.BUY_UNIT
 	action_req.unit_type = unit
-	action_req.target_lander = selector.selected_lander
+	action_req.target_lander = selector.origin_lander
 	buy_unit_action_req.emit(action_req)
 #endregion
 

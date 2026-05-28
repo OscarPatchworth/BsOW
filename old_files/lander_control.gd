@@ -34,7 +34,7 @@ func free_children(parent: Node) -> void:
 
 func update():
 	#Check for cur_lander
-	cur_lander = selector_manager.get_selected_lander()
+	cur_lander = selector_manager.get_origin_lander()
 	if cur_lander == null:
 		print("Lander Control in self_player UI has null lander selected")
 		return
@@ -80,14 +80,14 @@ func update_unit_landers():
 		new_unit_btn.update_display()
 		units_hflow.add_child(new_unit_btn)
 		# Setup toggle/selector 
-		new_unit_btn.unit_selected.connect(selector_manager.add_unit_selected_units)
-		new_unit_btn.unit_deselected.connect(selector_manager.rmv_unit_selected_units)
+		new_unit_btn.unit_selected.connect(selector_manager.add_unit_origin_units)
+		new_unit_btn.unit_deselected.connect(selector_manager.rmv_unit_origin_units)
 
 
 func apply_selected_to_req(req: Action) -> Action:
 	req.target_lander = selector_manager.get_target_lander()
-	req.selected_lander = selector_manager.get_selected_lander()
-	req.selected_units = selector_manager.get_selected_units()
+	req.origin_lander = selector_manager.get_origin_lander()
+	req.origin_units = selector_manager.get_origin_units()
 	return req
 
 ### Connected Signals

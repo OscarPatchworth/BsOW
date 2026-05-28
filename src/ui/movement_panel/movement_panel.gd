@@ -18,7 +18,7 @@ var lander_manager: LanderManager
 var from_lander: Lander
 var to_lander: Lander
 
-var selected_units: Array[UnitObject]
+var origin_units: Array[UnitObject]
 
 # @onready variables
 @onready var from_panel: Panel = self.find_child("FromPanel")
@@ -44,11 +44,11 @@ func free_children(parent: Node) -> void:
 
 
 func unit_selected(unit: UnitObject):
-	if unit in selected_units:
-		selected_units.erase(unit)
+	if unit in origin_units:
+		origin_units.erase(unit)
 	else:
-		selected_units.append(unit)
-	print(selected_units)
+		origin_units.append(unit)
+	print(origin_units)
 
 
 func cancel_movement():
@@ -58,16 +58,16 @@ func cancel_movement():
 func close_ui():
 	from_lander = null
 	to_lander = null
-	selected_units = []
+	origin_units = []
 	self.hide()
 
 
 func req_move_action():
 	var new_action =  Action.new()
 	new_action.set_type(Action.RequestType.MOVEMENT)
-	new_action.set_selected_lander(from_lander)
+	new_action.set_origin_lander(from_lander)
 	new_action.set_target_lander(to_lander)
-	new_action.set_selected_units(selected_units)
+	new_action.set_origin_units(origin_units)
 	move_action_req.emit(new_action)
 	close_ui()
 

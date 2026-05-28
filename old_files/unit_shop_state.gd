@@ -52,7 +52,7 @@ func fwd_buy_unit_action_req(req:Action):
 
 ## Calls
 func update():
-	cur_lander = selector_manager.get_selected_lander()
+	cur_lander = selector_manager.get_origin_lander()
 	cur_actor = selector_manager.get_player()
 
 	update_shop_buttons()

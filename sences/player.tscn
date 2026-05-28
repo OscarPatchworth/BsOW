@@ -1,9 +1,9 @@
-[gd_scene load_steps=78 format=3 uid="uid://cmnn2jtgwr4dw"]
+[gd_scene load_steps=77 format=3 uid="uid://cmnn2jtgwr4dw"]
 
 [ext_resource type="Script" path="res://src/classes/player.gd" id="1_tftws"]
-[ext_resource type="Script" path="res://src/classes/player_controler.gd" id="2_pm403"]
+[ext_resource type="Script" path="res://src/classes/player_controller.gd" id="2_pm403"]
 [ext_resource type="Script" path="res://src/managers/ui_manager.gd" id="4_stx5a"]
-[ext_resource type="Script" path="res://src/managers/selector_manager.gd" id="4_w88om"]
+[ext_resource type="Script" path="res://old_files/selector_manager.gd" id="4_w88om"]
 [ext_resource type="Script" path="res://src/ui/lander_panel/building/building_control.gd" id="6_3akxm"]
 [ext_resource type="Script" path="res://src/ui/lander_panel/lander_panel.gd" id="6_3ojsw"]
 [ext_resource type="Script" path="res://src/ui/lander_panel/building/building_details_state.gd" id="7_khele"]
@@ -13,13 +13,12 @@
 [ext_resource type="Script" path="res://src/ui/lander_panel/units/unit_shop_state.gd" id="12_u1vg3"]
 [ext_resource type="Script" path="res://src/ui/lander_panel/landers/lander_control.gd" id="13_nfxjl"]
 [ext_resource type="Script" path="res://src/ui/combat_ui/combat_panel.gd" id="15_1neg8"]
-[ext_resource type="Script" path="res://src/ui/combat_ui/combat_units_panel.gd" id="16_ld1gm"]
-[ext_resource type="PackedScene" uid="uid://cv2tx1wgojvl4" path="res://src/ui/combat_ui/SelectedCombatUnitsDisplay.tscn" id="17_o3itl"]
-[ext_resource type="Script" path="res://src/ui/combat_ui/attack_ablt_panel.gd" id="18_p5lpa"]
-[ext_resource type="Script" path="res://src/ui/combat_ui/defend_ablt_panel.gd" id="19_26ink"]
+[ext_resource type="Script" path="res://src/ui/combat_ui/units_panel.gd" id="16_ld1gm"]
+[ext_resource type="PackedScene" uid="uid://cv2tx1wgojvl4" path="res://src/ui/combat_ui/unit_slot.tscn" id="17_o3itl"]
+[ext_resource type="Script" path="res://src/ui/combat_ui/attack_ability_panel.gd" id="18_p5lpa"]
+[ext_resource type="Script" path="res://src/ui/combat_ui/defend_ability_panel.gd" id="19_26ink"]
 [ext_resource type="Script" path="res://src/ui/combat_ui/select_units_panel.gd" id="20_sfpvi"]
-[ext_resource type="Script" path="res://src/ui/combat_ui/select_ablt_panel.gd" id="21_gsl2e"]
-[ext_resource type="Script" path="res://src/ui/combat_ui/select_unit_btn.gd" id="21_l1mcl"]
+[ext_resource type="Script" path="res://src/ui/combat_ui/select_ability_panel.gd" id="21_gsl2e"]
 [ext_resource type="Script" path="res://src/ui/combat_ui/fight_btn.gd" id="22_oflah"]
 [ext_resource type="Script" path="res://src/ui/seasons_panel/seasons_panel.gd" id="23_5erey"]
 [ext_resource type="Script" path="res://src/ui/turn_panel/turn_panel.gd" id="23_on07q"]
@@ -360,7 +359,6 @@ bar_colour = Color(0.55, 0.242, 0.247133, 1)
 [node name="ComabtSelectedUnitsDisplay" parent="CanvasLayer/UI-manager/CombatPanel/SelfUnitsPanel" instance=ExtResource("17_o3itl")]
 layout_mode = 1
 grow_horizontal = 2
-script = null
 
 [node name="Fill" parent="CanvasLayer/UI-manager/CombatPanel/SelfUnitsPanel/ComabtSelectedUnitsDisplay" index="0"]
 offset_right = 153.416
@@ -420,7 +418,6 @@ anchor_right = 0.45
 anchor_bottom = 0.95
 grow_horizontal = 2
 script = ExtResource("20_sfpvi")
-unit_btn_script = ExtResource("21_l1mcl")
 
 [node name="LockOutPanel" type="Panel" parent="CanvasLayer/UI-manager/CombatPanel/SelectUnitsPanel"]
 z_index = 2
@@ -432,64 +429,8 @@ grow_horizontal = 2
 grow_vertical = 2
 theme_override_styles/panel = SubResource("StyleBoxFlat_hure4")
 
-[node name="VFlowContainer" type="ScrollContainer" parent="CanvasLayer/UI-manager/CombatPanel/SelectUnitsPanel"]
+[node name="VListBox" parent="CanvasLayer/UI-manager/CombatPanel/SelectUnitsPanel" instance=ExtResource("30_h2p8k")]
 layout_mode = 1
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
-offset_right = -0.159973
-offset_bottom = -22.2
-grow_horizontal = 2
-grow_vertical = 2
-mouse_filter = 0
-follow_focus = true
-
-[node name="VBoxContainer" type="VBoxContainer" parent="CanvasLayer/UI-manager/CombatPanel/SelectUnitsPanel/VFlowContainer"]
-layout_mode = 2
-
-[node name="Button" type="Button" parent="CanvasLayer/UI-manager/CombatPanel/SelectUnitsPanel/VFlowContainer/VBoxContainer"]
-layout_mode = 2
-text = "gyjcjhdjggcjghc"
-
-[node name="Button2" type="Button" parent="CanvasLayer/UI-manager/CombatPanel/SelectUnitsPanel/VFlowContainer/VBoxContainer"]
-layout_mode = 2
-text = "gyjcjhdjggcjghc"
-
-[node name="Button3" type="Button" parent="CanvasLayer/UI-manager/CombatPanel/SelectUnitsPanel/VFlowContainer/VBoxContainer"]
-layout_mode = 2
-text = "gyjcjhdjggcjghc"
-
-[node name="Button4" type="Button" parent="CanvasLayer/UI-manager/CombatPanel/SelectUnitsPanel/VFlowContainer/VBoxContainer"]
-layout_mode = 2
-text = "gyjcjhdjggcjghc"
-
-[node name="Button5" type="Button" parent="CanvasLayer/UI-manager/CombatPanel/SelectUnitsPanel/VFlowContainer/VBoxContainer"]
-layout_mode = 2
-text = "gyjcjhdjggcjghc"
-
-[node name="Button6" type="Button" parent="CanvasLayer/UI-manager/CombatPanel/SelectUnitsPanel/VFlowContainer/VBoxContainer"]
-layout_mode = 2
-text = "gyjcjhdjggcjghc"
-
-[node name="Button7" type="Button" parent="CanvasLayer/UI-manager/CombatPanel/SelectUnitsPanel/VFlowContainer/VBoxContainer"]
-layout_mode = 2
-text = "gyjcjhdjggcjghc"
-
-[node name="Button8" type="Button" parent="CanvasLayer/UI-manager/CombatPanel/SelectUnitsPanel/VFlowContainer/VBoxContainer"]
-layout_mode = 2
-text = "gyjcjhdjggcjghc"
-
-[node name="Button9" type="Button" parent="CanvasLayer/UI-manager/CombatPanel/SelectUnitsPanel/VFlowContainer/VBoxContainer"]
-layout_mode = 2
-text = "gyjcjhdjggcjghc"
-
-[node name="Button10" type="Button" parent="CanvasLayer/UI-manager/CombatPanel/SelectUnitsPanel/VFlowContainer/VBoxContainer"]
-layout_mode = 2
-text = "gyjcjhdjggcjghc"
-
-[node name="Button11" type="Button" parent="CanvasLayer/UI-manager/CombatPanel/SelectUnitsPanel/VFlowContainer/VBoxContainer"]
-layout_mode = 2
-text = "gyjcjhdjggcjghc"
 
 [node name="SelectAbilitiesPanel" type="Panel" parent="CanvasLayer/UI-manager/CombatPanel"]
 layout_mode = 1
@@ -626,7 +567,6 @@ text = "O"
 script = ExtResource("24_1p1b5")
 
 [node name="SeasonPanel" type="Panel" parent="CanvasLayer/UI-manager"]
-visible = false
 layout_mode = 1
 anchors_preset = -1
 anchor_left = 0.1
@@ -641,6 +581,7 @@ layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
+offset_bottom = 4.95911e-05
 grow_horizontal = 2
 grow_vertical = 2
 
@@ -681,7 +622,6 @@ horizontal_alignment = 1
 vertical_alignment = 1
 
 [node name="TurnPanel" type="Panel" parent="CanvasLayer/UI-manager"]
-visible = false
 layout_mode = 1
 anchors_preset = -1
 anchor_left = 0.15
@@ -718,7 +658,6 @@ text = "Next"
 script = ExtResource("24_1p1b5")
 
 [node name="PlayersPanel" type="Panel" parent="CanvasLayer/UI-manager"]
-visible = false
 layout_mode = 1
 anchors_preset = -1
 anchor_left = 0.75
@@ -764,7 +703,6 @@ item_2/text = "Player 3"
 item_2/disabled = true
 
 [node name="WalletPanel" type="Panel" parent="CanvasLayer/UI-manager"]
-visible = false
 layout_mode = 1
 anchors_preset = -1
 anchor_top = 0.1
@@ -804,7 +742,6 @@ bbcode_enabled = true
 text = "[font_size= 30]🍖: 10 000[/font_size]"
 
 [node name="MovementPanel" type="Panel" parent="CanvasLayer/UI-manager"]
-visible = false
 layout_mode = 1
 anchors_preset = -1
 anchor_left = 0.25
@@ -939,7 +876,6 @@ text = "Move"
 script = ExtResource("24_1p1b5")
 
 [node name="PurchasePanel" type="Panel" parent="CanvasLayer/UI-manager"]
-visible = false
 layout_mode = 1
 anchors_preset = -1
 anchor_left = 0.2
@@ -984,7 +920,6 @@ text = "Finish Market"
 script = ExtResource("24_1p1b5")
 
 [node name="SetupPanel" type="Panel" parent="CanvasLayer/UI-manager"]
-visible = false
 layout_mode = 1
 anchors_preset = -1
 anchor_top = 0.7
@@ -1041,6 +976,7 @@ text = "Sample Text"
 [editable path="CanvasLayer/UI-manager/LanderPanel/VBoxContainer/BuildingControl/ShopState/HListBox"]
 [editable path="CanvasLayer/UI-manager/LanderPanel/VBoxContainer/UnitControl/ShopState/HListBox"]
 [editable path="CanvasLayer/UI-manager/CombatPanel/SelfUnitsPanel/ComabtSelectedUnitsDisplay"]
+[editable path="CanvasLayer/UI-manager/CombatPanel/SelectUnitsPanel/VListBox"]
 [editable path="CanvasLayer/UI-manager/MovementPanel/FromPanel/VListBox"]
 [editable path="CanvasLayer/UI-manager/MovementPanel/ToPanel/VListBox"]
 [editable path="CanvasLayer/UI-manager/PurchasePanel/LandersListBox"]

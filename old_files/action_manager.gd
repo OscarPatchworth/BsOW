@@ -106,18 +106,18 @@ func handle_movement(req:Action):
 
 func handle_attack(req: Action):
 	# Check if selected & target lander have enemy units
-	if(req.selected_lander.get_units() == []):
+	if(req.origin_lander.get_units() == []):
 		print("Action Manager Error | Attack Req: Selected lander has no units! ")
 		return
 	if(req.target_lander.get_units() == []):
 		print("Action Manager Error | Attack Req: Target lander has no units! ")
 		return
-	if(req.selected_lander.get_units()[0].get_owned_by() == req.target_lander.get_units()[0].get_owned_by()):
+	if(req.origin_lander.get_units()[0].get_owned_by() == req.target_lander.get_units()[0].get_owned_by()):
 		print("Action Manager Error | Attack Req: Selected and Target landers are allies")
 		return
-	# Check if the attacking units belong to the attacking self_player
-	if(req.selected_lander.get_units()[0].get_owned_by() != req.actor):
-		print("Action Manager Error | Attack Req: Attacking force doese not belong to the attacking self_player")
+	# Check if the ORIGIN units belong to the ORIGIN self_player
+	if(req.origin_lander.get_units()[0].get_owned_by() != req.actor):
+		print("Action Manager Error | Attack Req: ORIGIN force doese not belong to the ORIGIN self_player")
 		return
 	# Fwd the attack to combat manager
 	print("Fwd attack req")
@@ -148,7 +148,7 @@ func handle_buy(req: Action):
 			print("Action Mananger | Rules Check | Actor can not affor Building")
 			return
 		# Lander doesn't already have buildin ?
-		if req.selected_lander.get_building() != null:
+		if req.origin_lander.get_building() != null:
 			print("Action Mananger | Rules Check | Lander already has building")
 			return
 
@@ -156,7 +156,7 @@ func handle_buy(req: Action):
 		ply_wallet.rmv_resource(req.purchasable.get_cost())
 
 		# Generate Building
-		req.selected_lander.build_action(req)
+		req.origin_lander.build_action(req)
 
 	elif req.get_purchasable() is UnitData:
 		print("Action Manager | Debug | handle_buy: Is UnitData")
@@ -170,7 +170,7 @@ func handle_buy(req: Action):
 		ply_wallet.rmv_resource(req.purchasable.get_cost())
 
 		# Generate unit
-		req.selected_lander.buy_unit_action(req)
+		req.origin_lander.buy_unit_action(req)
 
 	else:
 		print("Action Manager | Debug | handle_buy: purchasable is not a valid type")

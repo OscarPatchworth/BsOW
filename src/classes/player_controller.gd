@@ -143,7 +143,7 @@ func input_state_movement(event):
 			elif m_end_lander.get_ownr() != self_player:
 				var action_req = Action.new()
 				action_req.set_type(Action.RequestType.ATTACK)
-				action_req.set_selected_lander(m_start_lander)
+				action_req.set_origin_lander(m_start_lander)
 				action_req.set_target_lander(m_end_lander)
 				attack_action_req.emit(action_req)
 			# If Ally init movement UI

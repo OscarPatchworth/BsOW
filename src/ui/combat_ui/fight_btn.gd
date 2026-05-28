@@ -1,35 +1,26 @@
-#fight_btn.gd
+# fight_btn.gd
 extends GameButton
 
-# signals
+#region Signals
 signal player_combat_ready
 signal player_combat_not_ready
+#endregion
 
-# enums
-
-# constants
+#region Constants
 const FIGHT_BTN_ROT: float = 12.0
+#endregion
 
-# static variables
+#region Scene Refs
 var combat_manager: CombatManager
-# @export variables
-
-# remaining regular variables
 var player_self: Actor
 var ply_ready: bool = false
-
-# @onready variables
+#endregion
 
 ###################################################################################################
-###	Methods
-func free_children(parent: Node) -> void:
-	for i in parent.get_children():
-		i.queue_free()
-
-
-func update(combat_state: Contest):
-	if(combat_state.get_invading_actor() == player_self and combat_state.get_invading_ready()
-	or combat_state.get_invading_actor() == player_self and combat_state.get_invading_ready()):
+#region Lifecycle
+func update(contest: Contest) -> void:
+	if (contest.get_origin_actor() == player_self and contest.get_origin_ready()
+	or contest.get_target_actor() == player_self and contest.get_target_ready()):
 		text = "READY"
 		rotation = -FIGHT_BTN_ROT
 		ply_ready = true
@@ -37,24 +28,22 @@ func update(combat_state: Contest):
 		text = "FIGHT"
 		rotation = FIGHT_BTN_ROT
 		ply_ready = false
+#endregion
 
+#region Binders
+func bind_combat_manager(cm: CombatManager) -> void:
+	combat_manager = cm
 
-### Connected Signals
+func bind_player(p: Player) -> void:
+	player_self = p
+#endregion
+
+#region Callbacks
 func _pressed() -> void:
-	if(ply_ready):
+	if ply_ready:
 		player_combat_not_ready.emit()
 	else:
 		player_combat_ready.emit()
+#endregion
 
-
-## Calls
-func bind_combat_manager(cm: CombatManager):
-	combat_manager = cm
-	#print("Fight Btn | comabt UI | Combat Manager Bound")
-
-func bind_player(p: Player):
-	player_self = p
-
-## Get/Set (er)s
-
-### Connected Signals
+# End Of File

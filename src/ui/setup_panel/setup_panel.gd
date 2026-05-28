@@ -49,6 +49,9 @@ func bind_match_settings(ms):
 
 ## Calls
 func game_state_changed(game_state):
+	print("Setup Panel | game_state_changed | match_settings: ", match_settings)
+	print("Setup Panel | game_state_changed | game_state: ", game_state)
+
 	if match_settings == null:
 		print("Setup Panel | Err | Calling null on match settings")
 		return

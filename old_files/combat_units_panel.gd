@@ -12,8 +12,8 @@ enum AlignmentOptions {
 }
 
 enum CombatSide {
-	DEFENDING,
-	ATTACKING
+	target,
+	ORIGIN
 }
 
 enum CombatState {
@@ -73,9 +73,9 @@ func update(combat_state: Contest):
 
 func generate_unit_pbs(combat_state: Contest):
 	# Call once and store. So if value changes during func() no out of bounds error. Just outdate display. 
-	var max_units:int = combat_manager.get_max_defend_units() if combat_side == CombatSide.DEFENDING else combat_manager.get_max_attack_units()
+	var max_units:int = combat_manager.get_max_defend_units() if combat_side == CombatSide.target else combat_manager.get_max_attack_units()
 	# @onChange this func() will be recalled anyway so outdated info won't be a problem
-	var selected_units: Array[UnitObject] = combat_state.get_defending_units() if combat_side == CombatSide.DEFENDING else combat_state.get_invading_units()
+	var origin_units: Array[UnitObject] = combat_state.get_target_units() if combat_side == CombatSide.target else combat_state.get_origin_units()
 
 	for i in range(max_units):
 		var new_display = unit_display_control.instantiate()
@@ -93,20 +93,20 @@ func generate_unit_pbs(combat_state: Contest):
 
 		var display_state: CombatState
 	
-		if(combat_side == CombatSide.DEFENDING):
-			if combat_state.get_defending_ready():
+		if(combat_side == CombatSide.target):
+			if combat_state.get_target_ready():
 				display_state = new_display.CombatState.READY 
 			else: display_state = new_display.CombatState.SELECTING 		
 		else:	
-			if combat_state.get_invading_ready():
+			if combat_state.get_origin_ready():
 				display_state = new_display.CombatState.READY 
 			else: display_state = new_display.CombatState.SELECTING 		
 				
 	
 		new_display.set_combat_state(display_state)
 
-		if selected_units.size() >= i+1:
-			new_display.set_unit(selected_units[i])
+		if origin_units.size() >= i+1:
+			new_display.set_unit(origin_units[i])
 		else:
 			new_display.set_unit(null)		
 		#
@@ -120,7 +120,7 @@ func anchor_unit_display(unit_display: Control, i: int):
 	var target_right: float
 
 	# Calc the height% of each ratio/cell/tile for the pb spacing
-	var max_units:int = combat_manager.get_max_defend_units() if combat_side == CombatSide.DEFENDING else combat_manager.get_max_attack_units()
+	var max_units:int = combat_manager.get_max_defend_units() if combat_side == CombatSide.target else combat_manager.get_max_attack_units()
 	var segment_perc = (1 - 2 * DISPLAY_MARGIN_PERC) / ( max_units * DISPLAY_RATIO + (max_units-1) * DISPLAY_SPACE_RATIO)
 
 	if(i == 0):
@@ -154,7 +154,7 @@ func tween_anchor_unit_display(unit_display: Control, i: int, duration: float = 
 	var target_right: float
 	# var start_pos := unit_display.global_position  # Removed unused variable
 	# Calc the height% of each ratio/cell/tile for the pb spacing
-	var max_units:int = combat_manager.get_max_defend_units() if combat_side == CombatSide.DEFENDING else combat_manager.get_max_attack_units()
+	var max_units:int = combat_manager.get_max_defend_units() if combat_side == CombatSide.target else combat_manager.get_max_attack_units()
 	var segment_perc = (1 - 2 * DISPLAY_MARGIN_PERC) / ( max_units * DISPLAY_RATIO + (max_units-1) * DISPLAY_SPACE_RATIO)
 
 	if(i == 0):
@@ -194,10 +194,10 @@ func fwd_unit_deslected(unit: UnitObject):
 
 func combat_outcome(c_out: Array[CombatOutcome]):
 	var outcome: Array[CombatOutcome]
-	if combat_side == CombatSide.ATTACKING:
-		outcome = c_out.filter(func(i): return (i.get_unit() in cur_combat.get_invading_units()))
-	elif combat_side == CombatSide.DEFENDING:
-		outcome = c_out.filter(func(i): return (i.get_unit() in cur_combat.get_defending_units()))
+	if combat_side == CombatSide.ORIGIN:
+		outcome = c_out.filter(func(i): return (i.get_unit() in cur_combat.get_origin_units()))
+	elif combat_side == CombatSide.target:
+		outcome = c_out.filter(func(i): return (i.get_unit() in cur_combat.get_target_units()))
 
 	# Create a list of units in the new order
 	for i in range(self.get_child_count()):

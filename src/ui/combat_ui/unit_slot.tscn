@@ -1,7 +1,6 @@
-[gd_scene load_steps=5 format=3 uid="uid://cv2tx1wgojvl4"]
+[gd_scene load_steps=4 format=3 uid="uid://cv2tx1wgojvl4"]
 
-[ext_resource type="Script" path="res://src/ui/combat_ui/SelectedCombatUnitsDisplay.gd" id="1_4dgoy"]
-[ext_resource type="Script" path="res://src/ui/game_button.gd" id="1_sdji2"]
+[ext_resource type="Script" path="res://src/ui/game_button.gd" id="1_uuf8t"]
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_0qlhi"]
 bg_color = Color(0.558145, 0.478406, 0.257703, 1)
@@ -13,7 +12,6 @@ bg_color = Color(0.6, 0.6, 0.6, 0)
 layout_mode = 3
 anchor_right = 1.0
 anchor_bottom = 0.3
-script = ExtResource("1_4dgoy")
 
 [node name="Fill" type="Panel" parent="."]
 layout_mode = 1
@@ -32,7 +30,7 @@ anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 theme_override_styles/normal = SubResource("StyleBoxFlat_x4ts1")
-script = ExtResource("1_sdji2")
+script = ExtResource("1_uuf8t")
 
 [node name="RichTextLabel" type="RichTextLabel" parent="."]
 layout_mode = 1

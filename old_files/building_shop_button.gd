@@ -1,5 +1,5 @@
 #building_shop_button.gd
-class_name BuildingShopButton
+#class_name BuildingShopButton
 extends GameButton
 
 # signals
@@ -43,7 +43,7 @@ func _pressed():
 	var action_req = Action.new()
 	action_req.type = Action.RequestType.PLACE_BUILDING
 	#action_req.actor = selector_manager.self_player
-	#action_req.target_lander = selector_manager.selected_lander
+	#action_req.target_lander = selector_manager.origin_lander
 	action_req.building_type = building
 	build_action_req.emit(action_req)
 	#print("Emittting action request: \n" + str(action_req.get_action_dict()))

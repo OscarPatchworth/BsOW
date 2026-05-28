@@ -43,7 +43,7 @@ func _pressed():
 	var action_req = Action.new()
 	action_req.type = Action.RequestType.BUY_UNIT
 	#action_req.actor = selector_manager.self_player
-	#action_req.target_lander = selector_manager.selected_lander
+	#action_req.target_lander = selector_manager.origin_lander
 	action_req.unit_type = unit
 	buy_unit_action_req.emit(action_req)
 	#print("Emittting action request: \n" + str(action_req.get_action_dict()))

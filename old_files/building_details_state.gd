@@ -32,5 +32,5 @@ func bind_selector(selector: Node):
 
 ## Calls
 func update():
-	var cur_lander = selector_manager.get_selected_lander()
+	var cur_lander = selector_manager.get_origin_lander()
 	building_label.text = cur_lander.get_building_data().get_building_name()

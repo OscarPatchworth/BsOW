@@ -42,11 +42,11 @@ func bind_player(p: Player):
 
 
 func update(combat_state: Contest):
-	if (!combat_state.get_invading_ready() and !combat_state.get_defending_ready()) :
+	if (!combat_state.get_origin_ready() and !combat_state.get_target_ready()) :
 		lockout_panel.hide()
 	elif(
-		combat_state.get_invading_actor() == player_self and combat_state.get_invading_ready()
-		or  combat_state.get_defending_actor() == player_self and combat_state.get_defending_ready()):
+		combat_state.get_origin_actor() == player_self and combat_state.get_origin_ready()
+		or  combat_state.get_target_actor() == player_self and combat_state.get_target_ready()):
 			lockout_panel.show()
 	else: lockout_panel.hide()	
 	
@@ -60,10 +60,10 @@ func update(combat_state: Contest):
 	var ablts: Array = []
 	var units: Array[UnitObject]
 
-	if combat_state.get_invading_actor() == player_self:
-		units = combat_state.get_invading_units()
+	if combat_state.get_origin_actor() == player_self:
+		units = combat_state.get_origin_units()
 	else:
-		units = combat_state.get_defending_units()
+		units = combat_state.get_target_units()
 
 	#ablt.append(player_self.get_ablts())
 

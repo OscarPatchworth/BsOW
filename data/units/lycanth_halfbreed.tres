@@ -2,7 +2,7 @@
 
 [ext_resource type="Resource" uid="uid://dmftxjfnr1n60" path="res://data/units/base_footsolider.tres" id="1_lsrus"]
 [ext_resource type="Script" path="res://src/data/building_data.gd" id="2_ekh8c"]
-[ext_resource type="Script" path="res://src/data/unitData.gd" id="2_t8ece"]
+[ext_resource type="Script" path="res://src/data/unit_data.gd" id="2_t8ece"]
 
 [resource]
 resource_name = "Lycanth Halfbreed"

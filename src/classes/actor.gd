@@ -4,7 +4,7 @@ extends Node
 # enums
 enum CombatSide {
 	ATTAKING,
-	DEFENDING
+	target
 }
 
 # constants
@@ -32,8 +32,8 @@ func combat_req(contest: Contest):
 	#print("Player | Contest Lander call recieved")
 
 	# Check if this combat involves this self_player
-	if(contest.get_invading_actor() == self or contest.get_defending_actor() == self):
-		combat_pos = CombatSide.ATTAKING if contest.get_invading_actor() == self else CombatSide.DEFENDING
+	if(contest.get_origin_actor() == self or contest.get_target_actor() == self):
+		combat_pos = CombatSide.ATTAKING if contest.get_origin_actor() == self else CombatSide.target
 		enter_combat(contest)
 		
 	else:

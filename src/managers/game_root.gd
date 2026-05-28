@@ -109,10 +109,10 @@ func add_actors():
 	add_ai()
 
 
-func add_players() 	:
+func add_players():
 	var player_x = player_sence.instantiate()
-	players_node.add_child(player_x)
 	setup_player(player_x)
+	players_node.add_child(player_x)
 
 
 func add_ai():
@@ -194,6 +194,7 @@ func setup_ai(sai: SimpleAI):
 	# Setup temp vars
 
 	# Binders
+	turn_manager.bind_actor_to_actor_group(sai)
 	sai.turn_manager = self.turn_manager
 	sai.lander_manager = self.lander_manager
 	sai.combat_manager = self.combat_manager
@@ -234,7 +235,9 @@ func setup_ai(sai: SimpleAI):
 
 #region Binders
 func bind_to_action_manager():
-	pass
+	action_manager.lander_manager = self.lander_manager
+	action_manager.turn_manager = self.turn_manager
+	action_manager.combat_manager = self.combat_manager
 
 
 func bind_to_lander_manager():

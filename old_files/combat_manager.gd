@@ -92,7 +92,7 @@ func sum(numbs: Array[int]) -> int:
 func action_to_contest(req: Action) -> Contest:
 	var contest = Contest.new()
 	contest.set_contested_lander(req.target_lander)
-	contest.set_invading_lander(req.selected_lander)
+	contest.set_origin_lander(req.origin_lander)
 	return contest
 
 ###################################################################################################
@@ -195,9 +195,9 @@ func run_damage_phase():
 	#print("Combat Manager | @ run damage phase")
 	# Calc Damage
 
-	# Calc Invading
-	var invading_dmg: Array[CombatOutcome] = []
-	for unit in current_combat.invading_units:
+	# Calc origin
+	var origin_dmg: Array[CombatOutcome] = []
+	for unit in current_combat.origin_units:
 		var unit_dmg = CombatOutcome.new()
 		unit_dmg.set_unit(unit)
 
@@ -209,12 +209,12 @@ func run_damage_phase():
 		unit_dmg.add_mod(unit_dmg_data.get_damage_mod())
 		unit_dmg.set_total(unit_dmg.calc_total())
 
-		invading_dmg.append(unit_dmg)
-	#print(invading_dmg)
+		origin_dmg.append(unit_dmg)
+	#print(origin_dmg)
 
-	# Calc Defending
-	var defending_dmg: Array[CombatOutcome] = []
-	for unit in current_combat.defending_units:
+	# Calc target
+	var target_dmg: Array[CombatOutcome] = []
+	for unit in current_combat.target_units:
 		var unit_dmg = CombatOutcome.new()
 		unit_dmg.set_unit(unit)
 
@@ -226,38 +226,38 @@ func run_damage_phase():
 		unit_dmg.add_mod(unit_dmg_data.get_damage_mod())
 		unit_dmg.set_total(unit_dmg.calc_total())
 
-		defending_dmg.append(unit_dmg)
-	#print(invading_dmg)
+		target_dmg.append(unit_dmg)
+	#print(origin_dmg)
 
 	# Calc Outcome
-	invading_dmg.sort_custom(func(a, b): return a.get_total() > b.get_total())
-	defending_dmg.sort_custom(func(a, b): return a.get_total() > b.get_total())
+	origin_dmg.sort_custom(func(a, b): return a.get_total() > b.get_total())
+	target_dmg.sort_custom(func(a, b): return a.get_total() > b.get_total())
 
-	for i in range(min(invading_dmg.size(), defending_dmg.size())):
-		#if i >= defending_dmg.size():
-		# Use > bcs if tie give win to Defending
-		if invading_dmg[i].get_total() > defending_dmg[i].get_total():
-			invading_dmg[i].set_reason(CombatOutcome.Reasons.COMBAT_WON)
-			defending_dmg[i].set_reason(CombatOutcome.Reasons.COMBAT_LOST)
+	for i in range(min(origin_dmg.size(), target_dmg.size())):
+		#if i >= target_dmg.size():
+		# Use > bcs if tie give win to target
+		if origin_dmg[i].get_total() > target_dmg[i].get_total():
+			origin_dmg[i].set_reason(CombatOutcome.Reasons.COMBAT_WON)
+			target_dmg[i].set_reason(CombatOutcome.Reasons.COMBAT_LOST)
 		else:
-			invading_dmg[i].set_reason(CombatOutcome.Reasons.COMBAT_LOST)
-			defending_dmg[i].set_reason(CombatOutcome.Reasons.COMBAT_WON)
+			origin_dmg[i].set_reason(CombatOutcome.Reasons.COMBAT_LOST)
+			target_dmg[i].set_reason(CombatOutcome.Reasons.COMBAT_WON)
 
-	for unit in invading_dmg:
+	for unit in origin_dmg:
 		print(unit.get_debug())
 	print("#####")
-	for unit in defending_dmg:
+	for unit in target_dmg:
 		print(unit.get_debug())
 
-	combat_outcome.emit(invading_dmg + defending_dmg)
+	combat_outcome.emit(origin_dmg + target_dmg)
 	outcome_emitted = true
 	print("Combat Manager | Emit | Combat outcome emitted")
 
 	# Apply Outcome
-	for attacker in invading_dmg:
+	for attacker in origin_dmg:
 		if attacker.get_outcome() == CombatOutcome.Outcome.DEAD:
-			current_combat.get_invading_lander().rmv_units([attacker.get_unit()])
-	for defender in defending_dmg:
+			current_combat.get_origin_lander().rmv_units([attacker.get_unit()])
+	for defender in target_dmg:
 		if defender.get_outcome() == CombatOutcome.Outcome.DEAD:
 			current_combat.get_contested_lander().rmv_units([defender.get_unit()])
 
@@ -342,51 +342,51 @@ func actor_selection_req(who: Actor, thing: Variant, select:bool):
 	update_combat()
 
 func actor_selected_unit(unit:UnitObject):
-	if current_combat.get_invading_actor() == unit.get_owned_by():
-		if current_combat.get_invading_units().size() >= max_attack_units:
+	if current_combat.get_origin_actor() == unit.get_owned_by():
+		if current_combat.get_origin_units().size() >= max_attack_units:
 			print("Combat Manager | Warning | Attacker selecting too many units to attack w/")
 		else:
-			current_combat.add_invading_unit(unit)
+			current_combat.add_origin_unit(unit)
 			#combat_updated.emit(current_combat)
 			#print("Combat Manager | actor_selected_unit| combat_updated emiited")
-	elif current_combat.get_defending_actor() == unit.get_owned_by():
-		if current_combat.get_defending_units().size() >= max_defend_units:
+	elif current_combat.get_target_actor() == unit.get_owned_by():
+		if current_combat.get_target_units().size() >= max_defend_units:
 			print("Combat Manager | Warning | Defender selecting too many units to attack w/")
 
 		else:
-			current_combat.add_defending_unit(unit)
+			current_combat.add_target_unit(unit)
 			#print("Combat Manager | actor_selected_unit| combat_updated emiited")
 	else:
 		return # ERROR
 
 
 func actor_deselected_unit(unit: UnitObject):
-	if current_combat.get_invading_actor() != unit.get_owned_by():
+	if current_combat.get_origin_actor() != unit.get_owned_by():
 		print("Combat Manager | Err | Actor attempted to deslect un-owned unit")
 	else:
-		current_combat.rmv_invading_unit(unit)
+		current_combat.rmv_origin_unit(unit)
 		#print("Combat Manager | actor_selected_unit| combat_updated emiited")
 
 
 func player_ready(ready_player: Actor):
-	if current_combat.get_invading_actor() == ready_player:
-		current_combat.set_invading_ready(true)
-	elif current_combat.get_defending_actor() == ready_player:
-		current_combat.set_defending_ready(true)
+	if current_combat.get_origin_actor() == ready_player:
+		current_combat.set_origin_ready(true)
+	elif current_combat.get_target_actor() == ready_player:
+		current_combat.set_target_ready(true)
 	else: 
 		print("Combat Manager | ERROR | Actor outside of combat declared Ready")
 		return
 	#print("Combat Manager | Player Ready recieved")
 
-	if current_combat.get_invading_ready() and current_combat.get_defending_ready():
+	if current_combat.get_origin_ready() and current_combat.get_target_ready():
 		set_state_damage()
 
 
 func player_unready(unready_player: Actor):
-	if current_combat.get_invading_actor() == unready_player:
-		current_combat.set_invading_ready(false)
-	elif current_combat.get_defending_actor() == unready_player:
-		current_combat.set_defending_ready(false)
+	if current_combat.get_origin_actor() == unready_player:
+		current_combat.set_origin_ready(false)
+	elif current_combat.get_target_actor() == unready_player:
+		current_combat.set_target_ready(false)
 	else: 
 		print("Combat Manager | ERROR | Actor outside of combat declared not Ready")
 		return

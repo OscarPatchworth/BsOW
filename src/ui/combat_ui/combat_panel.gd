@@ -52,12 +52,12 @@ func update(combat_state: Contest):
 	cur_contest = combat_state
 	
 	# Set Combat Panels
-	if(combat_state.get_invading_actor() == player_self):
-		self_units_pannel.set_combat_side(self_units_pannel.CombatSide.ATTACKING) 
-		opp_units_panel.set_combat_side(self_units_pannel.CombatSide.DEFENDING)	
+	if(combat_state.get_origin_actor() == player_self):
+		self_units_pannel.set_combat_side(self_units_pannel.CombatSide.ORIGIN) 
+		opp_units_panel.set_combat_side(self_units_pannel.CombatSide.target)	
 	else:
-		self_units_pannel.set_combat_side(self_units_pannel.CombatSide.DEFENDING) 
-		opp_units_panel.set_combat_side(self_units_pannel.CombatSide.ATTACKING)	# Atk
+		self_units_pannel.set_combat_side(self_units_pannel.CombatSide.target) 
+		opp_units_panel.set_combat_side(self_units_pannel.CombatSide.ORIGIN)	# Atk
 
 	### Code taken from chatGPT
 	for child in get_children():
@@ -111,7 +111,7 @@ func combat_outcome(c_out: Array[CombatOutcome]):
 
 	# Show end combat btns
 	exit_combat_btn.show()
-	if cur_contest.get_invading_actor() == player_self:
+	if cur_contest.get_origin_actor() == player_self:
 		repeat_combat_btn.show()
 
 	# Update children end
@@ -174,11 +174,11 @@ func exit_combat():
 
 
 func repeat_attack():
-	if combat_finished and cur_contest.get_invading_actor() == null and cur_contest.get_invading_actor() == player_self:
+	if combat_finished and cur_contest.get_origin_actor() == null and cur_contest.get_origin_actor() == player_self:
 		exit_combat()
 		# generate new attack req
 		var new_attack = Action.new()
 		new_attack.set_type(Action.RequestType.ATTACK)
-		new_attack.set_selected_lander(cur_contest.get_invading_lander())
+		new_attack.set_origin_lander(cur_contest.get_origin_lander())
 		new_attack.set_target_lander(cur_contest.get_contested_lander())
 		attack_req.emit(new_attack)

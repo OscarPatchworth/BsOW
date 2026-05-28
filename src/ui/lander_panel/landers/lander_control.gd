@@ -24,7 +24,7 @@ var cur_lander: Lander
 ###################################################################################################
 #region Lifecycle
 func update() -> void:
-	cur_lander = selector.selected_lander
+	cur_lander = selector.origin_lander
 	if cur_lander == null:
 		print("Lander Control: null lander selected")
 		return

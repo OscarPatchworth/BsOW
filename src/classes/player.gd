@@ -50,13 +50,14 @@ func _ready() -> void:
 	connect_signals()
 
 func connect_wires():
+	print("Player | connect_wires | match_settings before bind: ", match_settings)	
 	bind_turn_manager()
 	bind_lander_manager()
 	bind_combat_manager()
+	bind_match_settings()  # moved up
 	bind_self()
 	bind_wallet()
 	bind_draw_3d()
-	bind_match_settings()
 
 
 func connect_signals():
@@ -191,7 +192,7 @@ func fwd_buy_unit_action_completed(req: Action):
 
 func fwd_move_units_action_completed(req: Action):
 	if(req.actor == self or 
-	selector_manager.get_selected_lander() == req.get_selected_lander() or 
+	selector_manager.get_origin_lander() == req.get_origin_lander() or 
 	req.get_target_lander() == selector_manager.get_target_lander()):
 		player_ui.fwd_move_units_action_completed(req)
 
@@ -241,7 +242,7 @@ func enter_combat(contest: Contest):
 
 func combat_update(contest: Contest):
 	print("Player | Combat update recieved")
-	if(contest.get_invading_actor() == self or contest.get_defending_actor() == self):
+	if(contest.get_origin_actor() == self or contest.get_target_actor() == self):
 		player_ui.update_combat_display(contest)
 		#player_controller.enter_combat()
 
@@ -279,6 +280,11 @@ func seasons_generated():
 
 func season_changed(cur_sea: int):
 	player_ui.season_changed(cur_sea)
+
+
+func setup_biome_placed(req: Action):
+	player_controller.setup_biome_placed()
+	player_ui.setup_biome_placed(req)
 
 
 func command_tower_placed():

@@ -71,10 +71,10 @@ func spawn_protected_lander(pos: Vector3, ownr: Actor, amount_defenders: int):
 				var footsoldier = UnitObject.new()
 				footsoldier.setup(unit, ownr)
 
-				var defending_units: Array[UnitObject]
-				defending_units.append(footsoldier)
+				var target_units: Array[UnitObject]
+				target_units.append(footsoldier)
 
-				target.add_units(defending_units)
+				target.add_units(target_units)
 		else:
 			print("Failed to spawn troops on protected lander. \n error: species has no units with base of \'Base Footsolider\'")
 
@@ -141,9 +141,9 @@ func buy_unit_action(req: Action):
 
 func move_units_action(req: Action):
 	# lander1.rvm(units)
-	req.selected_lander.rmv_units(req.selected_units)
+	req.origin_lander.rmv_units(req.origin_units)
 	# lander2.add(units)
-	req.target_lander.add_units(req.selected_units)
+	req.target_lander.add_units(req.origin_units)
 	# Emit confirmation
 	move_units_action_completed.emit(req)
 

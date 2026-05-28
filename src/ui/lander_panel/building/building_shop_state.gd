@@ -38,7 +38,7 @@ func on_building_pressed(building: BuildingData) -> void:
 	var action_req = Action.new()
 	action_req.type = Action.RequestType.PLACE_BUILDING
 	action_req.building_type = building
-	action_req.target_lander = selector.selected_lander
+	action_req.target_lander = selector.origin_lander
 	build_action_req.emit(action_req)
 #endregion
 

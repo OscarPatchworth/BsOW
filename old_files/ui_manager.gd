@@ -178,7 +178,7 @@ func fwd_buy_unit_action_completed(req: Action):
 	lander_panel.update()
 
 func fwd_move_units_action_completed(req: Action):
-	selector_manager.clear_selected_units()
+	selector_manager.clear_origin_units()
 	selector_manager.set_target_lander(null)
 	lander_panel.update()
 

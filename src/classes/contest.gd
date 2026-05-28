@@ -14,16 +14,16 @@ class_name Contest
 
 # remaining regular variables
 var contested_lander: Lander
-var invading_lander: Lander
+var origin_lander: Lander
 
-var invading_units: Array[UnitObject] = []
-var defending_units: Array[UnitObject] = []
+var origin_units: Array[UnitObject] = []
+var target_units: Array[UnitObject] = []
 
-#var invading_abilities: Array[AbbilityInstance] = []
-#var defending_abilities: Array[AbbilityInstance] = []
+#var origin_abilities: Array[AbbilityInstance] = []
+#var target_abilities: Array[AbbilityInstance] = []
 
-var invading_ready: bool = false
-var defending_ready: bool = false
+var origin_ready: bool = false
+var target_ready: bool = false
 
 # @onready variables
 
@@ -36,16 +36,16 @@ func free_children(parent: Node) -> void:
 ### Connected Signals
 
 ## Calls
-func add_invading_unit(unit: UnitObject):
-	invading_units.append(unit)
-func rmv_invading_unit(unit: UnitObject):
-	invading_units.erase(unit)
+func add_origin_unit(unit: UnitObject):
+	origin_units.append(unit)
+func rmv_origin_unit(unit: UnitObject):
+	origin_units.erase(unit)
 
 
-func add_defending_unit(unit: UnitObject):
-	defending_units.append(unit)
-func rmv_defending_unit(unit: UnitObject):
-	defending_units.erase(unit)
+func add_target_unit(unit: UnitObject):
+	target_units.append(unit)
+func rmv_target_unit(unit: UnitObject):
+	target_units.erase(unit)
 
 
 ## Get/Set (er)s
@@ -55,50 +55,50 @@ func set_contested_lander(lnd: Lander):
 	contested_lander = lnd
 
 
-func get_invading_lander() -> Lander:
-	return invading_lander
-func set_invading_lander(lnd: Lander):
-	invading_lander = lnd
+func get_origin_lander() -> Lander:
+	return origin_lander
+func set_origin_lander(lnd: Lander):
+	origin_lander = lnd
 
 
-func get_invading_units() -> Array[UnitObject]:
-	return invading_units
+func get_origin_units() -> Array[UnitObject]:
+	return origin_units
 func set_invadining_units(units: Array[UnitObject]):
-	invading_units = units
+	origin_units = units
 
 
-func get_defending_units() -> Array[UnitObject]:
-	return defending_units
-func set_defending_units(units: Array[UnitObject]):
-	defending_units = units
+func get_target_units() -> Array[UnitObject]:
+	return target_units
+func set_target_units(units: Array[UnitObject]):
+	target_units = units
 
 
-func get_invading_actor() -> Actor:
-	return invading_lander.get_units()[0].get_owned_by()
-func get_defending_actor() -> Actor:
+func get_origin_actor() -> Actor:
+	return origin_lander.get_units()[0].get_owned_by()
+func get_target_actor() -> Actor:
 	return contested_lander.get_units()[0].get_owned_by()
 
 
-func get_invading_ready() -> bool:
-	return invading_ready
-func set_invading_ready(ready: bool):
-	invading_ready = ready
+func get_origin_ready() -> bool:
+	return origin_ready
+func set_origin_ready(ready: bool):
+	origin_ready = ready
 
 
-func get_defending_ready() -> bool:
-	return defending_ready
-func set_defending_ready(ready: bool):
-	defending_ready = ready
+func get_target_ready() -> bool:
+	return target_ready
+func set_target_ready(ready: bool):
+	target_ready = ready
 
 
 func get_dict() -> Dictionary:
 	var dict = {
 	"contested_lander" : contested_lander,
-	"invading_lander" : invading_lander,
-	"invading_units" : invading_units,
-	"defending_units" : defending_units,
-	"invading_ready" : invading_ready,
-	"defending_ready" : defending_ready
+	"origin_lander" : origin_lander,
+	"origin_units" : origin_units,
+	"target_units" : target_units,
+	"origin_ready" : origin_ready,
+	"target_ready" : target_ready
 	}
 
 	return dict

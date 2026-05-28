@@ -1,7 +1,7 @@
 class_name Action
 extends Node
 
-# signals
+# signals	
 
 # enums
 enum RequestType {
@@ -24,8 +24,8 @@ var position: Vector3
 var target_lander: Lander
 var building_type: BuildingData
 var unit_type: UnitData
-var selected_lander: Lander
-var selected_units: Array[UnitObject]
+var origin_lander: Lander
+var origin_units: Array[UnitObject]
 var purchasable
 var biome_type: BiomeData
 
@@ -67,10 +67,10 @@ func set_target_lander(target: Lander):
 
 
 # Selected Lander
-func get_selected_lander() -> Lander:
-	return selected_lander
-func set_selected_lander(selected: Lander):
-	selected_lander = selected
+func get_origin_lander() -> Lander:
+	return origin_lander
+func set_origin_lander(selected: Lander):
+	origin_lander = selected
 
 
 # Building Type
@@ -88,10 +88,10 @@ func set_unit_type(unit_data: UnitData):
 
 
 # Selected Units
-func get_selected_units() -> Array[UnitObject]:
-	return selected_units
-func set_selected_units(units: Array[UnitObject]):
-	selected_units = units
+func get_origin_units() -> Array[UnitObject]:
+	return origin_units
+func set_origin_units(units: Array[UnitObject]):
+	origin_units = units
 
 
 # Purchasables
@@ -125,7 +125,7 @@ func get_action_dict() -> Dictionary:
 		"target lander" :  target_lander.get_biome().name if target_lander else "",
 		"building type" : build_name,
 		"unit_type" : unit_name,
-		"selected_lander" : selected_lander.get_biome().name if selected_lander else "",
+		"origin_lander" : origin_lander.get_biome().name if origin_lander else "",
 		"purchasable" : purchasable.name,
 		"biome_type" : biome_type.name,
 	}

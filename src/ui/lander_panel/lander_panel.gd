@@ -12,8 +12,8 @@ signal attack_action_req(req: Action)
 #region Scene Refs
 var lander_manager: LanderManager
 var selector := {
-	"selected_lander": null,
-	"selected_units": [],
+	"origin_lander": null,
+	"origin_units": [],
 	"target_lander": null,
 	"player": null
 }
@@ -30,7 +30,7 @@ func _ready() -> void:
 	connect_signals()
 
 func update() -> void:
-	var cur_lander = selector.selected_lander
+	var cur_lander = selector.origin_lander
 	if cur_lander:
 		biome_label.text = str(cur_lander.biome_data.name)
 		update_building_control(cur_lander)
@@ -61,20 +61,20 @@ func on_target_lander_changed(lander: Lander) -> void:
 
 
 func on_unit_selected(unit: UnitObject) -> void:
-	if unit in selector.selected_units:
-		print("Selector Err: unit already in selected_units[]")
+	if unit in selector.origin_units:
+		print("Selector Err: unit already in origin_units[]")
 		return
-	selector.selected_units.append(unit)
+	selector.origin_units.append(unit)
 
 
 func on_unit_deselected(unit: UnitObject) -> void:
-	if unit not in selector.selected_units:
-		print("Selector Err: unit not in selected_units[]")
+	if unit not in selector.origin_units:
+		print("Selector Err: unit not in origin_units[]")
 		return
-	selector.selected_units.erase(unit)
+	selector.origin_units.erase(unit)
 
-func clear_selected_units() -> void:
-	selector.selected_units = []
+func clear_origin_units() -> void:
+	selector.origin_units = []
 #endregion
 
 #region Signal Connections
@@ -86,7 +86,7 @@ func connect_signals() -> void:
 	lander_control.target_lander_changed.connect(on_target_lander_changed)
 	lander_control.unit_selected.connect(on_unit_selected)
 	lander_control.unit_deselected.connect(on_unit_deselected)
-	lander_control.lander_control_updated.connect(clear_selected_units)
+	lander_control.lander_control_updated.connect(clear_origin_units)
 #endregion
 
 #region Forwarders
@@ -95,21 +95,21 @@ func fwd_build_request(req: Action) -> void:
 
 
 func fwd_buy_unit_action_req(buy_unit_req: Action) -> void:
-	buy_unit_req.target_lander = selector.selected_lander
+	buy_unit_req.target_lander = selector.origin_lander
 	buy_unit_action_req.emit(buy_unit_req)
 
 
 func fwd_move_units_req(req: Action) -> void:
 	req.target_lander = selector.target_lander
-	req.selected_lander = selector.selected_lander
-	req.selected_units = selector.selected_units
+	req.origin_lander = selector.origin_lander
+	req.origin_units = selector.origin_units
 	move_units_action_req.emit(req)
 
 
 func fwd_attack_action_req(req: Action) -> void:
 	req.target_lander = selector.target_lander
-	req.selected_lander = selector.selected_lander
-	req.selected_units = selector.selected_units
+	req.origin_lander = selector.origin_lander
+	req.origin_units = selector.origin_units
 	attack_action_req.emit(req)
 #endregion
 

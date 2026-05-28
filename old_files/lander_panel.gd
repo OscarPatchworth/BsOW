@@ -66,7 +66,7 @@ func update_lander_control(cur_lander: Lander):
 ## Calls
 
 func update():
-	var cur_lander = selector_manager.get_selected_lander()
+	var cur_lander = selector_manager.get_origin_lander()
 	if(cur_lander):
 		biome_label.text = str(cur_lander.biome_data.name)
 
@@ -86,7 +86,7 @@ func connect_signals():
 
 func connect_selector_signals():
 	# This signal should be done in the selector manager as that's the listener
-	lander_control.lander_control_updated.connect(selector_manager.clear_selected_units)
+	lander_control.lander_control_updated.connect(selector_manager.clear_origin_units)
 
 
 func connect_wires():
@@ -98,7 +98,7 @@ func fwd_build_request(req):
 
 
 func fwd_buy_unit_action_req(buy_unit_req: Action):
-	buy_unit_req.target_lander = selector_manager.get_selected_lander()
+	buy_unit_req.target_lander = selector_manager.get_origin_lander()
 	buy_unit_action_req.emit(buy_unit_req)
 
 

@@ -2,7 +2,7 @@
 extends Node
 
 # signals
-signal selected_units_changed
+signal origin_units_changed
 
 # enums
 #enum Element {EARTH,WATER,AIR,FIRE,}
@@ -16,18 +16,18 @@ var self_player: Player
 # @export variables
 
 # remaining regular variables
-var selected_lander:Lander
-var selected_units: Array[UnitObject]
+var origin_lander:Lander
+var origin_units: Array[UnitObject]
 var target_lander: Lander
 
 # @onready variables
 
 ###################################################################################################
 ###	Get/Set (er)s
-func get_selected_lander() -> Lander:
-	return selected_lander
-func set_selected_lander(lander: Lander):
-	selected_lander = lander
+func get_origin_lander() -> Lander:
+	return origin_lander
+func set_origin_lander(lander: Lander):
+	origin_lander = lander
 	
 
 
@@ -41,38 +41,38 @@ func get_player() -> Player:
 	return self_player
 
 
-func get_selected_units() -> Array[UnitObject]:
-	return selected_units
+func get_origin_units() -> Array[UnitObject]:
+	return origin_units
 
 
-func add_unit_selected_units(unit: UnitObject):
-	if unit in selected_units:
+func add_unit_origin_units(unit: UnitObject):
+	if unit in origin_units:
 		print("""
 		Selector Manager Err:
-			added unit already exisits in selected_units[]
+			added unit already exisits in origin_units[]
 		""")
 		return
-	selected_units.append(unit)
-	selected_units_changed.emit()
+	origin_units.append(unit)
+	origin_units_changed.emit()
 	print("Unit Added")
 
 
-func rmv_unit_selected_units(unit: UnitObject):
-	if unit not in selected_units:
+func rmv_unit_origin_units(unit: UnitObject):
+	if unit not in origin_units:
 		print(""" 
 		Selector Manager Err:
-			unit does not exisit in selected_units[]
+			unit does not exisit in origin_units[]
 		""")
 		return
-	selected_units.erase(unit)
-	selected_units_changed.emit()
+	origin_units.erase(unit)
+	origin_units_changed.emit()
 	print("unit rmv")
 
 
-func clear_selected_units():
-	selected_units = []
+func clear_origin_units():
+	origin_units = []
 
 
 ### Connected Signals and Signals
 func select_lander_req(lander: Lander):
-	set_selected_lander(lander)
+	set_origin_lander(lander)

@@ -12,7 +12,6 @@ signal place_biome(req)
 #endregion
 
 #region Runtime Refs
-var movement_ctrl = load("res://logic/managers_and_systems/movement_controler.gd")
 var lander_manager: Node
 var turn_manager: Node
 var combat_manager: Node
@@ -93,17 +92,17 @@ func handle_movement(req: Action):
 		return
 
 func handle_attack(req: Action):
-	if req.selected_lander.get_units() == []:
+	if req.origin_lander.get_units() == []:
 		print("Selected lander has no units")
 		return
 	if req.target_lander.get_units() == []:
 		print("Target lander has no units")
 		return
-	if req.selected_lander.get_units()[0].get_owned_by() == req.target_lander.get_units()[0].get_owned_by():
+	if req.origin_lander.get_units()[0].get_owned_by() == req.target_lander.get_units()[0].get_owned_by():
 		print("Selected and target landers are allies")
 		return
-	if req.selected_lander.get_units()[0].get_owned_by() != req.actor:
-		print("Attacking force does not belong to actor")
+	if req.origin_lander.get_units()[0].get_owned_by() != req.actor:
+		print("ORIGIN force does not belong to actor")
 		return
 	combat_manager.attack_action(req)
 
@@ -136,11 +135,11 @@ func _handle_buy_building(req: Action):
 	if not req.purchasable.get_cost().cost_less_than(ply_wallet):
 		print("Actor cannot afford building")
 		return
-	if req.selected_lander.get_building() != null:
+	if req.origin_lander.get_building() != null:
 		print("Lander already has building")
 		return
 	ply_wallet.rmv_resource(req.purchasable.get_cost())
-	req.selected_lander.build_action(req)
+	req.origin_lander.build_action(req)
 
 func _handle_buy_unit(req: Action):
 	var ply_wallet: EconData = req.actor.get_wallet()
@@ -148,7 +147,7 @@ func _handle_buy_unit(req: Action):
 		print("Actor cannot afford unit")
 		return
 	ply_wallet.rmv_resource(req.purchasable.get_cost())
-	req.selected_lander.buy_unit_action(req)
+	req.origin_lander.buy_unit_action(req)
 #endregion
 
 # End Of File

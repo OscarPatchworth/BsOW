@@ -32,7 +32,7 @@ func enter_combat(contest: Contest):
 	var max_units = combat_manager.get_max_defend_units() if combat_pos == CombatSide.ATTAKING else combat_manager.get_max_attack_units()
 	
 	var units: Array[UnitObject]
-	if combat_pos == CombatSide.ATTAKING: units = contest.get_invading_lander().get_units().duplicate()
+	if combat_pos == CombatSide.ATTAKING: units = contest.get_origin_lander().get_units().duplicate()
 	else: units = contest.get_contested_lander().get_units().duplicate()
 
 	for i in max_units:

@@ -11,7 +11,7 @@ var selector: Dictionary
 ###################################################################################################
 #region Lifecycle
 func update() -> void:
-	building_label.text = selector.selected_lander.get_building_data().get_building_name()
+	building_label.text = selector.origin_lander.get_building_data().get_building_name()
 #endregion
 
 #region Binders

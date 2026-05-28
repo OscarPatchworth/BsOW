@@ -55,7 +55,7 @@ func market_btn_pressed(item):
 	var buy_req = Action.new()
 	buy_req.set_type(Action.RequestType.BUY)
 	buy_req.set_actor(player_self)
-	buy_req.set_selected_lander(active_lander)
+	buy_req.set_origin_lander(active_lander)
 	buy_req.set_purchasable(item)
 	purchase_action_req.emit(buy_req)
 
