@@ -122,8 +122,9 @@ func get_board_position() -> Vector3:
 	return Vector3(position.x, 0, position.z)  # The Landers root sits at the origin.
 
 
-## Everything `actor` could buy on this lander right now:
-## building upgrades, units the building can spawn, and buildings the units can build.
+## Everything `actor` could buy on this lander right now: building upgrades, units the building
+## can spawn (only unit types it trains), and buildings the units here can build (only units with
+## can_build, and only `actor`'s own units).
 func get_purchasables(actor: Actor) -> Array[Resource]:
 	var purchasables: Array[Resource] = []
 	var building := get_building()
@@ -136,6 +137,8 @@ func get_purchasables(actor: Actor) -> Array[Resource]:
 				purchasables.append(unit_data)
 	else:
 		for unit in get_units():
+			if unit.get_owner_actor() != actor or not unit.can_build_buildings():
+				continue
 			for building_data in unit.get_buildables():
 				if building_data not in purchasables:
 					purchasables.append(building_data)

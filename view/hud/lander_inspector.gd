@@ -108,6 +108,13 @@ func _refresh_details(owner_actor: Actor) -> void:
 		if is_undefended_enemy:
 			text += "  (undefended)"
 		_details.add_child(HudTheme.make_label(text, HudTheme.FONT_SIZE, HudTheme.WARN if is_undefended_enemy else HudTheme.TEXT))
+		if building.is_command_tower():
+			_details.add_child(HudTheme.make_label("   Command tower: if it's razed, %s lose%s" % [
+				"you" if building.get_owner_actor() == _player else building.get_owner_actor().get_display_name(),
+				"" if building.get_owner_actor() == _player else "s"], HudTheme.SMALL_FONT_SIZE, HudTheme.WARN))
+		var trains := _trainable_names(building)
+		if not trains.is_empty():
+			_details.add_child(HudTheme.make_label("   Trains: " + ", ".join(trains), HudTheme.SMALL_FONT_SIZE, HudTheme.MUTED))
 	else:
 		_details.add_child(HudTheme.make_label("No building", HudTheme.FONT_SIZE, HudTheme.MUTED))
 
@@ -119,8 +126,8 @@ func _refresh_details(owner_actor: Actor) -> void:
 	for unit_name: String in counts:
 		var sample: UnitInstance = units.filter(func(u: UnitInstance) -> bool: return u.get_display_name() == unit_name)[0]
 		var damage := sample.get_damage()
-		_details.add_child(HudTheme.make_label("   %d × %s   %s" % [counts[unit_name], unit_name, _dice_text(damage)],
-			HudTheme.SMALL_FONT_SIZE))
+		_details.add_child(HudTheme.make_label("   %d × %s   %s%s" % [counts[unit_name], unit_name, _dice_text(damage),
+			"   (builder)" if sample.can_build_buildings() else ""], HudTheme.SMALL_FONT_SIZE))
 
 	var connected := _lander_manager.get_connected_landers(_lander)
 	_details.add_child(HudTheme.make_label("Connected to %d lander%s" % [connected.size(), "" if connected.size() == 1 else "s"],
@@ -165,6 +172,18 @@ func _refresh_shop(owner_actor: Actor) -> void:
 	else:
 		_hint.text = "Nothing to buy here. Units can build a building on a lander that has none."
 	_hint.visible = _hint.text != ""
+
+
+## The building owner's units this building can train.
+func _trainable_names(building: BuildingInstance) -> Array[String]:
+	var names: Array[String] = []
+	var owner_actor := building.get_owner_actor()
+	if owner_actor == null or not building.can_spawn_units():
+		return names
+	for unit_data in owner_actor.get_species().get_units():
+		if unit_data.get_unit_type() in building.get_spawnable_unit_types():
+			names.append(unit_data.get_display_name())
+	return names
 
 
 ## Mirrors ActionManager's purchase rules so the button can say why it's disabled.

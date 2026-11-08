@@ -220,16 +220,31 @@ func _buy() -> void:
 			_buy_spawning_building(lander, budget)
 
 
+## Builds a spawning building, preferring a kind we don't own yet (e.g. our race's building,
+## which trains our advanced units).
 func _buy_spawning_building(lander: Lander, budget: EconData) -> void:
+	var options: Array[BuildingData] = []
 	for purchasable in lander.get_purchasables(self):
 		var building_data := purchasable as BuildingData
 		if building_data == null or not building_data.can_spawn_units():
 			continue
 		if building_data.is_unique_building() or not budget.can_afford(building_data.get_cost()):
 			continue
-		budget.subtract(building_data.get_cost())
-		_request_purchase(lander, building_data)
+		options.append(building_data)
+	if options.is_empty():
 		return
+	var owned := _owned_building_kinds()
+	options.sort_custom(func(a: BuildingData, b: BuildingData) -> bool: return a not in owned and b in owned)
+	budget.subtract(options[0].get_cost())
+	_request_purchase(lander, options[0])
+
+
+func _owned_building_kinds() -> Array[BuildingData]:
+	var kinds: Array[BuildingData] = []
+	for lander in _lander_manager.get_landers_owned_by(self):
+		if lander.has_building():
+			kinds.append(lander.get_building().get_building_data())
+	return kinds
 
 
 func _buy_units(lander: Lander, budget: EconData) -> void:
@@ -404,7 +419,10 @@ func _request_move(source: Lander, target: Lander, units: Array[UnitInstance], w
 
 
 ## Capture a building our species could build itself (we can use it); raze anything else.
+## Command towers can only be razed (and razing one knocks its owner out of the game).
 func _choose_building_fate(building: BuildingInstance) -> Action.BuildingFate:
+	if building.is_command_tower():
+		return Action.BuildingFate.RAZE
 	if building.get_building_data() in get_species().get_buildings():
 		return Action.BuildingFate.CAPTURE
 	return Action.BuildingFate.RAZE

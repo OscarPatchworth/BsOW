@@ -22,6 +22,6 @@ is_unique = false
 overrides_unit_capacity = false
 unit_capacity = -1
 can_spawn = true
-spawnable_unit_types = Array[int]([0, 2])
+spawnable_unit_types = Array[int]([0])
 can_upgrade = false
 upgrades = Array[ExtResource("1_mgkkg")]([])

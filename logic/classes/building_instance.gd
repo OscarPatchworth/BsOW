@@ -29,6 +29,12 @@ func refresh_mesh() -> void:
 	_mesh_parent.add_child(get_mesh_scene().instantiate())
 
 
+## True if this is its owner's command tower (razing it eliminates the owner).
+func is_command_tower() -> bool:
+	var owner_actor := get_owner_actor()
+	return owner_actor != null and get_building_data() == owner_actor.get_species().get_command_tower()
+
+
 func has_purchases() -> bool:
 	return not get_upgrades().is_empty() or not get_spawnable_unit_types().is_empty()
 #endregion

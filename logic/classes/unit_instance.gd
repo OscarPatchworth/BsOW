@@ -62,6 +62,10 @@ func get_damage() -> DamageData:
 	return AbilitySystem.resolve_get(self, &"damage", get_unit_data().get_damage())
 
 
+func can_build_buildings() -> bool:
+	return AbilitySystem.resolve_get(self, &"can_build", get_unit_data().can_build_buildings())
+
+
 func get_buildables() -> Array[BuildingData]:
 	return AbilitySystem.resolve_get(self, &"buildables", get_unit_data().get_buildables())
 #endregion

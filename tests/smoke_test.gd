@@ -68,6 +68,7 @@ func _ready() -> void:
 	_check(_turn_manager.get_game_state() == TurnManager.GameState.SETUP, "game starts in SETUP")
 
 	await _test_setup()
+	_test_content_rules()
 	await _test_main_loop()
 
 	print("\n==== Smoke test: %d checks, %d failed ====" % [_check_count, _failures.size()])
@@ -119,6 +120,48 @@ func _test_setup() -> void:
 	_request(Action.create(Action.Type.COLLECT_UPKEEP))
 	_check(_player.get_wallet().get_amount(&"food") == food_now and _last_rejection_contains("Only the game"),
 		"actors can't request system actions")
+
+
+## Each race: the Base trains basic units, the race building trains the advanced unit, and only
+## builder units (can_build) offer buildings. Checked on a spare setup lander, then put back.
+func _test_content_rules() -> void:
+	var species := _player.get_species()
+	var basic_unit: UnitData = null
+	var advanced_unit: UnitData = null
+	for unit_data in species.get_units():
+		if unit_data.get_unit_type() == UnitData.UnitType.MELEE_BASIC:
+			basic_unit = unit_data
+		else:
+			advanced_unit = unit_data
+	var race_building: BuildingData = null
+	for building_data in species.get_buildings():
+		if building_data.can_spawn_units() and UnitData.UnitType.MELEE_BASIC not in building_data.get_spawnable_unit_types():
+			race_building = building_data
+	_check(basic_unit != null and advanced_unit != null and race_building != null,
+		"%s has a basic unit, an advanced unit and a race building" % species.get_display_name())
+	if basic_unit == null or advanced_unit == null or race_building == null:
+		return
+
+	var home := _setup_landers[0]
+	var home_offers := home.get_purchasables(_player)
+	_check(basic_unit in home_offers and advanced_unit not in home_offers, "the Base trains the basic unit only")
+
+	var spare := _setup_landers[3]
+	spare.add_units([UnitInstance.new(advanced_unit, _player)] as Array[UnitInstance])
+	_check(spare.get_purchasables(_player).is_empty(), "%s can't build (can_build = false)" % advanced_unit.get_display_name())
+	spare.add_units([UnitInstance.new(basic_unit, _player)] as Array[UnitInstance])
+	_check(race_building in spare.get_purchasables(_player), "%s can build the %s" % [basic_unit.get_display_name(), race_building.get_display_name()])
+
+	var build := Action.create(Action.Type.PURCHASE)
+	build.set_actor(_player)
+	build.set_building_data(race_building)
+	spare.build(build)
+	var race_offers := spare.get_purchasables(_player)
+	_check(advanced_unit in race_offers and basic_unit not in race_offers,
+		"the %s trains the %s only" % [race_building.get_display_name(), advanced_unit.get_display_name()])
+
+	spare.remove_building()
+	spare.remove_units(spare.get_units().duplicate())
 
 
 func _test_main_loop() -> void:
