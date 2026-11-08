@@ -81,6 +81,9 @@ func _build_slots(contest: Contest) -> void:
 		display.unit_deselected.connect(unit_deselected.emit)
 		add_child(display)
 
+		# Slots are laid out by hand (and tweened), so pin the anchors; stretch anchors would
+		# override the size.
+		display.set_anchors_preset(Control.PRESET_TOP_LEFT)
 		var rect := _slot_rect(i)
 		display.position = rect.position
 		display.size = rect.size
