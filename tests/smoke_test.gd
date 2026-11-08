@@ -23,6 +23,8 @@ var _turn_manager: TurnManager
 var _lander_manager: LanderManager
 var _combat_manager: CombatManager
 var _action_manager: ActionManager
+var _rejections: Array[String] = []
+var _resolved_types: Array[Action.Type] = []
 
 
 func _ready() -> void:
@@ -37,6 +39,8 @@ func _ready() -> void:
 	_lander_manager = _root.find_child("LanderManager", true, false)
 	_combat_manager = _root.find_child("CombatManager", true, false)
 	_action_manager = _root.find_child("ActionManager", true, false)
+	_action_manager.action_rejected.connect(_on_action_rejected)
+	_action_manager.action_resolved.connect(_on_action_resolved)
 
 	_check(_player != null and _ai != null, "player and AI exist")
 	_check(_turn_manager.get_game_state() == TurnManager.GameState.SETUP, "game starts in SETUP")
@@ -70,6 +74,9 @@ func _test_setup() -> void:
 	_check(controller._is_placing_command_tower, "controller switched to command tower placement")
 
 	var home := _lander_at(SETUP_ORIGIN)
+	var food_before_main_loop := {}
+	for actor: Actor in [_player, _ai]:
+		food_before_main_loop[actor] = actor.get_wallet().get_amount(&"food")
 	var tower := Action.create(Action.Type.PLACE_BUILDING)
 	tower.set_target_lander(home)
 	tower.set_building_data(_player.get_species().get_command_tower())
@@ -80,6 +87,15 @@ func _test_setup() -> void:
 	_check(home.get_owner_actor() == _player, "home lander owned by player")
 	_check(_turn_manager.get_game_state() == TurnManager.GameState.MAIN_LOOP, "setup finished -> MAIN_LOOP")
 	_check(_turn_manager.get_game_phase() == TurnManager.Phase.DUSTCLOUD_COLLAPSE, "first phase is DUSTCLOUD_COLLAPSE")
+	var first_actor := _turn_manager.get_active_actor()
+	_check(first_actor.get_wallet().get_amount(&"food") == food_before_main_loop[first_actor] + _expected_upkeep(first_actor, &"food"),
+		"first actor collected upkeep at the start of the main loop")
+
+	# Only the game may request system actions.
+	var food_now := _player.get_wallet().get_amount(&"food")
+	_request(Action.create(Action.Type.COLLECT_UPKEEP))
+	_check(_player.get_wallet().get_amount(&"food") == food_now and _last_rejection_contains("Only the game"),
+		"actors can't request system actions")
 
 
 func _test_main_loop() -> void:
@@ -167,16 +183,23 @@ func _test_main_loop() -> void:
 	await _test_combat(home)
 
 	# Finish the turn: COMBAT -> (CLEANUP, UPKEEP auto) -> next actor's DUSTCLOUD_COLLAPSE.
+	var phase_seen_on_actor_change: Array[TurnManager.Phase] = []
+	var record_phase := func(_actor: Actor) -> void: phase_seen_on_actor_change.append(_turn_manager.get_game_phase())
+	_turn_manager.active_actor_changed.connect(record_phase)
+	_resolved_types.clear()
 	_request(Action.create(Action.Type.PROGRESS_TURN))
 	await _frames(1)
+	_turn_manager.active_actor_changed.disconnect(record_phase)
+	_check(_resolved_types == ([Action.Type.PROGRESS_TURN, Action.Type.PROGRESS_TURN, Action.Type.COLLECT_UPKEEP,
+		Action.Type.PROGRESS_TURN] as Array[Action.Type]), "hand-over resolves as queued follow-ups: CLEANUP, UPKEEP, upkeep, DUSTCLOUD")
+	_check(phase_seen_on_actor_change == ([TurnManager.Phase.UPKEEP] as Array[TurnManager.Phase]),
+		"active_actor_changed fires once the phase is already the new turn's UPKEEP")
 	_check(_turn_manager.get_active_actor() == _ai, "turn passed to the AI")
 	_check(_turn_manager.get_game_phase() == TurnManager.Phase.DUSTCLOUD_COLLAPSE, "AI turn starts at DUSTCLOUD_COLLAPSE")
 
 	# Round wrap: upkeep pays the player for owned landers.
 	var food_before := _player.get_wallet().get_amount(&"food")
-	var expected_food := 0
-	for lander in _lander_manager.get_landers_owned_by(_player):
-		expected_food += lander.get_upkeep().get_amount(&"food")
+	var expected_food := _expected_upkeep(_player, &"food")
 	var season_before := _turn_manager.get_season_index()
 	var round_before := _turn_manager.get_round_number()
 	await _advance_to_next_actor()
@@ -208,13 +231,20 @@ func _test_combat(home: Lander) -> void:
 	_check(contest.get_units(Contest.Side.DEFENDER).size() == 2, "AI chose its defenders")
 
 	var attacker_unit := home.get_units()[0]
-	_player.combat_selection_requested.emit(_player, attacker_unit, true)
+	_request(_combat_unit_action(Action.Type.SELECT_COMBAT_UNIT, enemy.get_units()[0]))
+	_check(contest.get_units(Contest.Side.ATTACKER).is_empty(), "player can't select an enemy unit")
+	_request(_combat_unit_action(Action.Type.SELECT_COMBAT_UNIT, attacker_unit))
 	_check(contest.get_units(Contest.Side.ATTACKER) == [attacker_unit], "player selected an attacker")
-	_player.combat_selection_requested.emit(_player, attacker_unit, false)
+	_request(_combat_unit_action(Action.Type.DESELECT_COMBAT_UNIT, attacker_unit))
 	_check(contest.get_units(Contest.Side.ATTACKER).is_empty(), "player deselected the attacker")
-	_player.combat_selection_requested.emit(_player, attacker_unit, true)
-	_player.combat_selection_requested.emit(_player, true, true)
+	_request(Action.create(Action.Type.PROGRESS_TURN))
+	_check(_turn_manager.get_game_phase() == TurnManager.Phase.COMBAT, "can't end the phase in the middle of a combat")
+	_request(_combat_unit_action(Action.Type.SELECT_COMBAT_UNIT, attacker_unit))
+	_resolved_types.clear()
+	_request(Action.create(Action.Type.DECLARE_COMBAT_READY))
 	await _frames(1)
+	_check(_resolved_types == ([Action.Type.DECLARE_COMBAT_READY, Action.Type.RESOLVE_COMBAT] as Array[Action.Type]),
+		"both sides ready -> RESOLVE_COMBAT queued as a follow-up action")
 
 	_check(resolved.size() == 1, "combat resolved once")
 	if resolved.size() == 1:
@@ -244,6 +274,31 @@ func _advance_to_next_actor() -> void:
 		await _frames(1)
 		if _turn_manager.get_active_actor() != start_actor:
 			return
+
+
+func _combat_unit_action(type: Action.Type, unit: UnitInstance) -> Action:
+	var action := Action.create(type)
+	action.set_units([unit] as Array[UnitInstance])
+	return action
+
+
+func _expected_upkeep(actor: Actor, key: StringName) -> int:
+	var total := 0
+	for lander in _lander_manager.get_landers_owned_by(actor):
+		total += lander.get_upkeep().get_amount(key)
+	return total
+
+
+func _last_rejection_contains(text: String) -> bool:
+	return not _rejections.is_empty() and text in _rejections[-1]
+
+
+func _on_action_rejected(_action: Action, reason: String) -> void:
+	_rejections.append(reason)
+
+
+func _on_action_resolved(action: Action) -> void:
+	_resolved_types.append(action.get_type())
 
 
 func _first_unit_purchasable(lander: Lander) -> UnitData:

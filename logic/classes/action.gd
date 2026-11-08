@@ -2,10 +2,12 @@
 class_name Action
 extends RefCounted
 
-## A request from an Actor to change the game state. Built by UI/controllers/AI,
-## validated and executed by the ActionManager.
+## A request to change the game state. Every change goes through the ActionManager as an Action:
+## actors request them (UI, controller, AI), and the game requests "system" actions for its
+## own steps (upkeep, resolving combat, skipping admin phases).
 
 enum Type {
+	# Actor actions
 	MOVE_UNITS,
 	ATTACK,
 	PURCHASE,
@@ -13,6 +15,14 @@ enum Type {
 	PLACE_BUILDING,
 	PROGRESS_TURN,
 	PLACE_BIOME,
+	SELECT_COMBAT_UNIT,
+	DESELECT_COMBAT_UNIT,
+	DECLARE_COMBAT_READY,
+	WITHDRAW_COMBAT_READY,
+	# System actions (only the game requests these)
+	FINISH_SETUP,
+	COLLECT_UPKEEP,
+	RESOLVE_COMBAT,
 }
 
 var _type: Type
@@ -27,6 +37,10 @@ var _biome_data: BiomeData
 ## A BuildingData or UnitData chosen from the market.
 var _purchasable: Resource
 
+# Pipeline flags. Not hooked: they control how the action is processed, they aren't game state.
+var _is_system: bool = false
+var _cancel_reason: String = ""
+
 
 static func create(type: Type) -> Action:
 	var action := Action.new()
@@ -34,10 +48,36 @@ static func create(type: Type) -> Action:
 	return action
 
 
+## An action the game requests for itself. `actor` is who it applies to (e.g. whose upkeep).
+static func create_system(type: Type, actor: Actor = null) -> Action:
+	var action := create(type)
+	action._is_system = true
+	action.set_actor(actor)
+	return action
+
+
 #region Public API
+func is_system() -> bool:
+	return _is_system
+
+
+## Called from an ActionManager.action_resolving listener to stop this action from executing.
+func cancel(reason: String) -> void:
+	_cancel_reason = reason if reason != "" else "Cancelled"
+
+
+func is_cancelled() -> bool:
+	return _cancel_reason != ""
+
+
+func get_cancel_reason() -> String:
+	return _cancel_reason
+
+
 func to_debug_dictionary() -> Dictionary:
 	return {
 		"type": Type.find_key(_type),
+		"is_system": _is_system,
 		"actor": _actor.name if _actor else "",
 		"position": _position,
 		"source_lander": _describe_lander(_source_lander),

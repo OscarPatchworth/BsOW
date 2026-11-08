@@ -4,11 +4,7 @@ extends Actor
 
 ## The local human player. Owns a PlayerController (world input), a UiManager (HUD)
 ## and a SelectorManager (what is currently selected), and connects them to the game.
-
-## Any game action the player wants to take. `actor` is already set to this player.
-signal action_requested(action: Action)
-## Combat picks: `thing` is a UnitInstance (select/deselect) or a bool (ready/not ready).
-signal combat_selection_requested(actor: Actor, thing: Variant, is_selected: bool)
+## Everything the children request is sent on as an Action through request_action().
 
 var _draw_3d: Draw3D
 var _match_settings: MatchSettings
@@ -38,23 +34,6 @@ func get_selector_manager() -> SelectorManager:
 
 
 #region Signal handlers (connected by GameRoot)
-func _on_lander_manager_building_built(action: Action) -> void:
-	if action.get_actor() == self:
-		_ui.refresh_lander_panel()
-
-
-func _on_lander_manager_unit_bought(action: Action) -> void:
-	if action.get_actor() == self:
-		_ui.refresh_lander_panel()
-
-
-func _on_lander_manager_units_moved(action: Action) -> void:
-	if (action.get_actor() == self
-			or action.get_source_lander() == _selector_manager.get_selected_lander()
-			or action.get_target_lander() == _selector_manager.get_target_lander()):
-		_ui.on_units_moved()
-
-
 func _on_combat_manager_combat_updated(contest: Contest) -> void:
 	if contest.is_involved(self):
 		_ui.update_combat(contest)
@@ -94,44 +73,51 @@ func _on_turn_manager_season_changed(season_index: int) -> void:
 	_ui.apply_season(season_index)
 
 
-func _on_action_manager_biome_placement_approved(action: Action) -> void:
-	if action.get_actor() != self or _turn_manager.get_game_state() != TurnManager.GameState.SETUP:
-		return
-	_controller.on_setup_biome_placed()
-	_ui.on_setup_biome_placed(action)
-
-
-func _on_action_manager_build_approved(action: Action) -> void:
-	if action.get_actor() != self or _turn_manager.get_game_state() != TurnManager.GameState.SETUP:
-		return
-	_controller.on_command_tower_placed()
 #endregion
 
 
 #region Signal handlers (children)
 func _on_child_action_requested(action: Action) -> void:
-	action.set_actor(self)
-	action_requested.emit(action)
+	request_action(action)
 
 
 func _on_ui_combat_unit_selected(unit: UnitInstance) -> void:
-	combat_selection_requested.emit(self, unit, true)
+	_request_combat_unit(Action.Type.SELECT_COMBAT_UNIT, unit)
 
 
 func _on_ui_combat_unit_deselected(unit: UnitInstance) -> void:
-	combat_selection_requested.emit(self, unit, false)
+	_request_combat_unit(Action.Type.DESELECT_COMBAT_UNIT, unit)
 
 
 func _on_ui_combat_ready() -> void:
-	combat_selection_requested.emit(self, true, true)
+	request_action(Action.create(Action.Type.DECLARE_COMBAT_READY))
 
 
 func _on_ui_combat_not_ready() -> void:
-	combat_selection_requested.emit(self, false, false)
+	request_action(Action.create(Action.Type.WITHDRAW_COMBAT_READY))
 #endregion
 
 
 #region Virtual overrides
+func _action_resolved(action: Action) -> void:
+	match action.get_type():
+		Action.Type.PLACE_BIOME:
+			if action.get_actor() == self:
+				_controller.on_setup_biome_placed()
+				_ui.on_setup_biome_placed(action)
+		Action.Type.PLACE_BUILDING:
+			if action.get_actor() == self:
+				_controller.on_command_tower_placed()
+		Action.Type.PURCHASE:
+			if action.get_actor() == self:
+				_ui.refresh_lander_panel()
+		Action.Type.MOVE_UNITS:
+			if (action.get_actor() == self
+					or action.get_source_lander() == _selector_manager.get_selected_lander()
+					or action.get_target_lander() == _selector_manager.get_target_lander()):
+				_ui.on_units_moved()
+
+
 func _enter_combat(contest: Contest) -> void:
 	_ui.show_combat(contest)
 	_controller.enter_combat()
@@ -139,6 +125,12 @@ func _enter_combat(contest: Contest) -> void:
 
 
 #region Private
+func _request_combat_unit(type: Action.Type, unit: UnitInstance) -> void:
+	var action := Action.create(type)
+	action.set_units([unit] as Array[UnitInstance])
+	request_action(action)
+
+
 func _bind_children() -> void:
 	_selector_manager.bind_player(self)
 

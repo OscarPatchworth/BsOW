@@ -3,10 +3,17 @@ class_name Actor
 extends Node
 
 ## Base class for anything that takes turns: the local Player and AI opponents.
+## Actors change the game only by requesting Actions (request_action), and learn what
+## happened from ActionManager.action_resolved (the _action_resolved virtual).
+
+## An Action this actor wants to take, with `actor` already set. GameRoot connects this
+## to ActionManager.request_action.
+signal action_requested(action: Action)
 
 var _species: SpeciesData
 var _wallet: EconData
 
+var _action_manager: ActionManager
 var _turn_manager: TurnManager
 var _lander_manager: LanderManager
 var _combat_manager: CombatManager
@@ -16,6 +23,17 @@ var _combat_side: int = -1
 
 
 #region Public API
+func bind_action_manager(action_manager: ActionManager) -> void:
+	_action_manager = action_manager
+	action_manager.action_resolved.connect(_on_action_manager_action_resolved)
+
+
+## Stamps this actor on `action` and sends it to the ActionManager.
+func request_action(action: Action) -> void:
+	action.set_actor(self)
+	action_requested.emit(action)
+
+
 func bind_turn_manager(turn_manager: TurnManager) -> void:
 	_turn_manager = turn_manager
 
@@ -56,6 +74,10 @@ func set_combat_side(value: int) -> void:
 
 
 #region Signal handlers
+func _on_action_manager_action_resolved(action: Action) -> void:
+	_action_resolved(action)
+
+
 func _on_combat_manager_combat_started(contest: Contest) -> void:
 	if not contest.is_involved(self):
 		return  # Not our fight. (Spectating could hook in here later.)
@@ -67,5 +89,10 @@ func _on_combat_manager_combat_started(contest: Contest) -> void:
 #region Virtual
 ## Override in subclasses: called when a contest this actor is part of starts.
 func _enter_combat(_contest: Contest) -> void:
+	pass
+
+
+## Override in subclasses: called after any action (by anyone) has resolved.
+func _action_resolved(_action: Action) -> void:
 	pass
 #endregion

@@ -4,11 +4,6 @@ extends Actor
 
 ## A placeholder opponent: picks random defenders/attackers and declares ready.
 
-signal combat_unit_selected(unit: UnitInstance)
-signal combat_unit_deselected(unit: UnitInstance)
-signal combat_ready(actor: Actor)
-signal combat_not_ready(actor: Actor)
-
 
 #region Virtual overrides
 func _enter_combat(contest: Contest) -> void:
@@ -22,7 +17,9 @@ func _enter_combat(contest: Contest) -> void:
 			break
 		var chosen_unit: UnitInstance = available_units.pick_random()
 		available_units.erase(chosen_unit)
-		combat_unit_selected.emit(chosen_unit)
+		var select := Action.create(Action.Type.SELECT_COMBAT_UNIT)
+		select.set_units([chosen_unit] as Array[UnitInstance])
+		request_action(select)
 
-	combat_ready.emit(self)
+	request_action(Action.create(Action.Type.DECLARE_COMBAT_READY))
 #endregion
