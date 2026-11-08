@@ -1,132 +1,142 @@
+# action.gd
 class_name Action
-extends Node
+extends RefCounted
 
-# signals
+## A request from an Actor to change the game state. Built by UI/controllers/AI,
+## validated and executed by the ActionManager.
 
-# enums
-enum RequestType {
-	MOVEMENT, 
+enum Type {
+	MOVE_UNITS,
 	ATTACK,
-	BUY,
+	PURCHASE,
 	PLACE_LANDER,
 	PLACE_BUILDING,
 	BUY_UNIT,
 	PROGRESS_TURN,
-	PLACE_BIOME
+	PLACE_BIOME,
 }
 
-# constants
-
-# static variables
-var type: RequestType
-var actor: Actor
-var position: Vector3
-var target_lander: Lander
-var building_type: BuildingData
-var unit_type: UnitData
-var selected_lander: Lander
-var selected_units: Array[UnitObject]
-var purchasable
-var biome_type: BiomeData
-
-# @export variables
-
-# remaining regular variables
-
-# @onready variables
-
-###################################################################################################
-###	Methods
+var _type: Type
+var _actor: Actor
+var _position: Vector3
+var _source_lander: Lander
+var _target_lander: Lander
+var _units: Array[UnitInstance] = []
+var _building_data: BuildingData
+var _unit_data: UnitData
+var _biome_data: BiomeData
+## A BuildingData or UnitData chosen from the market.
+var _purchasable: Resource
 
 
-### Get/Set (ers)
-# Type
-func get_type() -> RequestType:
-	return self.type
-func set_type(req_type: RequestType):
-	self.type = req_type
-
-# Actor
-func get_actor() -> Actor:
-	return self.actor
-func set_actor(req_actor: Actor):
-	self.actor = req_actor
-
-# Pos
-func get_pos() -> Vector3:
-	return position
-func set_pos(req_pos: Vector3):
-	self.position = req_pos
+static func create(type: Type) -> Action:
+	var action := Action.new()
+	action.set_type(type)
+	return action
 
 
-# Target Lander
-func get_target_lander() -> Lander:
-	return target_lander
-func set_target_lander(target: Lander):
-	self.target_lander = target
-
-
-# Selected Lander
-func get_selected_lander() -> Lander:
-	return selected_lander
-func set_selected_lander(selected: Lander):
-	selected_lander = selected
-
-
-# Building Type
-func get_building_type() -> BuildingData:
-	return building_type
-func set_building_type(building_data):
-	self.building_type = building_data
-
-
-# Unit Type
-func get_unit_type() -> UnitData:
-	return unit_type
-func set_unit_type(unit_data: UnitData):
-	self.unit_type = unit_data
-
-
-# Selected Units
-func get_selected_units() -> Array[UnitObject]:
-	return selected_units
-func set_selected_units(units: Array[UnitObject]):
-	selected_units = units
-
-
-# Purchasables
-func get_purchasable():
-	return purchasable
-func set_purchasable(item):
-	purchasable = item
-
-
-# BiomeType
-func get_biome_type() -> BiomeData:
-	return biome_type
-func set_biome_type(b: BiomeData):
-	biome_type = b
-
-
-# All
-func get_action_dict() -> Dictionary:
-	var build_name: String = str(null)
-	if(building_type):
-		build_name = building_type.get_building_name()
-
-	var unit_name: String = str(null)
-	if(unit_type):
-		unit_name = unit_type.get_unit_name()
-
-	var all = {
-		"type": RequestType.find_key(type),
-		"actor": actor.name,
-		"pos": position,
-		"target lander" :  target_lander.get_biome().name if target_lander else "",
-		"building type" : build_name,
-		"unit_type" : unit_name,
-		"selected_lander" : selected_lander.get_biome().name if selected_lander else "",
-		"purchasable" : purchasable.name,
-		"biome_type" : biome_type.name,
+#region Public API
+func to_debug_dictionary() -> Dictionary:
+	return {
+		"type": Type.find_key(_type),
+		"actor": _actor.name if _actor else "",
+		"position": _position,
+		"source_lander": _describe_lander(_source_lander),
+		"target_lander": _describe_lander(_target_lander),
+		"units": _units.size(),
+		"building_data": _building_data.get_display_name() if _building_data else "",
+		"unit_data": _unit_data.get_display_name() if _unit_data else "",
+		"biome_data": _biome_data.get_display_name() if _biome_data else "",
+		"purchasable": _purchasable.get("display_name") if _purchasable else "",
 	}
-	return all
+#endregion
+
+
+#region Accessors
+func get_type() -> Type:
+	return AbilitySystem.resolve_get(self, &"type", _type)
+
+
+func set_type(value: Type) -> void:
+	_type = AbilitySystem.resolve_set(self, &"type", _type, value)
+
+
+func get_actor() -> Actor:
+	return AbilitySystem.resolve_get(self, &"actor", _actor)
+
+
+func set_actor(value: Actor) -> void:
+	_actor = AbilitySystem.resolve_set(self, &"actor", _actor, value)
+
+
+func get_position() -> Vector3:
+	return AbilitySystem.resolve_get(self, &"position", _position)
+
+
+func set_position(value: Vector3) -> void:
+	_position = AbilitySystem.resolve_set(self, &"position", _position, value)
+
+
+func get_source_lander() -> Lander:
+	return AbilitySystem.resolve_get(self, &"source_lander", _source_lander)
+
+
+func set_source_lander(value: Lander) -> void:
+	_source_lander = AbilitySystem.resolve_set(self, &"source_lander", _source_lander, value)
+
+
+func get_target_lander() -> Lander:
+	return AbilitySystem.resolve_get(self, &"target_lander", _target_lander)
+
+
+func set_target_lander(value: Lander) -> void:
+	_target_lander = AbilitySystem.resolve_set(self, &"target_lander", _target_lander, value)
+
+
+func get_units() -> Array[UnitInstance]:
+	return AbilitySystem.resolve_get(self, &"units", _units)
+
+
+func set_units(value: Array[UnitInstance]) -> void:
+	_units = AbilitySystem.resolve_set(self, &"units", _units, value)
+
+
+func get_building_data() -> BuildingData:
+	return AbilitySystem.resolve_get(self, &"building_data", _building_data)
+
+
+func set_building_data(value: BuildingData) -> void:
+	_building_data = AbilitySystem.resolve_set(self, &"building_data", _building_data, value)
+
+
+func get_unit_data() -> UnitData:
+	return AbilitySystem.resolve_get(self, &"unit_data", _unit_data)
+
+
+func set_unit_data(value: UnitData) -> void:
+	_unit_data = AbilitySystem.resolve_set(self, &"unit_data", _unit_data, value)
+
+
+func get_biome_data() -> BiomeData:
+	return AbilitySystem.resolve_get(self, &"biome_data", _biome_data)
+
+
+func set_biome_data(value: BiomeData) -> void:
+	_biome_data = AbilitySystem.resolve_set(self, &"biome_data", _biome_data, value)
+
+
+func get_purchasable() -> Resource:
+	return AbilitySystem.resolve_get(self, &"purchasable", _purchasable)
+
+
+func set_purchasable(value: Resource) -> void:
+	_purchasable = AbilitySystem.resolve_set(self, &"purchasable", _purchasable, value)
+#endregion
+
+
+#region Private
+func _describe_lander(lander: Lander) -> String:
+	if lander == null or lander.get_biome_data() == null:
+		return ""
+	return lander.get_biome_data().get_display_name()
+#endregion

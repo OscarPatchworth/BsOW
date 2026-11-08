@@ -1,104 +1,62 @@
-#turn_panel.gd
+# turn_panel.gd
+class_name TurnPanel
 extends Panel
 
-# signals
-signal next_phase_req(req: Action)
+## The phases of a turn with the current phase highlighted, plus a "next phase" button.
 
+signal action_requested(action: Action)
 
-# enums
-
-# constants
-
-# static @onready variables
-var turn_manager = GameManager
-
-# @export var variables
-@export var defualt_label_stylebox: StyleBox
+@export var default_label_stylebox: StyleBox
 @export var active_label_stylebox: StyleBox
 
-# remaining regular @onready variables
-var turn_phases: Array
+var _turn_manager: TurnManager
 
-# @onready @onready variables
-@onready var hbox: HBoxContainer = self.find_child("HBoxContainer")
-@onready var next_btn: GameButton = self.find_child("NextButton")
+@onready var _labels_box: HBoxContainer = find_child("HBoxContainer")
+@onready var _next_button: GameButton = find_child("NextButton")
 
-###################################################################################################
-###	Methods
+
 func _ready() -> void:
-	ready_signals()
-
-func generate_phase_labels():
-	generate_turn_phases()
-
-	for phase in turn_phases:
-		var new_label = Label.new()
-		new_label.text = phase
-		new_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-		new_label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
-		hbox.add_child(new_label)
-		new_label.size_flags_vertical = Control.SIZE_FILL
-		new_label.size_flags_horizontal = Control.SIZE_FILL
-		new_label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	update_turn_panel()
+	_next_button.pressed.connect(_on_next_button_pressed)
 
 
-func generate_turn_phases():
-	turn_phases = []
-	for phase in turn_manager.GameLoop:
-		turn_phases.append(to_sentence_case(phase))
-	print(turn_phases)
-	
-
-func to_sentence_case(txt: String) -> String:
-	var words = txt.split("_")
-	for i in range(words.size()):
-		words[i] = words[i].to_lower().capitalize()
-	return " ".join(words)
+#region Public API
+func bind_turn_manager(turn_manager: TurnManager) -> void:
+	_turn_manager = turn_manager
+	_build_phase_labels()
 
 
-func update_turn_panel():
-	# to_sentnce_case wrapper to compare states equally in for-loop below
-	var current_phase = to_sentence_case(
-		turn_manager.int_to_game_phase(
-		turn_manager.get_game_phase())
-	)
-
-	for i in range(turn_phases.size()):
-		if turn_phases[i] == current_phase:
-			hbox.get_child(i).add_theme_stylebox_override("normal", active_label_stylebox)
-		else:
-			hbox.get_child(i).add_theme_stylebox_override("normal", defualt_label_stylebox)
+func refresh() -> void:
+	var current_index := _turn_manager.get_game_phase() as int
+	for i in _labels_box.get_child_count():
+		var stylebox := active_label_stylebox if i == current_index else default_label_stylebox
+		_labels_box.get_child(i).add_theme_stylebox_override("normal", stylebox)
 
 
-func next_phase_btn_pressed():
-	var new_action = Action.new()
-	new_action.set_type(Action.RequestType.PROGRESS_TURN)
-	next_phase_req.emit(new_action)
-
-### Connected Signals
-func bind_turn_manager(tm: GameManager):
-	self.turn_manager = tm
-	generate_phase_labels()
-	
-
-func ready_signals():
-	next_btn.pressed.connect(self.next_phase_btn_pressed)
+func apply_game_state(state: TurnManager.GameState) -> void:
+	match state:
+		TurnManager.GameState.SETUP:
+			hide()
+		TurnManager.GameState.MAIN_LOOP:
+			show()
+#endregion
 
 
-## Calls
-func game_phase_changed(game_phase):
-	update_turn_panel()
+#region Signal handlers
+func _on_next_button_pressed() -> void:
+	action_requested.emit(Action.create(Action.Type.PROGRESS_TURN))
+#endregion
 
 
-func game_state_changed(state):
-	if state == 0: #setup
-		self.hide()
-	elif state == 1: # Main game loop
-		self.show()
-	else: # Dead
-		pass
-
-## Get/Set (er)s
-
-### Connected Signals
+#region Private
+## One label per TurnManager.Phase, in enum order (so label index == phase value).
+func _build_phase_labels() -> void:
+	for phase_name in TurnManager.get_phase_names():
+		var label := Label.new()
+		label.text = TextUtils.to_title_case(phase_name)
+		label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+		label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+		label.size_flags_vertical = Control.SIZE_FILL
+		label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		_labels_box.add_child(label)
+	refresh()
+#endregion

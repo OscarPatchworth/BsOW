@@ -1,45 +1,37 @@
-#turn_manager.gd
-extends GameManager
+# turn_manager.gd
+class_name TurnManager
+extends Node
 
-# signals
-signal game_phased_changed(game_phase: GameLoop)
-signal combat_assign(contest: Contest)
-signal turn_phase_updated(phase: GameLoop)
-signal turn_order_generated
-signal actor_turn_changed(active: Actor)
-signal season_order_generated
-signal season_changed(sea_indx: int)
-signal current_game_state(state: GameSequence)
+## Owns the game flow: setup vs. main loop, the phase of the current turn,
+## whose turn it is, and the season cycle.
 
-# enums
-enum GameSequence {
+signal game_state_changed(state: GameState)
+signal game_phase_changed(phase: Phase)
+signal turn_order_generated()
+signal active_actor_changed(actor: Actor)
+signal season_order_generated()
+signal season_changed(season_index: int)
+
+enum GameState {
 	SETUP,
-	GAME_LOOP,
-	END
+	MAIN_LOOP,
+	END,
 }
 
-enum GameLoop {
+enum Phase {
 	UPKEEP,
-	DUSTCLOUD_COLLASPE_PHASE,
-	BUYING_PHASE,
-	COMBAT_PHASE,
-	CLEANUP
-}
-
-enum CombatLoop {
-	MOVE_UNITS,
-	ASSIGN_COMBATANTS,
-	DAMAGE
+	DUSTCLOUD_COLLAPSE,
+	BUYING,
+	COMBAT,
+	CLEANUP,
 }
 
 enum Season {
 	SUMMER,
 	AUTUMN,
 	WINTER,
-	SPRING
+	SPRING,
 }
-
-# constants
 
 const SEASON_COLORS := {
 	Season.SPRING: Color("#32a832"),
@@ -48,197 +40,208 @@ const SEASON_COLORS := {
 	Season.WINTER: Color("#2a4d5e"),
 }
 
+## Phases that run automatically and can't be progressed by an actor.
+const ADMIN_PHASES: Array[Phase] = [Phase.UPKEEP, Phase.CLEANUP]
+## Phases an actor must act in before moving on.
+const NON_SKIPPABLE_PHASES: Array[Phase] = [Phase.DUSTCLOUD_COLLAPSE]
 
-# static variables
-
-# @export variables
-
-# remaining regular variables
-var game_state: GameSequence = GameSequence.SETUP
-var game_phase: GameLoop = GameLoop.UPKEEP
-var combat_phase: CombatLoop = CombatLoop.MOVE_UNITS 
-var turn_order: Array[Actor]
-var active_actor: Actor
-var turn_number: int = 1
-var game_seasons: Array[Season]
-var cur_season: Season
-var cur_season_ind: int
-
-var admin_game_phases := [GameLoop.UPKEEP, GameLoop.CLEANUP]
-var non_skipable_phases := [GameLoop.DUSTCLOUD_COLLASPE_PHASE]
-
-var actors: Array
-
-# @onready variables
-
-###################################################################################################
-###	Methods
-func get_indx(value, array: Array) -> int:
-	for i in range(array.size()):
-		if array[i] == value:
-			return i
-	return -1
-
-### Connected Signals
+var _game_state: GameState = GameState.SETUP
+var _game_phase: Phase = Phase.UPKEEP
+var _turn_order: Array[Actor] = []
+var _active_actor: Actor
+var _round_number: int = 1
+var _seasons: Array[Season] = []
+var _season_index: int = 0
 
 
-## Calls
-func bind_actor_to_actor_group(a: Actor):
-	if not a in turn_order:
-		turn_order.append(a)
+#region Public API
+func register_actor(actor: Actor) -> void:
+	if actor not in _turn_order:
+		_turn_order.append(actor)
 
 
-func self_init():
-	init_turn_order()
-	init_season()
-	current_game_state.emit(game_state)
+## Called once everything is wired up (GameRoot.root_setup_finished).
+func start() -> void:
+	_generate_turn_order()
+	_generate_seasons()
+	game_state_changed.emit(get_game_state())
 
 
-func init_turn_order():
-	turn_order.shuffle()
-	print(turn_order)
-	active_actor = turn_order[0]
-	turn_order_generated.emit()
-	actor_turn_changed.emit(turn_order[0])
-
-
-func init_season():
-	# Generate game Seasons from Seasons enum
-	for sea in Season.values():
-		game_seasons.append(sea)
-	cur_season = game_seasons[0]
-	cur_season_ind = 0
-	print("Turn Manager | Setup | Starting Season: " + str(Season.keys()[cur_season]))
-	print("Turn Manager | Setup | Game Season Order: " + str(get_season_order_names()))
-	season_order_generated.emit()
-
-func combat_started(contest: Contest):
-	# print("Turn Manager | Recieved start Combat Req")
-	set_combat_phase(CombatLoop.ASSIGN_COMBATANTS)
-	combat_assign.emit(contest)
-
-
-func progress_turn():
-	if game_phase >= (GameLoop.size() -1 ):
-		game_phase = GameLoop.values()[0] # Set turn to Upkeep
-		progress_turn_order()
+## Moves to the next phase; wraps to the next actor after CLEANUP.
+## Admin phases are announced and then skipped automatically.
+func progress_phase() -> void:
+	var phase := get_game_phase()
+	if phase == Phase.values()[-1]:
+		set_game_phase(Phase.values()[0])
+		_progress_turn_order()
 	else:
-		game_phase = GameLoop.values()[game_phase + 1]
-	game_phased_changed.emit(game_phase)
+		set_game_phase(Phase.values()[phase + 1])
+	game_phase_changed.emit(get_game_phase())
 
-	# After progressin turn, check in admin_phase. If so, the auto run it.
-	if game_phase in admin_game_phases:
-		progress_turn()
-
-
-func progress_turn_order():
-	var active_actor_ind:int = get_indx(active_actor, turn_order)
-	# If it was the last self_player in the turn order loop back to the start
-	if(active_actor_ind == turn_order.size()-1):
-		turn_number =+ 1
-		active_actor = turn_order[0]
-
-		# Since its the last self_player looping to the 1st,
-		# All code for starting a new round goes here too ....
-		# Should probs be a func() call but ...
-
-		progress_season()
-
-	else:
-		active_actor = turn_order[(active_actor_ind + 1)]
-	print(active_actor.name)
-	actor_turn_changed.emit(active_actor)
+	if get_game_phase() in get_admin_phases():
+		progress_phase()
 
 
-func progress_season():
-	if(cur_season_ind == game_seasons.size()-1):
-		cur_season_ind = 0
-	else:
-		cur_season_ind += 1
-	cur_season = game_seasons[cur_season_ind]	
-	print("Turn manager | Round update | Current season: " + str(Season.keys()[cur_season]))
-	season_changed.emit(cur_season_ind)
+## Ends the setup stage and starts the main loop.
+func finish_setup() -> void:
+	if get_game_state() != GameState.SETUP:
+		return
+	await get_tree().process_frame
+	set_game_state(GameState.MAIN_LOOP)
+	progress_phase()
 
 
-## Get/Set (er)s
-func get_game_state() -> GameSequence:
-	return game_state
-func set_game_state(state: GameSequence):
-	self.game_state = state
-	current_game_state.emit(game_state)
+func get_turn_order_names() -> Array[String]:
+	var names: Array[String] = []
+	for actor in get_turn_order():
+		names.append(actor.name)
+	return names
 
 
-func get_game_phase() -> GameLoop:
-	return game_phase
-func set_game_phase(phase: GameLoop):
-	self.game_phase = phase
+func get_season_names() -> Array[String]:
+	var names: Array[String] = []
+	for season in get_seasons():
+		names.append(Season.keys()[season])
+	return names
 
 
-func get_combat_phase() -> CombatLoop:
-	return combat_phase
-func set_combat_phase(phase: CombatLoop):
-	self.combat_phase = phase
+func get_current_season() -> Season:
+	return get_seasons()[get_season_index()]
+
+
+static func get_season_color(season: Season) -> Color:
+	return SEASON_COLORS[season]
+
+
+## "WINTER" -> Season.WINTER, or -1 if there's no such season.
+static func season_from_name(season_name: String) -> int:
+	return Season.get(season_name, -1)
+
+
+static func get_phase_name(phase: Phase) -> String:
+	return Phase.find_key(phase) if Phase.find_key(phase) != null else "UNKNOWN"
+
+
+static func get_phase_names() -> Array[String]:
+	var names: Array[String] = []
+	names.assign(Phase.keys())
+	return names
+
+
+func to_debug_dictionary() -> Dictionary:
+	return {
+		"game_state": GameState.find_key(get_game_state()),
+		"game_phase": get_phase_name(get_game_phase()),
+		"turn_order": get_turn_order_names(),
+		"active_actor": get_active_actor(),
+		"round_number": get_round_number(),
+	}
+#endregion
+
+
+#region Accessors
+func get_game_state() -> GameState:
+	return AbilitySystem.resolve_get(self, &"game_state", _game_state)
+
+
+## Also emits game_state_changed.
+func set_game_state(value: GameState) -> void:
+	_game_state = AbilitySystem.resolve_set(self, &"game_state", _game_state, value)
+	game_state_changed.emit(get_game_state())
+
+
+func get_game_phase() -> Phase:
+	return AbilitySystem.resolve_get(self, &"game_phase", _game_phase)
+
+
+## Does NOT emit game_phase_changed; progress_phase() does that.
+func set_game_phase(value: Phase) -> void:
+	_game_phase = AbilitySystem.resolve_set(self, &"game_phase", _game_phase, value)
 
 
 func get_turn_order() -> Array[Actor]:
-	return turn_order
-func get_turn_order_names() -> Array[String]:
-	var turn_names: Array[String]
-	for actor in turn_order:
-		turn_names.append(actor.name)
-	return turn_names
+	return AbilitySystem.resolve_get(self, &"turn_order", _turn_order)
 
 
-func get_season_order() -> Array[Season]:
-	return game_seasons
-func get_season_order_names() -> Array[String]:
-	var season_names: Array[String]
-	for sea in game_seasons:
-		season_names.append(Season.keys()[sea])
-	return season_names
-func get_season(sea: String) -> Variant:
-	for i in range(Season.keys().size()):
-		if Season.keys()[i] == sea:
-			return Season.values()[i]
-	return null
+func set_turn_order(value: Array[Actor]) -> void:
+	_turn_order = AbilitySystem.resolve_set(self, &"turn_order", _turn_order, value)
 
 
 func get_active_actor() -> Actor:
-	return active_actor
+	return AbilitySystem.resolve_get(self, &"active_actor", _active_actor)
 
 
-func get_admin_phases() -> Array:
-	return admin_game_phases
+## Also emits active_actor_changed.
+func set_active_actor(value: Actor) -> void:
+	_active_actor = AbilitySystem.resolve_set(self, &"active_actor", _active_actor, value)
+	active_actor_changed.emit(get_active_actor())
 
 
-func get_non_skipable_phases() -> Array:
-	return non_skipable_phases
+func get_round_number() -> int:
+	return AbilitySystem.resolve_get(self, &"round_number", _round_number)
 
 
-func get_turn_dict() -> Dictionary:
-	var dict: Dictionary = {
-		"game_state" : game_state,
-		"game_phase" : game_phase,
-		"combat_phase" : combat_phase,
-		"turn_order" : get_turn_order_names(),
-		"active_actor" : active_actor,
-	}
-	return dict
+func set_round_number(value: int) -> void:
+	_round_number = AbilitySystem.resolve_set(self, &"round_number", _round_number, value)
 
 
-func get_season_color(sea: Season) -> Color:
-	return SEASON_COLORS[sea]
+func get_seasons() -> Array[Season]:
+	return AbilitySystem.resolve_get(self, &"seasons", _seasons)
 
 
-func int_to_game_phase(phase: int) -> String:
-	for name in GameLoop.keys():
-		if GameLoop[name] == phase:
-			return name
-	return "UNKNOWN"
-### Connected Signals
+func get_season_index() -> int:
+	return AbilitySystem.resolve_get(self, &"season_index", _season_index)
 
-func actor_finished_setup(a: Actor):
-	if game_state == GameSequence.SETUP:
-		await get_tree().process_frame
-		self.set_game_state(GameSequence.GAME_LOOP)
-		self.progress_turn()
+
+## Also emits season_changed.
+func set_season_index(value: int) -> void:
+	_season_index = AbilitySystem.resolve_set(self, &"season_index", _season_index, value)
+	season_changed.emit(get_season_index())
+
+
+func get_admin_phases() -> Array[Phase]:
+	return AbilitySystem.resolve_get(self, &"admin_phases", ADMIN_PHASES)
+
+
+func get_non_skippable_phases() -> Array[Phase]:
+	return AbilitySystem.resolve_get(self, &"non_skippable_phases", NON_SKIPPABLE_PHASES)
+#endregion
+
+
+#region Private
+func _generate_turn_order() -> void:
+	var order := get_turn_order().duplicate()
+	order.shuffle()
+	set_turn_order(order)
+	print("TurnManager | Turn order: " + str(get_turn_order_names()))
+	# Store the first actor before announcing the order (listeners read get_active_actor()),
+	# then announce the active actor once the order exists.
+	_active_actor = AbilitySystem.resolve_set(self, &"active_actor", _active_actor, get_turn_order()[0])
+	turn_order_generated.emit()
+	active_actor_changed.emit(get_active_actor())
+
+
+func _generate_seasons() -> void:
+	_seasons.assign(Season.values())
+	_season_index = 0
+	print("TurnManager | Starting season: " + Season.keys()[get_current_season()])
+	print("TurnManager | Season order: " + str(get_season_names()))
+	season_order_generated.emit()
+
+
+func _progress_turn_order() -> void:
+	var order := get_turn_order()
+	var next_index := order.find(get_active_actor()) + 1
+	if next_index >= order.size():
+		# Wrapped back to the first actor: a new round begins.
+		next_index = 0
+		set_round_number(get_round_number() + 1)
+		_progress_season()
+	set_active_actor(order[next_index])
+
+
+func _progress_season() -> void:
+	var next_index := (get_season_index() + 1) % get_seasons().size()
+	set_season_index(next_index)
+	print("TurnManager | New round, season: " + Season.keys()[get_current_season()])
+#endregion

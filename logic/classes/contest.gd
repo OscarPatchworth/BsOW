@@ -1,106 +1,114 @@
-#contest.gd
+# contest.gd
 class_name Contest
-#extends Node
+extends RefCounted
 
-# signals
+## The state of one fight: an attacking lander invading a defending lander.
+## Most accessors take a `side` so callers don't need attacker/defender branches.
+## `side` parameters are typed int (holding a Contest.Side value) because Godot can mis-resolve
+## the enum type when Contest is loaded through a cyclic class reference.
 
-# enums
+enum Side {
+	ATTACKER,
+	DEFENDER,
+}
 
-# constants
-
-# static variables
-
-# @export variables
-
-# remaining regular variables
-var contested_lander: Lander
-var invading_lander: Lander
-
-var invading_units: Array[UnitObject] = []
-var defending_units: Array[UnitObject] = []
-
-#var invading_abilities: Array[AbbilityInstance] = []
-#var defending_abilities: Array[AbbilityInstance] = []
-
-var invading_ready: bool = false
-var defending_ready: bool = false
-
-# @onready variables
-
-###################################################################################################
-###	Methods
-func free_children(parent: Node) -> void:
-	for i in parent.get_children():
-		i.queue_free()
-
-### Connected Signals
-
-## Calls
-func add_invading_unit(unit: UnitObject):
-	invading_units.append(unit)
-func rmv_invading_unit(unit: UnitObject):
-	invading_units.erase(unit)
+var _landers := {Side.ATTACKER: null, Side.DEFENDER: null}
+var _units := {Side.ATTACKER: [] as Array[UnitInstance], Side.DEFENDER: [] as Array[UnitInstance]}
+var _ready_flags := {Side.ATTACKER: false, Side.DEFENDER: false}
 
 
-func add_defending_unit(unit: UnitObject):
-	defending_units.append(unit)
-func rmv_defending_unit(unit: UnitObject):
-	defending_units.erase(unit)
+func _init(attacker_lander: Lander = null, defender_lander: Lander = null) -> void:
+	_landers[Side.ATTACKER] = attacker_lander
+	_landers[Side.DEFENDER] = defender_lander
 
 
-## Get/Set (er)s
-func get_contested_lander() -> Lander:
-	return contested_lander
-func set_contested_lander(lnd: Lander):
-	contested_lander = lnd
+#region Public API
+static func get_opposite_side(side: int) -> int:
+	return Side.DEFENDER if side == Side.ATTACKER else Side.ATTACKER
 
 
-func get_invading_lander() -> Lander:
-	return invading_lander
-func set_invading_lander(lnd: Lander):
-	invading_lander = lnd
+## The side `actor` is fighting on, or -1 if they are not part of this contest.
+func get_side_of(actor: Actor) -> int:
+	if actor == null:
+		return -1
+	if get_actor(Side.ATTACKER) == actor:
+		return Side.ATTACKER
+	if get_actor(Side.DEFENDER) == actor:
+		return Side.DEFENDER
+	return -1
 
 
-func get_invading_units() -> Array[UnitObject]:
-	return invading_units
-func set_invadining_units(units: Array[UnitObject]):
-	invading_units = units
+func is_involved(actor: Actor) -> bool:
+	return get_side_of(actor) != -1
 
 
-func get_defending_units() -> Array[UnitObject]:
-	return defending_units
-func set_defending_units(units: Array[UnitObject]):
-	defending_units = units
+func add_unit(side: int, unit: UnitInstance) -> void:
+	var units := get_units(side).duplicate()
+	units.append(unit)
+	set_units(side, units)
 
 
-func get_invading_actor() -> Actor:
-	return invading_lander.get_units()[0].get_owned_by()
-func get_defending_actor() -> Actor:
-	return contested_lander.get_units()[0].get_owned_by()
+func remove_unit(side: int, unit: UnitInstance) -> void:
+	var units := get_units(side).duplicate()
+	units.erase(unit)
+	set_units(side, units)
 
 
-func get_invading_ready() -> bool:
-	return invading_ready
-func set_invading_ready(ready: bool):
-	invading_ready = ready
+func are_both_sides_ready() -> bool:
+	return is_ready(Side.ATTACKER) and is_ready(Side.DEFENDER)
 
 
-func get_defending_ready() -> bool:
-	return defending_ready
-func set_defending_ready(ready: bool):
-	defending_ready = ready
-
-
-func get_dict() -> Dictionary:
-	var dict = {
-	"contested_lander" : contested_lander,
-	"invading_lander" : invading_lander,
-	"invading_units" : invading_units,
-	"defending_units" : defending_units,
-	"invading_ready" : invading_ready,
-	"defending_ready" : defending_ready
+func to_debug_dictionary() -> Dictionary:
+	return {
+		"attacker_lander": get_lander(Side.ATTACKER),
+		"defender_lander": get_lander(Side.DEFENDER),
+		"attacker_units": get_units(Side.ATTACKER),
+		"defender_units": get_units(Side.DEFENDER),
+		"attacker_ready": is_ready(Side.ATTACKER),
+		"defender_ready": is_ready(Side.DEFENDER),
 	}
+#endregion
 
-	return dict
 
-### Connected Signals
+#region Accessors
+func get_lander(side: int) -> Lander:
+	return AbilitySystem.resolve_get(self, _key(side, "lander"), _landers[side])
+
+
+func set_lander(side: int, value: Lander) -> void:
+	_landers[side] = AbilitySystem.resolve_set(self, _key(side, "lander"), _landers[side], value)
+
+
+## The actor fighting on `side`: whoever owns the units on that side's lander.
+func get_actor(side: int) -> Actor:
+	var lander := get_lander(side)
+	var actor: Actor = null
+	if lander != null:
+		var lander_units := lander.get_units()
+		actor = lander_units[0].get_owner_actor() if not lander_units.is_empty() else lander.get_owner_actor()
+	return AbilitySystem.resolve_get(self, _key(side, "actor"), actor)
+
+
+## Units chosen to fight on `side`.
+func get_units(side: int) -> Array[UnitInstance]:
+	return AbilitySystem.resolve_get(self, _key(side, "units"), _units[side])
+
+
+func set_units(side: int, value: Array[UnitInstance]) -> void:
+	_units[side] = AbilitySystem.resolve_set(self, _key(side, "units"), _units[side], value)
+
+
+func is_ready(side: int) -> bool:
+	return AbilitySystem.resolve_get(self, _key(side, "ready"), _ready_flags[side])
+
+
+func set_ready(side: int, value: bool) -> void:
+	_ready_flags[side] = AbilitySystem.resolve_set(self, _key(side, "ready"), _ready_flags[side], value)
+#endregion
+
+
+#region Private
+## e.g. (ATTACKER, "units") -> &"attacker_units"
+func _key(side: int, field: String) -> StringName:
+	return StringName(("attacker_" if side == Side.ATTACKER else "defender_") + field)
+#endregion

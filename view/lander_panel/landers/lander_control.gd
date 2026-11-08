@@ -1,114 +1,80 @@
-#lander_control.gd
+# lander_control.gd
+class_name LanderControl
 extends VBoxContainer
 
-# signals
-signal lander_control_updated
-signal move_units_action_req(req: Action)
-signal attack_action_req(req: Action)
+## Neighbouring landers (click to move/attack) and the selected lander's units (toggle to choose).
 
-# enums
+signal refreshed()
+signal action_requested(action: Action)
 
-# constants
+## The Player this HUD belongs to (set in player.tscn).
+@export var player: Actor
 
-# static vars
-var selector_manager: GameManager
-var lander_manager: GameManager
+var _selector_manager: SelectorManager
+var _lander_manager: LanderManager
+var _lander: Lander
 
-# @export variables
-@export var ui_player: Actor
-
-
-# remaining regular variables
-var cur_lander: Lander
-
-# @onready variables
-@onready var lander_hflow: HFlowContainer = self.find_child("Landers")
-@onready var units_hflow: HFlowContainer = self.find_child("Units")
-
-###################################################################################################
-###	Methods
-func free_children(parent: Node) -> void:
-	for i in parent.get_children():
-		i.queue_free()
+@onready var _landers_flow: HFlowContainer = find_child("Landers")
+@onready var _units_flow: HFlowContainer = find_child("Units")
 
 
-func update():
-	#Check for cur_lander
-	cur_lander = selector_manager.get_selected_lander()
-	if cur_lander == null:
-		print("Lander Control in self_player UI has null lander selected")
+#region Public API
+func bind_selector_manager(selector_manager: SelectorManager) -> void:
+	_selector_manager = selector_manager
+
+
+func bind_lander_manager(lander_manager: LanderManager) -> void:
+	_lander_manager = lander_manager
+
+
+func refresh() -> void:
+	_lander = _selector_manager.get_selected_lander()
+	if _lander == null:
+		push_warning("LanderControl | refresh() with no lander selected")
 		return
-
-	update_connected_landers()
-	update_unit_landers()
-	lander_control_updated.emit()
-
-
-func update_connected_landers():
-	free_children(lander_hflow)
-
-	var connected_landers: Array[Lander]
-	connected_landers = lander_manager.get_connected_landers(cur_lander)
-
-	for lander in connected_landers:
-		var new_lnd_btn = ConnectedLanderControlButton.new()
-		new_lnd_btn.bind_selector(selector_manager)
-		new_lnd_btn.lander = lander
-		
-		if(lander.get_ownr() != null):
-			if lander.get_ownr() == ui_player:
-				new_lnd_btn.display_state = ConnectedLanderControlButton.DisplayState.ALLY
-			else:
-				new_lnd_btn.display_state = ConnectedLanderControlButton.DisplayState.ENEMY
-			
-		lander_hflow.add_child(new_lnd_btn)
-		new_lnd_btn.update_display()
-		# Connect _pressed()
-		new_lnd_btn.btn_pressed.connect(selector_manager.set_target_lander)
-		new_lnd_btn.move_units_action_req.connect(fwd_move_units_req)
-		new_lnd_btn.attack_lander_action_req.connect(fwd_attack_req)
+	_refresh_connected_landers()
+	_refresh_units()
+	refreshed.emit()
+#endregion
 
 
-func update_unit_landers():
-	free_children(units_hflow)
-
-	var stationed_units = cur_lander.units # Need to make a get func()
-	for unit in stationed_units:
-		var new_unit_btn = UnitLanderControlButton.new()
-		new_unit_btn.bind_selector(selector_manager)
-		new_unit_btn.unit = unit
-		new_unit_btn.update_display()
-		units_hflow.add_child(new_unit_btn)
-		# Setup toggle/selector 
-		new_unit_btn.unit_selected.connect(selector_manager.add_unit_selected_units)
-		new_unit_btn.unit_deselected.connect(selector_manager.rmv_unit_selected_units)
+#region Signal handlers
+func _on_lander_button_action_requested(action: Action) -> void:
+	action.set_source_lander(_selector_manager.get_selected_lander())
+	action.set_target_lander(_selector_manager.get_target_lander())
+	action.set_units(_selector_manager.get_selected_units())
+	action_requested.emit(action)
+#endregion
 
 
-func apply_selected_to_req(req: Action) -> Action:
-	req.target_lander = selector_manager.get_target_lander()
-	req.selected_lander = selector_manager.get_selected_lander()
-	req.selected_units = selector_manager.get_selected_units()
-	return req
+#region Private
+func _refresh_connected_landers() -> void:
+	for child in _landers_flow.get_children():
+		child.queue_free()
 
-### Connected Signals
+	for lander in _lander_manager.get_connected_landers(_lander):
+		var button := ConnectedLanderButton.new()
+		button.set_lander(lander)
+		var owner_actor := lander.get_owner_actor()
+		if owner_actor == null:
+			button.set_display_state(ConnectedLanderButton.DisplayState.NEUTRAL)
+		elif owner_actor == player:
+			button.set_display_state(ConnectedLanderButton.DisplayState.ALLY)
+		else:
+			button.set_display_state(ConnectedLanderButton.DisplayState.ENEMY)
+		_landers_flow.add_child(button)
+		button.lander_pressed.connect(_selector_manager.set_target_lander)
+		button.action_requested.connect(_on_lander_button_action_requested)
 
-## Calls
-func bind_selector(selector: GameManager):
-	selector_manager = selector
-	#print("Lander Control selector_manager bound")
 
+func _refresh_units() -> void:
+	for child in _units_flow.get_children():
+		child.queue_free()
 
-func bind_lander_manager(lm: GameManager):
-	lander_manager = lm
-	#print("Lander Manager bound to Lander_Control")
-
-
-## Get/Set (er)s
-
-### Connected Signals
-func fwd_move_units_req(req: Action):
-	move_units_action_req.emit(apply_selected_to_req(req))
-	
-
-func fwd_attack_req(req: Action):
-	attack_action_req.emit(apply_selected_to_req(req))
+	for unit in _lander.get_units():
+		var button := UnitLanderButton.new()
+		button.set_unit(unit)
+		_units_flow.add_child(button)
+		button.unit_selected.connect(_selector_manager.add_selected_unit)
+		button.unit_deselected.connect(_selector_manager.remove_selected_unit)
+#endregion

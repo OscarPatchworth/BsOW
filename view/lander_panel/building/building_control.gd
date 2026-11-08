@@ -1,104 +1,65 @@
-#Building_control.gd
+# building_control.gd
+class_name BuildingControl
 extends VBoxContainer
 
-# signals
-signal build_action_req(build_req)
+## The building section of the lander panel: shows the building, or a shop if there is none.
 
-# enums
-enum BuildingDisplay {
-	HIDE_ALL,
-	BUILDING_DETAILS,
-	BUILDING_SHOP
+signal action_requested(action: Action)
+
+enum DisplayState {
+	HIDDEN,
+	DETAILS,
+	SHOP,
 }
 
-# constants
-#const MAX_SPEED = 200
+var _display_state: DisplayState = DisplayState.HIDDEN
 
-# static variables
-var selector_manager:GameManager
-
-# @export variables
-
-# remaining regular variables
-var display_state: BuildingDisplay = BuildingDisplay.HIDE_ALL
-
-# @onready variables
-@onready var details_node:VBoxContainer = self.find_child("DetailsState")
-@onready var shop_node:VBoxContainer = self.find_child("ShopState")
+@onready var _details: BuildingDetailsState = find_child("DetailsState")
+@onready var _shop: BuildingShopState = find_child("ShopState")
 
 
-###################################################################################################
-###	Methods
 func _ready() -> void:
-	connect_signals()
-	connect_wires()
-
-	update_display()
+	_shop.action_requested.connect(action_requested.emit)
+	_refresh()
 
 
-func get_display_state() -> BuildingDisplay:
-	return display_state
-func set_display_state(new_state: BuildingDisplay):
-	display_state = new_state
-	update_display()
-
-##
-func set_state_hide():
-	set_display_state(BuildingDisplay.HIDE_ALL)
-	update_display()
-
-func set_state_building_details():
-	set_display_state(BuildingDisplay.BUILDING_DETAILS)
-	update_display()
-
-func set_state_building_shop():
-	set_display_state(BuildingDisplay.BUILDING_SHOP)
-	update_display()
-##
-
-func update_display():
-	match display_state:
-		BuildingDisplay.HIDE_ALL:
-			update_hide_all()
-
-		BuildingDisplay.BUILDING_DETAILS:
-			update_building_details()
-
-		BuildingDisplay.BUILDING_SHOP:
-			update_building_shop()
+#region Public API
+func bind_selector_manager(selector_manager: SelectorManager) -> void:
+	_details.bind_selector_manager(selector_manager)
+	_shop.bind_selector_manager(selector_manager)
 
 
-func update_hide_all():
-	details_node.hide()
-	shop_node.hide()
+func show_details() -> void:
+	set_display_state(DisplayState.DETAILS)
 
 
-func update_building_details():
-	shop_node.hide()
-	details_node.show()
-	details_node.update()
+func show_shop() -> void:
+	set_display_state(DisplayState.SHOP)
 
 
-func update_building_shop():
-	details_node.hide()
-	shop_node.show()
-	shop_node.update()
-
-### Signals and wires
-func bind_selector(selector: GameManager):
-	selector_manager = selector
-	details_node.bind_selector(selector)
-	shop_node.bind_selector(selector)
-	#print("Building Control selector_manager bound")
+func hide_all() -> void:
+	set_display_state(DisplayState.HIDDEN)
+#endregion
 
 
-func connect_signals():
-	shop_node.build_action_req.connect(self.fwd_build_req)
+#region Accessors
+func get_display_state() -> DisplayState:
+	return _display_state
 
 
-func connect_wires():
-	pass
+func set_display_state(value: DisplayState) -> void:
+	_display_state = value
+	_refresh()
+#endregion
 
 
-func fwd_build_req(build_req: Action):
-	build_action_req.emit(build_req)
+#region Private
+func _refresh() -> void:
+	_details.visible = _display_state == DisplayState.DETAILS
+	_shop.visible = _display_state == DisplayState.SHOP
+	match _display_state:
+		DisplayState.DETAILS:
+			_details.refresh()
+		DisplayState.SHOP:
+			_shop.refresh()
+#endregion

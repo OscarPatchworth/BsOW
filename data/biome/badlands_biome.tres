@@ -18,7 +18,7 @@ stone = 0
 [resource]
 resource_name = "Badlands"
 script = ExtResource("2_vpqcu")
-name = "Badlands"
+display_name = "Badlands"
 mesh_material = SubResource("StandardMaterial3D_i746o")
-poker_icon = ExtResource("1_r8p85")
-upkeep_econ = SubResource("Resource_eunc0")
+icon = ExtResource("1_r8p85")
+upkeep = SubResource("Resource_eunc0")

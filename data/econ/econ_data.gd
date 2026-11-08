@@ -1,8 +1,12 @@
-#econ_data.gd
+# econ_data.gd
 class_name EconData
 extends Resource
 
-signal econ_changed()
+## A bundle of game resources. Used for costs, upkeep, and actor wallets.
+
+signal amounts_changed()
+
+const RESOURCE_KEYS: Array[StringName] = [&"gold", &"food", &"mineral", &"wood", &"stone"]
 
 @export var gold: int = 0
 @export var food: int = 0
@@ -10,58 +14,55 @@ signal econ_changed()
 @export var wood: int = 0
 @export var stone: int = 0
 
-var keys = ["gold","food","mineral","wood","stone"]
 
-###################################################################################################
-###	Methods
-func get_resource_dict() -> Dictionary:
-	return {
-		"gold": gold,
-		"food": food,
-		"mineral": mineral,
-		"wood": wood,
-		"stone": stone,
-	}
-
-
-func cost_less_than(ec: EconData) -> bool:
-	for key in keys:
-		if self.get(key) > ec.get(key):
+#region Public API
+## True if every amount in `cost` is covered by this bundle.
+func can_afford(cost: EconData) -> bool:
+	for key in RESOURCE_KEYS:
+		if cost.get_amount(key) > get_amount(key):
 			return false
 	return true
 
 
-func rmv_resource(cost: EconData):
-	for key in keys:
-		self.set(key, self.get(key) - cost.get(key))
-	econ_changed.emit()
-func add_resource(ec: EconData):
-	for key in keys:
-		self.set(key, self.get(key) + ec.get(key))
-	econ_changed.emit()
-
-# Func coded by chatGPT
-func set_resource_value(key: String, value: int) -> void:
-	if key in ["gold", "food", "mineral", "wood", "stone"]:
-		self.set(key, value)  # modifies the exported property directly
-		econ_changed.emit()
-func get_resource_value(key: String) -> int:
-	if key in ["gold", "food", "mineral", "wood", "stone"]:
-		return self.get(key)
-	else: return -1
+func add(other: EconData) -> void:
+	for key in RESOURCE_KEYS:
+		_write_amount(key, get_amount(key) + other.get_amount(key))
+	amounts_changed.emit()
 
 
+func subtract(other: EconData) -> void:
+	for key in RESOURCE_KEYS:
+		_write_amount(key, get_amount(key) - other.get_amount(key))
+	amounts_changed.emit()
 
-### Coded by Gemini ... I didn't know godot had obj.get() & obj.set() funcs ... thats rlly cool
-func add_cost(cost: CostRes) -> void:
-	# Get the dictionary from the passed-in resource
-	var other_resources = cost.get_resource_dict()
 
-	# Iterate over the keys of the current resource
-	for res_key in get_resource_dict().keys():
-		# Add the value from the other resource to the current one
-		if other_resources.has(res_key):
-			# `set()` and `get()` are useful for dynamic property access
-			var current_value = self.get(res_key)
-			var other_value = other_resources[res_key]
-			self.set(res_key, current_value + other_value)
+## Returns { "gold": 3, "food": 0, ... } using the (ability-resolved) amounts.
+func to_dictionary() -> Dictionary:
+	var amounts := {}
+	for key in RESOURCE_KEYS:
+		amounts[String(key)] = get_amount(key)
+	return amounts
+#endregion
+
+
+#region Accessors
+func get_amount(key: StringName) -> int:
+	if key not in RESOURCE_KEYS:
+		push_error("EconData | Unknown resource key: %s" % key)
+		return 0
+	return AbilitySystem.resolve_get(self, key, get(key))
+
+
+func set_amount(key: StringName, value: int) -> void:
+	if key not in RESOURCE_KEYS:
+		push_error("EconData | Unknown resource key: %s" % key)
+		return
+	_write_amount(key, value)
+	amounts_changed.emit()
+#endregion
+
+
+#region Private
+func _write_amount(key: StringName, value: int) -> void:
+	set(key, AbilitySystem.resolve_set(self, key, get(key), value))
+#endregion

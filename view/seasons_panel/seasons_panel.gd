@@ -1,81 +1,53 @@
-#seasons_panel.gd
+# seasons_panel.gd
+class_name SeasonsPanel
 extends Panel
-# signals
 
-# enums
+## The season cycle with the current season highlighted.
 
-# constants
+var _turn_manager: TurnManager
+var _season_names: Array[String] = []
 
-# static variables
-var turn_manager: GameManager
-# @export variables
-
-# remaining regular variables
-var game_seasons: Array
-
-# @onready variables
-@onready var hbox: HBoxContainer = self.find_child("HBoxContainer")
-
-###################################################################################################
-###	Methods
-func free_children(parent: Node) -> void:
-	for i in parent.get_children():
-		i.queue_free()
+@onready var _labels_box: HBoxContainer = find_child("HBoxContainer")
 
 
-func to_sentence_case(txt: String) -> String:
-	var words = txt.split("_")
-	for i in range(words.size()):
-		words[i] = words[i].to_lower().capitalize()
-	return " ".join(words)
+#region Public API
+func bind_turn_manager(turn_manager: TurnManager) -> void:
+	_turn_manager = turn_manager
 
 
-### Connected Signals
-func bind_turn_manager(tm: GameManager):
-	# Bind self
-	turn_manager = tm
+func show_seasons() -> void:
+	for child in _labels_box.get_children():
+		child.queue_free()
+	_season_names = _turn_manager.get_season_names()
+	for season_name in _season_names:
+		var label := Label.new()
+		label.text = TextUtils.to_title_case(season_name)
+		label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+		label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+		label.size_flags_vertical = Control.SIZE_FILL
+		label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		_labels_box.add_child(label)
+
+	await get_tree().process_frame  # Let the old labels free and the layout settle.
+	highlight_season(0)
 
 
-## Calls
-func seasons_generated():
-	free_children(hbox)
-	game_seasons = turn_manager.get_season_order_names()
-	for season in game_seasons:
-		var new_label = Label.new()
-		new_label.text = to_sentence_case(season)
-		new_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-		new_label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
-		hbox.add_child(new_label)
-		new_label.size_flags_vertical = Control.SIZE_FILL
-		new_label.size_flags_horizontal = Control.SIZE_FILL
-		new_label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	
-	# DEFER: Wait one frame for layout	
-	await get_tree().process_frame
-	season_changed(0)
-
-
-func season_changed(sea_indx: int):
-	print("Season panel | Season changed | Current season: " + str(game_seasons[sea_indx]))
-	for i in range(hbox.get_child_count()):
-		var label = hbox.get_child(i) as Label
-		var new_sb = StyleBoxFlat.new()
-
-		if i == sea_indx:
-			new_sb.bg_color = turn_manager.get_season_color(turn_manager.get_season(game_seasons[sea_indx]))
+func highlight_season(season_index: int) -> void:
+	print("SeasonsPanel | Current season: " + _season_names[season_index])
+	for i in _labels_box.get_child_count():
+		var stylebox := StyleBoxFlat.new()
+		if i == season_index:
+			var season := TurnManager.season_from_name(_season_names[season_index])
+			stylebox.bg_color = TurnManager.get_season_color(season)
 		else:
-			new_sb.bg_color = Color.DIM_GRAY
-		label.add_theme_stylebox_override("normal", new_sb)
+			stylebox.bg_color = Color.DIM_GRAY
+		(_labels_box.get_child(i) as Label).add_theme_stylebox_override("normal", stylebox)
 
 
-func game_state_changed(state):
-	if state == 0: #setup
-		self.hide()
-	elif state == 1: # Main game loop
-		self.show()
-	else: # Dead
-		pass
-
-## Get/Set (er)s
-
-### Connected Signals
+func apply_game_state(state: TurnManager.GameState) -> void:
+	match state:
+		TurnManager.GameState.SETUP:
+			hide()
+		TurnManager.GameState.MAIN_LOOP:
+			show()
+#endregion

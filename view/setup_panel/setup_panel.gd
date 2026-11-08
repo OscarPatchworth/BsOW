@@ -1,73 +1,70 @@
-#setup_panel.gd
+# setup_panel.gd
+class_name SetupPanel
 extends Panel
 
-# signals
-signal setup_biome_pressed(b: BiomeData)
-signal all_setup_landers_placed()
-# enums
+## During setup: the biomes the player still has to place. Click one, then click the world.
 
-# constants
+signal biome_selected(biome_data: BiomeData)
+signal all_biomes_placed()
 
-# static variables
-var turn_manager: GameManager
-var player_self: Player
-var match_settings
+var _turn_manager: TurnManager
+var _player: Player
+var _match_settings: MatchSettings
+var _remaining_biomes: Array[BiomeData] = []
 
-# @export variables
+@onready var _biomes_list: ListBox = find_child("HListBox")
 
-# remaining regular variables
-var starting_landers = []
 
-# @onready variables
-@onready var setup_landers: ListBox = self.find_child("HListBox")
-
-###################################################################################################
-###	Methods
 func _ready() -> void:
-	setup_landers.list_btn_pressed.connect(self.list_btn_pressed)
-
-func free_children(parent: Node) -> void:
-	for i in parent.get_children():
-		i.queue_free()
+	_biomes_list.item_pressed.connect(biome_selected.emit)
 
 
-func list_btn_pressed(biome: BiomeData):
-	setup_biome_pressed.emit(biome) 
+#region Public API
+func bind_turn_manager(turn_manager: TurnManager) -> void:
+	_turn_manager = turn_manager
 
 
-### Connected Signals
-func bind_turn_manager(tm: GameManager):
-	turn_manager = tm
+func bind_player(player: Player) -> void:
+	_player = player
 
 
-func bind_player(p: Player):
-	player_self = p
+func bind_match_settings(match_settings: MatchSettings) -> void:
+	_match_settings = match_settings
 
 
-func bind_match_settings(ms):
-	match_settings = ms
-
-## Calls
-func game_state_changed(game_state):
-	if game_state == turn_manager.GameSequence.SETUP:
-		self.show()
-		for i in match_settings.starting_biomes_amount:
-			if player_self.get_starting_biomes().size() > i and player_self.get_starting_biomes()[i] in match_settings.game_biomes:
-				starting_landers.append(player_self.get_starting_biomes()[i])
-			else:
-				starting_landers.append(match_settings.game_biomes.pick_random())
-		setup_landers.set_objects(starting_landers, func(p): return "", func(b): return b.poker_icon) 
-	#setup_landers.set
-	else: self.hide()
+func apply_game_state(state: TurnManager.GameState) -> void:
+	if state != TurnManager.GameState.SETUP:
+		hide()
+		return
+	show()
+	_remaining_biomes = _pick_starting_biomes()
+	_refresh_list()
 
 
-func setup_biome_placed(req: Action):
-	starting_landers.erase(req.get_biome_type())
-	setup_landers.set_objects(starting_landers, func(p): return "", func(b): return b.poker_icon)
-	
-	if starting_landers == []:
-		all_setup_landers_placed.emit()
+func on_biome_placed(action: Action) -> void:
+	_remaining_biomes.erase(action.get_biome_data())
+	_refresh_list()
+	if _remaining_biomes.is_empty():
+		all_biomes_placed.emit()
+#endregion
 
-## Get/Set (er)s
 
-### Connected Signals
+#region Private
+## The species' starting biomes (if allowed in this match), topped up with random game biomes.
+func _pick_starting_biomes() -> Array[BiomeData]:
+	var picked: Array[BiomeData] = []
+	var species_biomes := _player.get_species().get_starting_biomes()
+	var game_biomes := _match_settings.get_game_biomes()
+	for i in _match_settings.get_starting_biome_count():
+		if i < species_biomes.size() and species_biomes[i] in game_biomes:
+			picked.append(species_biomes[i])
+		else:
+			picked.append(game_biomes.pick_random())
+	return picked
+
+
+func _refresh_list() -> void:
+	_biomes_list.set_items(_remaining_biomes,
+		func(_biome: BiomeData) -> String: return "",
+		func(biome: BiomeData) -> Texture2D: return biome.get_icon())
+#endregion

@@ -1,110 +1,60 @@
-#lander_panel.gd
-
+# lander_panel.gd
+class_name LanderPanel
 extends Panel
 
-# signals
-signal build_action_req(req: Action)
-signal buy_unit_action_req(req: Action)
-signal move_units_action_req(req: Action)
-signal attack_action_req(req: Action)
+## Details for the currently selected lander: its biome, building, units and neighbours.
 
-# enums
+signal action_requested(action: Action)
 
-# constants
+var _selector_manager: SelectorManager
 
-# static variables
+@onready var _building_control: BuildingControl = find_child("BuildingControl")
+@onready var _unit_control: UnitControl = find_child("UnitControl")
+@onready var _lander_control: LanderControl = find_child("LanderControl")
+@onready var _biome_label: Label = find_child("BiomeLabel")
 
-# remaining regular variables
-var selector_manager: GameManager
-var lander_manager: GameManager
 
-# @onready variables
-@onready var building_control: Control = self.find_child("BuildingControl")
-@onready var unit_control: Control = self.find_child("UnitControl")
-@onready var lander_control: Control = self.find_child("LanderControl")
-@onready var biome_label: Label = find_child("BiomeLabel")
-
-###################################################################################################
-###	Methods
 func _ready() -> void:
-	connect_signals()
-	connect_wires()
-
-### Connected Signals
-func bind_selector(selector):
-	selector_manager = selector
-	#print("Lander Panel selector Manager bound")
-
-	building_control.bind_selector(selector)
-	unit_control.bind_selector(selector)
-	lander_control.bind_selector(selector)
-
-	connect_selector_signals()
-
-func bind_lander_manager(lm: GameManager):
-	lander_manager = lm
-	lander_control.bind_lander_manager(lm)
+	_building_control.action_requested.connect(action_requested.emit)
+	_unit_control.action_requested.connect(_on_unit_control_action_requested)
+	_lander_control.action_requested.connect(action_requested.emit)
 
 
-func update_building_control(cur_lander: Lander):
-	if cur_lander.has_building:
-		building_control.set_state_building_details()
+#region Public API
+func bind_selector_manager(selector_manager: SelectorManager) -> void:
+	_selector_manager = selector_manager
+	_building_control.bind_selector_manager(selector_manager)
+	_unit_control.bind_selector_manager(selector_manager)
+	_lander_control.bind_selector_manager(selector_manager)
+	_lander_control.refreshed.connect(selector_manager.clear_selected_units)
+
+
+func bind_lander_manager(lander_manager: LanderManager) -> void:
+	_lander_control.bind_lander_manager(lander_manager)
+
+
+func refresh() -> void:
+	var lander := _selector_manager.get_selected_lander()
+	if lander == null:
+		return
+	_biome_label.text = lander.get_biome_data().get_display_name()
+
+	if lander.has_building():
+		_building_control.show_details()
 	else:
-		building_control.set_state_building_shop()
+		_building_control.show_shop()
 
-
-func update_unit_control(cur_lander: Lander):
-	if cur_lander.units.size() >= cur_lander.unit_capacity:
-		unit_control.set_state_details()
+	if lander.is_full():
+		_unit_control.show_details()
 	else:
-		unit_control.set_state_shop()
+		_unit_control.show_shop()
+
+	_lander_control.refresh()
+#endregion
 
 
-func update_lander_control(cur_lander: Lander):
-	lander_control.update()
-
-## Calls
-
-func update():
-	var cur_lander = selector_manager.get_selected_lander()
-	if(cur_lander):
-		biome_label.text = str(cur_lander.biome_data.name)
-
-		update_building_control(cur_lander)
-		update_unit_control(cur_lander)	
-		update_lander_control(cur_lander)
-
-
-### Connected Signals
-func connect_signals():
-	building_control.build_action_req.connect(self.fwd_build_request)
-	unit_control.buy_unit_action_req.connect(self.fwd_buy_unit_action_req)
-	lander_control.move_units_action_req.connect(self.fwd_move_units_req)
-	lander_control.attack_action_req.connect(self.fwd_attack_action_req)
-
-
-
-func connect_selector_signals():
-	# This signal should be done in the selector manager as that's the listener
-	lander_control.lander_control_updated.connect(selector_manager.clear_selected_units)
-
-
-func connect_wires():
-	pass
-
-
-func fwd_build_request(req):
-	build_action_req.emit(req)
-
-
-func fwd_buy_unit_action_req(buy_unit_req: Action):
-	buy_unit_req.target_lander = selector_manager.get_selected_lander()
-	buy_unit_action_req.emit(buy_unit_req)
-
-
-func fwd_move_units_req(req: Action):
-	move_units_action_req.emit(req)
-
-
-func fwd_attack_action_req(req: Action):
-	attack_action_req.emit(req)
+#region Signal handlers
+func _on_unit_control_action_requested(action: Action) -> void:
+	action.set_target_lander(_selector_manager.get_selected_lander())
+	action_requested.emit(action)
+#endregion

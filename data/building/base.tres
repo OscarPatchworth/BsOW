@@ -1,7 +1,7 @@
 [gd_resource type="Resource" script_class="BuildingData" load_steps=5 format=3 uid="uid://c30rqnqmpoirn"]
 
 [ext_resource type="Script" path="res://data/building/building_data.gd" id="1_mgkkg"]
-[ext_resource type="PackedScene" uid="uid://c84n2wywirjkd" path="res://sences/buildings/Base.tscn" id="1_xa416"]
+[ext_resource type="PackedScene" uid="uid://c84n2wywirjkd" path="res://scenes/buildings/base.tscn" id="1_xa416"]
 [ext_resource type="Script" path="res://data/econ/econ_data.gd" id="2_nf6yy"]
 
 [sub_resource type="Resource" id="Resource_dfrq4"]
@@ -15,13 +15,13 @@ stone = 0
 [resource]
 resource_name = "Base"
 script = ExtResource("1_mgkkg")
-name = "Base"
+display_name = "Base"
 cost = SubResource("Resource_dfrq4")
-build_mesh = ExtResource("1_xa416")
-unique_build = false
-override_unit_capacity = false
+mesh_scene = ExtResource("1_xa416")
+is_unique = false
+overrides_unit_capacity = false
 unit_capacity = -1
 can_spawn = true
-spawn_type = Array[int]([0, 2])
+spawnable_unit_types = Array[int]([0, 2])
 can_upgrade = false
 upgrades = Array[ExtResource("1_mgkkg")]([])

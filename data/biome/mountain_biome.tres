@@ -19,7 +19,7 @@ stone = 1
 [resource]
 resource_name = "Mountain"
 script = ExtResource("2_cfvfq")
-name = "Mountain"
+display_name = "Mountain"
 mesh_material = SubResource("StandardMaterial3D_mfdlh")
-poker_icon = ExtResource("1_k1qgr")
-upkeep_econ = SubResource("Resource_bbd5x")
+icon = ExtResource("1_k1qgr")
+upkeep = SubResource("Resource_bbd5x")

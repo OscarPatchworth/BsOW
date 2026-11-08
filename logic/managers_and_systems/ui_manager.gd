@@ -1,298 +1,198 @@
+# ui_manager.gd
+class_name UiManager
 extends Control
 
-# signals
-signal build_action_req(build_req)
-signal buy_unit_action_req(buy_unit_req)
-signal move_units_action_req(move_units_req)
-signal attack_action_req(req: Action)
-signal unit_selected(unit: UnitObject)
-signal unit_deslected(unit: UnitObject)
-signal player_combat_ready
-signal player_combat_not_ready
-signal next_phase_req(req: Action)
-signal move_action_req(req: Action)
-signal purchase_action_req(req)
-signal setup_biome_pressed(b: BiomeData)
-signal all_setup_landers_placed()
+## Root of the player's HUD. Hands dependencies down to the panels and funnels
+## their requests up to the Player.
 
-# enums
-#enum Element {EARTH,WATER,AIR,FIRE,}
+signal action_requested(action: Action)
+signal combat_unit_selected(unit: UnitInstance)
+signal combat_unit_deselected(unit: UnitInstance)
+signal combat_ready()
+signal combat_not_ready()
+signal setup_biome_selected(biome_data: BiomeData)
+signal all_setup_biomes_placed()
 
-# constants
+var _player: Player
+var _turn_manager: TurnManager
+var _selector_manager: SelectorManager
 
-# static variables
-var turn_manager: GameManager
-var match_settings
+@onready var _lander_panel: LanderPanel = find_child("LanderPanel")
+@onready var _turn_panel: TurnPanel = find_child("TurnPanel")
+@onready var _combat_panel: CombatPanel = find_child("CombatPanel")
+@onready var _players_panel: PlayersPanel = find_child("PlayersPanel")
+@onready var _seasons_panel: SeasonsPanel = find_child("SeasonsPanel")
+@onready var _movement_panel: MovementPanel = find_child("MovementPanel")
+@onready var _purchase_panel: PurchasePanel = find_child("PurchasePanel")
+@onready var _wallet_panel: WalletPanel = find_child("WalletPanel")
+@onready var _setup_panel: SetupPanel = find_child("SetupPanel")
 
-# @export variables
 
-# remaining regular variables
-var selector_manager:GameManager
-var lander_manager: GameManager
-var combat_manager: GameManager
-var player_self: Player
-
-# @onready variables
-@onready var lander_panel:Panel = self.find_child("LanderPanel")
-@onready var turn_panel: Panel = self.find_child("TurnPanel")
-@onready var combat_panel: Panel = self.find_child("CombatPanel")
-@onready var players_panel: Panel = self.find_child("PlayersPanel")
-@onready var seasons_panel: Panel = self.find_child("SeasonPanel")
-@onready var movement_panel: Panel = self.find_child("MovementPanel")
-@onready var purchase_panel: Panel = self.find_child("PurchasePanel")
-@onready var wallet_panel: Panel = self.find_child("WalletPanel")
-@onready var setup_panel: Panel = self.find_child("SetupPanel")
-
-###################################################################################################
-###	Methods
 func _ready() -> void:
-	connect_signals()
-	connect_wires()
+	_connect_panels()
+	_lander_panel.hide()
+	_combat_panel.hide()
+	_movement_panel.hide()
 
-	lander_panel.hide()
-	combat_panel.hide()
-	movement_panel.hide()
 
+#region Binding
+func bind_player(player: Player) -> void:
+	_player = player
+	_combat_panel.bind_player(player)
+	_purchase_panel.bind_player(player)
+	_setup_panel.bind_player(player)
 
-### Signals and wires
-func connect_signals():
-	lander_panel.build_action_req.connect(self.fwd_build_request)
-	lander_panel.buy_unit_action_req.connect(self.fwd_buy_unit_action_req)
-	lander_panel.move_units_action_req.connect(self.fwd_move_units_req)
-	lander_panel.attack_action_req.connect(self.fwd_attack_action_req)
 
-	combat_panel.unit_selected.connect(self.fwd_unit_selected)
-	combat_panel.unit_deslected.connect(self.fwd_unit_deslected)
-	combat_panel.player_combat_ready.connect(self.fwd_player_combat_ready)
-	combat_panel.player_combat_not_ready.connect(fwd_player_combat_not_ready)
-	combat_panel.combat_display_toggled.connect(self.combat_display_toggled)
-	combat_panel.attack_req.connect(self.fwd_attack_action_req)
-	combat_panel.comabt_ui_closed.connect(self.comabt_ui_closed)
+func bind_selector_manager(selector_manager: SelectorManager) -> void:
+	_selector_manager = selector_manager
+	_lander_panel.bind_selector_manager(selector_manager)
 
-	turn_panel.next_phase_req.connect(self.fwd_next_phase_req)
 
-	movement_panel.move_action_req.connect(self.fwd_move_action_req)
+func bind_turn_manager(turn_manager: TurnManager) -> void:
+	_turn_manager = turn_manager
+	_players_panel.bind_turn_manager(turn_manager)
+	_seasons_panel.bind_turn_manager(turn_manager)
+	_turn_panel.bind_turn_manager(turn_manager)
+	_setup_panel.bind_turn_manager(turn_manager)
 
-	purchase_panel.purchase_action_req.connect(self.fwd_purchase_action_req)
-	purchase_panel.close_market.connect(self.fwd_close_market)
 
-	setup_panel.setup_biome_pressed.connect(self.fwd_setup_biome_pressed)
-	setup_panel.all_setup_landers_placed.connect(self.fwd_all_setup_landers_placed)
+func bind_lander_manager(lander_manager: LanderManager) -> void:
+	_lander_panel.bind_lander_manager(lander_manager)
+	_movement_panel.bind_lander_manager(lander_manager)
+	_purchase_panel.bind_lander_manager(lander_manager)
 
 
-func connect_wires():
-	wire_selector_manager()
+func bind_combat_manager(combat_manager: CombatManager) -> void:
+	_combat_panel.bind_combat_manager(combat_manager)
 
 
-func wire_selector_manager():
-	pass
+func bind_match_settings(match_settings: MatchSettings) -> void:
+	_setup_panel.bind_match_settings(match_settings)
 
-### Connected Signals
-func bind_selector(selector: GameManager):
-	selector_manager = selector
-	#print("UI manager selector bound")
-	
-	lander_panel.bind_selector(selector)
 
+func bind_wallet(wallet: EconData) -> void:
+	_wallet_panel.bind_wallet(wallet)
+#endregion
 
-func bind_turn_manager(tm: GameManager):
-	# Bind self
-	turn_manager = tm
-	# Bind Children
-	for child in get_children():
-		if child.has_method("bind_turn_manager"):
-			child.bind_turn_manager(tm)
 
+#region Public API (called by Player)
+func show_lander_panel(_lander: Lander) -> void:
+	_lander_panel.show()
+	_lander_panel.refresh()
 
-func bind_lander_manager(lm: GameManager):
-	lander_manager = lm
-	lander_panel.bind_lander_manager(lm)
-	movement_panel.bind_lander_manager(lm)
-	purchase_panel.bind_lander_manager(lm)
 
+func refresh_lander_panel() -> void:
+	_lander_panel.refresh()
 
-func bind_combat_manager(cm: GameManager):
-	combat_manager = cm
-	combat_panel.bind_combat_manager(cm)
 
+func on_units_moved() -> void:
+	_selector_manager.clear_selected_units()
+	_selector_manager.set_target_lander(null)
+	_lander_panel.refresh()
 
-func bind_player(p: Player):
-	player_self = p
-	for child in get_children():
-		if child.has_method("bind_player"):
-			child.bind_player(p)
 
+func show_movement_panel(from_lander: Lander, to_lander: Lander) -> void:
+	_movement_panel.open(from_lander, to_lander)
 
-func bind_wallet(w: EconData):
-	wallet_panel.bind_wallet(w)
 
+func show_combat(contest: Contest) -> void:
+	_lander_panel.hide()
+	_turn_panel.hide()
+	_combat_panel.show()
+	_combat_panel.open(contest)
 
-func bind_match_settings(ms):
-	match_settings = ms
-	for child in get_children():
-		if child.has_method("bind_match_settings"):
-			child.bind_match_settings(ms)
 
+func update_combat(contest: Contest) -> void:
+	_combat_panel.refresh(contest)
 
 
-func display_landers_req(lander: Lander):
-	lander_panel.show()
-	lander_panel.update()
+func show_combat_outcome(outcomes: Array[CombatOutcome]) -> void:
+	_combat_panel.show_outcome(outcomes)
 
 
-func fwd_build_request(build_req: Action):
-	build_action_req.emit(build_req)
+func apply_game_state(state: TurnManager.GameState) -> void:
+	_players_panel.apply_game_state(state)
+	_seasons_panel.apply_game_state(state)
+	_setup_panel.apply_game_state(state)
+	_turn_panel.apply_game_state(state)
+	_wallet_panel.apply_game_state(state)
 
 
-func fwd_buy_unit_action_req(buy_unit_req: Action):
-	buy_unit_action_req.emit(buy_unit_req)
+func apply_game_phase(phase: TurnManager.Phase) -> void:
+	_turn_panel.refresh()
+	var is_our_turn := _turn_manager.get_active_actor() == _player
+	match phase:
+		TurnManager.Phase.BUYING:
+			if is_our_turn:
+				_purchase_panel.open_market()
+		TurnManager.Phase.COMBAT:
+			if is_our_turn:
+				_purchase_panel.hide()
 
 
-func fwd_move_units_req(req: Action):
-	move_units_action_req.emit(req)
+func show_turn_order() -> void:
+	_players_panel.show_turn_order()
 
 
-func fwd_attack_action_req(req: Action):
-	attack_action_req.emit(req)
+func apply_active_actor(active_actor: Actor) -> void:
+	_players_panel.highlight_active_actor(active_actor)
 
 
-func fwd_player_combat_ready():
-	player_combat_ready.emit()
+func show_seasons() -> void:
+	_seasons_panel.show_seasons()
 
 
-func fwd_player_combat_not_ready():
-	player_combat_not_ready.emit()
+func apply_season(season_index: int) -> void:
+	_seasons_panel.highlight_season(season_index)
 
 
-func fwd_next_phase_req(req: Action):
-	next_phase_req.emit(req)
+func on_setup_biome_placed(action: Action) -> void:
+	_setup_panel.on_biome_placed(action)
 
-## Calls
-func received_build_action_completed(req: Action):
-	lander_panel.update()
 
+func on_wallet_changed() -> void:
+	_wallet_panel.refresh()
+#endregion
 
-func fwd_buy_unit_action_completed(req: Action):
-	lander_panel.update()
 
-func fwd_move_units_action_completed(req: Action):
-	selector_manager.clear_selected_units()
-	selector_manager.set_target_lander(null)
-	lander_panel.update()
+#region Signal handlers
+func _on_purchase_panel_market_closed() -> void:
+	if _turn_manager.get_game_phase() == TurnManager.Phase.BUYING:
+		action_requested.emit(Action.create(Action.Type.PROGRESS_TURN))
 
 
-func fwd_unit_selected(unit: UnitObject):
-	unit_selected.emit(unit)
-
-
-func run_combat_display(contest: Contest):
-	print("PlayerUI | run_combat_display recieved")
-	lander_panel.hide()
-	turn_panel.hide()
-
-	combat_panel.show()
-	combat_panel.setup_combat_display(contest)
-
-
-func update_combat_display(contest: Contest):
-	print("PlayerUI | update combat recieved")
-	combat_panel.update_combat_display(contest)
-
-
-func fwd_unit_deslected(unit: UnitObject):
-	unit_deslected.emit(unit)
-
-
-func combat_outcome(c_out: Array[CombatOutcome]):
-	combat_panel.combat_outcome(c_out)
-
-
-func game_phase_changed(game_phase):
-	turn_panel.game_phase_changed(game_phase)
-
-	match game_phase:
-		turn_manager.GameLoop.UPKEEP:
-			pass
-		turn_manager.GameLoop.DUSTCLOUD_COLLASPE_PHASE:
-			pass
-		turn_manager.GameLoop.BUYING_PHASE:
-			if turn_manager.get_active_actor() == player_self:
-				purchase_panel.run_market()
-		turn_manager.GameLoop.COMBAT_PHASE:
-			if turn_manager.get_active_actor() == player_self:
-				purchase_panel.hide()
-		turn_manager.GameLoop.CLEANUP:
-			pass	
-
-
-
-func setup_turn_order_display():
-	players_panel.setup_turn_order_display()
-
-
-func actor_turn_changed(active_actor: Actor):
-	players_panel.actor_turn_changed(active_actor)
-
-
-func seasons_generated():
-	seasons_panel.seasons_generated()
-
-
-func season_changed(sea_indx: int):
-	seasons_panel.season_changed(sea_indx)
-
-
-func combat_display_toggled(toggled_on: bool):
-	if toggled_on:
-		players_panel.show()
-		turn_panel.show()
+func _on_combat_panel_display_toggled(is_hidden: bool) -> void:
+	if is_hidden:
+		_turn_panel.hide()
+		_lander_panel.hide()
+		_players_panel.hide()
 	else:
-		turn_panel.hide()
-		lander_panel.hide()
-		players_panel.hide()
+		_players_panel.show()
+		_turn_panel.show()
 
 
-func run_movement(from: Lander, to: Lander):
-	#print("Player UI | Call | Run movement UI call")
-	movement_panel.run_movement(from, to)
+func _on_combat_panel_closed() -> void:
+	_turn_panel.show()
+#endregion
 
 
-func fwd_move_action_req(req: Action):
-	move_action_req.emit(req)
+#region Private
+func _connect_panels() -> void:
+	_lander_panel.action_requested.connect(action_requested.emit)
+	_turn_panel.action_requested.connect(action_requested.emit)
+	_movement_panel.action_requested.connect(action_requested.emit)
+	_purchase_panel.action_requested.connect(action_requested.emit)
+	_combat_panel.action_requested.connect(action_requested.emit)
 
+	_combat_panel.unit_selected.connect(combat_unit_selected.emit)
+	_combat_panel.unit_deselected.connect(combat_unit_deselected.emit)
+	_combat_panel.ready_pressed.connect(combat_ready.emit)
+	_combat_panel.not_ready_pressed.connect(combat_not_ready.emit)
+	_combat_panel.display_toggled.connect(_on_combat_panel_display_toggled)
+	_combat_panel.closed.connect(_on_combat_panel_closed)
 
-func fwd_purchase_action_req(req: Action):
-	purchase_action_req.emit(req)
+	_purchase_panel.market_closed.connect(_on_purchase_panel_market_closed)
 
-
-func fwd_close_market():
-	if turn_manager.get_game_phase() == turn_manager.GameLoop.BUYING_PHASE:
-		var new_action = Action.new()
-		new_action.set_type(Action.RequestType.PROGRESS_TURN)
-		next_phase_req.emit(new_action)
-
-
-func econ_changed():
-	wallet_panel.econ_changed()
-
-
-func game_state_changed(game_state):
-	for child in self.get_children():
-		if child.has_method("game_state_changed"):
-			child.game_state_changed(game_state)
-
-
-func fwd_setup_biome_pressed(b: BiomeData):
-	setup_biome_pressed.emit(b)
-
-
-func setup_biome_placed(req: Action):
-	setup_panel.setup_biome_placed(req)
-
-
-func fwd_all_setup_landers_placed():
-	all_setup_landers_placed.emit()
-
-
-func comabt_ui_closed():
-	turn_panel.show()
+	_setup_panel.biome_selected.connect(setup_biome_selected.emit)
+	_setup_panel.all_biomes_placed.connect(all_setup_biomes_placed.emit)
+#endregion

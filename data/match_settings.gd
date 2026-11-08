@@ -1,45 +1,68 @@
-#match_settings.gd
+# match_settings.gd
+class_name MatchSettings
 extends Node
 
-# Actor Settings
-@export var number_of_opponents: int = 1
-@export var starting_simple_troops: int = 3
-@export var starting_biomes_amount: int = 4
+## Per-match rules. Lives in main.tscn as the "MatchSettings" node.
 
-# Lander Settings
-@export var game_biomes: Array[BiomeData]
+# Actors
+@export var opponent_count: int = 1
+@export var ai_starting_troops: int = 3
+@export var starting_biome_count: int = 4
 
-# Map Settings
+# Economy
+## Every resource in a new actor's wallet starts at this amount.
+@export var starting_resource_amount: int = 10
+
+# Landers
+@export var game_biomes: Array[BiomeData] = []
+
+# Map
 @export var map_size: int = 10
 
-# Combat Units
-var max_attack_units: int = 3
-var max_defend_units: int = 3
-
-var max_attack_ablt: int = 10
-var max_defend_ablt: int = 10
-
-# Resource Settings
+# Combat
+@export var max_attacker_units: int = 3
+@export var max_defender_units: int = 3
+@export var max_attacker_abilities: int = 10
+@export var max_defender_abilities: int = 10
 
 
-# Season Settings
+#region Accessors
+func get_opponent_count() -> int:
+	return AbilitySystem.resolve_get(self, &"opponent_count", opponent_count)
 
 
+func get_ai_starting_troops() -> int:
+	return AbilitySystem.resolve_get(self, &"ai_starting_troops", ai_starting_troops)
 
 
-
-###################################################################################################
-###	Methods
-func free_children(parent: Node) -> void:
-	for i in parent.get_children():
-		i.queue_free()
+func get_starting_biome_count() -> int:
+	return AbilitySystem.resolve_get(self, &"starting_biome_count", starting_biome_count)
 
 
-### Connected Signals
+func get_starting_resource_amount() -> int:
+	return AbilitySystem.resolve_get(self, &"starting_resource_amount", starting_resource_amount)
 
 
-## Calls
+func get_game_biomes() -> Array[BiomeData]:
+	return AbilitySystem.resolve_get(self, &"game_biomes", game_biomes)
 
-## Get/Set (er)s
 
-### Connected Signals
+func get_map_size() -> int:
+	return AbilitySystem.resolve_get(self, &"map_size", map_size)
+
+
+func get_max_attacker_units() -> int:
+	return AbilitySystem.resolve_get(self, &"max_attacker_units", max_attacker_units)
+
+
+func get_max_defender_units() -> int:
+	return AbilitySystem.resolve_get(self, &"max_defender_units", max_defender_units)
+
+
+func get_max_attacker_abilities() -> int:
+	return AbilitySystem.resolve_get(self, &"max_attacker_abilities", max_attacker_abilities)
+
+
+func get_max_defender_abilities() -> int:
+	return AbilitySystem.resolve_get(self, &"max_defender_abilities", max_defender_abilities)
+#endregion

@@ -1,36 +1,18 @@
-#building_details_state.gd
+# building_details_state.gd
+class_name BuildingDetailsState
 extends VBoxContainer
 
-# signals
-#signal score_changed
+## Shows the building on the selected lander.
 
-# enums
-#enum Element {EARTH,WATER,AIR,FIRE,}
+var _selector_manager: SelectorManager
 
-# constants
-#const MAX_SPEED = 200
-
-# static variables
-var selector_manager:GameManager
-
-# @export variables
-
-# remaining regular variables
-
-# @onready variables
-@onready var building_label: Label = self.find_child("BuildingNameLabel")
-
-###################################################################################################
-###	Methods
+@onready var _name_label: Label = find_child("BuildingNameLabel")
 
 
-### Signals and Wires
-func bind_selector(selector: GameManager):
-	selector_manager = selector
-	#print("BuildingDetails slector_manager bound")
+func bind_selector_manager(selector_manager: SelectorManager) -> void:
+	_selector_manager = selector_manager
 
 
-## Calls
-func update():
-	var cur_lander = selector_manager.get_selected_lander()
-	building_label.text = cur_lander.get_building_data().get_building_name()
+func refresh() -> void:
+	var building := _selector_manager.get_selected_lander().get_building()
+	_name_label.text = building.get_display_name() if building != null else ""

@@ -1,12 +1,5 @@
+# game_button.gd
 class_name GameButton
 extends Button
 
-
-# Called when the node enters the scene tree for the first time.
-func _ready() -> void:
-	pass # Replace with function body.
-
-
-# Called every frame. 'delta' is the elapsed time since the previous frame.
-func _process(delta: float) -> void:
-	pass
+## Base class for the game's buttons. A single place to add shared button behaviour later.

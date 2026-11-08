@@ -1,0 +1,242 @@
+# smoke_test.gd
+extends Node
+
+## Headless smoke test: loads main.tscn and drives a game through the real Action pipeline
+## (setup -> command tower -> phases -> buy -> move -> combat -> upkeep), checking state as it goes.
+##
+## Run from the project folder:
+##   godot --headless --path . res://tests/smoke_test.tscn
+## Exit code 0 = all checks passed, 1 = something failed (details are printed).
+
+const MAIN_SCENE: PackedScene = preload("res://main.tscn")
+## Far from the origin lander, so the player's setup landers don't collide with anything.
+const SETUP_ORIGIN := Vector3(-30, 0, -30)
+const LANDER_SPACING: float = 2.2  # Above MIN_DISTANCE (2.0), below connection range (2.5).
+
+var _failures: Array[String] = []
+var _check_count: int = 0
+
+var _root: GameRoot
+var _player: Player
+var _ai: SimpleAI
+var _turn_manager: TurnManager
+var _lander_manager: LanderManager
+var _combat_manager: CombatManager
+
+
+func _ready() -> void:
+	seed(12345)
+	_root = MAIN_SCENE.instantiate()
+	add_child(_root)
+	await _frames(3)
+
+	_player = _root.find_child("Player", true, false)
+	_ai = _root.find_child("SimpleAI", true, false)
+	_turn_manager = _root.find_child("TurnManager", true, false)
+	_lander_manager = _root.find_child("LanderManager", true, false)
+	_combat_manager = _root.find_child("CombatManager", true, false)
+
+	_check(_player != null and _ai != null, "player and AI exist")
+	_check(_turn_manager.get_game_state() == TurnManager.GameState.SETUP, "game starts in SETUP")
+
+	await _test_setup()
+	await _test_main_loop()
+
+	print("\n==== Smoke test: %d checks, %d failed ====" % [_check_count, _failures.size()])
+	for failure in _failures:
+		print("  FAIL: " + failure)
+	get_tree().quit(1 if not _failures.is_empty() else 0)
+
+
+#region Tests
+func _test_setup() -> void:
+	var setup_panel: SetupPanel = _player.find_child("SetupPanel", true, false)
+	var biome_count := _root.find_child("MatchSettings", true, false).get_starting_biome_count() as int
+	var remaining: Array[BiomeData] = setup_panel._remaining_biomes.duplicate()
+	_check(remaining.size() == biome_count, "setup panel offers %d biomes" % biome_count)
+
+	var landers_before := _lander_manager.get_landers().size()
+	for i in remaining.size():
+		var action := Action.create(Action.Type.PLACE_BIOME)
+		action.set_position(SETUP_ORIGIN + Vector3(i * LANDER_SPACING, 0, 0))
+		action.set_biome_data(remaining[i])
+		_request(action)
+	await _frames(2)
+	_check(_lander_manager.get_landers().size() == landers_before + biome_count, "all setup biomes placed as landers")
+	_check(setup_panel._remaining_biomes.is_empty(), "setup panel list emptied")
+	var controller: PlayerController = _player.find_child("PlayerController", true, false)
+	_check(controller._is_placing_command_tower, "controller switched to command tower placement")
+
+	var home := _lander_at(SETUP_ORIGIN)
+	var tower := Action.create(Action.Type.PLACE_BUILDING)
+	tower.set_target_lander(home)
+	tower.set_building_data(_player.get_species().get_command_tower())
+	_request(tower)
+	await _frames(3)
+
+	_check(home.has_building(), "command tower built")
+	_check(home.get_owner_actor() == _player, "home lander owned by player")
+	_check(_turn_manager.get_game_state() == TurnManager.GameState.MAIN_LOOP, "setup finished -> MAIN_LOOP")
+	_check(_turn_manager.get_game_phase() == TurnManager.Phase.DUSTCLOUD_COLLAPSE, "first phase is DUSTCLOUD_COLLAPSE")
+
+
+func _test_main_loop() -> void:
+	# Make sure it's the player's turn (the AI never progresses on its own).
+	if _turn_manager.get_active_actor() != _player:
+		await _advance_to_next_actor()
+	_check(_turn_manager.get_active_actor() == _player, "player becomes the active actor")
+	_check(_turn_manager.get_game_phase() == TurnManager.Phase.DUSTCLOUD_COLLAPSE, "player turn starts at DUSTCLOUD_COLLAPSE")
+
+	# Dustcloud collapse: placing a lander progresses the phase automatically.
+	var landers_before := _lander_manager.get_landers().size()
+	var place := Action.create(Action.Type.PLACE_LANDER)
+	place.set_position(SETUP_ORIGIN + Vector3(0, 0, 10))
+	_request(place)
+	await _frames(1)
+	_check(_lander_manager.get_landers().size() == landers_before + 1, "PLACE_LANDER spawned a lander")
+	_check(_turn_manager.get_game_phase() == TurnManager.Phase.BUYING, "PLACE_LANDER progressed to BUYING")
+
+	# Buying: purchase a unit on the home lander.
+	var home := _lander_at(SETUP_ORIGIN)
+	var purchasables := home.get_purchasables(_player)
+	var unit_data: UnitData = null
+	for p in purchasables:
+		if p is UnitData:
+			unit_data = p
+	_check(unit_data != null, "home lander offers a unit to buy")
+	var gold_before := _player.get_wallet().get_amount(&"gold")
+	var buy := Action.create(Action.Type.PURCHASE)
+	buy.set_source_lander(home)
+	buy.set_purchasable(unit_data)
+	_request(buy)
+	buy = Action.create(Action.Type.PURCHASE)
+	buy.set_source_lander(home)
+	buy.set_purchasable(unit_data)
+	_request(buy)
+	await _frames(1)
+	_check(home.get_units().size() == 2, "two units bought onto home lander")
+	_check(_player.get_wallet().get_amount(&"gold") == gold_before - 2 * unit_data.get_cost().get_amount(&"gold"),
+		"wallet charged for both units")
+
+	# Lander panel UI paths.
+	_player.get_selector_manager().select_lander(home)
+	_player._ui.show_lander_panel(home)
+	await _frames(1)
+
+	_request(Action.create(Action.Type.PROGRESS_TURN))
+	await _frames(1)
+	_check(_turn_manager.get_game_phase() == TurnManager.Phase.COMBAT, "progressed to COMBAT")
+
+	# Move one unit to the neighbouring (empty) setup lander.
+	var neighbour := _lander_at(SETUP_ORIGIN + Vector3(LANDER_SPACING, 0, 0))
+	_check(neighbour in _lander_manager.get_connected_landers(home), "neighbour lander is connected")
+	var move := Action.create(Action.Type.MOVE_UNITS)
+	move.set_source_lander(home)
+	move.set_target_lander(neighbour)
+	move.set_units([home.get_units()[0]] as Array[UnitInstance])
+	_request(move)
+	await _frames(1)
+	_check(home.get_units().size() == 1 and neighbour.get_units().size() == 1, "MOVE_UNITS moved one unit")
+
+	await _test_combat(home)
+
+	# Finish the turn: COMBAT -> (CLEANUP, UPKEEP auto) -> next actor's DUSTCLOUD_COLLAPSE.
+	_request(Action.create(Action.Type.PROGRESS_TURN))
+	await _frames(1)
+	_check(_turn_manager.get_active_actor() == _ai, "turn passed to the AI")
+	_check(_turn_manager.get_game_phase() == TurnManager.Phase.DUSTCLOUD_COLLAPSE, "AI turn starts at DUSTCLOUD_COLLAPSE")
+
+	# Round wrap: upkeep pays the player for owned landers.
+	var food_before := _player.get_wallet().get_amount(&"food")
+	var expected_food := 0
+	for lander in _lander_manager.get_landers_owned_by(_player):
+		expected_food += lander.get_upkeep().get_amount(&"food")
+	var season_before := _turn_manager.get_season_index()
+	var round_before := _turn_manager.get_round_number()
+	await _advance_to_next_actor()
+	_check(_turn_manager.get_active_actor() == _player, "turn wrapped back to the player")
+	_check(_turn_manager.get_round_number() == round_before + 1, "round number incremented")
+	_check(_turn_manager.get_season_index() == (season_before + 1) % 4, "season advanced")
+	_check(_player.get_wallet().get_amount(&"food") == food_before + expected_food, "upkeep paid food for owned landers")
+
+
+func _test_combat(home: Lander) -> void:
+	# An AI garrison right next to the home lander.
+	var enemy_position := Vector3(home.position.x, 0, home.position.z - LANDER_SPACING)
+	_lander_manager.spawn_protected_lander(enemy_position, _ai, 2)
+	await _frames(1)
+	var enemy := _lander_manager.get_landers()[-1]
+	_check(enemy.get_owner_actor() == _ai and enemy.get_units().size() == 2, "AI garrison spawned")
+
+	var resolved: Array = []
+	_combat_manager.combat_resolved.connect(func(outcomes: Array[CombatOutcome]) -> void: resolved.append(outcomes))
+
+	var attack := Action.create(Action.Type.ATTACK)
+	attack.set_source_lander(home)
+	attack.set_target_lander(enemy)
+	_request(attack)
+	await _frames(1)
+	var contest := _combat_manager.get_contest()
+	_check(contest != null and contest.get_side_of(_player) == Contest.Side.ATTACKER, "contest started with player attacking")
+	_check(contest.is_ready(Contest.Side.DEFENDER), "AI defender picked units and readied")
+	_check(contest.get_units(Contest.Side.DEFENDER).size() == 2, "AI chose its defenders")
+
+	var attacker_unit := home.get_units()[0]
+	_player.combat_selection_requested.emit(_player, attacker_unit, true)
+	_check(contest.get_units(Contest.Side.ATTACKER) == [attacker_unit], "player selected an attacker")
+	_player.combat_selection_requested.emit(_player, attacker_unit, false)
+	_check(contest.get_units(Contest.Side.ATTACKER).is_empty(), "player deselected the attacker")
+	_player.combat_selection_requested.emit(_player, attacker_unit, true)
+	_player.combat_selection_requested.emit(_player, true, true)
+	await _frames(1)
+
+	_check(resolved.size() == 1, "combat resolved once")
+	if resolved.size() == 1:
+		var outcomes: Array = resolved[0]
+		_check(outcomes.size() == 3, "one outcome per fighting unit")
+		for outcome: CombatOutcome in outcomes:
+			_check(outcome.get_rolls().size() == outcome.get_unit().get_damage().get_dice_count(), "rolls kept intact")
+			if outcome.get_outcome() == CombatOutcome.Outcome.DEAD:
+				var lander := home if outcome.get_unit().get_owner_actor() == _player else enemy
+				_check(outcome.get_unit() not in lander.get_units(), "dead unit removed from its lander")
+	_check(_combat_manager.get_phase() == CombatManager.CombatPhase.CLEANUP, "combat ended in CLEANUP")
+#endregion
+
+
+#region Helpers
+func _request(action: Action) -> void:
+	_player._on_child_action_requested(action)
+
+
+## Presses "next phase" until the active actor changes.
+func _advance_to_next_actor() -> void:
+	var start_actor := _turn_manager.get_active_actor()
+	for i in 10:
+		_request(Action.create(Action.Type.PROGRESS_TURN))
+		await _frames(1)
+		if _turn_manager.get_active_actor() != start_actor:
+			return
+
+
+func _lander_at(position: Vector3) -> Lander:
+	var best: Lander = null
+	for lander in _lander_manager.get_landers():
+		var flat := Vector2(lander.position.x - position.x, lander.position.z - position.z)
+		if flat.length() < 0.5:
+			best = lander
+	return best
+
+
+func _frames(count: int) -> void:
+	for i in count:
+		await get_tree().process_frame
+
+
+func _check(condition: bool, description: String) -> void:
+	_check_count += 1
+	if condition:
+		print("  ok   " + description)
+	else:
+		print("  FAIL " + description)
+		_failures.append(description)
+#endregion

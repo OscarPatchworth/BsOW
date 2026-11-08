@@ -1,182 +1,165 @@
-extends GameManager
+# action_manager.gd
+class_name ActionManager
+extends Node
 
-# signals
-signal build_action(req)
-signal buy_unit_action(req)
-signal progress_turn
-signal place_biome(req)
+## The rules gate. Every Action goes through request_action(); valid ones are executed
+## (or announced through an *_approved signal), invalid ones are rejected with a message.
 
-# enums
+signal build_approved(action: Action)
+signal unit_purchase_approved(action: Action)
+signal biome_placement_approved(action: Action)
+signal turn_progress_approved()
 
-# constants
+var _lander_manager: LanderManager
+var _turn_manager: TurnManager
+var _combat_manager: CombatManager
 
-# static variables
-var movement_ctrl = load("res://logic/managers_and_systems/movement_controler.gd")
-var lander_manager: GameManager
-var turn_manager: GameManager
-var combat_manager: GameManager
 
-# @export variables
+#region Public API
+func bind_lander_manager(lander_manager: LanderManager) -> void:
+	_lander_manager = lander_manager
 
-# remaining regular variables
 
-# @onready variables
+func bind_turn_manager(turn_manager: TurnManager) -> void:
+	_turn_manager = turn_manager
 
-###################################################################################################
-###	Methods
 
-func action_request(req: Action):
-	match req.type:
-		Action.RequestType.PLACE_LANDER:
-			handle_place_lander(req)
-		Action.RequestType.MOVEMENT:
-			handle_movement(req)
-		Action.RequestType.ATTACK:
-			#print("Attack Action Recieved! ")
-			handle_attack(req)
-		Action.RequestType.BUY:
-			handle_buy(req)
-		Action.RequestType.PLACE_BUILDING:
-			handle_place_building(req)
-		Action.RequestType.BUY_UNIT:
-			handle_buy_unit(req)
-		Action.RequestType.PROGRESS_TURN:
-			#print("Action Manager | Req Recieved | Next Phase")
-			handle_progress_turn(req)
-		Action.RequestType.PLACE_BIOME:
-			handle_place_biome(req)
+func bind_combat_manager(combat_manager: CombatManager) -> void:
+	_combat_manager = combat_manager
+
+
+func request_action(action: Action) -> void:
+	match action.get_type():
+		Action.Type.PLACE_LANDER:
+			_handle_place_lander(action)
+		Action.Type.MOVE_UNITS:
+			_handle_move_units(action)
+		Action.Type.ATTACK:
+			_handle_attack(action)
+		Action.Type.PURCHASE:
+			_handle_purchase(action)
+		Action.Type.PLACE_BUILDING:
+			_handle_place_building(action)
+		Action.Type.BUY_UNIT:
+			_handle_buy_unit(action)
+		Action.Type.PROGRESS_TURN:
+			_handle_progress_turn(action)
+		Action.Type.PLACE_BIOME:
+			_handle_place_biome(action)
 		_:
-			print("No Action Match type match!! \n match type: " + str(Action.RequestType.keys()[req.type] ))
+			_reject(action, "Unknown action type")
+#endregion
 
 
-func handle_place_lander(req: Action):
-	if(lander_manager.is_valid_lander_placement(req.position)):
-		# Place lander
-		lander_manager.inst_lander(req.position)
-		# Progress turn
-		progress_turn.emit()
-	else:
-		print("Invalid Place Lander Request")
-
-
-func handle_place_building(req:Action):
-	#print("Action recieved: " + str(req.get_action_dict()))
-	## Check if valid
-	if(req.target_lander.has_building):
-		print("Can't build on lander: Building already present")
+#region Handlers
+func _handle_place_lander(action: Action) -> void:
+	if not _lander_manager.is_valid_lander_placement(action.get_position()):
+		_reject(action, "Invalid lander placement")
 		return
-	## Then emit if true
-	build_action.emit(req)
+	_lander_manager.spawn_random_lander(action.get_position())
+	turn_progress_approved.emit()
 
 
-func handle_buy_unit(req:Action):
-	#print("Action Recieved: " + str(req.get_action_dict()))
-	## Check if valid
-	if(req.get_target_lander() == null):
-		print("Buy Unit Req is missing target lander")
+func _handle_place_building(action: Action) -> void:
+	if action.get_target_lander().has_building():
+		_reject(action, "Lander already has a building")
 		return
-	if(req.target_lander.get_building_data() == null):
-		print("Buy Unit Req is missing spawning building")
-		return
-	var lander_building = req.target_lander.get_building_data()
-	if(!lander_building.get_can_spawn()):
-		print("Buy Unit Req failed: The building \'" + str(lander_building.get_building_name() + "\' can not spawn units"))
-		return
-	if(req.unit_type.get_type() not in lander_building.get_spawn_type() ):
-		print("Buy Unit Req failed: \'" + str(lander_building.get_building_name()) + "\' can not spawn this type of unit: \'" + str(req.unit_type.get_type()) + "\'")
-		return
-	#print("Buy unit req valid")
-	buy_unit_action.emit(req)
+	build_approved.emit(action)
 
 
-func handle_movement(req:Action):
-	print("Movement Action Recieved")
-	# Check if(lander.units.owner == self_player)
-	var target_lander_owner = lander_manager.get_lander_occpied_actor(req.target_lander)
-	if(target_lander_owner == null or target_lander_owner == req.actor):
-		print("Can move landers to target")
-	else:
-		print("Target Lander is hostile land \n Movement failed")
+func _handle_buy_unit(action: Action) -> void:
+	var lander := action.get_target_lander()
+	if lander == null:
+		_reject(action, "Missing target lander")
 		return
-
-	lander_manager.move_units_action(req)
-
-
-func handle_attack(req: Action):
-	# Check if selected & target lander have enemy units
-	if(req.selected_lander.get_units() == []):
-		print("Action Manager Error | Attack Req: Selected lander has no units! ")
+	var building := lander.get_building()
+	if building == null:
+		_reject(action, "Target lander has no building to spawn units from")
 		return
-	if(req.target_lander.get_units() == []):
-		print("Action Manager Error | Attack Req: Target lander has no units! ")
+	if not building.can_spawn_units():
+		_reject(action, "'%s' can not spawn units" % building.get_display_name())
 		return
-	if(req.selected_lander.get_units()[0].get_owned_by() == req.target_lander.get_units()[0].get_owned_by()):
-		print("Action Manager Error | Attack Req: Selected and Target landers are allies")
+	if action.get_unit_data().get_unit_type() not in building.get_spawnable_unit_types():
+		_reject(action, "'%s' can not spawn unit type %s" % [
+			building.get_display_name(), UnitData.UnitType.find_key(action.get_unit_data().get_unit_type())])
 		return
-	# Check if the attacking units belong to the attacking self_player
-	if(req.selected_lander.get_units()[0].get_owned_by() != req.actor):
-		print("Action Manager Error | Attack Req: Attacking force doese not belong to the attacking self_player")
-		return
-	# Fwd the attack to combat manager
-	print("Fwd attack req")
-	combat_manager.attack_action(req)
+	unit_purchase_approved.emit(action)
 
 
-func handle_progress_turn(req: Action):
-	#if req.actor != turn_manager.get_active_player():
-		#print("Turn Manager | Err |")
-	#else:
-	if turn_manager.get_game_phase() in turn_manager.get_admin_phases():
-		print("Action Manager | Rules Check | Actor atempting to progress admin phase")
+func _handle_move_units(action: Action) -> void:
+	var target_owner := action.get_target_lander().get_owner_actor()
+	if target_owner != null and target_owner != action.get_actor():
+		_reject(action, "Target lander is hostile")
 		return
-	if turn_manager.get_game_phase() in turn_manager.get_non_skipable_phases():
-		print("Action Manager | Rules Check | Actor Atempting to progress non-skipable phase")
-		#return 
-	progress_turn.emit()
+	_lander_manager.move_units(action)
 
 
-func handle_buy(req: Action):
-	#print(req.get_action_dict())
-	if req.get_purchasable() is BuildingData:
-		print("Action Manager | Debug | handle_buy: Is BuildingData")
-		# Is Valid cecks
-		# Can Pay
-		var ply_wallet: EconData = req.actor.get_wallet()
-		if not req.purchasable.get_cost().cost_less_than(ply_wallet):
-			print("Action Mananger | Rules Check | Actor can not affor Building")
+func _handle_attack(action: Action) -> void:
+	var source_units := action.get_source_lander().get_units()
+	var target_units := action.get_target_lander().get_units()
+	if source_units.is_empty():
+		_reject(action, "Source lander has no units")
+		return
+	if target_units.is_empty():
+		_reject(action, "Target lander has no units")
+		return
+	if source_units[0].get_owner_actor() == target_units[0].get_owner_actor():
+		_reject(action, "Source and target landers are allies")
+		return
+	if source_units[0].get_owner_actor() != action.get_actor():
+		_reject(action, "Attacking units don't belong to the attacking actor")
+		return
+	_combat_manager.start_combat(action)
+
+
+func _handle_progress_turn(action: Action) -> void:
+	var phase := _turn_manager.get_game_phase()
+	if phase in _turn_manager.get_admin_phases():
+		_reject(action, "Admin phases can't be progressed by an actor")
+		return
+	if phase in _turn_manager.get_non_skippable_phases():
+		# Not enforced yet: the warning is kept so the rule is visible.
+		print("ActionManager | Rules | Actor is progressing a non-skippable phase")
+	turn_progress_approved.emit()
+
+
+func _handle_purchase(action: Action) -> void:
+	var purchasable := action.get_purchasable()
+	var wallet := action.get_actor().get_wallet()
+	var lander := action.get_source_lander()
+
+	if purchasable is BuildingData:
+		var cost := (purchasable as BuildingData).get_cost()
+		if not wallet.can_afford(cost):
+			_reject(action, "Actor can not afford the building")
 			return
-		# Lander doesn't already have buildin ?
-		if req.selected_lander.get_building() != null:
-			print("Action Mananger | Rules Check | Lander already has building")
+		if lander.has_building():
+			_reject(action, "Lander already has a building")
 			return
+		wallet.subtract(cost)
+		lander.build(action)
 
-		# Apply Costs
-		ply_wallet.rmv_resource(req.purchasable.get_cost())
-
-		# Generate Building
-		req.selected_lander.build_action(req)
-
-	elif req.get_purchasable() is UnitData:
-		print("Action Manager | Debug | handle_buy: Is UnitData")
-		# Is Valid cecks
-		var ply_wallet: EconData = req.actor.get_wallet()
-		if not req.purchasable.get_cost().cost_less_than(ply_wallet):
-			print("Action Mananger | Rules Check | Actor can not affor unit")
+	elif purchasable is UnitData:
+		var cost := (purchasable as UnitData).get_cost()
+		if not wallet.can_afford(cost):
+			_reject(action, "Actor can not afford the unit")
 			return
-		
-		# Apply Costs
-		ply_wallet.rmv_resource(req.purchasable.get_cost())
-
-		# Generate unit
-		req.selected_lander.buy_unit_action(req)
+		wallet.subtract(cost)
+		lander.buy_unit(action)
 
 	else:
-		print("Action Manager | Debug | handle_buy: purchasable is not a valid type")
+		_reject(action, "Purchasable is not a BuildingData or UnitData")
 
 
-func handle_place_biome(req):
-	if(lander_manager.is_valid_lander_placement(req.position)):
-		# Place lander
-		place_biome.emit(req)
-	else:
-		print("Invalid Place Lander Request")
+func _handle_place_biome(action: Action) -> void:
+	if not _lander_manager.is_valid_lander_placement(action.get_position()):
+		_reject(action, "Invalid lander placement")
+		return
+	biome_placement_approved.emit(action)
+#endregion
+
+
+#region Private
+func _reject(action: Action, reason: String) -> void:
+	print("ActionManager | Rejected %s | %s" % [Action.Type.find_key(action.get_type()), reason])
+#endregion

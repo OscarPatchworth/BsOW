@@ -1,121 +1,66 @@
-#purchase_panel.gd
+# purchase_panel.gd
+class_name PurchasePanel
 extends Panel
 
-# signals
-signal purchase_action_req(req: Action)
-signal close_market()
+## The market shown in the buying phase: pick one of your landers, then something to buy on it.
 
-# enums
+signal action_requested(action: Action)
+signal market_closed()
 
-# constants
+var _lander_manager: LanderManager
+var _player: Player
+var _active_lander: Lander
 
-# static variables
-var lander_manager: GameManager
-var player_self: Player
-
-
-# @export variables
-
-# remaining regular variables
-var active_lander: Lander
-
-# @onready variables
-@onready var lander_listbox: ListBox = self.find_child("LandersListBox")
-@onready var market_listbox: ListBox = self.find_child("MarketListBox")
-@onready var finish_btn: GameButton = self.find_child("FinishBtn")
+@onready var _landers_list: ListBox = find_child("LandersListBox")
+@onready var _market_list: ListBox = find_child("MarketListBox")
+@onready var _finish_button: GameButton = find_child("FinishButton")
 
 
-###################################################################################################
-###	Methods
 func _ready() -> void:
-	self.hide()
-	lander_listbox.list_btn_pressed.connect(self.lander_btn_pressed)
-	market_listbox.list_btn_pressed.connect(self.market_btn_pressed)
-	finish_btn.pressed.connect(self.pressed_close_market)
+	hide()
+	_landers_list.item_pressed.connect(_on_landers_list_item_pressed)
+	_market_list.item_pressed.connect(_on_market_list_item_pressed)
+	_finish_button.pressed.connect(_on_finish_button_pressed)
 
 
-func free_children(parent: Node) -> void:
-	for i in parent.get_children():
-		i.queue_free()
+#region Public API
+func bind_lander_manager(lander_manager: LanderManager) -> void:
+	_lander_manager = lander_manager
 
 
-func lander_btn_pressed(lnd: Lander):
-	active_lander = lnd
-	# Get purchases from lander
-	var lander_purchases = []
-	# Add any building Upgrades
-	lander_purchases = get_lander_purchasables(lnd)
-	
+func bind_player(player: Player) -> void:
+	_player = player
 
 
-	market_listbox.set_objects(lander_purchases, func(purchasable): return purchasable.name)
-	
+func open_market() -> void:
+	show()
+	var landers := _lander_manager.get_landers_owned_by(_player)
+	_landers_list.set_items(landers, func(lander: Lander) -> String: return lander.get_biome_data().get_display_name())
 
-func market_btn_pressed(item):
-	var buy_req = Action.new()
-	buy_req.set_type(Action.RequestType.BUY)
-	buy_req.set_actor(player_self)
-	buy_req.set_selected_lander(active_lander)
-	buy_req.set_purchasable(item)
-	purchase_action_req.emit(buy_req)
-
-
-func get_lander_purchasables(lnd: Lander) -> Array:
-	var all_purchases = []
-	# Building Upgrages
-	##print(lnd.get_purchases())
-	for upgrade in lnd.get_purchases()["Building upgrades"]:
-		all_purchases.append(upgrade)
-
-	# Units
-	for unit in player_self.get_species().units:
-		if unit.get_type() in lnd.get_purchases()["Unit Types"]:
-			all_purchases.append(unit)
-
-	# Buildings
-	for unit in lnd.get_units():
-		#print(unit.get_purchases())
-		if lnd.building == null and unit.get_purchases()["buildings"] != []:
-			for building in unit.get_purchases()["buildings"]:
-				if building not in all_purchases:
-					all_purchases.append(building)
+	# Disable landers with nothing to buy.
+	var buttons: Array[Node] = await _landers_list.get_buttons()
+	for i in buttons.size():
+		if landers[i].get_purchasables(_player).is_empty():
+			(buttons[i] as Button).disabled = true
+#endregion
 
 
-	# Abilites
-
-	return all_purchases
-
-
-func pressed_close_market():
-	lander_listbox.clear()
-	market_listbox.clear()
-	close_market.emit()
-
-### Connected Signals
+#region Signal handlers
+func _on_landers_list_item_pressed(lander: Lander) -> void:
+	_active_lander = lander
+	_market_list.set_items(lander.get_purchasables(_player),
+		func(purchasable: Variant) -> String: return purchasable.get_display_name())
 
 
-## Calls
-func bind_lander_manager(lm: GameManager):
-	lander_manager = lm
+func _on_market_list_item_pressed(purchasable: Resource) -> void:
+	var action := Action.create(Action.Type.PURCHASE)
+	action.set_source_lander(_active_lander)
+	action.set_purchasable(purchasable)
+	action_requested.emit(action)
 
 
-func bind_player(p: Player):
-	player_self = p
-
-
-func run_market():
-	self.show()
-	var landers = lander_manager.get_landers_actor_has(player_self)
-	lander_listbox.set_objects(landers, func(lnd): return lnd.get_biome().name)
-
-	# Adjust btns
-	var lander_btns = await lander_listbox.get_btns()
-	for i in range(lander_btns.size()):
-		# If lander doesn't have purchases disable it's btn
-		if get_lander_purchasables(landers[i]) == []:
-			lander_btns[i].disabled = true
-
-			
-## Get/Set (er)s
-
-### Connected Signals
+func _on_finish_button_pressed() -> void:
+	_landers_list.clear()
+	_market_list.clear()
+	market_closed.emit()
+#endregion

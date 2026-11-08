@@ -1,78 +1,68 @@
-#selector_manager.gd
-extends GameManager
+# selector_manager.gd
+class_name SelectorManager
+extends Node
 
-# signals
-signal selected_units_changed
+## What the local player currently has selected in the UI. View state only (not hooked).
 
-# enums
-#enum Element {EARTH,WATER,AIR,FIRE,}
+signal selected_units_changed()
 
-# constants
-#const MAX_SPEED = 200
+var _player: Player
+var _selected_lander: Lander
+var _target_lander: Lander
+var _selected_units: Array[UnitInstance] = []
 
-# static variables
-var self_player: Player
 
-# @export variables
+#region Public API
+func bind_player(player: Player) -> void:
+	_player = player
 
-# remaining regular variables
-var selected_lander:Lander
-var selected_units: Array[UnitObject]
-var target_lander: Lander
 
-# @onready variables
+func select_lander(lander: Lander) -> void:
+	set_selected_lander(lander)
 
-###################################################################################################
-###	Get/Set (er)s
+
+func add_selected_unit(unit: UnitInstance) -> void:
+	if unit in _selected_units:
+		push_warning("SelectorManager | Unit is already selected")
+		return
+	_selected_units.append(unit)
+	selected_units_changed.emit()
+
+
+func remove_selected_unit(unit: UnitInstance) -> void:
+	if unit not in _selected_units:
+		push_warning("SelectorManager | Unit is not selected")
+		return
+	_selected_units.erase(unit)
+	selected_units_changed.emit()
+
+
+func clear_selected_units() -> void:
+	_selected_units = []
+#endregion
+
+
+#region Accessors
+func get_player() -> Player:
+	return _player
+
+
 func get_selected_lander() -> Lander:
-	return selected_lander
-func set_selected_lander(lander: Lander):
-	selected_lander = lander
-	
+	return _selected_lander
+
+
+func set_selected_lander(value: Lander) -> void:
+	_selected_lander = value
 
 
 func get_target_lander() -> Lander:
-	return target_lander
-func set_target_lander(lander: Lander):
-	target_lander = lander
+	return _target_lander
 
 
-func get_player() -> Player:
-	return self_player
+func set_target_lander(value: Lander) -> void:
+	_target_lander = value
 
 
-func get_selected_units() -> Array[UnitObject]:
-	return selected_units
-
-
-func add_unit_selected_units(unit: UnitObject):
-	if unit in selected_units:
-		print("""
-		Selector Manager Err:
-			added unit already exisits in selected_units[]
-		""")
-		return
-	selected_units.append(unit)
-	selected_units_changed.emit()
-	print("Unit Added")
-
-
-func rmv_unit_selected_units(unit: UnitObject):
-	if unit not in selected_units:
-		print(""" 
-		Selector Manager Err:
-			unit does not exisit in selected_units[]
-		""")
-		return
-	selected_units.erase(unit)
-	selected_units_changed.emit()
-	print("unit rmv")
-
-
-func clear_selected_units():
-	selected_units = []
-
-
-### Connected Signals and Signals
-func select_lander_req(lander: Lander):
-	set_selected_lander(lander)
+func get_selected_units() -> Array[UnitInstance]:
+	return _selected_units
+#endregion

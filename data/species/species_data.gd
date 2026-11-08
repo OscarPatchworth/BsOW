@@ -1,10 +1,33 @@
-#species_data.gd
+# species_data.gd
 class_name SpeciesData
 extends Resource
 
-@export var name: String
-@export var buildings: Array[BuildingData]
-@export var units: Array[UnitData]
-@export var starting_landers: Array[BiomeData]
+## Authored definition of a playable species.
+
+@export var display_name: String
+@export var buildings: Array[BuildingData] = []
+@export var units: Array[UnitData] = []
+@export var starting_biomes: Array[BiomeData] = []
 @export var command_tower: BuildingData
-###################################################################################################
+
+
+#region Accessors
+func get_display_name() -> String:
+	return AbilitySystem.resolve_get(self, &"display_name", display_name)
+
+
+func get_buildings() -> Array[BuildingData]:
+	return AbilitySystem.resolve_get(self, &"buildings", buildings)
+
+
+func get_units() -> Array[UnitData]:
+	return AbilitySystem.resolve_get(self, &"units", units)
+
+
+func get_starting_biomes() -> Array[BiomeData]:
+	return AbilitySystem.resolve_get(self, &"starting_biomes", starting_biomes)
+
+
+func get_command_tower() -> BuildingData:
+	return AbilitySystem.resolve_get(self, &"command_tower", command_tower)
+#endregion
