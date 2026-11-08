@@ -26,6 +26,9 @@ const GARRISON_BASE_UNIT: UnitData = preload("res://data/units/base_footsoldier.
 
 var _landers: Array[Lander] = []
 var _landers_root: Node3D
+## Actor -> BiomeData: the biome of that actor's next dustcloud lander, rolled in advance so
+## the player can see what they're about to place.
+var _next_biomes := {}
 
 
 #region Public API
@@ -35,6 +38,20 @@ func bind_landers_root(landers_root: Node3D) -> void:
 
 func spawn_random_lander(position: Vector3) -> Lander:
 	return _spawn_lander(position, random_biome_pool.pick_random())
+
+
+## The biome `actor`'s next PLACE_LANDER will have (rolled now if it hasn't been yet).
+func peek_next_biome(actor: Actor) -> BiomeData:
+	if not _next_biomes.has(actor):
+		_next_biomes[actor] = random_biome_pool.pick_random()
+	return _next_biomes[actor]
+
+
+## Spawns `actor`'s next lander (the biome peek_next_biome showed), then rolls the one after.
+func spawn_next_lander_for(actor: Actor, position: Vector3) -> Lander:
+	var biome := peek_next_biome(actor)
+	_next_biomes.erase(actor)
+	return _spawn_lander(position, biome)
 
 
 func spawn_biome_lander(action: Action) -> Lander:

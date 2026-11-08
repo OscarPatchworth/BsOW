@@ -90,7 +90,8 @@ func _process(delta: float) -> void:
 	_hovered_lander = _lander_under_mouse()
 	match _state:
 		ControllerState.COLLAPSING_DUSTCLOUD:
-			_update_placement_preview(delta, Color.TRANSPARENT)
+			var next_biome := _lander_manager.peek_next_biome(_player)
+			_update_placement_preview(delta, HudTheme.biome_color(next_biome), _biome_caption(next_biome))
 		ControllerState.SETUP:
 			_update_setup_preview(delta)
 		ControllerState.MOVEMENT:
@@ -289,7 +290,12 @@ func _finish_drag(start: Lander, end: Lander) -> void:
 
 
 #region Previews
-func _update_placement_preview(delta: float, tint: Color) -> void:
+## "Mountain\n+1 mineral, +1 stone per turn"
+static func _biome_caption(biome: BiomeData) -> String:
+	return "%s\n%s per turn" % [biome.get_display_name(), HudTheme.format_yield(biome.get_upkeep())]
+
+
+func _update_placement_preview(delta: float, tint: Color, caption: String = "") -> void:
 	_placement_timer -= delta
 	if _placement_timer > 0.0:
 		return
@@ -302,7 +308,7 @@ func _update_placement_preview(delta: float, tint: Color) -> void:
 	var settle_spot: Vector3 = _gravity_system.predict_settle_position(spot) if is_valid else spot
 	var connects := _lander_manager.get_landers_within(settle_spot, _lander_manager.get_connected_lander_distance())
 	var pulls: Dictionary = _gravity_system.get_pull_preview(spot) if is_valid else {}
-	_preview.show_placement(spot, is_valid, settle_spot, pulls, connects, tint)
+	_preview.show_placement(spot, is_valid, settle_spot, pulls, connects, tint, caption)
 
 
 func _update_setup_preview(delta: float) -> void:
@@ -311,8 +317,7 @@ func _update_setup_preview(delta: float) -> void:
 		var can_take := _hovered_lander != null and _hovered_lander.get_owner_actor() == null
 		_preview.show_hover(_hovered_lander, PlacementPreview.VALID_COLOR if can_take else PlacementPreview.INVALID_COLOR)
 	elif _setup_selected_biome != null:
-		var material := _setup_selected_biome.get_mesh_material() as StandardMaterial3D
-		_update_placement_preview(delta, material.albedo_color if material != null else Color.TRANSPARENT)
+		_update_placement_preview(delta, HudTheme.biome_color(_setup_selected_biome), _biome_caption(_setup_selected_biome))
 	else:
 		_preview.hide_placement()
 

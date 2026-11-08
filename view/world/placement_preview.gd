@@ -28,6 +28,7 @@ var _lines: MeshInstance3D
 var _lines_mesh := ImmediateMesh.new()
 var _lines_material := StandardMaterial3D.new()
 var _connection_distance: float = 2.5
+var _caption: Label3D
 
 
 func _ready() -> void:
@@ -35,6 +36,17 @@ func _ready() -> void:
 	_settle_marker = _make_ring(0.92, 1.08, _settle_material)
 	_connect_ring = _make_ring(_connection_distance - 0.04, _connection_distance + 0.04, _make_flat_material(Color(1, 1, 1, 0.35)))
 	_hover_ring = _make_ring(1.14, 1.26, _make_flat_material(HOVER_COLOR))
+	_caption = Label3D.new()
+	_caption.billboard = BaseMaterial3D.BILLBOARD_ENABLED
+	_caption.no_depth_test = true
+	_caption.fixed_size = true
+	_caption.pixel_size = 0.0008
+	_caption.font_size = 30
+	_caption.outline_size = 12
+	_caption.vertical_alignment = VERTICAL_ALIGNMENT_BOTTOM
+	_caption.outline_modulate = Color(0, 0, 0, 0.85)
+	_caption.render_priority = 10
+	add_child(_caption)
 
 	_lines_material.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
 	_lines_material.vertex_color_use_as_albedo = true
@@ -59,14 +71,19 @@ func set_connection_distance(distance: float) -> void:
 
 
 ## `pulls` maps Lander -> pull strength (0..1). `connects` are landers it would connect to.
+## `caption` is shown above the ghost (e.g. which biome is about to land).
 func show_placement(spot: Vector3, is_valid: bool, settle_spot: Vector3, pulls: Dictionary,
-		connects: Array[Lander], tint: Color = Color.TRANSPARENT) -> void:
+		connects: Array[Lander], tint: Color = Color.TRANSPARENT, caption: String = "") -> void:
 	var color := VALID_COLOR if is_valid else INVALID_COLOR
 	if is_valid and tint.a > 0.0:
 		color = tint
 	_ghost_material.albedo_color = Color(color, 0.45)
 	_ghost.position = _flat(spot) + Vector3.UP * 0.9
 	_ghost.visible = true
+	_caption.text = caption if is_valid else (caption + "\n" if caption != "" else "") + "Too close to another lander"
+	_caption.modulate = Color(tint, 1.0).lightened(0.6) if is_valid and tint.a > 0.0 else Color(color, 1.0)
+	_caption.position = _flat(spot) + Vector3.UP * 2.3
+	_caption.visible = _caption.text != ""
 
 	var will_move := is_valid and _flat(settle_spot).distance_to(_flat(spot)) > 0.15
 	_settle_material.albedo_color = Color(color, 0.9)
@@ -95,6 +112,7 @@ func show_placement(spot: Vector3, is_valid: bool, settle_spot: Vector3, pulls: 
 ## A ribbon from `from` to `to`, e.g. while dragging units between landers.
 func show_drag(from: Vector3, to: Vector3, color: Color) -> void:
 	_ghost.visible = false
+	_caption.visible = false
 	_settle_marker.visible = false
 	_connect_ring.visible = false
 	_lines_mesh.clear_surfaces()
@@ -115,6 +133,7 @@ func show_hover(lander: Lander, color: Color = HOVER_COLOR) -> void:
 
 func hide_placement() -> void:
 	_ghost.visible = false
+	_caption.visible = false
 	_settle_marker.visible = false
 	_connect_ring.visible = false
 	_lines.visible = false

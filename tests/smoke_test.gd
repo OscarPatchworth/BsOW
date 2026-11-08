@@ -190,6 +190,8 @@ func _test_main_loop() -> void:
 	_check(_turn_manager.get_game_phase() == TurnManager.Phase.DUSTCLOUD_COLLAPSE and _last_rejection_contains("can't be skipped"),
 		"DUSTCLOUD_COLLAPSE can't be skipped with PROGRESS_TURN")
 	var landers_before := _lander_manager.get_landers().size()
+	var previewed_biome := _lander_manager.peek_next_biome(_player)
+	_check(_lander_manager.peek_next_biome(_player) == previewed_biome, "the next lander's biome is rolled once and stays put")
 	var place := Action.create(Action.Type.PLACE_LANDER)
 	# Out of connection range but inside gravity range: the pull should bring it in.
 	place.set_position(SETUP_ORIGIN + Vector3(0, 0, 4.5))
@@ -197,6 +199,8 @@ func _test_main_loop() -> void:
 	await _frames(1)
 	_check(_lander_manager.get_landers().size() == landers_before + 1, "PLACE_LANDER spawned a lander")
 	var placed := _lander_manager.get_landers()[-1]
+	_check(placed.get_biome_data() == previewed_biome, "the placed lander has the biome the preview showed")
+	_check(preload("res://data/biome/badlands_biome.tres").get_upkeep().get_amount(&"gold") == 2, "Badlands yield 2 gold per turn")
 	_check(await _await_settled(), "gravity settles the board")
 	_check(not _lander_manager.get_connected_landers(placed).is_empty(), "gravity pulled the new lander into connection range")
 	_check(placed.position.y < 0.5, "the pulled lander rests on the floor (not stacked on another)")

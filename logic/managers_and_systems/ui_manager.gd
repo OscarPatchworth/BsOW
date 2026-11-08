@@ -299,7 +299,9 @@ func _hint_text() -> String:
 		return "%s is taking their turn…" % HudTheme.actor_name(active)
 	match _turn_manager.get_game_phase():
 		TurnManager.Phase.DUSTCLOUD_COLLAPSE:
-			return "Dustcloud collapse: click open ground to drop a lander (required). The ring shows where gravity pulls it; lines show what it will connect to."
+			var next_biome := _lander_manager.peek_next_biome(_player)
+			return "Dustcloud collapse: your next lander is %s (%s per turn). Click open ground to drop it (required). The ring shows where gravity pulls it." % [
+				next_biome.get_display_name().to_upper(), HudTheme.format_yield(next_biome.get_upkeep())]
 		TurnManager.Phase.BUYING:
 			return "Buying: click one of your landers to train units or build. Press End buying when done."
 		TurnManager.Phase.COMBAT:

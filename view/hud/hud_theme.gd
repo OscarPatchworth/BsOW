@@ -107,6 +107,22 @@ static func format_cost(econ: EconData) -> String:
 	return " ".join(parts) if not parts.is_empty() else "free"
 
 
+## "+2 gold, +1 stone" in plain words, or "nothing" for an empty bundle.
+static func format_yield(econ: EconData) -> String:
+	var parts: Array[String] = []
+	if econ != null:
+		for key in EconData.RESOURCE_KEYS:
+			if econ.get_amount(key) != 0:
+				parts.append("%+d %s" % [econ.get_amount(key), key])
+	return ", ".join(parts) if not parts.is_empty() else "nothing"
+
+
+## The biome's colour (from its material), or the muted text colour.
+static func biome_color(biome: BiomeData) -> Color:
+	var material := biome.get_mesh_material() as StandardMaterial3D if biome != null else null
+	return material.albedo_color if material != null else MUTED
+
+
 ## "Lycanth Halfbreed" -> text, colour of the actor (or neutral).
 static func actor_name(actor: Actor) -> String:
 	return actor.get_display_name() if actor != null else "Nobody"

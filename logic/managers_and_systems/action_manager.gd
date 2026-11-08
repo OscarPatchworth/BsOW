@@ -412,7 +412,7 @@ func _execute(action: Action) -> void:
 			_queue_phase_automation()
 
 		Action.Type.PLACE_LANDER:
-			_lander_manager.spawn_random_lander(action.get_position())
+			_lander_manager.spawn_next_lander_for(action.get_actor(), action.get_position())
 			# Placing the lander is the whole DUSTCLOUD_COLLAPSE phase.
 			_queue_system_action(Action.Type.PROGRESS_TURN)
 
