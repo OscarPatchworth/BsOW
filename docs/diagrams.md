@@ -264,6 +264,11 @@ classDiagram
         +add_unit(side, unit)
         +remove_unit(side, unit)
         +are_both_sides_ready() bool
+        +int round
+        +Result result
+        +get_available_units(side) Array
+        +begin_next_round()
+        +is_over() bool
         +get_opposite_side(side)$ int
     }
 
@@ -373,16 +378,31 @@ classDiagram
         +spawn_random_lander(pos) Lander
         +spawn_biome_lander(action) Lander
         +spawn_protected_lander(pos, owner, count)
+        +lander_spawned(lander) signal
+        +landers_crashed(a, b, speed) signal
         +get_connected_landers(lander) Array
+        +get_landers_within(pos, radius) Array
         +get_landers_owned_by(actor) Array
         +move_units(action)
         +run_upkeep(actor)
+    }
+
+    class GravitySystem {
+        +board_settled() signal
+        +float gravity_range
+        +float strength
+        +float neighbour_share
+        +is_settled() bool
+        +predict_settle_position(spot) Vector3
+        +get_pull_preview(spot) Dictionary
     }
 
     class CombatManager {
         +combat_started(contest) signal
         +combat_updated(contest) signal
         +combat_resolved(outcomes) signal
+        +combat_ended(contest) signal
+        +MAX_ROUNDS
         +Contest contest
         +max_units(side) int
         +max_abilities(side) int
@@ -391,6 +411,7 @@ classDiagram
         +deselect_unit(unit)
         +set_actor_ready(actor, is_ready)
         +resolve_combat()
+        +retreat()
         +is_selecting() bool
         +is_in_progress() bool
     }
@@ -513,58 +534,38 @@ AI, apart from the Player's extra HUD-only signals.
 
 ---
 
-## 5. UI panels
+## 5. HUD
 
-`UiManager` owns the HUD. Each panel's `action_requested` is connected signal-to-signal up to
-`UiManager.action_requested`, so every button press leaves the UI as an `Action`.
+`UiManager` builds the HUD in code (`view/hud/`, styled by `HudTheme`). Every panel's
+`action_requested` is connected up to `UiManager.action_requested`, so every button press leaves
+the HUD as an `Action` (the Player stamps itself on it). The root ignores the mouse, so clicks on
+empty screen reach the board.
 
 ```mermaid
 flowchart TB
     UI[UiManager]
-    UI --> SetupPanel
-    UI --> TurnPanel
-    UI --> PlayersPanel
-    UI --> SeasonsPanel
-    UI --> WalletPanel
-    UI --> PurchasePanel
-    UI --> MovementPanel
-    UI --> LanderPanel
-    UI --> CombatPanel
-
-    LanderPanel --> BuildingControl
-    LanderPanel --> UnitControl
-    LanderPanel --> LanderControl
-    BuildingControl --> BuildingDetailsState
-    BuildingControl --> BuildingShopState --> BuildingShopButton
-    UnitControl --> UnitDetailsState
-    UnitControl --> UnitShopState --> UnitShopButton
-    LanderControl --> ConnectedLanderButton
-    LanderControl --> UnitLanderButton
-
-    CombatPanel --> OwnUnits["CombatUnitsPanel (own)"]
-    CombatPanel --> OppUnits["CombatUnitsPanel (opponent)"]
-    OwnUnits --> SelectedCombatUnitsDisplay
-    OppUnits --> SelectedCombatUnitsDisplay
-    CombatPanel --> SelectUnitsPanel --> SelectUnitButton
-    CombatPanel --> SelectAbilityPanel
-    CombatPanel --> AttackAbilityPanel
-    CombatPanel --> DefendAbilityPanel
-    CombatPanel --> FightButton
-
-    SetupPanel -.->|"uses"| ListBox
-    PurchasePanel -.->|"uses"| ListBox
-    MovementPanel -.->|"uses"| ListBox
+    UI --> TopBar["TopBar<br/>you · race · wallet (+income) · round · phases · next step"]
+    UI --> PhaseHint["PhaseHint<br/>what to do now · why something was refused"]
+    UI --> PlayersList["PlayersList<br/>colour · race · landers · units"]
+    UI --> LanderInspector["LanderInspector<br/>owner · upkeep · building · units · shop"]
+    UI --> EventLog["EventLog<br/>what everyone did"]
+    UI --> SetupPanel["SetupPanel<br/>starting biomes · command tower"]
+    UI --> MoveDialog["MoveDialog<br/>pick units · capture / raze"]
+    UI --> BattleDialog["BattleDialog<br/>rounds · dice · Fight / Retreat / Move in"]
+    LanderInspector --> ShopButton
 ```
 
-| Panel | Emits | Action |
-|---|---|---|
-| `SetupPanel` | biome picked from the list | `setup_biome_selected` → controller waits for a click, then `PLACE_BIOME` |
-| `TurnPanel` | *Next* pressed | `PROGRESS_TURN` |
-| `PurchasePanel` | market item pressed | `PURCHASE` (purchasable = `UnitData` or `BuildingData`) |
-| `BuildingShopButton` / `UnitShopButton` | shop item pressed | `PURCHASE`, same checks and cost as the market |
-| `MovementPanel` | *Move* pressed | `MOVE_UNITS` |
-| `ConnectedLanderButton` | neighbour pressed | `MOVE_UNITS` or `ATTACK` |
-| `CombatPanel` | unit chosen / removed, *Fight* pressed | `SELECT_COMBAT_UNIT` / `DESELECT_COMBAT_UNIT`, `DECLARE_COMBAT_READY` |
+| Panel | Sends |
+|---|---|
+| `TopBar` next-step button | `PROGRESS_TURN` (End buying / End turn) |
+| `SetupPanel` biome button | `setup_biome_selected` → the controller places on click (`PLACE_BIOME`) |
+| `ShopButton` in the inspector | `PURCHASE` on that lander |
+| `MoveDialog` | `MOVE_UNITS` (with `building_fate` CAPTURE / RAZE for undefended enemy buildings) |
+| `BattleDialog` | `SELECT` / `DESELECT_COMBAT_UNIT`, `DECLARE` / `WITHDRAW_COMBAT_READY`, `RETREAT_COMBAT` |
+
+On the board, the `PlayerController` handles clicks (select a lander; drag to move or attack;
+place landers) and draws the `PlacementPreview`: the ghost lander, where gravity will pull it,
+the landers pulling on it and the ones it will connect to.
 
 ---
 
@@ -595,11 +596,13 @@ flowchart TB
 | `PLACE_BUILDING` | Setup; it's the actor's command tower; the lander has no building; the actor has no tower yet |
 | `PLACE_LANDER` | Main loop; actor's turn; `DUSTCLOUD_COLLAPSE`; the position is clear |
 | `PURCHASE` | Actor's turn; `BUYING`; actor owns the lander; the lander offers it; affordable; room for a unit / no building yet; a unique building only once |
-| `MOVE_UNITS` | Actor's turn; `COMBAT`; no combat running; landers connected; actor's own units, on the source; target not hostile and has room |
-| `ATTACK` | Actor's turn; `COMBAT`; no combat running; landers connected; both have units; attacker owns its side, enemy on the other |
+| `MOVE_UNITS` | Actor's turn; `COMBAT`; no combat running; landers connected; actor's own units, on the source; no enemy units on the target; room; an undefended enemy building needs `building_fate` CAPTURE or RAZE |
+| `ATTACK` | Actor's turn; `COMBAT`; no combat running; landers connected; both have units (no defenders: move in instead); attacker owns its side, enemy on the other |
 | `PROGRESS_TURN` | Main loop; actor's turn; not an admin phase; not `DUSTCLOUD_COLLAPSE` (that ends by placing a lander); no combat running. A system `PROGRESS_TURN` skips these checks |
 | `SELECT` / `DESELECT_COMBAT_UNIT` | Combat choosing units; actor takes part; its own unit on its side's lander; within the unit limit |
-| `DECLARE` / `WITHDRAW_COMBAT_READY` | Combat choosing units; actor takes part |
+| `DECLARE_COMBAT_READY` | Combat choosing units; actor takes part; at least one unit selected (if it has any) |
+| `WITHDRAW_COMBAT_READY` | Combat choosing units; actor takes part |
+| `RETREAT_COMBAT` | Combat choosing units; the actor is the attacker |
 | `FINISH_SETUP`, `COLLECT_UPKEEP`, `RESOLVE_COMBAT` | System only |
 
 **Follow-ups the game queues itself**
@@ -610,7 +613,7 @@ flowchart TB
 | `FINISH_SETUP` or `PROGRESS_TURN` into `UPKEEP` | `COLLECT_UPKEEP` for the active actor (`upkeep_gold` plus each owned lander's upkeep), then system `PROGRESS_TURN` |
 | `PROGRESS_TURN` into `CLEANUP` | system `PROGRESS_TURN` |
 | `PLACE_LANDER` | system `PROGRESS_TURN` (placing the lander is the whole phase) |
-| `DECLARE_COMBAT_READY` when both sides are ready | `RESOLVE_COMBAT` |
+| `DECLARE_COMBAT_READY` when both sides are ready | `RESOLVE_COMBAT`. If both sides still have units afterwards, the next round starts (survivors stay selected); otherwise the battle ends (`combat_ended`) |
 
 ---
 
@@ -653,7 +656,7 @@ sequenceDiagram
     GR-->>TM: root_setup_finished → start()
     Note over TM: one batch, announced in order
     TM-->>P: turn_order_generated, active_actor_changed(Player),<br/>season_order_generated, game_state_changed(SETUP)
-    P->>UI: PlayersPanel, SeasonsPanel and SetupPanel show
+    P->>UI: TopBar, PlayersList and SetupPanel show
 
     loop for each starting biome (starting_biome_count = 4)
         U->>UI: pick a biome
@@ -711,13 +714,13 @@ sequenceDiagram
 
     rect rgba(80, 200, 120, 0.12)
     Note over U,AI: Player's turn: BUYING
-    TM-->>P: game_phase_changed(BUYING) → PurchasePanel.open_market()
-    U->>UI: pick the command-tower lander, then a unit
+    TM-->>P: game_phase_changed(BUYING) → hint: click a lander to buy
+    U->>UI: click the command-tower lander, then a ShopButton in the LanderInspector
     UI-->>P: action_requested(PURCHASE, target_lander, UnitData)
     P->>AM: request_action
     Note over AM: resolve PURCHASE: owned lander offers it, affordable, not full
     AM->>L: wallet.subtract(cost), then buy_unit(action)
-    AM-->>P: action_resolved(PURCHASE) → refresh LanderPanel and WalletPanel
+    AM-->>P: action_resolved(PURCHASE) → EventLog line, inspector and TopBar wallet refresh
     U->>UI: press Next
     UI-->>P: action_requested(PROGRESS_TURN)
     P->>AM: request_action → resolve → COMBAT
@@ -726,7 +729,7 @@ sequenceDiagram
     rect rgba(255, 170, 60, 0.12)
     Note over U,AI: Player's turn: COMBAT (move units)
     U->>PC: drag from your lander to the connected new lander
-    PC-->>UI: movement_ui_requested → MovementPanel.open()
+    PC-->>UI: movement_ui_requested → MoveDialog.open()
     U->>UI: choose units, press Move
     UI-->>P: action_requested(MOVE_UNITS)
     P->>AM: request_action
@@ -788,7 +791,7 @@ sequenceDiagram
 
     rect rgba(80, 200, 120, 0.12)
     Note over U,AI: Player's turn: BUYING (a building, from the lander panel's shop)
-    U->>UI: BuildingShopButton
+    U->>UI: ShopButton (Build Castle Tower) in the LanderInspector
     UI-->>P: action_requested(PURCHASE, target_lander, BuildingData)
     P->>AM: request_action
     Note over AM: resolve PURCHASE: same checks and cost as the market
@@ -804,15 +807,15 @@ sequenceDiagram
     Note over AM: resolve ATTACK: your turn, COMBAT phase, connected, enemies
     AM->>CM: start_combat(action)
     CM->>C: Contest.new(attacker = source, defender = target)
-    CM-->>P: combat_started → _enter_combat → CombatPanel.open()
+    CM-->>P: combat_started → _enter_combat → BattleDialog.open() (picks your strongest units)
     CM-->>AI: combat_started → _enter_combat
     AI->>AM: SELECT_COMBAT_UNIT ×(up to max), then DECLARE_COMBAT_READY (queued)
     Note over AM: resolve each AI pick
     AM->>CM: select_unit / set_actor_ready(AI, true)
-    CM-->>P: combat_updated → CombatPanel.refresh()
+    CM-->>P: combat_updated → BattleDialog.refresh()
 
     loop for each unit the Player picks
-        U->>UI: pick a unit in SelectUnitsPanel
+        U->>UI: toggle a unit in the BattleDialog
         UI-->>P: combat_unit_selected(unit)
         P->>AM: request_action(SELECT_COMBAT_UNIT, units = [unit])
         Note over AM: resolve: your own unit, on your lander, within the limit
@@ -827,8 +830,14 @@ sequenceDiagram
     AM->>CM: resolve_combat()
     CM->>CM: roll each unit's damage (unit.get_damage()),<br/>pair highest with highest, a tie goes to the defender
     CM->>L: remove_units(dead) on both landers
-    CM-->>P: combat_resolved(outcomes) → outcome shown, controller back to MOVEMENT
-    U->>UI: Exit combat, then press Next
+    CM-->>P: combat_resolved(outcomes) → BattleDialog shows each pairing's dice
+    alt both sides still have units
+        CM->>CM: next round: survivors stay selected, ready flags reset
+        U->>UI: Fight! again (or Retreat)
+    else a side is wiped out (or retreat / stalemate)
+        CM-->>P: combat_ended(contest) → result, Move in (if you won), controller back to MOVEMENT
+    end
+    U->>UI: Close (or Move in → MoveDialog), then End turn
     end
 
     rect rgba(160, 160, 160, 0.15)
