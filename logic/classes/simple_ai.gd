@@ -10,6 +10,11 @@ extends Actor
 ##                       the nearest enemy, and ends its turn.
 ## In any combat it picks its strongest units and declares ready.
 ## Everything goes through request_action(), so it plays by exactly the same rules as the Player.
+##
+## Pacing: every action and decision is a queued step. Before each step the AI waits step_delay
+## seconds (so a human can follow its turn) and for the GravitySystem to settle (connections can
+## change while landers move). Steps queued in an earlier phase are dropped. With step_delay 0 and
+## a settled board nothing waits, so the turn runs straight through (tests use this).
 
 ## Attacks per turn, so a turn always ends.
 const MAX_ATTACKS_PER_TURN: int = 2
@@ -22,13 +27,39 @@ const PLACEMENT_ANGLES: int = 12
 ## The new lander goes on one of this many spots closest to an enemy.
 const PLACEMENT_SHORTLIST: int = 3
 
+## Seconds between the AI's actions. GameRoot sets it from MatchSettings.ai_step_delay.
+var step_delay: float = 0.6
+
+var _gravity_system: GravitySystem
+var _steps: Array[Callable] = []
+var _step_tokens: Array[int] = []
+var _phase_token: int = 0
+var _is_running_steps: bool = false
+
 var _attacks_this_turn: int = 0
 var _attacked_landers: Array[Lander] = []
 var _placement_attempts: int = 0
 
 
+func bind_gravity_system(gravity_system: GravitySystem) -> void:
+	_gravity_system = gravity_system
+
+
+## True while the AI still has steps to take (tests wait for this).
+func is_busy() -> bool:
+	return _is_running_steps or not _steps.is_empty()
+
+
 #region Virtual overrides
+func _game_phase_changed(_phase: TurnManager.Phase) -> void:
+	_phase_token += 1  # Anything still queued from the previous phase is stale.
+
+
 func _take_phase(phase: TurnManager.Phase) -> void:
+	_queue_step(_do_phase.bind(phase))
+
+
+func _do_phase(phase: TurnManager.Phase) -> void:
 	match phase:
 		TurnManager.Phase.DUSTCLOUD_COLLAPSE:
 			_placement_attempts = 0
@@ -45,7 +76,7 @@ func _take_phase(phase: TurnManager.Phase) -> void:
 
 
 func _enter_combat(contest: Contest) -> void:
-	_select_and_ready(contest)
+	_queue_step(_select_and_ready.bind(contest))
 
 
 func _action_resolved(action: Action) -> void:
@@ -53,12 +84,12 @@ func _action_resolved(action: Action) -> void:
 		Action.Type.RESOLVE_COMBAT:
 			var contest := _combat_manager.get_contest()
 			if _combat_manager.is_in_progress() and contest.is_involved(self):
-				_fight_next_round(contest)
+				_queue_step(_fight_next_round.bind(contest))
 			elif _is_my_phase(TurnManager.Phase.COMBAT):
-				_continue_combat_phase()  # Our battle is over: carry on with the turn.
+				_queue_step(_continue_combat_phase)  # Our battle is over: carry on with the turn.
 		Action.Type.RETREAT_COMBAT:
 			if _is_my_phase(TurnManager.Phase.COMBAT):
-				_continue_combat_phase()
+				_queue_step(_continue_combat_phase)
 
 
 func _action_rejected(action: Action, reason: String) -> void:
@@ -66,10 +97,44 @@ func _action_rejected(action: Action, reason: String) -> void:
 	print("SimpleAI | %s rejected (%s)" % [Action.Type.find_key(action.get_type()), reason])
 	match action.get_type():
 		Action.Type.PLACE_LANDER:
-			_place_lander()
+			_queue_step(_place_lander)
 		Action.Type.ATTACK:
 			if _is_my_phase(TurnManager.Phase.COMBAT):
-				_continue_combat_phase()
+				_queue_step(_continue_combat_phase)
+#endregion
+
+
+#region Steps
+## Sends `action` as its own paced step.
+func _send(action: Action) -> void:
+	_queue_step(request_action.bind(action))
+
+
+func _queue_step(step: Callable) -> void:
+	_steps.append(step)
+	_step_tokens.append(_phase_token)
+	_run_steps()
+
+
+func _run_steps() -> void:
+	if _is_running_steps:
+		return  # The running loop picks the new step up.
+	_is_running_steps = true
+	while not _steps.is_empty():
+		await _pause_before_step()
+		var step: Callable = _steps.pop_front()
+		var token: int = _step_tokens.pop_front()
+		if token == _phase_token:
+			step.call()
+	_is_running_steps = false
+
+
+## Waits step_delay, then for the board to settle. Returns at once when neither applies.
+func _pause_before_step() -> void:
+	if step_delay > 0.0:
+		await get_tree().create_timer(step_delay).timeout
+	if _gravity_system != null and not _gravity_system.is_settled():
+		await _gravity_system.board_settled
 #endregion
 
 
@@ -81,7 +146,7 @@ func _place_lander() -> void:
 		return
 	var place := Action.create(Action.Type.PLACE_LANDER)
 	place.set_position(spot)
-	request_action(place)
+	_send(place)
 
 
 ## A clear spot connected to one of our landers, preferring the one closest to an enemy so the
@@ -188,7 +253,7 @@ func _request_purchase(lander: Lander, purchasable: Resource) -> void:
 	var purchase := Action.create(Action.Type.PURCHASE)
 	purchase.set_target_lander(lander)
 	purchase.set_purchasable(purchasable)
-	request_action(purchase)
+	_send(purchase)
 #endregion
 
 
@@ -207,9 +272,9 @@ func _select_and_ready(contest: Contest) -> void:
 			continue
 		var select := Action.create(Action.Type.SELECT_COMBAT_UNIT)
 		select.set_units([unit] as Array[UnitInstance])
-		request_action(select)
+		_send(select)
 		room -= 1
-	request_action(Action.create(Action.Type.DECLARE_COMBAT_READY))
+	_send(Action.create(Action.Type.DECLARE_COMBAT_READY))
 
 
 ## A round is over and the battle goes on: keep fighting, or (as attacker) retreat when outnumbered.
@@ -218,7 +283,7 @@ func _fight_next_round(contest: Contest) -> void:
 	var ours := contest.get_available_units(side).size()
 	var theirs := contest.get_available_units(Contest.get_opposite_side(side)).size()
 	if side == Contest.Side.ATTACKER and ours < theirs:
-		request_action(Action.create(Action.Type.RETREAT_COMBAT))
+		_send(Action.create(Action.Type.RETREAT_COMBAT))
 	else:
 		_select_and_ready(contest)
 #endregion
@@ -261,7 +326,7 @@ func _try_attack() -> bool:
 	var attack := Action.create(Action.Type.ATTACK)
 	attack.set_source_lander(best_source)
 	attack.set_target_lander(best_target)
-	request_action(attack)
+	_send(attack)
 	return true
 
 
@@ -335,7 +400,7 @@ func _request_move(source: Lander, target: Lander, units: Array[UnitInstance], w
 	move.set_units(moving)
 	if target.has_building() and target.get_building().get_owner_actor() != self:
 		move.set_building_fate(_choose_building_fate(target.get_building()))
-	request_action(move)
+	_send(move)
 
 
 ## Capture a building our species could build itself (we can use it); raze anything else.
@@ -363,7 +428,7 @@ func _flat(position: Vector3) -> Vector3:
 
 
 func _end_phase() -> void:
-	request_action(Action.create(Action.Type.PROGRESS_TURN))
+	_send(Action.create(Action.Type.PROGRESS_TURN))
 
 
 func _is_my_phase(phase: TurnManager.Phase) -> bool:

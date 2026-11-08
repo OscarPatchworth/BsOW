@@ -15,6 +15,10 @@ extends Node
 ## Gold every actor gains at the start of their turn (UPKEEP), on top of their landers' upkeep.
 @export var upkeep_gold: int = 2
 
+# Pacing
+## Seconds between the AI's actions on its turn (0 = instant).
+@export var ai_step_delay: float = 0.6
+
 # Landers
 @export var game_biomes: Array[BiomeData] = []
 
@@ -47,6 +51,10 @@ func get_starting_resource_amount() -> int:
 
 func get_upkeep_gold() -> int:
 	return AbilitySystem.resolve_get(self, &"upkeep_gold", upkeep_gold)
+
+
+func get_ai_step_delay() -> float:
+	return ai_step_delay
 
 
 func get_game_biomes() -> Array[BiomeData]:

@@ -65,6 +65,8 @@ func _add_player() -> void:
 func _add_ai() -> void:
 	var ai := SimpleAI.new()
 	ai.name = "SimpleAI"
+	ai.step_delay = _match_settings.get_ai_step_delay()
+	ai.bind_gravity_system(_gravity_system)
 	_add_actor(ai)
 	_spawn_ai_landers(ai)
 

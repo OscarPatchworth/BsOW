@@ -26,6 +26,9 @@ var _lander_manager: LanderManager
 var _combat_manager: CombatManager
 var _action_manager: ActionManager
 var _gravity_system: GravitySystem
+## The player's setup landers in the order they were placed ([0] gets the command tower).
+## Kept by identity: gravity moves landers, so their positions change.
+var _setup_landers: Array[Lander] = []
 var _rejections: Array[String] = []
 var _resolved_types: Array[Action.Type] = []
 var _resolved_actions: Array[Action] = []
@@ -49,6 +52,7 @@ func _ready() -> void:
 
 	_player = _root.find_child("Player", true, false)
 	_ai = _root.find_child("SimpleAI", true, false)
+	_ai.step_delay = 0.0  # No pauses between AI actions (it still waits for gravity to settle).
 	_turn_manager = _root.find_child("TurnManager", true, false)
 	_lander_manager = _root.find_child("LanderManager", true, false)
 	_combat_manager = _root.find_child("CombatManager", true, false)
@@ -87,11 +91,12 @@ func _test_setup() -> void:
 		_request(action)
 	await _frames(2)
 	_check(_lander_manager.get_landers().size() == landers_before + biome_count, "all setup biomes placed as landers")
+	_setup_landers.assign(_lander_manager.get_landers().slice(landers_before))
 	_check(setup_panel._remaining_biomes.is_empty(), "setup panel list emptied")
 	var controller: PlayerController = _player.find_child("PlayerController", true, false)
 	_check(controller._is_placing_command_tower, "controller switched to command tower placement")
 
-	var home := _lander_at(SETUP_ORIGIN)
+	var home := _setup_landers[0]
 	var food_before_main_loop := {}
 	for actor: Actor in [_player, _ai]:
 		food_before_main_loop[actor] = actor.get_wallet().get_amount(&"food")
@@ -99,7 +104,7 @@ func _test_setup() -> void:
 	tower.set_target_lander(home)
 	tower.set_building_data(_player.get_species().get_command_tower())
 	_request(tower)
-	await _frames(3)
+	await _await_player_turn()  # If the AI goes first it plays its turn now.
 
 	_check(home.has_building(), "command tower built")
 	_check(home.get_owner_actor() == _player, "home lander owned by player")
@@ -122,7 +127,7 @@ func _test_main_loop() -> void:
 	_check(_turn_manager.get_game_phase() == TurnManager.Phase.DUSTCLOUD_COLLAPSE, "player turn starts at DUSTCLOUD_COLLAPSE")
 
 	# Rules: buying only happens in BUYING, and only the active actor may progress the turn.
-	var home := _lander_at(SETUP_ORIGIN)
+	var home := _setup_landers[0]
 	var unit_data := _first_unit_purchasable(home)
 	_check(unit_data != null, "home lander offers a unit to buy")
 	var early_buy := Action.create(Action.Type.PURCHASE)
@@ -155,7 +160,7 @@ func _test_main_loop() -> void:
 	# Rules: no attacking outside COMBAT.
 	var early_attack := Action.create(Action.Type.ATTACK)
 	early_attack.set_source_lander(home)
-	early_attack.set_target_lander(_lander_at(SETUP_ORIGIN + Vector3(LANDER_SPACING, 0, 0)))
+	early_attack.set_target_lander(_setup_landers[1])
 	_request(early_attack)
 	_check(_combat_manager.get_contest() == null, "ATTACK rejected outside the COMBAT phase")
 
@@ -194,7 +199,7 @@ func _test_main_loop() -> void:
 	_check(_turn_manager.get_game_phase() == TurnManager.Phase.COMBAT, "progressed to COMBAT")
 
 	# Move one unit to the neighbouring (empty) setup lander.
-	var neighbour := _lander_at(SETUP_ORIGIN + Vector3(LANDER_SPACING, 0, 0))
+	var neighbour := _setup_landers[1]
 	_check(neighbour in _lander_manager.get_connected_landers(home), "neighbour lander is connected")
 	var move := Action.create(Action.Type.MOVE_UNITS)
 	move.set_source_lander(home)
@@ -222,7 +227,7 @@ func _test_main_loop() -> void:
 	_turn_manager.active_actor_changed.connect(record_actor_change)
 	_resolved_actions.clear()
 	_request(Action.create(Action.Type.PROGRESS_TURN))
-	await _frames(1)
+	await _await_player_turn()
 	_turn_manager.active_actor_changed.disconnect(record_actor_change)
 
 	_check(actor_changes == ([_ai, _player] as Array[Actor]), "turn went to the AI and back to the player")
@@ -326,15 +331,19 @@ func _ai_attack_rejected_without_defenders(source: Lander, target: Lander) -> bo
 	return _combat_manager.get_contest() == null and _last_rejection_contains("no defenders")
 
 
-func _spawn_undefended_ai_building(near: Lander) -> Lander:
-	var spot := near.get_board_position()
-	for i in 12:
-		var angle := TAU * i / 12.0
-		var candidate := near.get_board_position() + Vector3(cos(angle), 0, sin(angle)) * 2.2
+## A clear spot just inside connection range of `near` (gravity then pulls it in to touch).
+func _clear_spot_near(near: Lander) -> Vector3:
+	for i in 24:
+		var angle := TAU * i / 24.0
+		var candidate := near.get_board_position() + Vector3(cos(angle), 0, sin(angle)) * LANDER_SPACING
 		if _lander_manager.is_position_clear(candidate):
-			spot = candidate
-			break
-	var lander := _lander_manager.spawn_random_lander(spot)
+			return candidate
+	push_warning("smoke_test | No clear spot next to a lander")
+	return near.get_board_position() + Vector3(0, 0, -LANDER_SPACING)
+
+
+func _spawn_undefended_ai_building(near: Lander) -> Lander:
+	var lander := _lander_manager.spawn_random_lander(_clear_spot_near(near))
 	var build := Action.create(Action.Type.PURCHASE)
 	build.set_actor(_ai)
 	build.set_building_data(preload("res://data/building/castle_tower.tres"))
@@ -344,10 +353,10 @@ func _spawn_undefended_ai_building(near: Lander) -> Lander:
 
 func _test_combat(home: Lander) -> void:
 	# An AI garrison right next to the home lander.
-	var enemy_position := Vector3(home.position.x, 0, home.position.z - LANDER_SPACING)
+	var enemy_position := _clear_spot_near(home)
 	_lander_manager.spawn_protected_lander(enemy_position, _ai, 2)
-	await _frames(1)
 	var enemy := _lander_manager.get_landers()[-1]
+	await _await_settled()
 	_check(enemy.get_owner_actor() == _ai and enemy.get_units().size() == 2, "AI garrison spawned")
 
 	var resolved: Array = []
@@ -359,7 +368,7 @@ func _test_combat(home: Lander) -> void:
 	attack.set_source_lander(home)
 	attack.set_target_lander(enemy)
 	_request(attack)
-	await _frames(1)
+	await _await_ai_idle()
 	var contest := _combat_manager.get_contest()
 	_check(contest != null and contest.get_side_of(_player) == Contest.Side.ATTACKER, "contest started with player attacking")
 	_check(contest.is_ready(Contest.Side.DEFENDER), "AI defender picked units and readied")
@@ -492,6 +501,27 @@ func _lander_at(position: Vector3) -> Lander:
 		if flat.length() < 0.5:
 			best = lander
 	return best
+
+
+## Waits until it's the player's DUSTCLOUD_COLLAPSE again with the AI idle and the board still.
+func _await_player_turn(timeout: float = 30.0) -> void:
+	var deadline := Time.get_ticks_msec() + int(timeout * 1000)
+	while Time.get_ticks_msec() < deadline:
+		if (_turn_manager.get_game_state() == TurnManager.GameState.MAIN_LOOP
+				and _turn_manager.get_active_actor() == _player
+				and _turn_manager.get_game_phase() == TurnManager.Phase.DUSTCLOUD_COLLAPSE
+				and not _ai.is_busy() and _gravity_system.is_settled()):
+			return
+		await get_tree().physics_frame
+	push_warning("smoke_test | Timed out waiting for the player's turn")
+
+
+## Waits until the AI has nothing left to do (its paced steps can wait on gravity).
+func _await_ai_idle(timeout: float = 15.0) -> void:
+	var deadline := Time.get_ticks_msec() + int(timeout * 1000)
+	await get_tree().physics_frame
+	while (_ai.is_busy() or not _gravity_system.is_settled()) and Time.get_ticks_msec() < deadline:
+		await get_tree().physics_frame
 
 
 ## Waits for GravitySystem.board_settled (true), or gives up after `timeout` seconds (false).
