@@ -1,135 +1,157 @@
-#combat_outcome.gd
+# combat_outcome.gd
 class_name CombatOutcome
-#extends Node
+extends RefCounted
 
-# signals
+## The result of one unit's damage roll in a contest.
 
-# enums
 enum Outcome {
 	DEAD,
-	ALIVE
+	ALIVE,
 }
 
-enum Reasons {
+enum Reason {
 	COMBAT_LOST,
 	COMBAT_WON,
 	ABILITY_SAVED,
 	ABILITY_LOST,
 	ABILITY_WON,
-	NO_COMBAT
+	NO_COMBAT,
 }
 
-const REASON_TXT:= {
-	Reasons.COMBAT_LOST : "Unit fell in combat",
-	Reasons.COMBAT_WON : "Unit survived combat",
-	Reasons.ABILITY_SAVED : "Unit was doomed by saved by ability",
-	Reasons.ABILITY_LOST : "Unit had the high ground but was thawted by ability",
-	Reasons.ABILITY_WON : "Unit Clutched victory with help from ability",
-	Reasons.NO_COMBAT : "Unit slept in and missed the fight"	
+const REASON_TEXT := {
+	Reason.COMBAT_LOST: "Unit fell in combat",
+	Reason.COMBAT_WON: "Unit survived combat",
+	Reason.ABILITY_SAVED: "Unit was doomed but saved by an ability",
+	Reason.ABILITY_LOST: "Unit had the high ground but was thwarted by an ability",
+	Reason.ABILITY_WON: "Unit clutched victory with help from an ability",
+	Reason.NO_COMBAT: "Unit slept in and missed the fight",
 }
 
-
-# constants
-
-# static variables
-
-# @export variables
-
-# remaining regular variables
-var unit: UnitObject
-var rolls: Array[int]
-var mods: Array[int]
-var total: int
-var outcome: Outcome = Outcome.ALIVE
-var reason: Reasons = Reasons.NO_COMBAT
-
-# @onready variables
-
-###################################################################################################
-###	Methods
-func free_children(parent: Node) -> void:
-	for i in parent.get_children():
-		i.queue_free()
+var _unit: UnitInstance
+var _rolls: Array[int] = []
+var _modifiers: Array[int] = []
+var _total: int = 0
+var _outcome: Outcome = Outcome.ALIVE
+var _reason: Reason = Reason.NO_COMBAT
 
 
-func sum(numbs: Array[int]) -> int:
-	if numbs.size() == 1:
-		return numbs[0]
-	elif numbs == []:
-		return 0.0
-	else:
-		numbs[0] = numbs[0] + numbs[-1]
-		numbs.pop_back()
-		return sum(numbs)
+func _init(unit: UnitInstance = null) -> void:
+	_unit = unit
 
 
-func get_reason_text(r: Reasons) -> String:
-	if r != null: return REASON_TXT[r]
-	else: return ""
+#region Public API
+static func get_reason_text(reason: Reason) -> String:
+	return REASON_TEXT.get(reason, "")
 
 
-### Connected Signals
+## Rolls the unit's damage dice, applies the modifier, and stores the total.
+func roll_damage() -> void:
+	var damage := get_unit().get_damage()
+	for i in damage.get_dice_count():
+		add_roll(randi_range(1, damage.get_dice_sides()))
+	add_modifier(damage.get_modifier())
+	set_total(calculate_total())
 
 
-## Calls
+func calculate_total() -> int:
+	return _sum(get_rolls()) + _sum(get_modifiers())
 
-## Get/Set (er)s
-func get_unit() -> UnitObject:
-	return unit
-func set_unit(unitobj: UnitObject):
-	unit = unitobj
+
+func add_roll(roll: int) -> void:
+	var rolls := get_rolls().duplicate()
+	rolls.append(roll)
+	set_rolls(rolls)
+
+
+func clear_rolls() -> void:
+	set_rolls([] as Array[int])
+
+
+func add_modifier(modifier: int) -> void:
+	var modifiers := get_modifiers().duplicate()
+	modifiers.append(modifier)
+	set_modifiers(modifiers)
+
+
+func clear_modifiers() -> void:
+	set_modifiers([] as Array[int])
+
+
+func to_debug_dictionary() -> Dictionary:
+	return {
+		"unit": get_unit().get_display_name() if get_unit() else "",
+		"rolls": get_rolls(),
+		"modifiers": get_modifiers(),
+		"total": get_total(),
+		"outcome": Outcome.find_key(get_outcome()),
+		"reason": get_reason_text(get_reason()),
+	}
+#endregion
+
+
+#region Accessors
+func get_unit() -> UnitInstance:
+	return AbilitySystem.resolve_get(self, &"unit", _unit)
+
+
+func set_unit(value: UnitInstance) -> void:
+	_unit = AbilitySystem.resolve_set(self, &"unit", _unit, value)
 
 
 func get_rolls() -> Array[int]:
-	return rolls
-func add_roll(roll: int):
-	rolls.append(roll)
-func clear_rolls():
-	rolls = []
+	return AbilitySystem.resolve_get(self, &"rolls", _rolls)
 
 
-func get_mods() -> Array[int]:
-	return mods
-func add_mod(mod: int):
-	mods.append(mod)
-func clear_mods():
-	mods = []
+func set_rolls(value: Array[int]) -> void:
+	_rolls = AbilitySystem.resolve_set(self, &"rolls", _rolls, value)
+
+
+func get_modifiers() -> Array[int]:
+	return AbilitySystem.resolve_get(self, &"modifiers", _modifiers)
+
+
+func set_modifiers(value: Array[int]) -> void:
+	_modifiers = AbilitySystem.resolve_set(self, &"modifiers", _modifiers, value)
 
 
 func get_total() -> int:
-	return total
-func set_total(dmg_total: int):
-	total = dmg_total
-func calc_total() -> int:
-	return sum(rolls) + sum(mods)
-func clear_total():
-	total = -1 # null
+	return AbilitySystem.resolve_get(self, &"total", _total)
+
+
+func set_total(value: int) -> void:
+	_total = AbilitySystem.resolve_set(self, &"total", _total, value)
 
 
 func get_outcome() -> Outcome:
-	return outcome
-func get_reason() -> Reasons:
-	return reason
-func set_reason(r: Reasons):
-	reason = r
-	match r:
-		Reasons.COMBAT_LOST, Reasons.ABILITY_LOST:
-			outcome = Outcome.DEAD
-		Reasons.COMBAT_WON, Reasons.ABILITY_SAVED, Reasons.ABILITY_WON:
-			outcome = Outcome.ALIVE
+	return AbilitySystem.resolve_get(self, &"outcome", _outcome)
+
+
+func set_outcome(value: Outcome) -> void:
+	_outcome = AbilitySystem.resolve_set(self, &"outcome", _outcome, value)
+
+
+func get_reason() -> Reason:
+	return AbilitySystem.resolve_get(self, &"reason", _reason)
+
+
+## Setting the reason also sets the matching outcome (DEAD/ALIVE).
+func set_reason(value: Reason) -> void:
+	match value:
+		Reason.COMBAT_LOST, Reason.ABILITY_LOST:
+			set_outcome(Outcome.DEAD)
+		Reason.COMBAT_WON, Reason.ABILITY_SAVED, Reason.ABILITY_WON:
+			set_outcome(Outcome.ALIVE)
 		_:
-			print("Combat Outcome | ERR | Non valid reason set")
+			push_warning("CombatOutcome | set_reason() called with a reason that has no outcome")
 			return
-	
+	_reason = AbilitySystem.resolve_set(self, &"reason", _reason, value)
+#endregion
 
-func get_debug() -> Dictionary:
-	return {
-		"unit" : unit.get_unit_data().get_unit_name(),
-		"rolls" : rolls,
-		"mods" : mods,
-		"total" : total,
-		"outcome" : outcome,
-		"reason" : get_reason_text(reason)
-	}
 
-### Connected Signals
+#region Private
+func _sum(numbers: Array[int]) -> int:
+	var total := 0
+	for n in numbers:
+		total += n
+	return total
+#endregion

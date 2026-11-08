@@ -2,7 +2,7 @@
 
 [ext_resource type="Script" path="res://logic/classes/player.gd" id="1_tftws"]
 [ext_resource type="Script" path="res://logic/classes/player_controller.gd" id="2_pm403"]
-[ext_resource type="Script" path="res://spaghetti/Scripts/main/cam_gimbal.gd" id="3_mv7g2"]
+[ext_resource type="Script" path="res://view/camera/camera_gimbal.gd" id="3_mv7g2"]
 [ext_resource type="Script" path="res://logic/managers_and_systems/ui_manager.gd" id="4_stx5a"]
 [ext_resource type="Script" path="res://logic/managers_and_systems/selector_manager.gd" id="4_w88om"]
 [ext_resource type="Script" path="res://view/lander_panel/building/building_control.gd" id="6_3akxm"]
@@ -33,19 +33,6 @@
 [ext_resource type="PackedScene" uid="uid://cpp2t3np2iv2f" path="res://scenes/templates/list_box/h_list_box.tscn" id="32_85cnl"]
 [ext_resource type="Script" path="res://view/setup_panel/setup_panel.gd" id="32_nolq2"]
 [ext_resource type="Texture2D" uid="uid://cabd03uvto1pg" path="res://visuals/textures/poker_dot_Icons/poker_red_icon.png" id="33_517gy"]
-
-[sub_resource type="GDScript" id="GDScript_ks4yd"]
-script/source = "extends Camera3D
-
-# Called when the node enters the scene tree for the first time.
-func _ready() -> void:
-	pass # Replace with function body.
-
-
-# Called every frame. 'delta' is the elapsed time since the previous frame.
-func _process(delta: float) -> void:
-	pass
-"
 
 [sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_4wrp8"]
 
@@ -212,7 +199,6 @@ zoom_speed = 0.1
 [node name="Camera3D" type="Camera3D" parent="PlayerController/CamGimbal/InnerGimbal"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 4)
 current = true
-script = SubResource("GDScript_ks4yd")
 
 [node name="SelectorManager" type="Node" parent="."]
 script = ExtResource("4_w88om")

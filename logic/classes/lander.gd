@@ -1,171 +1,173 @@
+# lander.gd
 class_name Lander
-extends Node3D
+extends RigidBody3D
 
-signal built_action_completed(req: Action)
-signal buy_unit_action_completed(req: Action)
+## A tile on the board. Holds a biome, at most one building, and a group of units.
 
-# enums
-#enum Element {EARTH,WATER,AIR,FIRE,}
+signal building_built(action: Action)
+signal unit_bought(action: Action)
 
-# constants
-const MAX_DEFUALT_UNITS: int = 5
+const DEFAULT_UNIT_CAPACITY: int = 5
+const UNIT_SPREAD_RADIUS: float = 0.7
 
-# static variables
+@export var biome_mesh: CSGMesh3D
 
-# @export variables
-@export var biome_mesh: Node3D
+var _biome_data: BiomeData
+var _building: BuildingInstance
+var _units: Array[UnitInstance] = []
+var _unit_capacity: int = DEFAULT_UNIT_CAPACITY
 
-# remaining regular variables
-var has_building: bool = false
-var has_units: bool = false
-var biome_data: BiomeData
-var building: BuildingObject
-var units: Array[UnitObject] = []
-var unit_capacity: int = MAX_DEFUALT_UNITS
-
-# @onready variables
-@onready var building_node: Node3D = self.find_child("Building")
-@onready var units_node: Node3D = self.find_child("Units")
-
-###################################################################################################
-###	Methods
-func free_children(target: Node):
-	for child in target.get_children():
-		child.queue_free()
+@onready var _building_node: Node3D = find_child("Building")
+@onready var _units_node: Node3D = find_child("Units")
 
 
-func update_biome():
-	biome_mesh.set_material(biome_data.mesh_material)
-
-
-func update_unit_visuals():
-	free_children(units_node)
-
-	if(units.size() > 0):
-		for i in range(units.size()):
-			var unit_mesh = units[i].get_unit_data().get_mesh().instantiate()
-			var angle = randf() * TAU
-			var offset = Vector3(cos(angle), 0, sin(angle)) * 0.7
-			unit_mesh.position += offset
-			#unit_mesh.position.y = 0.5
-			units_node.add_child(unit_mesh)
-			#unit_mesh.look_at(self.global_position, self.building_node.global_position )
-	elif(units_node.get_child_count() > 0 and units.size() < 1):
-		free_children(units_node)
-
-
-func add_units(new_units: Array[UnitObject]):
-	for unit in new_units:
-		if unit in units:
-			print("Unit is alreay on lander")
-			break
-		else:
-			units.append(unit)
-			#print("Unit added to lander")
-	update_unit_visuals()
-
-
-func rmv_units(new_units: Array[UnitObject]):
-	for unit in new_units:
-		if unit not in units:
-			print("Unit is alreay not on lander")
-			break
-		else:
-			units.erase(unit)
-			#print("Unit removed from lander")
-	
-	if units == []:
-		has_units = false
-	update_unit_visuals()
-
-
-## Get/Set (er)s
-func get_biome() -> BiomeData:
-	return biome_data
-func set_biome(new_biome: BiomeData):
-	biome_data = new_biome
-	update_biome()
-
-
-func get_building() -> BuildingObject:
-	return building
-
-
-func get_building_data() -> BuildingData:
-	if(building == null) :
-		print("Calling for NULL building on Lander!!")
-		return null
-	return building.get_building_data()
-
-
-func get_units() -> Array[UnitObject]:
-	return units
-
-
-func get_ownr() -> Actor:
-	if building != null:
-		return building.get_owner_actor()
-	elif units == []:
-		return null
-	else: return units[0].get_owned_by()
-
-
-func has_purchases() -> bool:
-	if building != null and building.has_purchases():
-		return true
-	elif units != []:
-		for unit in units:
-			#if unit.has_purchases():
-				#return true
-			return false
-	return false
-
-func get_purchases() -> Dictionary:
-	var purchases = {"Building upgrades": [], "Unit Types" : []}
-	if building != null and building.has_purchases():
-		purchases.merge(building.get_purchases(), true)
-	if units != []:
-		if self.building == null:
-			purchases.merge(units[0].get_purchases())
-		purchases.merge(units[0].get_purchases(), true)
-	return purchases
-
-
-### Calls
-func build_action(req: Action):
-	var new_building = BuildingObject.new()
-	if req.get_building_type() != null:
-		new_building.set_building_data(req.get_building_type())
-	elif req.get_purchasable() != null:
-		new_building.set_building_data(req.get_purchasable())
-	else: return
-
-	new_building.bind_building_node(building_node)
-	new_building.set_owner_actor(req.actor)
-	
-	#building_node.add_child(new_building)
-	building = new_building
-	new_building.update_mesh()
-
-	has_building = true
-	built_action_completed.emit(req)
-
-
-func buy_unit_action(req: Action):
-	#print("Lander Recieved Request to buy unit")
-	var new_unit = UnitObject.new()
-	if req.get_unit_type() != null:
-		new_unit.setup(req.get_unit_type(), req.get_actor() )
-	elif req.get_purchasable() != null:
-		new_unit.setup(req.get_purchasable(), req.get_actor() )
-	else:
+#region Public API
+## Builds `action`'s building (building_data, or the purchasable) for the action's actor.
+func build(action: Action) -> void:
+	var building_data: BuildingData = action.get_building_data()
+	if building_data == null:
+		building_data = action.get_purchasable() as BuildingData
+	if building_data == null:
+		push_warning("Lander | build() called without a BuildingData")
 		return
 
-	units.append(new_unit)
-	self.has_units = true
-	buy_unit_action_completed.emit(req)
-	update_unit_visuals()
+	var building := BuildingInstance.new(building_data, action.get_actor())
+	building.bind_mesh_parent(_building_node)
+	set_building(building)
+	building.refresh_mesh()
+	building_built.emit(action)
 
 
-func get_upkeep_econ():
-	return biome_data.get_upkeep_econ()
+## Spawns `action`'s unit (unit_data, or the purchasable) for the action's actor.
+func buy_unit(action: Action) -> void:
+	var unit_data: UnitData = action.get_unit_data()
+	if unit_data == null:
+		unit_data = action.get_purchasable() as UnitData
+	if unit_data == null:
+		push_warning("Lander | buy_unit() called without a UnitData")
+		return
+
+	add_units([UnitInstance.new(unit_data, action.get_actor())] as Array[UnitInstance])
+	unit_bought.emit(action)
+
+
+func add_units(new_units: Array[UnitInstance]) -> void:
+	var units := get_units().duplicate()
+	for unit in new_units:
+		if unit in units:
+			push_warning("Lander | Unit is already on this lander")
+			continue
+		units.append(unit)
+	set_units(units)
+
+
+func remove_units(units_to_remove: Array[UnitInstance]) -> void:
+	var units := get_units().duplicate()
+	for unit in units_to_remove:
+		if unit not in units:
+			push_warning("Lander | Unit is not on this lander")
+			continue
+		units.erase(unit)
+	set_units(units)
+
+
+func has_building() -> bool:
+	return get_building() != null
+
+
+func has_units() -> bool:
+	return not get_units().is_empty()
+
+
+func is_full() -> bool:
+	return get_units().size() >= get_unit_capacity()
+
+
+## Everything `actor` could buy on this lander right now:
+## building upgrades, units the building can spawn, and buildings the units can build.
+func get_purchasables(actor: Actor) -> Array[Resource]:
+	var purchasables: Array[Resource] = []
+	var building := get_building()
+
+	if building != null:
+		purchasables.append_array(building.get_upgrades())
+		var spawnable_types := building.get_spawnable_unit_types()
+		for unit_data in actor.get_species().get_units():
+			if unit_data.get_unit_type() in spawnable_types:
+				purchasables.append(unit_data)
+	else:
+		for unit in get_units():
+			for building_data in unit.get_buildables():
+				if building_data not in purchasables:
+					purchasables.append(building_data)
+
+	return AbilitySystem.resolve_get(self, &"purchasables", purchasables)
+#endregion
+
+
+#region Accessors
+func get_biome_data() -> BiomeData:
+	return AbilitySystem.resolve_get(self, &"biome_data", _biome_data)
+
+
+func set_biome_data(value: BiomeData) -> void:
+	_biome_data = AbilitySystem.resolve_set(self, &"biome_data", _biome_data, value)
+	_refresh_biome_mesh()
+
+
+func get_building() -> BuildingInstance:
+	return AbilitySystem.resolve_get(self, &"building", _building)
+
+
+func set_building(value: BuildingInstance) -> void:
+	_building = AbilitySystem.resolve_set(self, &"building", _building, value)
+
+
+func get_units() -> Array[UnitInstance]:
+	return AbilitySystem.resolve_get(self, &"units", _units)
+
+
+func set_units(value: Array[UnitInstance]) -> void:
+	_units = AbilitySystem.resolve_set(self, &"units", _units, value)
+	_refresh_unit_meshes()
+
+
+func get_unit_capacity() -> int:
+	return AbilitySystem.resolve_get(self, &"unit_capacity", _unit_capacity)
+
+
+func set_unit_capacity(value: int) -> void:
+	_unit_capacity = AbilitySystem.resolve_set(self, &"unit_capacity", _unit_capacity, value)
+
+
+## The building's owner if there is a building, otherwise the owner of the units, otherwise null.
+func get_owner_actor() -> Actor:
+	var owner_actor: Actor = null
+	if get_building() != null:
+		owner_actor = get_building().get_owner_actor()
+	elif has_units():
+		owner_actor = get_units()[0].get_owner_actor()
+	return AbilitySystem.resolve_get(self, &"owner_actor", owner_actor)
+
+
+func get_upkeep() -> EconData:
+	return AbilitySystem.resolve_get(self, &"upkeep", get_biome_data().get_upkeep())
+#endregion
+
+
+#region Private
+func _refresh_biome_mesh() -> void:
+	biome_mesh.material = get_biome_data().get_mesh_material()
+
+
+func _refresh_unit_meshes() -> void:
+	if _units_node == null:
+		return  # Not in the tree yet, so there is nothing to draw into.
+	for child in _units_node.get_children():
+		child.queue_free()
+	for unit in get_units():
+		var unit_mesh: Node3D = unit.get_mesh_scene().instantiate()
+		var angle := randf() * TAU
+		unit_mesh.position += Vector3(cos(angle), 0, sin(angle)) * UNIT_SPREAD_RADIUS
+		_units_node.add_child(unit_mesh)
+#endregion

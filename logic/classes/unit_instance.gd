@@ -1,56 +1,67 @@
-#unit_object.gd
-class_name UnitObject
-extends Node
+# unit_instance.gd
+class_name UnitInstance
+extends RefCounted
 
-# signals
+## A unit on the board. Its stats come from a shared UnitData, but they are read
+## through this instance so abilities can change one unit without touching the others.
 
-# enums
-
-# constants
-
-# static variables
-var unit_data: UnitData
-var ownned_by: Actor
-
-# @export variables
-
-# remaining regular variables
-var hit_points: int = 1
-
-# @onready variables
-
-###################################################################################################
-###	Methods
+var _unit_data: UnitData
+var _owner_actor: Actor
+var _hit_points: int = 1
 
 
-### Connected Signals
+func _init(unit_data: UnitData = null, owner_actor: Actor = null) -> void:
+	_unit_data = unit_data
+	_owner_actor = owner_actor
 
 
-## Calls
-func setup(unit_type: UnitData, ownr: Actor):
-	self.unit_data = unit_type
-	self.ownned_by = ownr
-
-
-## Get/Set (er)s
+#region Accessors
 func get_unit_data() -> UnitData:
-	return unit_data
-func set_unit_data(unit: UnitData):
-	self.unit_data = unit
+	return AbilitySystem.resolve_get(self, &"unit_data", _unit_data)
 
 
-func get_owned_by() -> Actor:
-	return ownned_by
-func set_ownned_by(target: Actor):
-	ownned_by = target
-
-func has_purchases() -> bool:
-	return false
-func get_purchases() -> Dictionary:
-	var all_purchases := {"buildings" : [], "abilities" : []}
-	all_purchases["buildings"] = self.get_unit_data().get_buildables()
-	return all_purchases
+func set_unit_data(value: UnitData) -> void:
+	_unit_data = AbilitySystem.resolve_set(self, &"unit_data", _unit_data, value)
 
 
+func get_owner_actor() -> Actor:
+	return AbilitySystem.resolve_get(self, &"owner_actor", _owner_actor)
 
-### Connected Signals
+
+func set_owner_actor(value: Actor) -> void:
+	_owner_actor = AbilitySystem.resolve_set(self, &"owner_actor", _owner_actor, value)
+
+
+func get_hit_points() -> int:
+	return AbilitySystem.resolve_get(self, &"hit_points", _hit_points)
+
+
+func set_hit_points(value: int) -> void:
+	_hit_points = AbilitySystem.resolve_set(self, &"hit_points", _hit_points, value)
+
+
+# --- Per-instance views of UnitData stats ---
+
+func get_display_name() -> String:
+	return AbilitySystem.resolve_get(self, &"display_name", get_unit_data().get_display_name())
+
+
+func get_icon() -> Texture2D:
+	return AbilitySystem.resolve_get(self, &"icon", get_unit_data().get_icon())
+
+
+func get_mesh_scene() -> PackedScene:
+	return AbilitySystem.resolve_get(self, &"mesh_scene", get_unit_data().get_mesh_scene())
+
+
+func get_unit_type() -> UnitData.UnitType:
+	return AbilitySystem.resolve_get(self, &"unit_type", get_unit_data().get_unit_type())
+
+
+func get_damage() -> DamageData:
+	return AbilitySystem.resolve_get(self, &"damage", get_unit_data().get_damage())
+
+
+func get_buildables() -> Array[BuildingData]:
+	return AbilitySystem.resolve_get(self, &"buildables", get_unit_data().get_buildables())
+#endregion

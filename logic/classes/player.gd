@@ -1,296 +1,175 @@
+# player.gd
 class_name Player
 extends Actor
 
+## The local human player. Owns a PlayerController (world input), a UiManager (HUD)
+## and a SelectorManager (what is currently selected), and connects them to the game.
 
-# signals
-signal build_action_req(build_req: Action)
-signal buy_unit_action_req(buy_unit_req: Action)
-signal move_units_action_req(move_units_req: Action)
-signal attack_action_req(req: Action)
+## Any game action the player wants to take. `actor` is already set to this player.
+signal action_requested(action: Action)
+## Combat picks: `thing` is a UnitInstance (select/deselect) or a bool (ready/not ready).
+signal combat_selection_requested(actor: Actor, thing: Variant, is_selected: bool)
 
-signal combat_unit_selected(who: Actor, thing: UnitObject, select:bool)
-signal unit_deslected(who: Actor, thing: UnitObject, select:bool)
+var _draw_3d: Draw3D
+var _match_settings: MatchSettings
 
-signal player_combat_ready(who: Actor, thing: Variant, select: bool)
-signal player_combat_not_ready(who: Actor, thing: Variant, select: bool)
-
-signal next_phase_req(req: Action)
-
-signal purchase_action_req(req: Action)
-
-signal close_market()
-
-signal place_biome_req(req: Action)
-
-signal place_command_tower(req: Action)
-
-# enums
-#enum Element {EARTH,WATER,AIR,FIRE,}
-
-# constants
-#const MAX_SPEED = 200
-
-# static variables
-var draw_3d: Draw3D
-var match_settings
-
-# @export variables
-
-# remaining regular variables
-
-# @onready variables
-@onready var player_controller: ActorControler = self.find_child("PlayerController")
-@onready var player_ui: Control = self.find_child("UI-manager")
-@onready var selector_manager:GameManager = self.find_child("SelectorManager")
+@onready var _controller: PlayerController = find_child("PlayerController")
+@onready var _ui: UiManager = find_child("UI-manager")
+@onready var _selector_manager: SelectorManager = find_child("SelectorManager")
 
 
-###################################################################################################
-###	Methods
-
-###	_built_in_methods()
-# Called when the node enters the scene tree for the first time.
 func _ready() -> void:
-	connect_wires()
-	connect_signals()
-	
+	_bind_children()
+	_connect_children()
 
-# Called every frame. 'delta' is the elapsed time since the previous frame.
-func _process(delta: float) -> void:
-	pass
 
+#region Public API
+func bind_draw_3d(draw_3d: Draw3D) -> void:
+	_draw_3d = draw_3d
 
-### Custom Methods
-func connect_wires():
-	wire_selector_manager()
-	wire_turn_manager()
-	wire_lander_manager()
-	wire_combat_manager()
-	wire_self()
-	wire_wallet()
-	wire_draw_3d()
-	wire_match_settings()
 
+func bind_match_settings(match_settings: MatchSettings) -> void:
+	_match_settings = match_settings
 
-func wire_selector_manager():
-	# Wire selector: manager->Things
-	player_controller.selector_manager = selector_manager
-	player_ui.bind_selector(selector_manager)
-	# Wire selector: Things->Manager
-	selector_manager.self_player = self
 
+func get_selector_manager() -> SelectorManager:
+	return _selector_manager
+#endregion
 
-func wire_turn_manager():
-	# Wire: manager -> Things
-	player_ui.bind_turn_manager(turn_manager)
-	player_controller.bind_turn_manager(turn_manager)
 
+#region Signal handlers (connected by GameRoot)
+func _on_lander_manager_building_built(action: Action) -> void:
+	if action.get_actor() == self:
+		_ui.refresh_lander_panel()
 
-func wire_lander_manager():
-	# Wire: manager -> Things
-	player_ui.bind_lander_manager(lander_manager)
-	player_controller.bind_lander_manager(lander_manager)
 
+func _on_lander_manager_unit_bought(action: Action) -> void:
+	if action.get_actor() == self:
+		_ui.refresh_lander_panel()
 
-func wire_combat_manager():
-	# Wire: manager -> Things
-	player_ui.bind_combat_manager(combat_manager)
 
+func _on_lander_manager_units_moved(action: Action) -> void:
+	if (action.get_actor() == self
+			or action.get_source_lander() == _selector_manager.get_selected_lander()
+			or action.get_target_lander() == _selector_manager.get_target_lander()):
+		_ui.on_units_moved()
 
-func wire_self():
-	player_ui.bind_player(self)
-	player_controller.bind_player(self)
 
+func _on_combat_manager_combat_updated(contest: Contest) -> void:
+	if contest.is_involved(self):
+		_ui.update_combat(contest)
 
-func wire_wallet():
-	player_ui.bind_wallet(wallet)
 
+func _on_combat_manager_combat_resolved(outcomes: Array[CombatOutcome]) -> void:
+	_ui.show_combat_outcome(outcomes)
+	_controller.exit_combat()
 
-func wire_draw_3d():
-	player_controller.draw_3d = draw_3d
 
+func _on_turn_manager_game_state_changed(state: TurnManager.GameState) -> void:
+	_controller.apply_game_state(state)
+	_ui.apply_game_state(state)
 
-func wire_match_settings():
-	player_ui.bind_match_settings(match_settings)
 
-### Connected Signals
-func connect_signals():
-	connect_player_signals()
-	connect_ui_signals()
+func _on_turn_manager_game_phase_changed(phase: TurnManager.Phase) -> void:
+	_controller.apply_game_phase(phase)
+	_ui.apply_game_phase(phase)
 
 
-func connect_player_signals():
-	player_controller.view_lander_requested.connect(player_ui.display_landers_req)
-	player_controller.select_lander.connect(selector_manager.select_lander_req)
+func _on_turn_manager_turn_order_generated() -> void:
+	_ui.show_turn_order()
+	if _turn_manager.get_active_actor() == self:
+		_controller.set_is_active_player(true)
 
 
-func connect_ui_signals():
-	player_ui.build_action_req.connect(self.fwd_build_req)
-	player_ui.buy_unit_action_req.connect(self.fwd_buy_unit_action_req)
-	player_ui.move_units_action_req.connect(self.fwd_move_units_req)
-	player_ui.attack_action_req.connect(self.fwd_attack_action_req)
-	player_ui.unit_selected.connect(self.fwd_combat_unit_selected)
-	player_ui.unit_deslected.connect(self.fwd_unit_deslected)
-	player_ui.player_combat_ready.connect(self.fwd_player_combat_ready)
-	player_ui.player_combat_not_ready.connect(self.fwd_player_combat_not_ready)
-	player_ui.next_phase_req.connect(self.fwd_next_phase_req)
-	player_ui.move_action_req.connect(self.fwd_move_action_req)
-	player_ui.purchase_action_req.connect(self.fwd_purchase_action_req)
-	wallet.econ_changed.connect(player_ui.econ_changed)
-	player_ui.setup_biome_pressed.connect(player_controller.setup_biome_pressed)
-	player_ui.all_setup_landers_placed.connect(player_controller.all_setup_landers_placed)
+func _on_turn_manager_active_actor_changed(active_actor: Actor) -> void:
+	_ui.apply_active_actor(active_actor)
+	_controller.apply_active_actor(active_actor)
 
-	player_controller.attack_action_req.connect(self.fwd_attack_action_req)
-	player_controller.run_movement_ui.connect(player_ui.run_movement)
-	player_controller.place_biome_req.connect(self.fwd_place_biome_req)
-	player_controller.place_command_tower.connect(self.fwd_place_command_tower)
 
+func _on_turn_manager_season_order_generated() -> void:
+	_ui.show_seasons()
 
-func fwd_build_req(build_req: Action):
-	build_req.actor = self
-	build_action_req.emit(build_req)
 
+func _on_turn_manager_season_changed(season_index: int) -> void:
+	_ui.apply_season(season_index)
 
-func fwd_buy_unit_action_req(buy_unit_req: Action):
-	buy_unit_req.actor = self
-	buy_unit_action_req.emit(buy_unit_req)
 
+func _on_action_manager_biome_placement_approved(action: Action) -> void:
+	if action.get_actor() != self or _turn_manager.get_game_state() != TurnManager.GameState.SETUP:
+		return
+	_controller.on_setup_biome_placed()
+	_ui.on_setup_biome_placed(action)
 
-func fwd_move_units_req(move_units_req: Action):
-	move_units_req.actor = self
-	move_units_action_req.emit(move_units_req)
 
+func _on_action_manager_build_approved(action: Action) -> void:
+	if action.get_actor() != self or _turn_manager.get_game_state() != TurnManager.GameState.SETUP:
+		return
+	_controller.on_command_tower_placed()
+#endregion
 
 
-func fwd_attack_action_req(req: Action):
-	req.actor = self
-	attack_action_req.emit(req)
+#region Signal handlers (children)
+func _on_child_action_requested(action: Action) -> void:
+	action.set_actor(self)
+	action_requested.emit(action)
 
 
-func fwd_unit_deslected(unit: UnitObject):
-	# who: Actor, thing: UnitObject, select:bool
-	unit_deslected.emit(self, unit, false)
+func _on_ui_combat_unit_selected(unit: UnitInstance) -> void:
+	combat_selection_requested.emit(self, unit, true)
 
 
-func fwd_player_combat_ready():
-	# who: Actor, thing: Variant, select: bool
-	player_combat_ready.emit(self, true, true)
+func _on_ui_combat_unit_deselected(unit: UnitInstance) -> void:
+	combat_selection_requested.emit(self, unit, false)
 
 
-func fwd_player_combat_not_ready():
-	# who: Actor, thing: Variant, select: bool
-	player_combat_not_ready.emit(self, false, false)
+func _on_ui_combat_ready() -> void:
+	combat_selection_requested.emit(self, true, true)
 
-## Calls
-func fwd_build_action_completed(req:Action):
-	if req.actor == self:
-		#print("Player recieved comfirmation of build action completed !!")
-		player_ui.received_build_action_completed(req)
-	else: pass
 
+func _on_ui_combat_not_ready() -> void:
+	combat_selection_requested.emit(self, false, false)
+#endregion
 
-func fwd_buy_unit_action_completed(req: Action):
-	if req.actor == self:
-		#print("Player recieved comformation of unit purchase")
-		player_ui.fwd_buy_unit_action_completed(req)
 
+#region Virtual overrides
+func _enter_combat(contest: Contest) -> void:
+	_ui.show_combat(contest)
+	_controller.enter_combat()
+#endregion
 
-func fwd_move_units_action_completed(req: Action):
-	if(req.actor == self or 
-	selector_manager.get_selected_lander() == req.get_selected_lander() or 
-	req.get_target_lander() == selector_manager.get_target_lander()):
-		player_ui.fwd_move_units_action_completed(req)
 
+#region Private
+func _bind_children() -> void:
+	_selector_manager.bind_player(self)
 
-func enter_combat(contest: Contest):
-	print("Player | Entering lander contest")
-	player_ui.run_combat_display(contest)
-	player_controller.enter_combat()
+	_controller.bind_player(self)
+	_controller.bind_selector_manager(_selector_manager)
+	_controller.bind_turn_manager(_turn_manager)
+	_controller.bind_lander_manager(_lander_manager)
+	_controller.bind_draw_3d(_draw_3d)
 
+	_ui.bind_player(self)
+	_ui.bind_selector_manager(_selector_manager)
+	_ui.bind_turn_manager(_turn_manager)
+	_ui.bind_lander_manager(_lander_manager)
+	_ui.bind_combat_manager(_combat_manager)
+	_ui.bind_match_settings(_match_settings)
+	_ui.bind_wallet(get_wallet())
 
-func fwd_combat_unit_selected(unit: UnitObject):
-	# who: Actor, thing: UnitObject, select:bool
-	combat_unit_selected.emit(self, unit, true)
 
+func _connect_children() -> void:
+	_controller.action_requested.connect(_on_child_action_requested)
+	_controller.lander_selected.connect(_selector_manager.select_lander)
+	_controller.lander_view_requested.connect(_ui.show_lander_panel)
+	_controller.movement_ui_requested.connect(_ui.show_movement_panel)
 
-func combat_update(contest: Contest):
-	print("Player | Combat update recieved")
-	if(contest.get_invading_actor() == self or contest.get_defending_actor() == self):
-		player_ui.update_combat_display(contest)
-		#player_controller.enter_combat()
+	_ui.action_requested.connect(_on_child_action_requested)
+	_ui.combat_unit_selected.connect(_on_ui_combat_unit_selected)
+	_ui.combat_unit_deselected.connect(_on_ui_combat_unit_deselected)
+	_ui.combat_ready.connect(_on_ui_combat_ready)
+	_ui.combat_not_ready.connect(_on_ui_combat_not_ready)
+	_ui.setup_biome_selected.connect(_controller.on_setup_biome_selected)
+	_ui.all_setup_biomes_placed.connect(_controller.on_all_setup_biomes_placed)
 
-
-func combat_outcome(c_out: Array[CombatOutcome]):
-	#print("Player | Recieved Combat Outcome call")
-	player_ui.combat_outcome(c_out)
-	player_controller.exit_combat()
-
-
-func fwd_next_phase_req(req: Action):
-	req.actor = self
-	next_phase_req.emit(req)
-
-
-func game_phase_changed(game_phase):
-	player_controller.game_phase_changed(game_phase)
-	player_ui.game_phase_changed(game_phase)
-
-func game_state_changed(game_state):
-	player_controller.game_state_changed(game_state)
-	player_ui.game_state_changed(game_state)
-
-
-func setup_turn_order():
-	player_ui.setup_turn_order_display()
-	if turn_manager.get_active_actor() == self:
-		player_controller.set_is_active_player(true)
-
-
-func actor_turn_changed(active_player: Actor):
-	player_ui.actor_turn_changed(active_player)
-	player_controller.actor_turn_changed(active_player)
-
-
-func seasons_generated():
-	player_ui.seasons_generated()
-
-
-func season_changed(cur_sea: int):
-	player_ui.season_changed(cur_sea)
-
-
-func fwd_move_action_req(req: Action):
-	req.set_actor(self)
-	move_units_action_req.emit(req)
-
-
-func fwd_purchase_action_req(req: Action):
-	purchase_action_req.emit(req)
-
-
-func fwd_close_market():
-	close_market.emit()
-
-
-func get_starting_biomes() -> Array:
-	return species.starting_landers
-
-
-func fwd_place_biome_req(req: Action):
-	req.actor = self
-	place_biome_req.emit(req)
-
-
-func setup_biome_placed(req: Action):
-	print("Player | Debug | setup biome placed called")
-	player_controller.setup_biome_placed()
-	player_ui.setup_biome_placed(req)
-
-
-func fwd_place_command_tower(req: Action):
-	req.actor = self
-	req.building_type = self.species.command_tower
-	place_command_tower.emit(req)
-
-
-func command_tower_placed():
-	player_controller.command_tower_placed()
+	get_wallet().amounts_changed.connect(_ui.on_wallet_changed)
+#endregion
