@@ -54,7 +54,7 @@ func _on_landers_list_item_pressed(lander: Lander) -> void:
 
 func _on_market_list_item_pressed(purchasable: Resource) -> void:
 	var action := Action.create(Action.Type.PURCHASE)
-	action.set_source_lander(_active_lander)
+	action.set_target_lander(_active_lander)
 	action.set_purchasable(purchasable)
 	action_requested.emit(action)
 

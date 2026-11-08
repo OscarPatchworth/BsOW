@@ -2,7 +2,7 @@
 class_name UnitShopButton
 extends GameButton
 
-## Requests buying one kind of unit.
+## Requests buying one kind of unit (a PURCHASE; the lander is filled in by the panel).
 
 signal action_requested(action: Action)
 
@@ -10,8 +10,8 @@ var _unit_data: UnitData
 
 
 func _pressed() -> void:
-	var action := Action.create(Action.Type.BUY_UNIT)
-	action.set_unit_data(_unit_data)
+	var action := Action.create(Action.Type.PURCHASE)
+	action.set_purchasable(_unit_data)
 	action_requested.emit(action)
 
 

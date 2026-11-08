@@ -42,7 +42,6 @@ func _setup_managers() -> void:
 	# Order matters: the lander is built before setup is finished.
 	_action_manager.build_approved.connect(_lander_manager.build)
 	_action_manager.build_approved.connect(_on_action_manager_build_approved)
-	_action_manager.unit_purchase_approved.connect(_lander_manager.buy_unit)
 	_action_manager.biome_placement_approved.connect(_lander_manager.spawn_biome_lander)
 	_action_manager.turn_progress_approved.connect(_turn_manager.progress_phase)
 

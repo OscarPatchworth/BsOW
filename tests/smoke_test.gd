@@ -22,6 +22,7 @@ var _ai: SimpleAI
 var _turn_manager: TurnManager
 var _lander_manager: LanderManager
 var _combat_manager: CombatManager
+var _action_manager: ActionManager
 
 
 func _ready() -> void:
@@ -35,6 +36,7 @@ func _ready() -> void:
 	_turn_manager = _root.find_child("TurnManager", true, false)
 	_lander_manager = _root.find_child("LanderManager", true, false)
 	_combat_manager = _root.find_child("CombatManager", true, false)
+	_action_manager = _root.find_child("ActionManager", true, false)
 
 	_check(_player != null and _ai != null, "player and AI exist")
 	_check(_turn_manager.get_game_state() == TurnManager.GameState.SETUP, "game starts in SETUP")
@@ -87,6 +89,20 @@ func _test_main_loop() -> void:
 	_check(_turn_manager.get_active_actor() == _player, "player becomes the active actor")
 	_check(_turn_manager.get_game_phase() == TurnManager.Phase.DUSTCLOUD_COLLAPSE, "player turn starts at DUSTCLOUD_COLLAPSE")
 
+	# Rules: buying only happens in BUYING, and only the active actor may progress the turn.
+	var home := _lander_at(SETUP_ORIGIN)
+	var unit_data := _first_unit_purchasable(home)
+	_check(unit_data != null, "home lander offers a unit to buy")
+	var early_buy := Action.create(Action.Type.PURCHASE)
+	early_buy.set_target_lander(home)
+	early_buy.set_purchasable(unit_data)
+	_request(early_buy)
+	_check(home.get_units().is_empty(), "PURCHASE rejected outside the BUYING phase")
+	var ai_progress := Action.create(Action.Type.PROGRESS_TURN)
+	ai_progress.set_actor(_ai)
+	_action_manager.request_action(ai_progress)
+	_check(_turn_manager.get_game_phase() == TurnManager.Phase.DUSTCLOUD_COLLAPSE, "PROGRESS_TURN rejected when it isn't the actor's turn")
+
 	# Dustcloud collapse: placing a lander progresses the phase automatically.
 	var landers_before := _lander_manager.get_landers().size()
 	var place := Action.create(Action.Type.PLACE_LANDER)
@@ -96,21 +112,31 @@ func _test_main_loop() -> void:
 	_check(_lander_manager.get_landers().size() == landers_before + 1, "PLACE_LANDER spawned a lander")
 	_check(_turn_manager.get_game_phase() == TurnManager.Phase.BUYING, "PLACE_LANDER progressed to BUYING")
 
+	# Rules: no attacking outside COMBAT.
+	var early_attack := Action.create(Action.Type.ATTACK)
+	early_attack.set_source_lander(home)
+	early_attack.set_target_lander(_lander_at(SETUP_ORIGIN + Vector3(LANDER_SPACING, 0, 0)))
+	_request(early_attack)
+	_check(_combat_manager.get_contest() == null, "ATTACK rejected outside the COMBAT phase")
+
+	# The lander panel's shop buttons now send a PURCHASE (they used to buy for free).
+	var shop_button := UnitShopButton.new()
+	shop_button.set_unit_data(unit_data)
+	var shop_actions: Array[Action] = []
+	shop_button.action_requested.connect(func(action: Action) -> void: shop_actions.append(action))
+	shop_button._pressed()
+	shop_button.free()
+	_check(shop_actions.size() == 1 and shop_actions[0].get_type() == Action.Type.PURCHASE
+		and shop_actions[0].get_purchasable() == unit_data, "unit shop button requests a PURCHASE")
+
 	# Buying: purchase a unit on the home lander.
-	var home := _lander_at(SETUP_ORIGIN)
-	var purchasables := home.get_purchasables(_player)
-	var unit_data: UnitData = null
-	for p in purchasables:
-		if p is UnitData:
-			unit_data = p
-	_check(unit_data != null, "home lander offers a unit to buy")
 	var gold_before := _player.get_wallet().get_amount(&"gold")
 	var buy := Action.create(Action.Type.PURCHASE)
-	buy.set_source_lander(home)
+	buy.set_target_lander(home)
 	buy.set_purchasable(unit_data)
 	_request(buy)
 	buy = Action.create(Action.Type.PURCHASE)
-	buy.set_source_lander(home)
+	buy.set_target_lander(home)
 	buy.set_purchasable(unit_data)
 	_request(buy)
 	await _frames(1)
@@ -208,14 +234,23 @@ func _request(action: Action) -> void:
 	_player._on_child_action_requested(action)
 
 
-## Presses "next phase" until the active actor changes.
+## Presses "next phase" on behalf of the active actor until the active actor changes.
 func _advance_to_next_actor() -> void:
 	var start_actor := _turn_manager.get_active_actor()
 	for i in 10:
-		_request(Action.create(Action.Type.PROGRESS_TURN))
+		var progress := Action.create(Action.Type.PROGRESS_TURN)
+		progress.set_actor(_turn_manager.get_active_actor())
+		_action_manager.request_action(progress)
 		await _frames(1)
 		if _turn_manager.get_active_actor() != start_actor:
 			return
+
+
+func _first_unit_purchasable(lander: Lander) -> UnitData:
+	for purchasable in lander.get_purchasables(_player):
+		if purchasable is UnitData:
+			return purchasable
+	return null
 
 
 func _lander_at(position: Vector3) -> Lander:
