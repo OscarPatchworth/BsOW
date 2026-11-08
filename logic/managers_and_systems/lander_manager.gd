@@ -3,6 +3,12 @@ class_name LanderManager
 extends Node
 
 ## Spawns landers, answers spatial questions about them, and executes lander-level actions.
+## All distances are measured on the board (flat, ignoring height): see Lander.get_board_position.
+
+## A lander was added to the board (the GravitySystem pulls landers together after this).
+signal lander_spawned(lander: Lander)
+## Two landers hit each other. Emitted once per crash.
+signal landers_crashed(first: Lander, second: Lander, impact_speed: float)
 
 const LANDER_RADIUS: float = 1.0
 const MIN_DISTANCE_BETWEEN_LANDERS: float = 2.0
@@ -56,28 +62,35 @@ func is_valid_lander_placement(position: Vector3) -> bool:
 
 ## True if no lander is within MIN_DISTANCE_BETWEEN_LANDERS of `position`.
 func is_position_clear(position: Vector3) -> bool:
+	var spot := _flat(position)
 	for lander in get_landers():
-		if position.distance_squared_to(lander.position) < MIN_DISTANCE_SQUARED:
+		if spot.distance_squared_to(lander.get_board_position()) < MIN_DISTANCE_SQUARED:
 			return false
 	return true
 
 
 ## True if `position` is within connection range of any lander.
 func is_position_adjacent(position: Vector3) -> bool:
-	var range_squared := get_connected_lander_distance() ** 2
+	return not get_landers_within(position, get_connected_lander_distance()).is_empty()
+
+
+## Landers whose board position is within `radius` of `position`.
+func get_landers_within(position: Vector3, radius: float, exclude: Lander = null) -> Array[Lander]:
+	var spot := _flat(position)
+	var found: Array[Lander] = []
 	for lander in get_landers():
-		if position.distance_squared_to(lander.position) < range_squared:
-			return true
-	return false
+		if lander != exclude and spot.distance_squared_to(lander.get_board_position()) < radius * radius:
+			found.append(lander)
+	return found
 
 
 func get_connected_landers(lander: Lander) -> Array[Lander]:
-	var range_squared := get_connected_lander_distance() ** 2
-	var connected: Array[Lander] = []
-	for other in get_landers():
-		if other != lander and lander.position.distance_squared_to(other.position) < range_squared:
-			connected.append(other)
+	var connected := get_landers_within(lander.get_board_position(), get_connected_lander_distance(), lander)
 	return AbilitySystem.resolve_get(self, &"connected_landers", connected)
+
+
+func are_connected(first: Lander, second: Lander) -> bool:
+	return second in get_connected_landers(first)
 
 
 func get_landers_owned_by(actor: Actor) -> Array[Lander]:
@@ -116,7 +129,21 @@ func _spawn_lander(position: Vector3, biome_data: BiomeData) -> Lander:
 	var lander: Lander = lander_scene.instantiate()
 	lander.position = position + SPAWN_OFFSET
 	lander.set_biome_data(biome_data)
+	lander.crashed_into.connect(_on_lander_crashed_into.bind(lander))
 	_landers_root.add_child(lander)
 	_landers.append(lander)
+	lander_spawned.emit(lander)
 	return lander
+
+
+func _flat(position: Vector3) -> Vector3:
+	return Vector3(position.x, 0, position.z)
+#endregion
+
+
+#region Signal handlers
+## Both landers report a crash; pass it on once.
+func _on_lander_crashed_into(other: Lander, impact_speed: float, lander: Lander) -> void:
+	if lander.get_instance_id() < other.get_instance_id():
+		landers_crashed.emit(lander, other, impact_speed)
 #endregion

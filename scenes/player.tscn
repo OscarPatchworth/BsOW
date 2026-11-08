@@ -198,6 +198,7 @@ zoom_speed = 0.1
 [node name="Camera3D" type="Camera3D" parent="PlayerController/CamGimbal/InnerGimbal"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 4)
 current = true
+fov = 45.0
 
 [node name="SelectorManager" type="Node" parent="."]
 script = ExtResource("4_w88om")

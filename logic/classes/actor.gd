@@ -24,6 +24,8 @@ var _combat_manager: CombatManager
 
 ## Which side of the current contest this actor is on, or -1 when not in combat.
 var _combat_side: int = -1
+## Shown on everything this actor owns (lander rings, HUD). View-only, so not hooked.
+var _color: Color = Color.WHITE
 
 
 #region Public API
@@ -73,6 +75,19 @@ func get_wallet() -> EconData:
 
 func set_wallet(value: EconData) -> void:
 	_wallet = AbilitySystem.resolve_set(self, &"wallet", _wallet, value)
+
+
+## The name shown to players. The local player overrides this ("You").
+func get_display_name() -> String:
+	return name
+
+
+func get_color() -> Color:
+	return _color
+
+
+func set_color(value: Color) -> void:
+	_color = value
 
 
 func get_combat_side() -> int:

@@ -29,6 +29,10 @@ func bind_match_settings(match_settings: MatchSettings) -> void:
 	_match_settings = match_settings
 
 
+func get_display_name() -> String:
+	return "You"
+
+
 func get_selector_manager() -> SelectorManager:
 	return _selector_manager
 #endregion

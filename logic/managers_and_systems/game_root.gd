@@ -8,6 +8,13 @@ extends Node3D
 signal root_setup_finished()
 
 const PLAYER_SCENE: PackedScene = preload("res://scenes/player.tscn")
+## Actor colours, in the order actors are added (the local player first).
+const ACTOR_COLORS: Array[Color] = [
+	Color(0.27, 0.62, 1.0),   # blue
+	Color(0.95, 0.33, 0.30),  # red
+	Color(0.98, 0.78, 0.25),  # yellow
+	Color(0.55, 0.85, 0.40),  # green
+]
 
 @export var game_species: Array[SpeciesData] = []
 
@@ -63,6 +70,7 @@ func _add_ai() -> void:
 ## and its actions go to the ActionManager. Actors connect their own manager signals.
 func _add_actor(actor: Actor) -> void:
 	actor.set_species(game_species.pick_random())
+	actor.set_color(ACTOR_COLORS[_actors_root.get_child_count() % ACTOR_COLORS.size()])
 	actor.set_wallet(_create_starting_wallet())
 	actor.bind_action_manager(_action_manager)
 	actor.bind_turn_manager(_turn_manager)
