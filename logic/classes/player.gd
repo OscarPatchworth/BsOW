@@ -91,6 +91,14 @@ func _on_turn_manager_season_order_generated() -> void:
 
 func _on_turn_manager_season_changed(season_index: int) -> void:
 	_ui.apply_season(season_index)
+
+
+func _on_turn_manager_actor_eliminated(actor: Actor) -> void:
+	_ui.on_actor_eliminated(actor)
+
+
+func _on_turn_manager_game_over(winner: Actor) -> void:
+	_ui.show_game_over(winner)
 #endregion
 
 
@@ -186,4 +194,6 @@ func _connect_managers() -> void:
 	_turn_manager.active_actor_changed.connect(_on_turn_manager_active_actor_changed)
 	_turn_manager.season_order_generated.connect(_on_turn_manager_season_order_generated)
 	_turn_manager.season_changed.connect(_on_turn_manager_season_changed)
+	_turn_manager.actor_eliminated.connect(_on_turn_manager_actor_eliminated)
+	_turn_manager.game_over.connect(_on_turn_manager_game_over)
 #endregion

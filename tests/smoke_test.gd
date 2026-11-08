@@ -70,6 +70,7 @@ func _ready() -> void:
 	await _test_setup()
 	_test_content_rules()
 	await _test_main_loop()
+	await _test_elimination()
 
 	print("\n==== Smoke test: %d checks, %d failed ====" % [_check_count, _failures.size()])
 	for failure in _failures:
@@ -93,6 +94,7 @@ func _test_setup() -> void:
 	await _frames(2)
 	_check(_lander_manager.get_landers().size() == landers_before + biome_count, "all setup biomes placed as landers")
 	_setup_landers.assign(_lander_manager.get_landers().slice(landers_before))
+	_check(_command_tower_lander_of(_ai) != null, "the AI starts with a command tower on one of its garrisons")
 	_check(setup_panel.get_remaining_biomes().is_empty(), "setup panel list emptied")
 	var controller: PlayerController = _player.find_child("PlayerController", true, false)
 	_check(controller._is_placing_command_tower, "controller switched to command tower placement")
@@ -254,6 +256,12 @@ func _test_main_loop() -> void:
 
 	await _test_combat(home)
 
+	# Fill the home garrison: the AI only attacks landers it outnumbers, and if it beat our home
+	# it would (rightly) raze the command tower and end the game before the checks below.
+	var garrison: Array[UnitInstance] = []
+	for i in home.get_unit_capacity() - home.get_units().size():
+		garrison.append(UnitInstance.new(_player.get_species().get_units()[0], _player))
+	home.add_units(garrison)
 	var scenario := await _build_ai_scenario()
 
 	# Finish the turn. The AI then plays its whole turn by itself (the test auto-defends for the player):
@@ -286,6 +294,53 @@ func _test_main_loop() -> void:
 	_check_ai_turn(scenario)
 
 
+## Razing the AI's command tower knocks it out; it's the last opponent, so the player wins.
+func _test_elimination() -> void:
+	var tower_lander := _command_tower_lander_of(_ai)
+	_check(tower_lander != null, "the AI still has its command tower")
+	if tower_lander == null:
+		return
+	# Make it undefended and put a player force right next to it.
+	tower_lander.remove_units(tower_lander.get_units().duplicate())
+	var force := _lander_manager.spawn_protected_lander(_clear_spot_near(tower_lander), _player, 2)
+	await _await_settled()
+
+	# Get to the player's combat phase: drop a lander far away, then end buying.
+	var place := Action.create(Action.Type.PLACE_LANDER)
+	place.set_position(_far_clear_spot())
+	_request(place)
+	await _await_settled()
+	_request(Action.create(Action.Type.PROGRESS_TURN))
+	_check(_turn_manager.get_game_phase() == TurnManager.Phase.COMBAT, "player reached COMBAT")
+	_check(_lander_manager.are_connected(force, tower_lander), "the player force is next to the AI command tower")
+
+	var capture_rejected := _move_one(force, tower_lander, Action.BuildingFate.CAPTURE)
+	_check(capture_rejected and _last_rejection_contains("can't be captured"), "command towers can't be captured")
+	_move_one(force, tower_lander, Action.BuildingFate.RAZE)
+	_check(not tower_lander.has_building(), "the AI command tower was razed")
+	_check(_turn_manager.get_game_state() == TurnManager.GameState.END and _turn_manager.get_winner() == _player,
+		"razing the last enemy command tower wins the game")
+	_check(_ai not in _turn_manager.get_turn_order(), "the AI left the turn order")
+	_check(_lander_manager.get_landers_owned_by(_ai).is_empty(), "the AI's units and buildings are gone")
+	_check(_player.get_ui().get_game_over_panel().visible, "the game over panel shows")
+	_request(Action.create(Action.Type.PROGRESS_TURN))
+	_check(_last_rejection_contains("main loop"), "no more turns after the game is over")
+
+
+func _command_tower_lander_of(actor: Actor) -> Lander:
+	for lander in _lander_manager.get_landers():
+		if lander.has_building() and lander.get_building().get_owner_actor() == actor and lander.get_building().is_command_tower():
+			return lander
+	return null
+
+
+func _far_clear_spot() -> Vector3:
+	for spot: Vector3 in [Vector3(18, 0, -18), Vector3(-18, 0, 18), Vector3(18, 0, 18), Vector3(0, 0, -19), Vector3(-19, 0, 0)]:
+		if _lander_manager.is_position_clear(spot) and _lander_manager.get_landers_within(spot, 6.5).is_empty():
+			return spot
+	return Vector3(19, 0, -19)
+
+
 ## A spot where the AI should act: a 3-unit AI garrison, an empty neutral lander next to it,
 ## and a player lander with a single unit next to it.
 func _build_ai_scenario() -> Dictionary:
@@ -307,16 +362,14 @@ func _check_ai_turn(scenario: Dictionary) -> void:
 
 	_check(placed.size() == 1, "AI placed one lander in DUSTCLOUD_COLLAPSE")
 	_check(progresses.size() == 2, "AI ended BUYING and COMBAT itself (DUSTCLOUD ended by placing)")
+	# The AI builds a spawning building whenever it can still afford one (it may spend on units
+	# first, and building options cost different things).
 	var bought_building := purchases.any(func(action: Action) -> bool: return action.get_purchasable() is BuildingData)
-	var tower_cost: EconData = null
+	var can_still_afford_one := false
 	for purchasable in scenario["ai_base"].get_purchasables(_ai):
-		if purchasable is BuildingData and purchasable.can_spawn_units():
-			tower_cost = purchasable.get_cost()
-	if tower_cost != null and _wallet_after_upkeep[_ai].can_afford(tower_cost):
-		_check(bought_building, "AI bought a spawning building for a garrison")
-	else:
-		# It went first and already spent its resources on buildings last turn.
-		_check(not bought_building, "AI didn't try to buy a building it can't afford")
+		if purchasable is BuildingData and purchasable.can_spawn_units() and _ai.get_wallet().can_afford(purchasable.get_cost()):
+			can_still_afford_one = true
+	_check(bought_building or not can_still_afford_one, "AI builds a spawning building when it can afford one")
 	_check(attacks.any(func(action: Action) -> bool: return action.get_target_lander() == scenario["bait"]),
 		"AI attacked the weaker player lander next to it")
 	_check(attacks.size() <= SimpleAI.MAX_ATTACKS_PER_TURN, "AI stayed within its attack limit")

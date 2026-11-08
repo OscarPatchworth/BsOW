@@ -151,6 +151,8 @@ func apply_game_phase(phase: TurnManager.Phase) -> void:
 func apply_game_state(state: TurnManager.GameState) -> void:
 	if state == TurnManager.GameState.SETUP:
 		set_state(ControllerState.SETUP)
+	elif state == TurnManager.GameState.END:
+		set_state(ControllerState.IDLE)  # You can still look around and select landers.
 
 
 func enter_combat() -> void:

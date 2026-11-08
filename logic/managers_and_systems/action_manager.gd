@@ -26,6 +26,7 @@ const SYSTEM_TYPES: Array[Action.Type] = [
 	Action.Type.FINISH_SETUP,
 	Action.Type.COLLECT_UPKEEP,
 	Action.Type.RESOLVE_COMBAT,
+	Action.Type.ELIMINATE_ACTOR,
 ]
 
 var _lander_manager: LanderManager
@@ -149,6 +150,8 @@ func _validate(action: Action) -> String:
 			return "" if action.get_actor() != null else "Upkeep needs an actor"
 		Action.Type.RESOLVE_COMBAT:
 			return _validate_resolve_combat()
+		Action.Type.ELIMINATE_ACTOR:
+			return "" if action.get_actor() in _turn_manager.get_turn_order() else "That actor is already out of the game"
 	return "Unknown action type"
 
 
@@ -247,8 +250,11 @@ func _validate_move_units(action: Action) -> String:
 			return "A chosen unit belongs to someone else"
 	if target.has_units() and target.get_units()[0].get_owner_actor() != actor:
 		return "Target lander has enemy units: attack it instead"
-	if _has_enemy_building(target, actor) and action.get_building_fate() == Action.BuildingFate.NONE:
-		return "The enemy building is undefended: choose to capture or raze it"
+	if _has_enemy_building(target, actor):
+		if action.get_building_fate() == Action.BuildingFate.NONE:
+			return "The enemy building is undefended: choose to capture or raze it"
+		if action.get_building_fate() == Action.BuildingFate.CAPTURE and target.get_building().is_command_tower():
+			return "Command towers can't be captured: raze it to knock its owner out"
 	if target.get_units().size() + units.size() > target.get_unit_capacity():
 		return "Target lander doesn't have room for those units"
 	return ""
@@ -450,6 +456,10 @@ func _execute(action: Action) -> void:
 
 		Action.Type.COLLECT_UPKEEP:
 			_collect_upkeep(action.get_actor())
+
+		Action.Type.ELIMINATE_ACTOR:
+			_lander_manager.remove_assets_of(action.get_actor())
+			_turn_manager.eliminate_actor(action.get_actor())
 #endregion
 
 
@@ -487,7 +497,13 @@ func _take_undefended_building(action: Action) -> void:
 			target.get_building().set_owner_actor(action.get_actor())
 			target.refresh_markers()
 		Action.BuildingFate.RAZE:
+			var building := target.get_building()
+			var was_command_tower := building.is_command_tower()
+			var former_owner := building.get_owner_actor()
 			target.remove_building()
+			if was_command_tower:
+				# Losing the command tower knocks its owner out of the game.
+				_queue_system_action(Action.Type.ELIMINATE_ACTOR, former_owner)
 
 
 func _owns_building(actor: Actor, building_data: BuildingData) -> bool:

@@ -100,7 +100,13 @@ func _build_confirm_buttons() -> void:
 	cancel.pressed.connect(close)
 	_confirm_row.add_child(cancel)
 
-	if _is_undefended_enemy_building():
+	if _is_undefended_enemy_building() and _to.get_building().is_command_tower():
+		var tower_owner := _to.get_building().get_owner_actor()
+		var raze_tower := HudTheme.make_button("Move in & raze their command tower", true)
+		raze_tower.tooltip_text = "%s is knocked out of the game" % tower_owner.get_display_name()
+		raze_tower.pressed.connect(_submit.bind(Action.BuildingFate.RAZE))
+		_confirm_row.add_child(raze_tower)
+	elif _is_undefended_enemy_building():
 		var building_name := _to.get_building().get_display_name()
 		var capture := HudTheme.make_button("Move in & capture %s" % building_name, true)
 		capture.tooltip_text = "The building becomes yours"

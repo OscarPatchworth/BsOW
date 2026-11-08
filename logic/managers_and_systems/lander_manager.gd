@@ -42,7 +42,7 @@ func spawn_biome_lander(action: Action) -> Lander:
 
 
 ## Spawns a random lander already garrisoned by `owner_actor`.
-func spawn_protected_lander(position: Vector3, owner_actor: Actor, defender_count: int) -> void:
+func spawn_protected_lander(position: Vector3, owner_actor: Actor, defender_count: int) -> Lander:
 	var lander := spawn_random_lander(position)
 	var garrison: Array[UnitInstance] = []
 	for unit_data in owner_actor.get_species().get_units():
@@ -54,6 +54,7 @@ func spawn_protected_lander(position: Vector3, owner_actor: Actor, defender_coun
 		push_warning("LanderManager | Species '%s' has no unit based on '%s'; protected lander is empty"
 			% [owner_actor.get_species().get_display_name(), GARRISON_BASE_UNIT.get_display_name()])
 	lander.add_units(garrison)
+	return lander
 
 
 func is_valid_lander_placement(position: Vector3) -> bool:
@@ -104,6 +105,20 @@ func get_landers_owned_by(actor: Actor) -> Array[Lander]:
 func move_units(action: Action) -> void:
 	action.get_source_lander().remove_units(action.get_units())
 	action.get_target_lander().add_units(action.get_units())
+
+
+## Removes everything `actor` has on the board (when they're eliminated): their units leave
+## and their buildings are razed, so their landers become neutral.
+func remove_assets_of(actor: Actor) -> void:
+	for lander in get_landers():
+		var their_units: Array[UnitInstance] = []
+		for unit in lander.get_units():
+			if unit.get_owner_actor() == actor:
+				their_units.append(unit)
+		if not their_units.is_empty():
+			lander.remove_units(their_units)
+		if lander.has_building() and lander.get_building().get_owner_actor() == actor:
+			lander.remove_building()
 
 
 ## Pays `actor` the upkeep of every lander they own.

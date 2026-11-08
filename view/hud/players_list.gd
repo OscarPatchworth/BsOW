@@ -7,6 +7,8 @@ extends PanelContainer
 var _turn_manager: TurnManager
 var _lander_manager: LanderManager
 var _rows: VBoxContainer
+## Everyone who started (eliminated actors leave the turn order but stay in this list).
+var _everyone: Array[Actor] = []
 
 
 func _init() -> void:
@@ -19,9 +21,17 @@ func _init() -> void:
 	add_child(box)
 
 
+
 func bind(turn_manager: TurnManager, lander_manager: LanderManager) -> void:
 	_turn_manager = turn_manager
 	_lander_manager = lander_manager
+
+
+func _all_actors() -> Array[Actor]:
+	for actor in _turn_manager.get_turn_order():
+		if actor not in _everyone:
+			_everyone.append(actor)
+	return _everyone
 
 
 func refresh() -> void:
@@ -31,7 +41,7 @@ func refresh() -> void:
 		child.free()
 	var active := _turn_manager.get_active_actor()
 	var is_main_loop := _turn_manager.get_game_state() == TurnManager.GameState.MAIN_LOOP
-	for actor in _turn_manager.get_turn_order():
+	for actor in _all_actors():
 		var landers := _lander_manager.get_landers_owned_by(actor)
 		var unit_count := 0
 		for lander in landers:
@@ -46,7 +56,8 @@ func refresh() -> void:
 		text.add_theme_constant_override("separation", 0)
 		text.add_child(HudTheme.make_label("%s · %s" % [actor.get_display_name(), actor.get_species().get_display_name()],
 			HudTheme.FONT_SIZE, actor.get_color().lightened(0.3)))
-		text.add_child(HudTheme.make_label("%d landers · %d units" % [landers.size(), unit_count],
-			HudTheme.SMALL_FONT_SIZE, HudTheme.MUTED))
+		var is_out := actor not in _turn_manager.get_turn_order()
+		text.add_child(HudTheme.make_label("out of the game" if is_out else "%d landers · %d units" % [landers.size(), unit_count],
+			HudTheme.SMALL_FONT_SIZE, HudTheme.BAD if is_out else HudTheme.MUTED))
 		row.add_child(text)
 		_rows.add_child(row)

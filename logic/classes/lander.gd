@@ -57,7 +57,12 @@ func build(action: Action) -> void:
 		push_warning("Lander | build() called without a BuildingData")
 		return
 
-	var building := BuildingInstance.new(building_data, action.get_actor())
+	build_for(building_data, action.get_actor())
+
+
+## Puts a new `building_data` building owned by `owner_actor` on this lander.
+func build_for(building_data: BuildingData, owner_actor: Actor) -> void:
+	var building := BuildingInstance.new(building_data, owner_actor)
 	building.bind_mesh_parent(_building_node)
 	set_building(building)
 	building.refresh_mesh()

@@ -15,6 +15,10 @@ signal turn_order_generated()
 signal active_actor_changed(actor: Actor)
 signal season_order_generated()
 signal season_changed(season_index: int)
+## `actor` lost their command tower and left the turn order.
+signal actor_eliminated(actor: Actor)
+## Only one actor is left (`winner`, or null if nobody is); the game state is now END.
+signal game_over(winner: Actor)
 
 enum GameState {
 	SETUP,
@@ -58,6 +62,8 @@ var _round_number: int = 1
 var _seasons: Array[Season] = []
 var _season_index: int = 0
 
+var _winner: Actor
+
 var _batch_depth: int = 0
 var _pending_notifications: Array[Callable] = []
 
@@ -88,6 +94,30 @@ func progress_phase() -> void:
 	else:
 		set_game_phase(Phase.values()[phase + 1])
 	_end_batch()
+
+
+## Takes `actor` out of the turn order. When only one actor is left, the game ends.
+func eliminate_actor(actor: Actor) -> void:
+	_begin_batch()
+	var order := get_turn_order().duplicate()
+	var index := order.find(actor)
+	if index == -1:
+		_end_batch()
+		return
+	order.erase(actor)
+	set_turn_order(order)
+	_notify(func() -> void: actor_eliminated.emit(actor))
+	if order.size() <= 1:
+		_winner = order[0] if not order.is_empty() else null
+		set_game_state(GameState.END)
+		_notify(func() -> void: game_over.emit(_winner))
+	elif actor == get_active_actor():
+		set_active_actor(order[index % order.size()])
+	_end_batch()
+
+
+func get_winner() -> Actor:
+	return _winner
 
 
 ## Ends setup: the main loop starts with the active actor's UPKEEP.

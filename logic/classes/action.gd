@@ -24,6 +24,7 @@ enum Type {
 	FINISH_SETUP,
 	COLLECT_UPKEEP,
 	RESOLVE_COMBAT,
+	ELIMINATE_ACTOR,  ## `actor` lost their command tower and is out of the game.
 }
 
 ## What happens to an enemy building when units move onto its undefended lander.

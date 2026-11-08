@@ -145,6 +145,13 @@ func _refresh_turn() -> void:
 		_set_next_button("Finish setup first", false)
 		return
 
+	if state == TurnManager.GameState.END:
+		var winner := _turn_manager.get_winner()
+		_turn_label.text = "Game over"
+		_turn_label.add_theme_color_override("font_color", HudTheme.actor_color(winner).lightened(0.25))
+		_set_next_button("You won!" if winner == _player else "Defeated", false)
+		return
+
 	var is_ours := active == _player
 	_turn_label.text = "Your turn" if is_ours else "%s's turn" % HudTheme.actor_name(active)
 	_turn_label.add_theme_color_override("font_color", HudTheme.actor_color(active).lightened(0.25))

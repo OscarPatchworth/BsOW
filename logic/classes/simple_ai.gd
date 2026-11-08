@@ -124,9 +124,17 @@ func _run_steps() -> void:
 		await _pause_before_step()
 		var step: Callable = _steps.pop_front()
 		var token: int = _step_tokens.pop_front()
+		if _is_out_of_game():
+			_steps.clear()
+			_step_tokens.clear()
+			break
 		if token == _phase_token:
 			step.call()
 	_is_running_steps = false
+
+
+func _is_out_of_game() -> bool:
+	return _turn_manager.get_game_state() == TurnManager.GameState.END or self not in _turn_manager.get_turn_order()
 
 
 ## Waits step_delay, then for the board to settle. Returns at once when neither applies.
@@ -213,16 +221,20 @@ func _buy() -> void:
 	# Purchases resolve after this step, so track what's left to spend here.
 	var budget := EconData.new()
 	budget.add(get_wallet())
-	for lander in _lander_manager.get_landers_owned_by(self):
+	# Units first (an army now), then at most one new building per turn with what's left
+	# (otherwise it puts a building on every new lander and never affords units).
+	var landers := _lander_manager.get_landers_owned_by(self)
+	for lander in landers:
 		if lander.has_building():
 			_buy_units(lander, budget)
-		else:
-			_buy_spawning_building(lander, budget)
+	for lander in landers:
+		if not lander.has_building() and _buy_spawning_building(lander, budget):
+			break
 
 
 ## Builds a spawning building, preferring a kind we don't own yet (e.g. our race's building,
 ## which trains our advanced units).
-func _buy_spawning_building(lander: Lander, budget: EconData) -> void:
+func _buy_spawning_building(lander: Lander, budget: EconData) -> bool:
 	var options: Array[BuildingData] = []
 	for purchasable in lander.get_purchasables(self):
 		var building_data := purchasable as BuildingData
@@ -232,11 +244,12 @@ func _buy_spawning_building(lander: Lander, budget: EconData) -> void:
 			continue
 		options.append(building_data)
 	if options.is_empty():
-		return
+		return false
 	var owned := _owned_building_kinds()
 	options.sort_custom(func(a: BuildingData, b: BuildingData) -> bool: return a not in owned and b in owned)
 	budget.subtract(options[0].get_cost())
 	_request_purchase(lander, options[0])
+	return true
 
 
 func _owned_building_kinds() -> Array[BuildingData]:

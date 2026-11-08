@@ -38,6 +38,7 @@ var _event_log := EventLog.new()
 var _setup_panel := SetupPanel.new()
 var _move_dialog := MoveDialog.new()
 var _battle_dialog := BattleDialog.new()
+var _game_over_panel := GameOverPanel.new()
 ## Control -> Corner, re-applied by _relayout() when panel contents change size.
 var _placements := {}
 var _is_relayout_queued: bool = false
@@ -59,6 +60,8 @@ func _ready() -> void:
 	_place(_setup_panel, Corner.BOTTOM_CENTER)
 	_place(_move_dialog, Corner.CENTER)
 	_place(_battle_dialog, Corner.CENTER)
+	_place(_game_over_panel, Corner.CENTER)
+	_game_over_panel.name = "GameOverPanel"
 	_players_list.hide()
 	_hint.hide()
 	_connect_panels()
@@ -146,7 +149,7 @@ func apply_game_state(state: TurnManager.GameState) -> void:
 		_setup_panel.begin()
 		_event_log.add_line("You are the [color=#%s]%s[/color]. Place your starting landers." % [
 			_player.get_color().lightened(0.3).to_html(false), _player.get_species().get_display_name()])
-	else:
+	elif state == TurnManager.GameState.MAIN_LOOP:
 		_setup_panel.hide()
 		_players_list.show()
 		_event_log.add_line("The game begins!", HudTheme.ACCENT)
@@ -211,6 +214,29 @@ func on_action_rejected(_action: Action, reason: String) -> void:
 	_queue_relayout()
 
 
+func on_actor_eliminated(actor: Actor) -> void:
+	_event_log.add_line("☠ %s lost their command tower and is out of the game!" % EventLog.actor_tag(actor), HudTheme.WARN)
+	_refresh_all()
+
+
+func show_game_over(winner: Actor) -> void:
+	_move_dialog.close()
+	if _battle_dialog.visible:
+		_battle_dialog.close()
+	_game_over_panel.open(winner, _player)
+	var result_text := "Game over"
+	if winner == _player:
+		result_text = "Game over: you win!"
+	elif winner != null:
+		result_text = "Game over: %s wins!" % EventLog.actor_tag(winner)
+	_event_log.add_line(result_text, HudTheme.ACCENT)
+	_refresh_all()
+
+
+func get_game_over_panel() -> GameOverPanel:
+	return _game_over_panel
+
+
 func get_setup_panel() -> SetupPanel:
 	return _setup_panel
 
@@ -259,6 +285,9 @@ func _refresh_hint() -> void:
 
 
 func _hint_text() -> String:
+	if _turn_manager.get_game_state() == TurnManager.GameState.END:
+		var winner := _turn_manager.get_winner()
+		return "Game over: %s." % ("you win" if winner == _player else "%s wins" % HudTheme.actor_name(winner))
 	if _turn_manager.get_game_state() == TurnManager.GameState.SETUP:
 		if _setup_panel.get_remaining_biomes().is_empty():
 			return "Setup: click one of your new landers to build your command tower on it."
