@@ -46,48 +46,30 @@ func _setup_managers() -> void:
 #region Actors
 func _add_player() -> void:
 	var player: Player = PLAYER_SCENE.instantiate()
-	_bind_actor(player)
 	player.bind_draw_3d(_draw_3d)
 	player.bind_match_settings(_match_settings)
-
-	# Game -> player
-	_combat_manager.combat_started.connect(player._on_combat_manager_combat_started)
-	_combat_manager.combat_updated.connect(player._on_combat_manager_combat_updated)
-	_combat_manager.combat_resolved.connect(player._on_combat_manager_combat_resolved)
-	_turn_manager.game_state_changed.connect(player._on_turn_manager_game_state_changed)
-	_turn_manager.game_phase_changed.connect(player._on_turn_manager_game_phase_changed)
-	_turn_manager.turn_order_generated.connect(player._on_turn_manager_turn_order_generated)
-	_turn_manager.active_actor_changed.connect(player._on_turn_manager_active_actor_changed)
-	_turn_manager.season_order_generated.connect(player._on_turn_manager_season_order_generated)
-	_turn_manager.season_changed.connect(player._on_turn_manager_season_changed)
-
-	_actors_root.add_child(player)
-	_turn_manager.register_actor(player)
+	_add_actor(player)
 
 
 func _add_ai() -> void:
 	var ai := SimpleAI.new()
 	ai.name = "SimpleAI"
-	_bind_actor(ai)
-
-	_combat_manager.combat_started.connect(ai._on_combat_manager_combat_started)
-
+	_add_actor(ai)
 	_spawn_ai_landers(ai)
 
-	_actors_root.add_child(ai)
-	_turn_manager.register_actor(ai)
 
-
-## Gives an actor a random species, a starting wallet, the managers it needs,
-## and sends its actions to the ActionManager.
-func _bind_actor(actor: Actor) -> void:
+## Every actor is set up the same way: a random species, a starting wallet, the managers,
+## and its actions go to the ActionManager. Actors connect their own manager signals.
+func _add_actor(actor: Actor) -> void:
 	actor.set_species(game_species.pick_random())
 	actor.set_wallet(_create_starting_wallet())
 	actor.bind_action_manager(_action_manager)
-	actor.action_requested.connect(_action_manager.request_action)
 	actor.bind_turn_manager(_turn_manager)
 	actor.bind_lander_manager(_lander_manager)
 	actor.bind_combat_manager(_combat_manager)
+	actor.action_requested.connect(_action_manager.request_action)
+	_actors_root.add_child(actor)
+	_turn_manager.register_actor(actor)
 
 
 func _create_starting_wallet() -> EconData:

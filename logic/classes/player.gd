@@ -17,6 +17,7 @@ var _match_settings: MatchSettings
 func _ready() -> void:
 	_bind_children()
 	_connect_children()
+	_connect_managers()
 
 
 #region Public API
@@ -33,7 +34,7 @@ func get_selector_manager() -> SelectorManager:
 #endregion
 
 
-#region Signal handlers (connected by GameRoot)
+#region Signal handlers (managers; HUD updates only)
 func _on_combat_manager_combat_updated(contest: Contest) -> void:
 	if contest.is_involved(self):
 		_ui.update_combat(contest)
@@ -47,11 +48,6 @@ func _on_combat_manager_combat_resolved(outcomes: Array[CombatOutcome]) -> void:
 func _on_turn_manager_game_state_changed(state: TurnManager.GameState) -> void:
 	_controller.apply_game_state(state)
 	_ui.apply_game_state(state)
-
-
-func _on_turn_manager_game_phase_changed(phase: TurnManager.Phase) -> void:
-	_controller.apply_game_phase(phase)
-	_ui.apply_game_phase(phase)
 
 
 func _on_turn_manager_turn_order_generated() -> void:
@@ -99,6 +95,11 @@ func _on_ui_combat_not_ready() -> void:
 
 
 #region Virtual overrides
+func _game_phase_changed(phase: TurnManager.Phase) -> void:
+	_controller.apply_game_phase(phase)
+	_ui.apply_game_phase(phase)
+
+
 func _action_resolved(action: Action) -> void:
 	match action.get_type():
 		Action.Type.PLACE_BIOME:
@@ -164,4 +165,16 @@ func _connect_children() -> void:
 	_ui.all_setup_biomes_placed.connect(_controller.on_all_setup_biomes_placed)
 
 	get_wallet().amounts_changed.connect(_ui.on_wallet_changed)
+
+
+## Signals only the HUD needs. Turn phases, combat start and resolved actions are
+## connected by Actor like for every other actor.
+func _connect_managers() -> void:
+	_combat_manager.combat_updated.connect(_on_combat_manager_combat_updated)
+	_combat_manager.combat_resolved.connect(_on_combat_manager_combat_resolved)
+	_turn_manager.game_state_changed.connect(_on_turn_manager_game_state_changed)
+	_turn_manager.turn_order_generated.connect(_on_turn_manager_turn_order_generated)
+	_turn_manager.active_actor_changed.connect(_on_turn_manager_active_actor_changed)
+	_turn_manager.season_order_generated.connect(_on_turn_manager_season_order_generated)
+	_turn_manager.season_changed.connect(_on_turn_manager_season_changed)
 #endregion

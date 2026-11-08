@@ -25,6 +25,7 @@ var _combat_manager: CombatManager
 var _action_manager: ActionManager
 var _rejections: Array[String] = []
 var _resolved_types: Array[Action.Type] = []
+var _resolved_actions: Array[Action] = []
 
 
 func _ready() -> void:
@@ -99,10 +100,8 @@ func _test_setup() -> void:
 
 
 func _test_main_loop() -> void:
-	# Make sure it's the player's turn (the AI never progresses on its own).
-	if _turn_manager.get_active_actor() != _player:
-		await _advance_to_next_actor()
-	_check(_turn_manager.get_active_actor() == _player, "player becomes the active actor")
+	# If the AI went first it has already played its turn by itself.
+	_check(_turn_manager.get_active_actor() == _player, "player is the active actor once setup is done")
 	_check(_turn_manager.get_game_phase() == TurnManager.Phase.DUSTCLOUD_COLLAPSE, "player turn starts at DUSTCLOUD_COLLAPSE")
 
 	# Rules: buying only happens in BUYING, and only the active actor may progress the turn.
@@ -182,31 +181,39 @@ func _test_main_loop() -> void:
 
 	await _test_combat(home)
 
-	# Finish the turn: COMBAT -> (CLEANUP, UPKEEP auto) -> next actor's DUSTCLOUD_COLLAPSE.
-	var phase_seen_on_actor_change: Array[TurnManager.Phase] = []
-	var record_phase := func(_actor: Actor) -> void: phase_seen_on_actor_change.append(_turn_manager.get_game_phase())
-	_turn_manager.active_actor_changed.connect(record_phase)
-	_resolved_types.clear()
-	_request(Action.create(Action.Type.PROGRESS_TURN))
-	await _frames(1)
-	_turn_manager.active_actor_changed.disconnect(record_phase)
-	_check(_resolved_types == ([Action.Type.PROGRESS_TURN, Action.Type.PROGRESS_TURN, Action.Type.COLLECT_UPKEEP,
-		Action.Type.PROGRESS_TURN] as Array[Action.Type]), "hand-over resolves as queued follow-ups: CLEANUP, UPKEEP, upkeep, DUSTCLOUD")
-	_check(phase_seen_on_actor_change == ([TurnManager.Phase.UPKEEP] as Array[TurnManager.Phase]),
-		"active_actor_changed fires once the phase is already the new turn's UPKEEP")
-	_check(_turn_manager.get_active_actor() == _ai, "turn passed to the AI")
-	_check(_turn_manager.get_game_phase() == TurnManager.Phase.DUSTCLOUD_COLLAPSE, "AI turn starts at DUSTCLOUD_COLLAPSE")
-
-	# Round wrap: upkeep pays the player for owned landers.
-	var food_before := _player.get_wallet().get_amount(&"food")
-	var expected_food := _expected_upkeep(_player, &"food")
+	# Finish the turn. Everything below happens in one chain of queued actions:
+	# CLEANUP -> AI UPKEEP -> the AI plays its whole turn -> CLEANUP -> player UPKEEP -> DUSTCLOUD_COLLAPSE.
+	var player_food_before := _player.get_wallet().get_amount(&"food")
+	var player_expected_food := _expected_upkeep(_player, &"food")
+	var ai_food_before := _ai.get_wallet().get_amount(&"food")
+	var ai_expected_food := _expected_upkeep(_ai, &"food")
 	var season_before := _turn_manager.get_season_index()
 	var round_before := _turn_manager.get_round_number()
-	await _advance_to_next_actor()
-	_check(_turn_manager.get_active_actor() == _player, "turn wrapped back to the player")
-	_check(_turn_manager.get_round_number() == round_before + 1, "round number incremented")
+
+	var actor_changes: Array[Actor] = []
+	var phase_seen_on_actor_change: Array[TurnManager.Phase] = []
+	var record_actor_change := func(actor: Actor) -> void:
+		actor_changes.append(actor)
+		phase_seen_on_actor_change.append(_turn_manager.get_game_phase())
+	_turn_manager.active_actor_changed.connect(record_actor_change)
+	_resolved_actions.clear()
+	_request(Action.create(Action.Type.PROGRESS_TURN))
+	await _frames(1)
+	_turn_manager.active_actor_changed.disconnect(record_actor_change)
+
+	var ai_progress_count := 0
+	for action in _resolved_actions:
+		if action.get_type() == Action.Type.PROGRESS_TURN and action.get_actor() == _ai and not action.is_system():
+			ai_progress_count += 1
+	_check(actor_changes == ([_ai, _player] as Array[Actor]), "turn went to the AI and back to the player")
+	_check(ai_progress_count == 3, "AI played its own turn (progressed DUSTCLOUD_COLLAPSE, BUYING, COMBAT)")
+	_check(phase_seen_on_actor_change == ([TurnManager.Phase.UPKEEP, TurnManager.Phase.UPKEEP] as Array[TurnManager.Phase]),
+		"active_actor_changed fires once the phase is already the new turn's UPKEEP")
+	_check(_turn_manager.get_game_phase() == TurnManager.Phase.DUSTCLOUD_COLLAPSE, "player's next turn starts at DUSTCLOUD_COLLAPSE")
+	_check(_turn_manager.get_round_number() == round_before + 1, "round number incremented once")
 	_check(_turn_manager.get_season_index() == (season_before + 1) % 4, "season advanced")
-	_check(_player.get_wallet().get_amount(&"food") == food_before + expected_food, "upkeep paid food for owned landers")
+	_check(_ai.get_wallet().get_amount(&"food") == ai_food_before + ai_expected_food, "AI collected upkeep for its landers")
+	_check(_player.get_wallet().get_amount(&"food") == player_food_before + player_expected_food, "player collected upkeep for owned landers")
 
 
 func _test_combat(home: Lander) -> void:
@@ -264,18 +271,6 @@ func _request(action: Action) -> void:
 	_player._on_child_action_requested(action)
 
 
-## Presses "next phase" on behalf of the active actor until the active actor changes.
-func _advance_to_next_actor() -> void:
-	var start_actor := _turn_manager.get_active_actor()
-	for i in 10:
-		var progress := Action.create(Action.Type.PROGRESS_TURN)
-		progress.set_actor(_turn_manager.get_active_actor())
-		_action_manager.request_action(progress)
-		await _frames(1)
-		if _turn_manager.get_active_actor() != start_actor:
-			return
-
-
 func _combat_unit_action(type: Action.Type, unit: UnitInstance) -> Action:
 	var action := Action.create(type)
 	action.set_units([unit] as Array[UnitInstance])
@@ -299,6 +294,7 @@ func _on_action_rejected(_action: Action, reason: String) -> void:
 
 func _on_action_resolved(action: Action) -> void:
 	_resolved_types.append(action.get_type())
+	_resolved_actions.append(action)
 
 
 func _first_unit_purchasable(lander: Lander) -> UnitData:
