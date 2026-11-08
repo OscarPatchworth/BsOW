@@ -169,8 +169,11 @@ classDiagram
     }
 
     class SimpleAI {
-        #_take_phase(phase) buys units, then PROGRESS_TURN
-        #_enter_combat(contest) picks units, readies
+        +MAX_ATTACKS_PER_TURN
+        #_take_phase(phase) places, buys, attacks, moves
+        #_enter_combat(contest) picks strongest units, readies
+        #_action_resolved(action) continues after its fights
+        #_action_rejected(action, reason) falls back
     }
 
     class Lander {
@@ -590,10 +593,10 @@ flowchart TB
 | `PLACE_BIOME` | Setup; the position is clear |
 | `PLACE_BUILDING` | Setup; it's the actor's command tower; the lander has no building; the actor has no tower yet |
 | `PLACE_LANDER` | Main loop; actor's turn; `DUSTCLOUD_COLLAPSE`; the position is clear |
-| `PURCHASE` | Actor's turn; `BUYING`; actor owns the lander; the lander offers it; affordable; room for a unit / no building yet |
+| `PURCHASE` | Actor's turn; `BUYING`; actor owns the lander; the lander offers it; affordable; room for a unit / no building yet; a unique building only once |
 | `MOVE_UNITS` | Actor's turn; `COMBAT`; no combat running; landers connected; actor's own units, on the source; target not hostile and has room |
 | `ATTACK` | Actor's turn; `COMBAT`; no combat running; landers connected; both have units; attacker owns its side, enemy on the other |
-| `PROGRESS_TURN` | Main loop; actor's turn; not an admin phase; no combat running (a system `PROGRESS_TURN` skips these) |
+| `PROGRESS_TURN` | Main loop; actor's turn; not an admin phase; not `DUSTCLOUD_COLLAPSE` (that ends by placing a lander); no combat running. A system `PROGRESS_TURN` skips these checks |
 | `SELECT` / `DESELECT_COMBAT_UNIT` | Combat choosing units; actor takes part; its own unit on its side's lander; within the unit limit |
 | `DECLARE` / `WITHDRAW_COMBAT_READY` | Combat choosing units; actor takes part |
 | `FINISH_SETUP`, `COLLECT_UPKEEP`, `RESOLVE_COMBAT` | System only |
@@ -741,13 +744,18 @@ sequenceDiagram
     Note over AM: resolve COLLECT_UPKEEP(SimpleAI)
     Note over AM: resolve PROGRESS_TURN (system) → DUSTCLOUD_COLLAPSE
     TM-->>AI: game_phase_changed → _take_phase(DUSTCLOUD_COLLAPSE)
-    AI->>AM: request_action(PROGRESS_TURN) (queued)
-    Note over AM: resolve → BUYING
+    AI->>AM: PLACE_LANDER next to its own lander nearest an enemy (queued)
+    Note over AM: resolve PLACE_LANDER, then system PROGRESS_TURN → BUYING
     TM-->>AI: _take_phase(BUYING)
-    AI->>AM: PURCHASE per lander that can spawn a unit, then PROGRESS_TURN
+    AI->>AM: PURCHASE a spawning building (landers without one) or the best units, then PROGRESS_TURN
     Note over AM: resolve each → COMBAT
     TM-->>AI: _take_phase(COMBAT)
-    AI->>AM: request_action(PROGRESS_TURN)
+    opt a weaker enemy neighbour (up to 2 attacks)
+        AI->>AM: ATTACK
+        Note over AM: resolve ATTACK → combat_started → both sides pick and ready<br/>(the Player defends through the combat UI)
+        Note over AM: resolve RESOLVE_COMBAT → AI._action_resolved → next step
+    end
+    AI->>AM: MOVE_UNITS (claim empty neighbours, march spare units towards the enemy), then PROGRESS_TURN
     Note over AM: resolve → CLEANUP, then system PROGRESS_TURN wraps the round
     TM-->>P: season_changed(1), active_actor_changed(Player), game_phase_changed(UPKEEP)
     Note over AM: resolve COLLECT_UPKEEP(Player), then system PROGRESS_TURN → DUSTCLOUD_COLLAPSE

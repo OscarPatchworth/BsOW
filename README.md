@@ -41,5 +41,6 @@ godot --headless --path . res://tests/smoke_test.tscn
 ```
 
 Plays through setup, a full player turn (place lander, buy, move, attack), the AI playing its own
-turn, and a round wrap with upkeep. It also checks that the rules reject out-of-turn and out-of-phase actions.
+turn in a prepared spot (it places, buys, attacks and claims a lander by itself), and a round wrap
+with upkeep. It also checks that the rules reject out-of-turn and out-of-phase actions.
 Exit code 0 means every check passed.

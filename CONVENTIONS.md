@@ -88,7 +88,9 @@ Write words out in full: `remove` not `rmv`, `button` not `btn`, `ability` not `
   To stop or change something before it happens, listen to `action_resolving` and call
   `action.cancel(reason)`.
 * Player and AI are wired the same way (`GameRoot._add_actor`). An AI acts in `_take_phase(phase)`;
-  the Player acts through its UI. Both end their phases with `PROGRESS_TURN`.
+  the Player acts through its UI. Both end their phases with `PROGRESS_TURN`, except
+  `DUSTCLOUD_COLLAPSE`, which ends when they place a lander. An actor that has to wait (e.g. for a
+  fight to resolve) carries on from `_action_resolved`.
 
 ## 6. Script layout
 
