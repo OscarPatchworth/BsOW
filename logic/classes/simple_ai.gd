@@ -13,7 +13,7 @@ signal combat_not_ready(actor: Actor)
 #region Virtual overrides
 func _enter_combat(contest: Contest) -> void:
 	print("SimpleAI | Entering combat")
-	var side: Contest.Side = get_combat_side()
+	var side: int = get_combat_side()
 	var max_units := _combat_manager.get_max_units(side)
 	var available_units := contest.get_lander(side).get_units().duplicate()
 

@@ -1,49 +1,26 @@
-#building_shop_button.gd
+# building_shop_button.gd
 class_name BuildingShopButton
 extends GameButton
 
-# signals
-signal build_action_req(action_request)
+## Requests placing one kind of building.
 
-# enums
-#enum Element {EARTH,WATER,AIR,FIRE,}
+signal action_requested(action: Action)
 
-# constants
-#const MAX_SPEED = 200
-
-# static variables
-var building: BuildingData
-var selector_manager: GameManager
-
-# @export variables
-
-# remaining regular variables
-
-# @onready variables
-
-###################################################################################################
-###	Methods
-func get_building() -> BuildingData:
-	return building
-func set_building(new_building: BuildingData):
-	building = new_building
-	update_btn_view()
+var _building_data: BuildingData
 
 
-func update_btn_view():
-	self.text = building.name
-
-### Connected Signals
-func bind_selector(selector: GameManager):
-	selector_manager = selector
-	#print("Building_Shop_Button selector_manager bound")
+func _pressed() -> void:
+	var action := Action.create(Action.Type.PLACE_BUILDING)
+	action.set_building_data(_building_data)
+	action_requested.emit(action)
 
 
-func _pressed():
-	var action_req = Action.new()
-	action_req.type = Action.RequestType.PLACE_BUILDING
-	#action_req.actor = selector_manager.self_player
-	#action_req.target_lander = selector_manager.selected_lander
-	action_req.building_type = building
-	build_action_req.emit(action_req)
-	#print("Emittting action request: \n" + str(action_req.get_action_dict()))
+#region Accessors
+func get_building_data() -> BuildingData:
+	return _building_data
+
+
+func set_building_data(value: BuildingData) -> void:
+	_building_data = value
+	text = value.get_display_name()
+#endregion

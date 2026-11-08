@@ -1,82 +1,62 @@
-#ConnectedLanderControlButton.gd
-class_name ConnectedLanderControlButton
+# connected_lander_button.gd
+class_name ConnectedLanderButton
 extends GameButton
 
-# signals
-signal btn_pressed(lander: Lander)
-signal move_units_action_req(req: Action)
-signal attack_lander_action_req(req: Action)
+## A neighbouring lander. Pressing it targets that lander and requests a move (or an attack if hostile).
 
-# enums
+signal lander_pressed(lander: Lander)
+signal action_requested(action: Action)
+
 enum DisplayState {
 	NEUTRAL,
 	ALLY,
-	ENEMY
+	ENEMY,
 }
 
-# constants
+const STYLE_DEFAULT: StyleBox = preload("res://view/lander_panel/landers/lander_button_default.res")
+const STYLE_ALLY: StyleBox = preload("res://view/lander_panel/landers/lander_button_ally.res")
+const STYLE_ENEMY: StyleBox = preload("res://view/lander_panel/landers/lander_button_enemy.res")
 
-# static variables
-var selector_manager: GameManager
-
-var style_box_defualt: StyleBox = preload("res://view/lander_panel/landers/lander_button_default.res")
-var style_box_enemy: StyleBox = preload("res://view/lander_panel/landers/lander_button_enemy.res")
-var style_box_ally: StyleBox = preload("res://view/lander_panel/landers/lander_button_ally.res")
-# remaining regular variables
-var lander: Lander
-var display_state: DisplayState = DisplayState.NEUTRAL
-
-# @export variables
+var _lander: Lander
+var _display_state: DisplayState = DisplayState.NEUTRAL
 
 
-# @onready variables
-
-###################################################################################################
-###	Methods
-func free_children(parent: Node) -> void:
-	for i in parent.get_children():
-		i.queue_free()
+func _pressed() -> void:
+	lander_pressed.emit(_lander)
+	var type := Action.Type.ATTACK if _display_state == DisplayState.ENEMY else Action.Type.MOVE_UNITS
+	action_requested.emit(Action.create(type))
 
 
-### Connected Signals
-func _pressed():
-	btn_pressed.emit(lander)
-
-	# Determine Action to emit based on lander-state-to-self_player
-	if(display_state == DisplayState.ENEMY):
-		# Attack Action Req
-		var attack_req = Action.new()
-		attack_req.set_type(Action.RequestType.ATTACK)
-		attack_lander_action_req.emit(attack_req)
-	else:
-		# Move Action Req
-		var move_units_req = Action.new()
-		move_units_req.set_type(Action.RequestType.MOVEMENT)
-		move_units_action_req.emit(move_units_req)
-
-## Calls
-func bind_selector(selector: GameManager):
-	selector_manager = selector
-	#print("lander_control_button selector_manager bound")
+#region Accessors
+func get_lander() -> Lander:
+	return _lander
 
 
-func update_display():
-	self.text = lander.get_biome().name
-	self.icon = lander.get_biome().poker_icon
-	
-	match display_state:
-		DisplayState.NEUTRAL:
-			self.add_theme_stylebox_override("normal", style_box_defualt)
-		DisplayState.ENEMY:
-			self.add_theme_stylebox_override("normal", style_box_enemy)
+func set_lander(value: Lander) -> void:
+	_lander = value
+	_refresh()
+
+
+func get_display_state() -> DisplayState:
+	return _display_state
+
+
+func set_display_state(value: DisplayState) -> void:
+	_display_state = value
+	_refresh()
+#endregion
+
+
+#region Private
+func _refresh() -> void:
+	if _lander != null:
+		text = _lander.get_biome_data().get_display_name()
+		icon = _lander.get_biome_data().get_icon()
+	match _display_state:
 		DisplayState.ALLY:
-			self.add_theme_stylebox_override("normal", style_box_ally)
+			add_theme_stylebox_override("normal", STYLE_ALLY)
+		DisplayState.ENEMY:
+			add_theme_stylebox_override("normal", STYLE_ENEMY)
 		_:
-			print("Connected Lander Btn Error: Btn has no assigned DisplayState")
-
-
-
-
-## Get/Set (er)s
-
-### Connected Signals
+			add_theme_stylebox_override("normal", STYLE_DEFAULT)
+#endregion

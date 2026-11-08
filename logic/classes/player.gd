@@ -14,7 +14,7 @@ var _draw_3d: Draw3D
 var _match_settings: MatchSettings
 
 @onready var _controller: PlayerController = find_child("PlayerController")
-@onready var _ui: UiManager = find_child("UI-manager")
+@onready var _ui: UiManager = find_child("UiManager")
 @onready var _selector_manager: SelectorManager = find_child("SelectorManager")
 
 

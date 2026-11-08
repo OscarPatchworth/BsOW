@@ -1,86 +1,74 @@
-#list_box.gd
+# list_box.gd
 class_name ListBox
 extends Control
 
-# signals
-signal list_btn_pressed(thing)
-# enums
+## A list of buttons built from arbitrary objects. Pressing a button emits the object it represents.
+## The scene holds a hidden "TemplateButton" inside "Container" that each button is duplicated from.
 
-# constants
+signal item_pressed(item: Variant)
 
-# static variables
+## Each entry: { "item": Variant, "text": String, "icon": Texture2D }
+var _entries: Array[Dictionary] = []
+var _runtime_container: Container
 
-# @export variables
-	
-# remaining regular variables
-var list_items: Array[Dictionary] # {object : Obj, text: "", icon: texture2d}
+@onready var _template_button: Button = find_child("TemplateButton")
+@onready var _template_container: Container = find_child("Container")
 
-var runtime_flow: Container
 
-# @onready variables
-@onready var template_btn: Button = self.find_child("TemplateButton")
-@onready var template_flow: Container = self.find_child("Container")
-
-###################################################################################################
-###	Methods
 func _ready() -> void:
-	runtime_flow = template_flow.duplicate()
-	add_child(runtime_flow)
-	free_children(runtime_flow)
-	template_flow.hide()
+	_runtime_container = _template_container.duplicate()
+	add_child(_runtime_container)
+	_free_children(_runtime_container)
+	_template_container.hide()
 
 
-func free_children(parent: Node) -> void:
-	for i in parent.get_children():
-		i.queue_free()
-
-
-func make_list():
-	free_children(runtime_flow)
-	for item in list_items:
-		var new_btn = template_btn.duplicate() as Button
-		runtime_flow.add_child(new_btn)
-		new_btn.text = item["text"]
-		new_btn.icon = item["icon"]
-
-		new_btn.pressed.connect(func(): fwd_btn_pressed(item["object"]))
-		
-	template_flow.hide()
-
-
-func fwd_btn_pressed(thing):
-	list_btn_pressed.emit(thing)
-
-
-func _defualt_txt(obj) -> String:
-	return str(obj)
-
-
-func _defualt_icon(obj) -> CompressedTexture2D:
-	return null
-
-### Connected Signals
-
-
-## Calls
-func clear():
-	free_children(runtime_flow)
-
-
-## Get/Set (er)s
-func get_btns() -> Array:
-	await Engine.get_main_loop().process_frame
-	return runtime_flow.get_children()
-
-
-func set_objects(objs: Array, text_formatter: Callable = _defualt_txt, icon_formatter: Callable = _defualt_icon):
-	var formated_objs = objs.map(func(obj): return {"object" : obj, "text" : str(text_formatter.call(obj)), "icon" : icon_formatter.call(obj) })
-	list_items.assign(formated_objs)
-	if objs == []:
+#region Public API
+## Rebuilds the list. `text_for` / `icon_for` turn an item into its label / icon.
+func set_items(items: Array, text_for: Callable = _default_text, icon_for: Callable = _default_icon) -> void:
+	_entries.assign(items.map(func(item: Variant) -> Dictionary:
+		return {"item": item, "text": str(text_for.call(item)), "icon": icon_for.call(item)}))
+	if items.is_empty():
 		clear()
 	else:
-		make_list()
-func get_objects() -> Array:
-	return list_items
+		_rebuild()
 
-### Connected Signals
+
+func get_items() -> Array:
+	return _entries.map(func(entry: Dictionary) -> Variant: return entry["item"])
+
+
+## The buttons, in item order. Waits a frame so freshly built buttons exist.
+func get_buttons() -> Array[Node]:
+	await get_tree().process_frame
+	return _runtime_container.get_children()
+
+
+func clear() -> void:
+	_free_children(_runtime_container)
+#endregion
+
+
+#region Private
+func _rebuild() -> void:
+	_free_children(_runtime_container)
+	for entry in _entries:
+		var button := _template_button.duplicate() as Button
+		_runtime_container.add_child(button)
+		button.text = entry["text"]
+		button.icon = entry["icon"]
+		var item: Variant = entry["item"]
+		button.pressed.connect(func() -> void: item_pressed.emit(item))
+
+
+func _free_children(parent: Node) -> void:
+	for child in parent.get_children():
+		child.queue_free()
+
+
+func _default_text(item: Variant) -> String:
+	return str(item)
+
+
+func _default_icon(_item: Variant) -> Texture2D:
+	return null
+#endregion

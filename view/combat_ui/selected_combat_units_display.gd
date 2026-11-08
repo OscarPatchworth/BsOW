@@ -1,166 +1,106 @@
-#selected_combat_units_display.gd
+# selected_combat_units_display.gd
+class_name SelectedCombatUnitsDisplay
 extends Control
 
-# signals
-signal unit_deslected(unit: UnitObject)
+## One unit slot in a CombatUnitsPanel: a coloured fill bar, the unit's name,
+## and a button to deselect the unit while still choosing.
 
-# enums
-enum FillDir {
-	FILL_LEFT_TO_RIGHT = 0, # 0 corrosponds to left Anchor Side in set_anchor)
-	FILL_RIGHT_TO_LEFT = 2	# 2 corrosponds to right Anchor Side in set_anchor)
+signal unit_deselected(unit: UnitInstance)
+
+## Values match Control's Side constants used by set_anchor_and_offset.
+enum FillDirection {
+	LEFT_TO_RIGHT = 0,
+	RIGHT_TO_LEFT = 2,
 }
 
-enum CombatState {
+enum DisplayState {
 	SELECTING,
-	READY
+	READY,
 }
 
-# constants
-const DESELECT_FILL: float = 0.64
-const SELECT_FILL: float = 1.0
-const DIE_UTF:int = 00002680
-const WON_FILL: float = 1.3
-const LOST_FILL:float = 0.7
-# static variables
+const EMPTY_FILL: float = 0.64
+const FILLED_FILL: float = 1.0
 
-# @export variables
+var _color: Color
+var _fill_direction: FillDirection = FillDirection.LEFT_TO_RIGHT
+var _display_state: DisplayState = DisplayState.SELECTING
+var _unit: UnitInstance
+var _fill_stylebox := StyleBoxFlat.new()
 
-# remaining regular variables
-var bar_colour: Color
-var is_filled: bool = false
-var fill_dir: FillDir = FillDir.FILL_LEFT_TO_RIGHT
-
-var fill_stylebox = StyleBoxFlat.new()
-
-var unit: UnitObject
-
-var combat_state: CombatState = CombatState.SELECTING
-
-# @onready variables
-@onready var btn: GameButton = self.find_child("GameButton")
-@onready var fill: Panel = self.find_child("Fill")
-@onready var rtl: RichTextLabel = self.find_child("RichTextLabel")
+@onready var _button: GameButton = find_child("GameButton")
+@onready var _fill: Panel = find_child("Fill")
+@onready var _label: RichTextLabel = find_child("RichTextLabel")
 
 
-###################################################################################################
-###	Methods
 func _ready() -> void:
-	fill.add_theme_stylebox_override("panel", fill_stylebox)
-	connect_signals()
+	_fill.add_theme_stylebox_override("panel", _fill_stylebox)
+	_button.pressed.connect(_on_button_pressed)
 
 
-func free_children(parent: Node) -> void:
-	for i in parent.get_children():
-		i.queue_free()
+#region Public API
+func show_outcome(outcome: CombatOutcome) -> void:
+	set_display_state(DisplayState.READY)
+	_label.text = str(outcome.get_total())  # Shows the total roll for now.
+#endregion
 
 
-func update_all():
-	update_colour()
-	update_filled()
-	update_txt()
-	update_btn_style()
+#region Accessors
+func get_color() -> Color:
+	return _color
 
 
-func update_colour():
-	fill_stylebox.bg_color = bar_colour
+func set_color(value: Color) -> void:
+	_color = value
+	_fill_stylebox.bg_color = _color
 
 
-func update_filled():
-	if is_filled: 
-		if(fill_dir == FillDir.FILL_LEFT_TO_RIGHT):
-			fill.set_anchor_and_offset(SIDE_LEFT, 0, 0)
-			fill.set_anchor_and_offset(SIDE_RIGHT, SELECT_FILL, 0)
-		if(fill_dir == FillDir.FILL_RIGHT_TO_LEFT):
-			fill.set_anchor_and_offset(SIDE_RIGHT, 1, 0)
-			fill.set_anchor_and_offset(SIDE_LEFT, 1 - SELECT_FILL, 0)
-
-		btn.show()
-	else: 
-		btn.hide()
-		if(fill_dir == FillDir.FILL_LEFT_TO_RIGHT):
-			fill.set_anchor_and_offset(SIDE_LEFT, 0, 0)
-			fill.set_anchor_and_offset(SIDE_RIGHT, DESELECT_FILL, 0)
-		if(fill_dir == FillDir.FILL_RIGHT_TO_LEFT):
-			fill.set_anchor_and_offset(SIDE_RIGHT, 1, 0)
-			fill.set_anchor_and_offset(SIDE_LEFT, 1 - DESELECT_FILL, 0)
+func get_fill_direction() -> FillDirection:
+	return _fill_direction
 
 
-func update_txt():
-	if unit == null:
-		rtl.set_text("")
+func set_fill_direction(value: FillDirection) -> void:
+	_fill_direction = value
+
+
+func get_display_state() -> DisplayState:
+	return _display_state
+
+
+func set_display_state(value: DisplayState) -> void:
+	_display_state = value
+	_refresh()
+
+
+func get_unit() -> UnitInstance:
+	return _unit
+
+
+func set_unit(value: UnitInstance) -> void:
+	_unit = value
+	_refresh()
+#endregion
+
+
+#region Private
+func _refresh() -> void:
+	_fill_stylebox.bg_color = _color
+	_refresh_fill()
+	_label.text = _unit.get_display_name() if _unit != null else ""
+	_button.disabled = _display_state != DisplayState.SELECTING
+
+
+func _refresh_fill() -> void:
+	var has_unit := _unit != null
+	var amount := FILLED_FILL if has_unit else EMPTY_FILL
+	_button.visible = has_unit
+	if _fill_direction == FillDirection.LEFT_TO_RIGHT:
+		_fill.set_anchor_and_offset(SIDE_LEFT, 0, 0)
+		_fill.set_anchor_and_offset(SIDE_RIGHT, amount, 0)
 	else:
-		rtl.set_text(unit.get_unit_data().name)
+		_fill.set_anchor_and_offset(SIDE_RIGHT, 1, 0)
+		_fill.set_anchor_and_offset(SIDE_LEFT, 1 - amount, 0)
 
 
-func update_btn_style():
-	if(combat_state == CombatState.SELECTING):
-		btn.set_disabled(false)
-	else: btn.set_disabled(true)
-
-### Connected Signals
-func connect_signals():
-	btn.pressed.connect(self.fwd_unit_deselected)
-	btn.mouse_entered.connect(btn_mouse_entered)
-	btn.mouse_exited.connect(btn_mouse_exit)
-
-
-func btn_mouse_entered():
-	#set_colour(Color.FOREST_GREEN)
-	pass
-func btn_mouse_exit():
-	#set_colour(Color.MAROON)
-	pass
-
-
-func fwd_unit_deselected():
-	unit_deslected.emit(unit)
-	print("Combat progress bar | unit deselected")
-
-
-func update_outcome(c_out: CombatOutcome):
-	set_combat_state(CombatState.READY)
-	rtl.set_text(str(c_out.get_total()))  # Temporarily show the total for debugging
-
-## Calls
-
-## Get/Set (er)s
-func get_colour() -> Color:
-	return bar_colour
-func set_colour(col: Color):
-	bar_colour = col
-	update_colour()
-
-func get_filled() -> bool:
-	return is_filled
-func set_filled(yn: bool):
-	is_filled = yn
-	update_filled()
-
-func get_unit() -> UnitObject:
-	return unit
-func set_unit(u: UnitObject):
-	unit = u 
-	if u == null: 
-		set_filled(false)
-		update_all()
-	else: 
-		btn.show()
-		set_filled(true)
-		update_all()
-
-
-func get_fill_dir() -> FillDir:
-	return fill_dir
-func set_fill_dir(dir: FillDir):
-	fill_dir = dir
-
-
-func get_combat_state() -> CombatState:
-	return combat_state
-func set_combat_state(state: CombatState):
-	combat_state = state
-	update_all()
-
-
-
-### Connected Signals
+func _on_button_pressed() -> void:
+	unit_deselected.emit(_unit)
+#endregion

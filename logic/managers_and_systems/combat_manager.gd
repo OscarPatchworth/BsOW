@@ -126,19 +126,19 @@ func get_phase() -> CombatPhase:
 	return _phase
 
 
-func get_max_units(side: Contest.Side) -> int:
+func get_max_units(side: int) -> int:
 	return AbilitySystem.resolve_get(self, _side_key(side, "units"), _max_units[side])
 
 
-func set_max_units(side: Contest.Side, value: int) -> void:
+func set_max_units(side: int, value: int) -> void:
 	_max_units[side] = AbilitySystem.resolve_set(self, _side_key(side, "units"), _max_units[side], value)
 
 
-func get_max_abilities(side: Contest.Side) -> int:
+func get_max_abilities(side: int) -> int:
 	return AbilitySystem.resolve_get(self, _side_key(side, "abilities"), _max_abilities[side])
 
 
-func set_max_abilities(side: Contest.Side, value: int) -> void:
+func set_max_abilities(side: int, value: int) -> void:
 	_max_abilities[side] = AbilitySystem.resolve_set(self, _side_key(side, "abilities"), _max_abilities[side], value)
 #endregion
 
@@ -202,6 +202,6 @@ func _remove_dead(outcomes: Array[CombatOutcome], lander: Lander) -> void:
 
 
 ## e.g. (ATTACKER, "units") -> &"max_attacker_units"
-func _side_key(side: Contest.Side, field: String) -> StringName:
+func _side_key(side: int, field: String) -> StringName:
 	return StringName("max_" + ("attacker_" if side == Contest.Side.ATTACKER else "defender_") + field)
 #endregion

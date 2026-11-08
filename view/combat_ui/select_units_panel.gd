@@ -1,86 +1,36 @@
-#select_units_panel.gd
+# select_units_panel.gd
+class_name SelectUnitsPanel
 extends Panel
 
-# signals
-signal unit_selected(unit: UnitObject)
-# enums
+## Lists the player's units on their side's lander that aren't chosen yet. Click to choose one.
 
-# constants
+signal unit_selected(unit: UnitInstance)
 
-# static variables
-var combat_manager: GameManager
-var player_self: Player
+var _player: Player
 
-# @export variables
-@export var unit_btn_script: Script
-
-# remaining regular variables
-
-# @onready variables
-@onready var unit_btn_container: Container = self.find_child("VBoxContainer")
-@onready var lockout_panel: Panel = self.find_child("LockOutPanel")
-
-###################################################################################################
-###	Methods
-func free_children(parent: Node) -> void:
-	for i in parent.get_children():
-		i.queue_free()
+@onready var _button_container: Container = find_child("VBoxContainer")
+@onready var _lockout_panel: Panel = find_child("LockOutPanel")
 
 
-### Connected Signals
+#region Public API
+func bind_player(player: Player) -> void:
+	_player = player
 
 
-## Calls
-func bind_combat_manager(cm: GameManager):
-	combat_manager = cm
-	#print("Select units Panel | comabt UI | Combat Manager Bound")
+func refresh(contest: Contest) -> void:
+	var side: int = contest.get_side_of(_player)
+	# Lock the picker once the player has declared ready.
+	_lockout_panel.visible = contest.is_ready(side)
 
+	for child in _button_container.get_children():
+		child.queue_free()
 
-func bind_player(p: Player):
-	player_self = p
-	for child in get_children():
-		if child.has_method("bind_player"):
-			child.bind_player(p)
-
-
-func update(combat_state: Contest):
-	if (!combat_state.get_invading_ready() and !combat_state.get_defending_ready()) :
-		lockout_panel.hide()
-	elif(
-		combat_state.get_invading_actor() == player_self and combat_state.get_invading_ready()
-		or  combat_state.get_defending_actor() == player_self and combat_state.get_defending_ready()):
-			lockout_panel.show()
-	else: lockout_panel.hide()
-
-
-
-	free_children(unit_btn_container)
-
-	var units: Array[UnitObject]
-	var selected_units: Array[UnitObject]
-
-	if combat_state.get_invading_actor() == player_self:
-		units = combat_state.get_invading_lander().get_units()
-		selected_units = combat_state.get_invading_units()
-	else:
-		units = combat_state.get_contested_lander().get_units()
-		selected_units = combat_state.get_defending_units()
-
-	for unit in units:
-		if unit in selected_units:
+	var chosen_units := contest.get_units(side)
+	for unit in contest.get_lander(side).get_units():
+		if unit in chosen_units:
 			continue
-		var new_btn = GameButton.new()
-		new_btn.set_script(unit_btn_script)
-		new_btn.unit_selected.connect(fwd_unit_selected)
-		new_btn.set_unit(unit)
-
-		new_btn.text = unit.get_unit_data().name
-		unit_btn_container.add_child(new_btn)
-
-
-## Get/Set (er)s
-
-
-### Connected Signals
-func fwd_unit_selected(unit: UnitObject):
-	unit_selected.emit(unit)
+		var button := SelectUnitButton.new()
+		button.set_unit(unit)
+		button.unit_selected.connect(unit_selected.emit)
+		_button_container.add_child(button)
+#endregion

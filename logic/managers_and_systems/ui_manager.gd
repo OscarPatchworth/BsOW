@@ -21,7 +21,7 @@ var _selector_manager: SelectorManager
 @onready var _turn_panel: TurnPanel = find_child("TurnPanel")
 @onready var _combat_panel: CombatPanel = find_child("CombatPanel")
 @onready var _players_panel: PlayersPanel = find_child("PlayersPanel")
-@onready var _seasons_panel: SeasonsPanel = find_child("SeasonPanel")
+@onready var _seasons_panel: SeasonsPanel = find_child("SeasonsPanel")
 @onready var _movement_panel: MovementPanel = find_child("MovementPanel")
 @onready var _purchase_panel: PurchasePanel = find_child("PurchasePanel")
 @onready var _wallet_panel: WalletPanel = find_child("WalletPanel")

@@ -1,42 +1,24 @@
-#select_unit_btn.gd
+# select_unit_button.gd
+class_name SelectUnitButton
 extends GameButton
 
-# signals
-signal unit_selected(unit: UnitObject)
+## A button in the unit picker. Pressing it selects its unit for combat.
+
+signal unit_selected(unit: UnitInstance)
+
+var _unit: UnitInstance
 
 
-# enums
-
-# constants
-
-# static variables
-var unit: UnitObject
-
-# @export variables
-
-# remaining regular variables
-
-# @onready variables
-
-###################################################################################################
-###	Methods
-func free_children(parent: Node) -> void:
-	for i in parent.get_children():
-		i.queue_free()
-
-
-### Connected Signals
 func _pressed() -> void:
-	unit_selected.emit(unit)
+	unit_selected.emit(_unit)
 
 
-## Calls
-
-## Get/Set (er)s
-func get_unit() -> UnitObject:
-	return unit
-func set_unit(u: UnitObject):
-	unit = u
+#region Accessors
+func get_unit() -> UnitInstance:
+	return _unit
 
 
-### Connected Signals
+func set_unit(value: UnitInstance) -> void:
+	_unit = value
+	text = value.get_display_name() if value != null else ""
+#endregion

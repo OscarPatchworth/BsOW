@@ -1,49 +1,26 @@
-#unit_shop_button.gd
+# unit_shop_button.gd
 class_name UnitShopButton
 extends GameButton
 
-# signals
-signal buy_unit_action_req(req: Action)
+## Requests buying one kind of unit.
 
-# enums
-#enum Element {EARTH,WATER,AIR,FIRE,}
+signal action_requested(action: Action)
 
-# constants
-#const MAX_SPEED = 200
-
-# static variables
-var unit: UnitData
-var selector_manager: GameManager
-
-# @export variables
-
-# remaining regular variables
-
-# @onready variables
-
-###################################################################################################
-###	Methods
-func get_unit() -> UnitData:
-	return unit
-func set_unit(new_unit: UnitData):
-	unit = new_unit
-	update_btn_view()
+var _unit_data: UnitData
 
 
-func update_btn_view():
-	self.text = unit.name
-
-### Connected Signals
-func bind_selector(selector: GameManager):
-	selector_manager = selector
-	#print("Building_Shop_Button selector_manager bound")
+func _pressed() -> void:
+	var action := Action.create(Action.Type.BUY_UNIT)
+	action.set_unit_data(_unit_data)
+	action_requested.emit(action)
 
 
-func _pressed():
-	var action_req = Action.new()
-	action_req.type = Action.RequestType.BUY_UNIT
-	#action_req.actor = selector_manager.self_player
-	#action_req.target_lander = selector_manager.selected_lander
-	action_req.unit_type = unit
-	buy_unit_action_req.emit(action_req)
-	#print("Emittting action request: \n" + str(action_req.get_action_dict()))
+#region Accessors
+func get_unit_data() -> UnitData:
+	return _unit_data
+
+
+func set_unit_data(value: UnitData) -> void:
+	_unit_data = value
+	text = value.get_display_name()
+#endregion

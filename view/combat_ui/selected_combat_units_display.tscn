@@ -9,7 +9,7 @@ bg_color = Color(0.558145, 0.478406, 0.257703, 1)
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_x4ts1"]
 bg_color = Color(0.6, 0.6, 0.6, 0)
 
-[node name="ComabtSelectedUnitsDisplay" type="Control"]
+[node name="SelectedCombatUnitsDisplay" type="Control"]
 layout_mode = 3
 anchor_right = 1.0
 anchor_bottom = 0.3

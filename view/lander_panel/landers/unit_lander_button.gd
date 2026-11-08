@@ -1,58 +1,33 @@
-#unit_lander_control_button.gd
-class_name UnitLanderControlButton
+# unit_lander_button.gd
+class_name UnitLanderButton
 extends GameButton
 
-# signals
-signal unit_selected(unit: UnitObject)
-signal unit_deselected(unit: UnitObject)
+## A unit on the selected lander. Toggle on/off to add/remove it from the selection.
 
-# enums
+signal unit_selected(unit: UnitInstance)
+signal unit_deselected(unit: UnitInstance)
 
-# constants
+var _unit: UnitInstance
 
-# static variables
-var unit: UnitObject
-var selector_manager: GameManager
 
-# @export variables
-
-# remaining regular variables
-
-# @onready variables
-
-###################################################################################################
-###	Methods
 func _init() -> void:
-	self.set_toggle_mode(true)
+	toggle_mode = true
 
 
-func free_children(parent: Node) -> void:
-	for i in parent.get_children():
-		i.queue_free()
-
-
-### Connected Signals
-func _pressed():
-	print(unit.get_unit_data().name)
-
-
-## Calls
-func bind_selector(selector: GameManager):
-	selector_manager = selector
-	#print("unit_lander_control_button selector_manager bound")
-
-
-func update_display():
-	if unit.get_unit_data() != null:
-		self.text = unit.get_unit_data().name
-		self.icon = unit.get_unit_data().get_icon()
-
-
-## Get/Set (er)s
-
-### Connected Signals
-func _toggled(toggled_on: bool) -> void:
-	if toggled_on:
-		unit_selected.emit(unit)
+func _toggled(is_on: bool) -> void:
+	if is_on:
+		unit_selected.emit(_unit)
 	else:
-		unit_deselected.emit(unit)
+		unit_deselected.emit(_unit)
+
+
+#region Accessors
+func get_unit() -> UnitInstance:
+	return _unit
+
+
+func set_unit(value: UnitInstance) -> void:
+	_unit = value
+	text = value.get_display_name()
+	icon = value.get_icon()
+#endregion

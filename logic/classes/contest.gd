@@ -4,6 +4,8 @@ extends RefCounted
 
 ## The state of one fight: an attacking lander invading a defending lander.
 ## Most accessors take a `side` so callers don't need attacker/defender branches.
+## `side` parameters are typed int (holding a Contest.Side value) because Godot can mis-resolve
+## the enum type when Contest is loaded through a cyclic class reference.
 
 enum Side {
 	ATTACKER,
@@ -21,7 +23,7 @@ func _init(attacker_lander: Lander = null, defender_lander: Lander = null) -> vo
 
 
 #region Public API
-static func get_opposite_side(side: Side) -> Side:
+static func get_opposite_side(side: int) -> int:
 	return Side.DEFENDER if side == Side.ATTACKER else Side.ATTACKER
 
 
@@ -40,13 +42,13 @@ func is_involved(actor: Actor) -> bool:
 	return get_side_of(actor) != -1
 
 
-func add_unit(side: Side, unit: UnitInstance) -> void:
+func add_unit(side: int, unit: UnitInstance) -> void:
 	var units := get_units(side).duplicate()
 	units.append(unit)
 	set_units(side, units)
 
 
-func remove_unit(side: Side, unit: UnitInstance) -> void:
+func remove_unit(side: int, unit: UnitInstance) -> void:
 	var units := get_units(side).duplicate()
 	units.erase(unit)
 	set_units(side, units)
@@ -69,16 +71,16 @@ func to_debug_dictionary() -> Dictionary:
 
 
 #region Accessors
-func get_lander(side: Side) -> Lander:
+func get_lander(side: int) -> Lander:
 	return AbilitySystem.resolve_get(self, _key(side, "lander"), _landers[side])
 
 
-func set_lander(side: Side, value: Lander) -> void:
+func set_lander(side: int, value: Lander) -> void:
 	_landers[side] = AbilitySystem.resolve_set(self, _key(side, "lander"), _landers[side], value)
 
 
 ## The actor fighting on `side`: whoever owns the units on that side's lander.
-func get_actor(side: Side) -> Actor:
+func get_actor(side: int) -> Actor:
 	var lander := get_lander(side)
 	var actor: Actor = null
 	if lander != null:
@@ -88,25 +90,25 @@ func get_actor(side: Side) -> Actor:
 
 
 ## Units chosen to fight on `side`.
-func get_units(side: Side) -> Array[UnitInstance]:
+func get_units(side: int) -> Array[UnitInstance]:
 	return AbilitySystem.resolve_get(self, _key(side, "units"), _units[side])
 
 
-func set_units(side: Side, value: Array[UnitInstance]) -> void:
+func set_units(side: int, value: Array[UnitInstance]) -> void:
 	_units[side] = AbilitySystem.resolve_set(self, _key(side, "units"), _units[side], value)
 
 
-func is_ready(side: Side) -> bool:
+func is_ready(side: int) -> bool:
 	return AbilitySystem.resolve_get(self, _key(side, "ready"), _ready_flags[side])
 
 
-func set_ready(side: Side, value: bool) -> void:
+func set_ready(side: int, value: bool) -> void:
 	_ready_flags[side] = AbilitySystem.resolve_set(self, _key(side, "ready"), _ready_flags[side], value)
 #endregion
 
 
 #region Private
 ## e.g. (ATTACKER, "units") -> &"attacker_units"
-func _key(side: Side, field: String) -> StringName:
+func _key(side: int, field: String) -> StringName:
 	return StringName(("attacker_" if side == Side.ATTACKER else "defender_") + field)
 #endregion

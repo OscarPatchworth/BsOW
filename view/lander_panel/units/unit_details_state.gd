@@ -1,37 +1,15 @@
-#unit_details_state.gd
-extends Node
+# unit_details_state.gd
+class_name UnitDetailsState
+extends VBoxContainer
 
-# signals
-#signal score_changed
+## Details about the units on the selected lander. (Nothing to show yet.)
 
-# enums
-#enum Element {EARTH,WATER,AIR,FIRE,}
-
-# constants
-#const MAX_SPEED = 200
-
-# static variables
-var selector_manager: GameManager
-
-# @export variables
-
-# remaining regular variables
-var cur_lander: Lander
-var cur_actor: Actor
+var _selector_manager: SelectorManager
 
 
-# @onready variables
-
-###################################################################################################
-###	Methods
+func bind_selector_manager(selector_manager: SelectorManager) -> void:
+	_selector_manager = selector_manager
 
 
-### Connected Signals
-func bind_selector(selector: GameManager):
-	selector_manager = selector
-	#print("UnitDetails slector_manager bound")
-
-
-## Calls
-func update():
+func refresh() -> void:
 	pass

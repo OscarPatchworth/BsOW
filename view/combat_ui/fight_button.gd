@@ -1,60 +1,33 @@
-#fight_btn.gd
+# fight_button.gd
+class_name FightButton
 extends GameButton
 
-# signals
-signal player_combat_ready
-signal player_combat_not_ready
+## Toggles the player's ready state in combat. Shows "FIGHT" until pressed, then "READY".
 
-# enums
+signal ready_pressed()
+signal not_ready_pressed()
 
-# constants
-const FIGHT_BTN_ROT: float = 12.0
+const TILT_DEGREES: float = 12.0
 
-# static variables
-var combat_manager: GameManager
-# @export variables
-
-# remaining regular variables
-var player_self: Actor
-var ply_ready: bool = false
-
-# @onready variables
-
-###################################################################################################
-###	Methods
-func free_children(parent: Node) -> void:
-	for i in parent.get_children():
-		i.queue_free()
+var _player: Player
+var _is_player_ready: bool = false
 
 
-func update(combat_state: Contest):
-	if(combat_state.get_invading_actor() == player_self and combat_state.get_invading_ready()
-	or combat_state.get_invading_actor() == player_self and combat_state.get_invading_ready()):
-		text = "READY"
-		rotation = -FIGHT_BTN_ROT
-		ply_ready = true
-	else:
-		text = "FIGHT"
-		rotation = FIGHT_BTN_ROT
-		ply_ready = false
-
-
-### Connected Signals
 func _pressed() -> void:
-	if(ply_ready):
-		player_combat_not_ready.emit()
+	if _is_player_ready:
+		not_ready_pressed.emit()
 	else:
-		player_combat_ready.emit()
+		ready_pressed.emit()
 
 
-## Calls
-func bind_combat_manager(cm: GameManager):
-	combat_manager = cm
-	#print("Fight Btn | comabt UI | Combat Manager Bound")
+#region Public API
+func bind_player(player: Player) -> void:
+	_player = player
 
-func bind_player(p: Player):
-	player_self = p
 
-## Get/Set (er)s
-
-### Connected Signals
+func refresh(contest: Contest) -> void:
+	var side := contest.get_side_of(_player)
+	_is_player_ready = side != -1 and contest.is_ready(side)
+	text = "READY" if _is_player_ready else "FIGHT"
+	rotation_degrees = -TILT_DEGREES if _is_player_ready else TILT_DEGREES
+#endregion
