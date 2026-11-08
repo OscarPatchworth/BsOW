@@ -11,6 +11,8 @@ extends Node
 const MAIN_SCENE: PackedScene = preload("res://main.tscn")
 ## Far from the origin lander, so the player's setup landers don't collide with anything.
 const SETUP_ORIGIN := Vector3(-30, 0, -30)
+## Where the AI scenario is built (far from everything else).
+const AI_TEST_ORIGIN := Vector3(30, 0, 30)
 const LANDER_SPACING: float = 2.2  # Above MIN_DISTANCE (2.0), below connection range (2.5).
 
 var _failures: Array[String] = []
@@ -26,6 +28,13 @@ var _action_manager: ActionManager
 var _rejections: Array[String] = []
 var _resolved_types: Array[Action.Type] = []
 var _resolved_actions: Array[Action] = []
+## Food in each actor's wallet just before / after their latest COLLECT_UPKEEP.
+var _food_before_upkeep := {}
+var _food_after_upkeep := {}
+## Food upkeep each actor should get, worked out from what they own when upkeep starts.
+var _expected_food_upkeep := {}
+## A copy of each actor's wallet right after their latest upkeep.
+var _wallet_after_upkeep := {}
 
 
 func _ready() -> void:
@@ -42,6 +51,8 @@ func _ready() -> void:
 	_action_manager = _root.find_child("ActionManager", true, false)
 	_action_manager.action_rejected.connect(_on_action_rejected)
 	_action_manager.action_resolved.connect(_on_action_resolved)
+	_action_manager.action_resolving.connect(_on_action_resolving)
+	_combat_manager.combat_started.connect(_on_combat_started_auto_defend)
 
 	_check(_player != null and _ai != null, "player and AI exist")
 	_check(_turn_manager.get_game_state() == TurnManager.GameState.SETUP, "game starts in SETUP")
@@ -118,7 +129,10 @@ func _test_main_loop() -> void:
 	_action_manager.request_action(ai_progress)
 	_check(_turn_manager.get_game_phase() == TurnManager.Phase.DUSTCLOUD_COLLAPSE, "PROGRESS_TURN rejected when it isn't the actor's turn")
 
-	# Dustcloud collapse: placing a lander progresses the phase automatically.
+	# Dustcloud collapse can't be skipped; placing a lander ends it.
+	_request(Action.create(Action.Type.PROGRESS_TURN))
+	_check(_turn_manager.get_game_phase() == TurnManager.Phase.DUSTCLOUD_COLLAPSE and _last_rejection_contains("can't be skipped"),
+		"DUSTCLOUD_COLLAPSE can't be skipped with PROGRESS_TURN")
 	var landers_before := _lander_manager.get_landers().size()
 	var place := Action.create(Action.Type.PLACE_LANDER)
 	place.set_position(SETUP_ORIGIN + Vector3(0, 0, 10))
@@ -181,12 +195,10 @@ func _test_main_loop() -> void:
 
 	await _test_combat(home)
 
-	# Finish the turn. Everything below happens in one chain of queued actions:
-	# CLEANUP -> AI UPKEEP -> the AI plays its whole turn -> CLEANUP -> player UPKEEP -> DUSTCLOUD_COLLAPSE.
-	var player_food_before := _player.get_wallet().get_amount(&"food")
-	var player_expected_food := _expected_upkeep(_player, &"food")
-	var ai_food_before := _ai.get_wallet().get_amount(&"food")
-	var ai_expected_food := _expected_upkeep(_ai, &"food")
+	var scenario := await _build_ai_scenario()
+
+	# Finish the turn. The AI then plays its whole turn by itself (the test auto-defends for the player):
+	# CLEANUP -> AI UPKEEP -> AI turn -> CLEANUP -> player UPKEEP -> DUSTCLOUD_COLLAPSE.
 	var season_before := _turn_manager.get_season_index()
 	var round_before := _turn_manager.get_round_number()
 
@@ -201,19 +213,58 @@ func _test_main_loop() -> void:
 	await _frames(1)
 	_turn_manager.active_actor_changed.disconnect(record_actor_change)
 
-	var ai_progress_count := 0
-	for action in _resolved_actions:
-		if action.get_type() == Action.Type.PROGRESS_TURN and action.get_actor() == _ai and not action.is_system():
-			ai_progress_count += 1
 	_check(actor_changes == ([_ai, _player] as Array[Actor]), "turn went to the AI and back to the player")
-	_check(ai_progress_count == 3, "AI played its own turn (progressed DUSTCLOUD_COLLAPSE, BUYING, COMBAT)")
 	_check(phase_seen_on_actor_change == ([TurnManager.Phase.UPKEEP, TurnManager.Phase.UPKEEP] as Array[TurnManager.Phase]),
 		"active_actor_changed fires once the phase is already the new turn's UPKEEP")
 	_check(_turn_manager.get_game_phase() == TurnManager.Phase.DUSTCLOUD_COLLAPSE, "player's next turn starts at DUSTCLOUD_COLLAPSE")
 	_check(_turn_manager.get_round_number() == round_before + 1, "round number incremented once")
 	_check(_turn_manager.get_season_index() == (season_before + 1) % 4, "season advanced")
-	_check(_ai.get_wallet().get_amount(&"food") == ai_food_before + ai_expected_food, "AI collected upkeep for its landers")
-	_check(_player.get_wallet().get_amount(&"food") == player_food_before + player_expected_food, "player collected upkeep for owned landers")
+	_check(_food_after_upkeep[_ai] == _food_before_upkeep[_ai] + _expected_food_upkeep[_ai], "AI collected upkeep for its landers")
+	_check(_food_after_upkeep[_player] == _food_before_upkeep[_player] + _expected_food_upkeep[_player], "player collected upkeep for owned landers")
+	_check_ai_turn(scenario)
+
+
+## A spot where the AI should act: a 3-unit AI garrison, an empty neutral lander next to it,
+## and a player lander with a single unit next to it.
+func _build_ai_scenario() -> Dictionary:
+	_lander_manager.spawn_protected_lander(AI_TEST_ORIGIN, _ai, 3)
+	var ai_base := _lander_manager.get_landers()[-1]
+	var neutral := _lander_manager.spawn_random_lander(AI_TEST_ORIGIN + Vector3(LANDER_SPACING, 0, 0))
+	var bait := _lander_manager.spawn_random_lander(AI_TEST_ORIGIN + Vector3(0, 0, LANDER_SPACING))
+	bait.add_units([UnitInstance.new(_player.get_species().get_units()[0], _player)] as Array[UnitInstance])
+	await _frames(2)
+	return {"ai_base": ai_base, "neutral": neutral, "bait": bait}
+
+
+func _check_ai_turn(scenario: Dictionary) -> void:
+	var placed := _ai_actions(Action.Type.PLACE_LANDER)
+	var purchases := _ai_actions(Action.Type.PURCHASE)
+	var attacks := _ai_actions(Action.Type.ATTACK)
+	var moves := _ai_actions(Action.Type.MOVE_UNITS)
+	var progresses := _ai_actions(Action.Type.PROGRESS_TURN)
+
+	_check(placed.size() == 1, "AI placed one lander in DUSTCLOUD_COLLAPSE")
+	_check(progresses.size() == 2, "AI ended BUYING and COMBAT itself (DUSTCLOUD ended by placing)")
+	var bought_building := purchases.any(func(action: Action) -> bool: return action.get_purchasable() is BuildingData)
+	var tower_cost: EconData = null
+	for purchasable in scenario["ai_base"].get_purchasables(_ai):
+		if purchasable is BuildingData and purchasable.can_spawn_units():
+			tower_cost = purchasable.get_cost()
+	if tower_cost != null and _wallet_after_upkeep[_ai].can_afford(tower_cost):
+		_check(bought_building, "AI bought a spawning building for a garrison")
+	else:
+		# It went first and already spent its resources on buildings last turn.
+		_check(not bought_building, "AI didn't try to buy a building it can't afford")
+	_check(attacks.any(func(action: Action) -> bool: return action.get_target_lander() == scenario["bait"]),
+		"AI attacked the weaker player lander next to it")
+	_check(attacks.size() <= SimpleAI.MAX_ATTACKS_PER_TURN, "AI stayed within its attack limit")
+	# It claims an empty neighbour: the one in the scenario, the bait if its attack emptied it,
+	# or the lander it placed this turn (it aims those at the nearest enemy, i.e. the bait).
+	var claims := moves.filter(func(action: Action) -> bool: return action.get_source_lander() == scenario["ai_base"])
+	_check(not claims.is_empty(), "AI moved units from its base onto a neighbouring lander")
+	_check(claims.all(func(action: Action) -> bool: return action.get_target_lander().get_owner_actor() == _ai),
+		"AI now owns the lander it claimed")
+	_check(scenario["ai_base"].has_units(), "AI kept units behind on its base")
 
 
 func _test_combat(home: Lander) -> void:
@@ -295,6 +346,33 @@ func _on_action_rejected(_action: Action, reason: String) -> void:
 func _on_action_resolved(action: Action) -> void:
 	_resolved_types.append(action.get_type())
 	_resolved_actions.append(action)
+	if action.get_type() == Action.Type.COLLECT_UPKEEP:
+		_food_after_upkeep[action.get_actor()] = action.get_actor().get_wallet().get_amount(&"food")
+		var wallet_copy := EconData.new()
+		wallet_copy.add(action.get_actor().get_wallet())
+		_wallet_after_upkeep[action.get_actor()] = wallet_copy
+
+
+func _on_action_resolving(action: Action) -> void:
+	if action.get_type() == Action.Type.COLLECT_UPKEEP:
+		_food_before_upkeep[action.get_actor()] = action.get_actor().get_wallet().get_amount(&"food")
+		_expected_food_upkeep[action.get_actor()] = _expected_upkeep(action.get_actor(), &"food")
+
+
+## Stands in for the human when the AI attacks: picks the first unit and declares ready.
+func _on_combat_started_auto_defend(contest: Contest) -> void:
+	if contest.get_side_of(_player) != Contest.Side.DEFENDER:
+		return
+	_request(_combat_unit_action(Action.Type.SELECT_COMBAT_UNIT, contest.get_lander(Contest.Side.DEFENDER).get_units()[0]))
+	_request(Action.create(Action.Type.DECLARE_COMBAT_READY))
+
+
+func _ai_actions(type: Action.Type) -> Array[Action]:
+	var found: Array[Action] = []
+	for action in _resolved_actions:
+		if action.get_type() == type and action.get_actor() == _ai and not action.is_system():
+			found.append(action)
+	return found
 
 
 func _first_unit_purchasable(lander: Lander) -> UnitData:

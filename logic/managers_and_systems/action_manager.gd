@@ -205,8 +205,11 @@ func _validate_purchase(action: Action) -> String:
 	if not actor.get_wallet().can_afford(_get_cost(purchasable)):
 		return "Actor can not afford '%s'" % purchasable.get("display_name")
 
-	if purchasable is BuildingData and lander.has_building():
-		return "Lander already has a building (upgrades aren't implemented yet)"
+	if purchasable is BuildingData:
+		if lander.has_building():
+			return "Lander already has a building (upgrades aren't implemented yet)"
+		if (purchasable as BuildingData).is_unique_building() and _owns_building(actor, purchasable):
+			return "'%s' is unique and the actor already has one" % purchasable.get("display_name")
 	if purchasable is UnitData and lander.is_full():
 		return "Lander is full"
 	return ""
@@ -271,8 +274,11 @@ func _validate_progress_turn(action: Action) -> String:
 		return ""  # The game moving through admin phases or after a lander is placed.
 	if _turn_manager.get_active_actor() != action.get_actor():
 		return "It is not this actor's turn"
-	if _turn_manager.get_game_phase() in _turn_manager.get_admin_phases():
+	var phase := _turn_manager.get_game_phase()
+	if phase in _turn_manager.get_admin_phases():
 		return "Admin phases can't be progressed by an actor"
+	if phase in _turn_manager.get_non_skippable_phases():
+		return "%s can't be skipped: complete it first (place a lander)" % TurnManager.get_phase_name(phase)
 	if _combat_manager.is_in_progress():
 		return "Finish the current combat first"
 	return ""
@@ -422,9 +428,12 @@ func _get_cost(purchasable: Resource) -> EconData:
 
 
 func _has_command_tower(actor: Actor) -> bool:
-	var command_tower := actor.get_species().get_command_tower()
+	return _owns_building(actor, actor.get_species().get_command_tower())
+
+
+func _owns_building(actor: Actor, building_data: BuildingData) -> bool:
 	for lander in _lander_manager.get_landers_owned_by(actor):
-		if lander.has_building() and lander.get_building().get_building_data() == command_tower:
+		if lander.has_building() and lander.get_building().get_building_data() == building_data:
 			return true
 	return false
 

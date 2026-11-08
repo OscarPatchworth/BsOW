@@ -30,6 +30,7 @@ var _combat_side: int = -1
 func bind_action_manager(action_manager: ActionManager) -> void:
 	_action_manager = action_manager
 	action_manager.action_resolved.connect(_on_action_manager_action_resolved)
+	action_manager.action_rejected.connect(_on_action_manager_action_rejected)
 
 
 ## Stamps this actor on `action` and sends it to the ActionManager.
@@ -88,6 +89,11 @@ func _on_action_manager_action_resolved(action: Action) -> void:
 	_action_resolved(action)
 
 
+func _on_action_manager_action_rejected(action: Action, reason: String) -> void:
+	if action.get_actor() == self:
+		_action_rejected(action, reason)
+
+
 func _on_turn_manager_game_phase_changed(phase: TurnManager.Phase) -> void:
 	_game_phase_changed(phase)
 	var is_playable_phase := (_turn_manager.get_game_state() == TurnManager.GameState.MAIN_LOOP
@@ -123,5 +129,10 @@ func _enter_combat(_contest: Contest) -> void:
 
 ## Override in subclasses: called after any action (by anyone) has resolved.
 func _action_resolved(_action: Action) -> void:
+	pass
+
+
+## Override in subclasses: one of this actor's own actions was rejected.
+func _action_rejected(_action: Action, _reason: String) -> void:
 	pass
 #endregion

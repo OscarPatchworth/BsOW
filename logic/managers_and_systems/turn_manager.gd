@@ -46,7 +46,8 @@ const SEASON_COLORS := {
 
 ## Phases that run automatically and can't be progressed by an actor.
 const ADMIN_PHASES: Array[Phase] = [Phase.UPKEEP, Phase.CLEANUP]
-## Phases an actor must act in before moving on.
+## Phases an actor can't end with PROGRESS_TURN: they end when their action is done
+## (DUSTCLOUD_COLLAPSE ends when the actor places a lander).
 const NON_SKIPPABLE_PHASES: Array[Phase] = [Phase.DUSTCLOUD_COLLAPSE]
 
 var _game_state: GameState = GameState.SETUP
