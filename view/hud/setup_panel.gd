@@ -72,8 +72,7 @@ func _select(biome_data: BiomeData) -> void:
 
 
 func _refresh() -> void:
-	for child in _buttons.get_children():
-		child.free()
+	HudTheme.clear_children(_buttons)
 	if _remaining_biomes.is_empty():
 		_title.text = "Click one of your landers to build your %s" % _player.get_species().get_command_tower().get_display_name()
 		_note.text = "It becomes your home base. Then the game begins."

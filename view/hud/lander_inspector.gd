@@ -95,8 +95,7 @@ func refresh() -> void:
 
 #region Private
 func _refresh_details(owner_actor: Actor) -> void:
-	for child in _details.get_children():
-		child.free()
+	HudTheme.clear_children(_details)
 	var upkeep := HudTheme.format_cost(_lander.get_upkeep())
 	_details.add_child(HudTheme.make_label("Upkeep: %s per turn" % ("nothing" if upkeep == "free" else upkeep),
 		HudTheme.SMALL_FONT_SIZE, HudTheme.MUTED))
@@ -135,8 +134,7 @@ func _refresh_details(owner_actor: Actor) -> void:
 
 
 func _refresh_shop(owner_actor: Actor) -> void:
-	for child in _shop_box.get_children():
-		child.free()
+	HudTheme.clear_children(_shop_box)
 	var is_ours := owner_actor == _player
 	var purchasables: Array[Resource] = []
 	if is_ours:

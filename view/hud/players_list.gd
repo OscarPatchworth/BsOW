@@ -37,8 +37,7 @@ func _all_actors() -> Array[Actor]:
 func refresh() -> void:
 	if _turn_manager == null:
 		return
-	for child in _rows.get_children():
-		child.free()
+	HudTheme.clear_children(_rows)
 	var active := _turn_manager.get_active_actor()
 	var is_main_loop := _turn_manager.get_game_state() == TurnManager.GameState.MAIN_LOOP
 	for actor in _all_actors():

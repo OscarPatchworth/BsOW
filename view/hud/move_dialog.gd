@@ -68,8 +68,7 @@ func open(from: Lander, to: Lander, select_all: bool = false) -> void:
 	_from = from
 	_to = to
 	_title.text = "Move units: %s → %s" % [EventLog.lander_name(from), EventLog.lander_name(to)]
-	for child in _units_box.get_children():
-		child.free()
+	HudTheme.clear_children(_units_box)
 	_unit_buttons.clear()
 	var units := from.get_units()
 	for i in units.size():
@@ -94,8 +93,7 @@ func close() -> void:
 
 #region Private
 func _build_confirm_buttons() -> void:
-	for child in _confirm_row.get_children():
-		child.free()
+	HudTheme.clear_children(_confirm_row)
 	var cancel := HudTheme.make_button("Cancel")
 	cancel.pressed.connect(close)
 	_confirm_row.add_child(cancel)

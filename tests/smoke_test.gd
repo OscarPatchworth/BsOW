@@ -237,6 +237,7 @@ func _test_main_loop() -> void:
 	_player.get_selector_manager().select_lander(home)
 	_player.get_ui().show_lander_panel(home)
 	await _frames(1)
+	await _test_shop_click(home)
 
 	_request(Action.create(Action.Type.PROGRESS_TURN))
 	await _frames(1)
@@ -325,6 +326,31 @@ func _test_elimination() -> void:
 	_check(_player.get_ui().get_game_over_panel().visible, "the game over panel shows")
 	_request(Action.create(Action.Type.PROGRESS_TURN))
 	_check(_last_rejection_contains("main loop"), "no more turns after the game is over")
+
+
+## Clicking a real shop button in the inspector buys the unit. The purchase rebuilds the shop
+## while that button's `pressed` signal is still running (this used to crash: "Object is locked").
+func _test_shop_click(lander: Lander) -> void:
+	var units_before := lander.get_units().size()
+	var top_up := EconData.new()
+	for key in EconData.RESOURCE_KEYS:
+		top_up.set_amount(key, 10)
+	_player.get_wallet().add(top_up)
+	_player.get_ui().get_inspector().refresh()
+	var clicked: ShopButton = null
+	for button in _player.get_ui().get_inspector().find_children("*", "ShopButton", true, false):
+		if not (button as ShopButton).disabled and (button as ShopButton).make_action().get_purchasable() is UnitData:
+			clicked = button
+			break
+	_check(clicked != null, "the inspector offers an affordable unit")
+	if clicked == null:
+		return
+	clicked.pressed.emit()
+	await _frames(2)
+	_check(lander.get_units().size() == units_before + 1, "clicking a shop button buys the unit (and the shop rebuilds safely)")
+	_check(not is_instance_valid(clicked), "the old shop button was freed after the rebuild")
+	# Put things back the way the following checks expect.
+	lander.remove_units([lander.get_units()[-1]] as Array[UnitInstance])
 
 
 func _command_tower_lander_of(actor: Actor) -> Lander:

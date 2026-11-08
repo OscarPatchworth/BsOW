@@ -49,6 +49,14 @@ static func panel_style(color: Color = BACKGROUND, radius: int = 8, padding: int
 	return style
 
 
+## Removes every child now and frees it at the end of the frame. Safe to call from a child's
+## own signal (e.g. a button whose press rebuilds the list it lives in), where free() would fail.
+static func clear_children(node: Node) -> void:
+	for child in node.get_children():
+		node.remove_child(child)
+		child.queue_free()
+
+
 static func make_label(text: String = "", font_size: int = FONT_SIZE, color: Color = TEXT) -> Label:
 	var label := Label.new()
 	label.text = text

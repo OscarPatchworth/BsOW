@@ -104,8 +104,7 @@ func refresh() -> void:
 
 ## Shows the dice of the round that just finished.
 func show_round(outcomes: Array[CombatOutcome]) -> void:
-	for child in _results.get_children():
-		child.free()
+	HudTheme.clear_children(_results)
 	if _contest == null:
 		return
 	var our_actor := _player
@@ -143,16 +142,14 @@ func get_contest() -> Contest:
 func close() -> void:
 	hide()
 	_contest = null
-	for child in _results.get_children():
-		child.free()
+	HudTheme.clear_children(_results)
 	closed.emit()
 #endregion
 
 
 #region Private
 func _refresh_our_units(our_side: int) -> void:
-	for child in _our_units.get_children():
-		child.free()
+	HudTheme.clear_children(_our_units)
 	var available := _contest.get_available_units(our_side)
 	var selected := _contest.get_units(our_side)
 	var max_units := _combat_manager.get_max_units(our_side)
@@ -171,8 +168,7 @@ func _refresh_our_units(our_side: int) -> void:
 
 
 func _refresh_their_units(their_side: int, opponent: Actor) -> void:
-	for child in _their_units.get_children():
-		child.free()
+	HudTheme.clear_children(_their_units)
 	var available := _contest.get_available_units(their_side)
 	var selected := _contest.get_units(their_side)
 	var status := "ready" if _contest.is_ready(their_side) else "choosing…"
@@ -185,8 +181,7 @@ func _refresh_their_units(their_side: int, opponent: Actor) -> void:
 
 
 func _refresh_buttons(our_side: int) -> void:
-	for child in _buttons.get_children():
-		child.free()
+	HudTheme.clear_children(_buttons)
 	if _contest.is_over():
 		_result_banner.text = _result_text(our_side)
 		_result_banner.visible = true
