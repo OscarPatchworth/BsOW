@@ -2,7 +2,7 @@
 class_name SelectedCombatUnitsDisplay
 extends Control
 
-## One unit slot in a CombatUnitsPanel: a coloured fill bar, the unit's name,
+## One unit slot in a CombatUnitsPanel: a colored fill bar, the unit's name,
 ## and a button to deselect the unit while still choosing.
 
 signal unit_deselected(unit: UnitInstance)

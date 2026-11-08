@@ -20,6 +20,10 @@ func set_hit_points(value: int) -> void:
 * Backing field: `_snake_case`. Accessors: `get_x()` / `set_x(value)`.
 * The `&"name"` passed to the AbilitySystem is the accessor name without `get_`/`set_`.
 * Booleans use a question-style getter: `is_x()`, `has_x()`, `can_x()` (setter is still `set_x()`).
+  GDScript forbids a variable and a function sharing a name, so a public bool export such as
+  `can_spawn` gets a slightly longer getter (`can_spawn_units()`); the AbilitySystem key stays `&"can_spawn"`.
+* Per-side values in combat take a `side` argument (`contest.get_units(side)`) instead of
+  attacker/defender copies. `side` is typed `int` and holds a `Contest.Side` value.
 * Collections: `get_units()`, `add_unit()`, `remove_unit()`, `clear_units()`.
   Add/remove build a new array and write it through `set_units()`, so there is only one write path.
 * Inside a class, prefer the accessor over the field too. Use the raw `_field` only inside the
