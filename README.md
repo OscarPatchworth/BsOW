@@ -13,6 +13,7 @@ Dev a digital version of a game for a friend and lols
 | `tests/` | Headless smoke test |
 
 Naming and accessor rules: see [CONVENTIONS.md](CONVENTIONS.md).
+Class diagrams and a two-round data-flow walkthrough: see [docs/diagrams.md](docs/diagrams.md).
 
 ## AbilitySystem hook
 
