@@ -19,9 +19,9 @@ enum DisplayState {
 # static variables
 var selector_manager: GameManager
 
-var style_box_defualt: StyleBox = preload("res://view/lander_panel/landers/lander_btn_defualt.res")
-var style_box_enemy: StyleBox = preload("res://view/lander_panel/landers/lander_btn_enemy.res")
-var style_box_ally: StyleBox = preload("res://view/lander_panel/landers/lander_btn_ally.res")
+var style_box_defualt: StyleBox = preload("res://view/lander_panel/landers/lander_button_default.res")
+var style_box_enemy: StyleBox = preload("res://view/lander_panel/landers/lander_button_enemy.res")
+var style_box_ally: StyleBox = preload("res://view/lander_panel/landers/lander_button_ally.res")
 # remaining regular variables
 var lander: Lander
 var display_state: DisplayState = DisplayState.NEUTRAL

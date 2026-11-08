@@ -4,7 +4,7 @@
 [ext_resource type="Resource" uid="uid://c30rqnqmpoirn" path="res://data/building/base.tres" id="2_7tf32"]
 [ext_resource type="Script" path="res://data/species/species_data.gd" id="2_u5824"]
 [ext_resource type="Script" path="res://data/biome/biome_data.gd" id="4_12ucf"]
-[ext_resource type="Script" path="res://data/units/unitData.gd" id="4_pw3b2"]
+[ext_resource type="Script" path="res://data/units/unit_data.gd" id="4_pw3b2"]
 [ext_resource type="Resource" uid="uid://d04jxtc7utmqq" path="res://data/biome/forest_biome.tres" id="5_0ckvg"]
 [ext_resource type="Resource" uid="uid://wnpla86qhlna" path="res://data/units/lycanth_halfbreed.tres" id="5_6jcvb"]
 

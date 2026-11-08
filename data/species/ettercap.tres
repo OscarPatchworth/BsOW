@@ -4,7 +4,7 @@
 [ext_resource type="Resource" uid="uid://c30rqnqmpoirn" path="res://data/building/base.tres" id="2_7bpwy"]
 [ext_resource type="Script" path="res://data/species/species_data.gd" id="2_fkjdq"]
 [ext_resource type="Script" path="res://data/biome/biome_data.gd" id="4_h4pfu"]
-[ext_resource type="Script" path="res://data/units/unitData.gd" id="4_mng3l"]
+[ext_resource type="Script" path="res://data/units/unit_data.gd" id="4_mng3l"]
 [ext_resource type="Resource" uid="uid://bo0vvivlki1y1" path="res://data/biome/mountain_biome.tres" id="5_o6xyn"]
 [ext_resource type="Resource" uid="uid://c6gc0ufrfqhr0" path="res://data/units/ettercap_spawn.tres" id="5_q8cca"]
 

@@ -1,7 +1,7 @@
 [gd_scene load_steps=79 format=3 uid="uid://cmnn2jtgwr4dw"]
 
 [ext_resource type="Script" path="res://logic/classes/player.gd" id="1_tftws"]
-[ext_resource type="Script" path="res://logic/classes/player_controler.gd" id="2_pm403"]
+[ext_resource type="Script" path="res://logic/classes/player_controller.gd" id="2_pm403"]
 [ext_resource type="Script" path="res://spaghetti/Scripts/main/cam_gimbal.gd" id="3_mv7g2"]
 [ext_resource type="Script" path="res://logic/managers_and_systems/ui_manager.gd" id="4_stx5a"]
 [ext_resource type="Script" path="res://logic/managers_and_systems/selector_manager.gd" id="4_w88om"]
@@ -15,23 +15,22 @@
 [ext_resource type="Script" path="res://view/lander_panel/landers/lander_control.gd" id="13_nfxjl"]
 [ext_resource type="Script" path="res://view/combat_ui/combat_panel.gd" id="15_1neg8"]
 [ext_resource type="Script" path="res://view/combat_ui/combat_units_panel.gd" id="16_ld1gm"]
-[ext_resource type="PackedScene" uid="uid://cv2tx1wgojvl4" path="res://view/combat_ui/SelectedCombatUnitsDisplay.tscn" id="17_o3itl"]
-[ext_resource type="Script" path="res://view/combat_ui/attack_ablt_panel.gd" id="18_p5lpa"]
-[ext_resource type="Script" path="res://view/combat_ui/defend_ablt_panel.gd" id="19_26ink"]
+[ext_resource type="PackedScene" uid="uid://cv2tx1wgojvl4" path="res://view/combat_ui/selected_combat_units_display.tscn" id="17_o3itl"]
+[ext_resource type="Script" path="res://view/combat_ui/attack_ability_panel.gd" id="18_p5lpa"]
+[ext_resource type="Script" path="res://view/combat_ui/defend_ability_panel.gd" id="19_26ink"]
 [ext_resource type="Script" path="res://view/combat_ui/select_units_panel.gd" id="20_sfpvi"]
-[ext_resource type="Script" path="res://view/combat_ui/select_ablt_panel.gd" id="21_gsl2e"]
-[ext_resource type="Script" path="res://view/combat_ui/select_unit_btn.gd" id="21_l1mcl"]
-[ext_resource type="Script" path="res://view/combat_ui/fight_btn.gd" id="22_oflah"]
+[ext_resource type="Script" path="res://view/combat_ui/select_ability_panel.gd" id="21_gsl2e"]
+[ext_resource type="Script" path="res://view/combat_ui/select_unit_button.gd" id="21_l1mcl"]
+[ext_resource type="Script" path="res://view/combat_ui/fight_button.gd" id="22_oflah"]
 [ext_resource type="Script" path="res://view/seasons_panel/seasons_panel.gd" id="23_5erey"]
 [ext_resource type="Script" path="res://view/turn_panel/turn_panel.gd" id="23_on07q"]
 [ext_resource type="Script" path="res://view/game_button.gd" id="24_1p1b5"]
-[ext_resource type="Script" path="res://sences/item_list.gd" id="24_utqdd"]
 [ext_resource type="Script" path="res://view/players_panel/players_panel.gd" id="25_7higi"]
 [ext_resource type="Script" path="res://view/wallet_ui/wallet_panel.gd" id="28_dfmpb"]
 [ext_resource type="Script" path="res://view/movement_panel/movement_panel.gd" id="28_fj3f5"]
 [ext_resource type="Script" path="res://view/purchase_ui/purchase_panel.gd" id="30_55tok"]
-[ext_resource type="PackedScene" uid="uid://2phj8lcdgtq6" path="res://sences/templates/list_box/VListBox/VListBox.tscn" id="30_h2p8k"]
-[ext_resource type="PackedScene" uid="uid://cpp2t3np2iv2f" path="res://sences/templates/list_box/HListBox/HListBox.tscn" id="32_85cnl"]
+[ext_resource type="PackedScene" uid="uid://2phj8lcdgtq6" path="res://scenes/templates/list_box/v_list_box.tscn" id="30_h2p8k"]
+[ext_resource type="PackedScene" uid="uid://cpp2t3np2iv2f" path="res://scenes/templates/list_box/h_list_box.tscn" id="32_85cnl"]
 [ext_resource type="Script" path="res://view/setup_panel/setup_panel.gd" id="32_nolq2"]
 [ext_resource type="Texture2D" uid="uid://cabd03uvto1pg" path="res://visuals/textures/poker_dot_Icons/poker_red_icon.png" id="33_517gy"]
 
@@ -759,7 +758,6 @@ item_0/disabled = true
 item_1/text = "Player 2"
 item_2/text = "Player 3"
 item_2/disabled = true
-script = ExtResource("24_utqdd")
 
 [node name="WalletPanel" type="Panel" parent="CanvasLayer/UI-manager"]
 visible = false

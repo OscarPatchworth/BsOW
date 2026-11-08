@@ -8,7 +8,7 @@ signal root_setup_finished
 
 # static variables
 ### Loadable sences
-var player_scene = preload("res://sences/player.tscn")
+var player_scene = preload("res://scenes/player.tscn")
 
 # @export variables
 @export var game_species: Array[SpeciesData]

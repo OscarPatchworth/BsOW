@@ -1,6 +1,6 @@
 [gd_resource type="Resource" script_class="BuildingData" load_steps=5 format=3 uid="uid://ikctw3t6aoeq"]
 
-[ext_resource type="PackedScene" uid="uid://bcpmnehlfj0jq" path="res://sences/buildings/castle_tower.tscn" id="1_ojjku"]
+[ext_resource type="PackedScene" uid="uid://bcpmnehlfj0jq" path="res://scenes/buildings/castle_tower.tscn" id="1_ojjku"]
 [ext_resource type="Script" path="res://data/building/building_data.gd" id="1_y1e7o"]
 [ext_resource type="Script" path="res://data/econ/econ_data.gd" id="2_glv22"]
 

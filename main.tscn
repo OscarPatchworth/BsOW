@@ -11,14 +11,14 @@
 [ext_resource type="Script" path="res://logic/managers_and_systems/action_manager.gd" id="6_w5vq1"]
 [ext_resource type="Script" path="res://data/biome/biome_data.gd" id="7_5v68b"]
 [ext_resource type="Script" path="res://logic/managers_and_systems/gravity_system.gd" id="7_k8fui"]
-[ext_resource type="PackedScene" uid="uid://lwrx00g5nx8i" path="res://sences/landerSene.tscn" id="7_l1cnn"]
+[ext_resource type="PackedScene" uid="uid://lwrx00g5nx8i" path="res://scenes/lander.tscn" id="7_l1cnn"]
 [ext_resource type="Resource" uid="uid://c4kc36gl4hjpw" path="res://data/biome/badlands_biome.tres" id="8_5i0m8"]
 [ext_resource type="Resource" uid="uid://d04jxtc7utmqq" path="res://data/biome/forest_biome.tres" id="9_p6myw"]
 [ext_resource type="Resource" uid="uid://bo0vvivlki1y1" path="res://data/biome/mountain_biome.tres" id="10_33p1r"]
 [ext_resource type="Resource" uid="uid://djyants1sgts1" path="res://data/biome/plains_biome.tres" id="11_388a1"]
 [ext_resource type="Script" path="res://data/match_settings.gd" id="17_535i8"]
 [ext_resource type="Script" path="res://logic/managers_and_systems/combat_manager.gd" id="18_x7sqw"]
-[ext_resource type="Script" path="res://logic/classes/Draw3D.gd" id="19_67nka"]
+[ext_resource type="Script" path="res://logic/classes/draw_3d.gd" id="19_67nka"]
 
 [sub_resource type="BoxShape3D" id="BoxShape3D_r86o6"]
 size = Vector3(10, 0.1, 10)
