@@ -149,30 +149,32 @@ classDiagram
         +SpeciesData species
         +EconData wallet
         +int combat_side
+        +action_requested(action) signal
+        +request_action(action)
+        +is_active_actor() bool
+        +bind_action_manager(m)
         +bind_turn_manager(m)
         +bind_lander_manager(m)
         +bind_combat_manager(m)
+        #_take_phase(phase)*
+        #_game_phase_changed(phase)*
         #_enter_combat(contest)*
+        #_action_resolved(action)*
     }
 
     class Player {
-        +action_requested(action) signal
-        +combat_selection_requested(actor, thing, is_selected) signal
         +bind_draw_3d(d)
         +bind_match_settings(s)
+        #acts through its UI, not _take_phase
     }
 
     class SimpleAI {
-        +combat_unit_selected(unit) signal
-        +combat_unit_deselected(unit) signal
-        +combat_ready(actor) signal
-        +combat_not_ready(actor) signal
+        #_take_phase(phase) buys units, then PROGRESS_TURN
+        #_enter_combat(contest) picks units, readies
     }
 
     class Lander {
         <<RigidBody3D>>
-        +building_built(action) signal
-        +unit_bought(action) signal
         +BiomeData biome_data
         +BuildingInstance building
         +Array~UnitInstance~ units
@@ -223,6 +225,10 @@ classDiagram
         +BiomeData biome_data
         +Resource purchasable
         +create(type)$ Action
+        +create_system(type, actor)$ Action
+        +is_system() bool
+        +cancel(reason)
+        +is_cancelled() bool
     }
 
     class ActionType {
@@ -232,9 +238,15 @@ classDiagram
         PURCHASE
         PLACE_LANDER
         PLACE_BUILDING
-        BUY_UNIT
         PROGRESS_TURN
         PLACE_BIOME
+        SELECT_COMBAT_UNIT
+        DESELECT_COMBAT_UNIT
+        DECLARE_COMBAT_READY
+        WITHDRAW_COMBAT_READY
+        FINISH_SETUP (system)
+        COLLECT_UPKEEP (system)
+        RESOLVE_COMBAT (system)
     }
 
     class Contest {
@@ -296,6 +308,9 @@ classDiagram
 
 Notes:
 
+* `PLACE_BUILDING` is only the free command tower at the end of setup. Everything else is bought
+  with `PURCHASE`, on `target_lander`.
+* *System* actions are made with `Action.create_system()` and can't be requested by an actor.
 * A lander has **no owner field**. `get_owner_actor()` works it out: the building's owner, otherwise the
   first unit's owner, otherwise `null` (neutral). Abilities can still override it through the hook.
 * `UnitInstance` getters such as `get_damage()` currently pass straight through to `UnitData`, but each
@@ -319,11 +334,14 @@ classDiagram
     }
 
     class ActionManager {
-        +build_approved(action) signal
-        +unit_purchase_approved(action) signal
-        +biome_placement_approved(action) signal
-        +turn_progress_approved() signal
+        +action_resolving(action) signal
+        +action_resolved(action) signal
+        +action_rejected(action, reason) signal
         +request_action(action)
+        +is_resolving() bool
+        -Array~Action~ _queue
+        -_validate(action) String
+        -_execute(action)
     }
 
     class TurnManager {
@@ -343,22 +361,16 @@ classDiagram
         +register_actor(actor)
         +start()
         +progress_phase()
-        +finish_setup()
+        +begin_main_loop()
     }
 
     class LanderManager {
-        +building_built(action) signal
-        +unit_bought(action) signal
-        +units_moved(action) signal
-        +upkeep_completed() signal
         +Array~Lander~ landers
         +spawn_random_lander(pos) Lander
         +spawn_biome_lander(action) Lander
         +spawn_protected_lander(pos, owner, count)
         +get_connected_landers(lander) Array
         +get_landers_owned_by(actor) Array
-        +build(action)
-        +buy_unit(action)
         +move_units(action)
         +run_upkeep(actor)
     }
@@ -371,11 +383,12 @@ classDiagram
         +max_units(side) int
         +max_abilities(side) int
         +start_combat(action)
-        +request_selection(actor, thing, is_selected)
         +select_unit(unit)
         +deselect_unit(unit)
-        +set_actor_ready(actor)
-        +set_actor_not_ready(actor)
+        +set_actor_ready(actor, is_ready)
+        +resolve_combat()
+        +is_selecting() bool
+        +is_in_progress() bool
     }
 
     class AbilitySystem {
@@ -420,6 +433,9 @@ classDiagram
     GameRoot *-- MatchSettings
     GameRoot *-- Player : instantiates player.tscn
     GameRoot *-- SimpleAI : creates
+    Actor <|-- Player
+    Actor <|-- SimpleAI
+    Actor --> ActionManager : action_requested
 
     ActionManager --> LanderManager
     ActionManager --> TurnManager
@@ -432,15 +448,18 @@ classDiagram
     Player *-- SelectorManager
 ```
 
-`EconManager` and `GravitySystem` exist as empty placeholders and aren't shown. `Draw3D` is a debug
+The managers only *execute*. All rule checks live in `ActionManager._validate()`, and the managers'
+methods are called from `ActionManager._execute()`. `EconManager` and `GravitySystem` exist as empty
+placeholders and aren't shown. `Draw3D` is a debug
 drawing helper that `GameRoot` hands to the `Player`.
 
 ---
 
 ## 4. Scene tree and signal wiring
 
-Solid arrows are signal connections, labelled with the signal name. `GameRoot._ready()` makes every
-cross-object connection; `Player` connects its own children.
+Solid arrows are signal connections, labelled with the signal name. Dotted arrows are direct calls.
+`GameRoot._add_actor()` wires every actor the same way, and each actor connects its own manager
+signals in its `bind_*()` methods.
 
 ```mermaid
 flowchart LR
@@ -452,7 +471,7 @@ flowchart LR
         P((Player))
         PC -- action_requested --> P
         UI -- action_requested --> P
-        UI -- "combat_unit_selected / deselected<br/>combat_ready / not_ready" --> P
+        UI -- "combat_unit_selected / deselected<br/>combat_ready / not_ready<br/>(Player turns these into Actions)" --> P
         PC -- lander_selected --> SM
         PC -- "lander_view_requested<br/>movement_ui_requested" --> UI
         UI -- "setup_biome_selected<br/>all_setup_biomes_placed" --> PC
@@ -464,35 +483,29 @@ flowchart LR
     LM[LanderManager]
     CM[CombatManager]
     GR[GameRoot]
-    L[Lander]
 
     P -- "action_requested<br/>(actor stamped)" --> AM
-    P -- combat_selection_requested --> CM
+    AI -- "action_requested<br/>(actor stamped)" --> AM
 
-    AM -- build_approved --> LM
-    AM -- build_approved --> GR
-    AM -- unit_purchase_approved --> LM
-    AM -- biome_placement_approved --> LM
-    AM -- turn_progress_approved --> TM
-    AM -- "biome_placement_approved<br/>build_approved" --> P
-    AM -.->|"direct calls:<br/>spawn_random_lander, move_units"| LM
-    AM -.->|"direct call:<br/>start_combat"| CM
-    AM -.->|"direct calls (PURCHASE):<br/>wallet.subtract, lander.build / buy_unit"| L
+    AM -.->|"_execute: spawn, move_units, run_upkeep,<br/>lander.build / buy_unit, wallet.subtract"| LM
+    AM -.->|"_execute: progress_phase, begin_main_loop"| TM
+    AM -.->|"_execute: start_combat, select_unit,<br/>set_actor_ready, resolve_combat"| CM
 
-    L -- "building_built<br/>unit_bought" --> LM
-    LM -- "building_built<br/>unit_bought<br/>units_moved" --> P
-
-    TM -- "game_state_changed<br/>game_phase_changed<br/>turn_order_generated<br/>active_actor_changed<br/>season_order_generated<br/>season_changed" --> P
-    TM -- game_phase_changed --> GR
-    GR -.->|"UPKEEP: run_upkeep(active actor)"| LM
-    GR -.->|"first build in SETUP: finish_setup()"| TM
-    GR -- root_setup_finished --> TM
-
+    AM -- "action_resolved" --> P
+    AM -- "action_resolved" --> AI
+    TM -- "game_phase_changed" --> P
+    TM -- "game_phase_changed<br/>(→ _take_phase on its turn)" --> AI
     CM -- combat_started --> P
     CM -- combat_started --> AI
-    CM -- "combat_updated<br/>combat_resolved" --> P
-    AI -- "combat_unit_selected / deselected<br/>combat_ready / not_ready" --> CM
+
+    TM -- "game_state_changed, turn_order_generated,<br/>active_actor_changed, season_*<br/>(HUD only)" --> P
+    CM -- "combat_updated, combat_resolved<br/>(HUD only)" --> P
+    GR -- root_setup_finished --> TM
 ```
+
+Compared to before the fixes, the wiring went from about 30 hand-made connections in `GameRoot` to one
+per actor (`action_requested`). The signals each actor listens to are the same for the Player and the
+AI, apart from the Player's extra HUD-only signals.
 
 ---
 
@@ -539,57 +552,78 @@ flowchart TB
     MovementPanel -.->|"uses"| ListBox
 ```
 
-| Panel | Emits | Action / signal |
+| Panel | Emits | Action |
 |---|---|---|
-| `SetupPanel` | biome picked from the list | `setup_biome_selected` → controller waits for a click on the ground |
+| `SetupPanel` | biome picked from the list | `setup_biome_selected` → controller waits for a click, then `PLACE_BIOME` |
 | `TurnPanel` | *Next* pressed | `PROGRESS_TURN` |
 | `PurchasePanel` | market item pressed | `PURCHASE` (purchasable = `UnitData` or `BuildingData`) |
+| `BuildingShopButton` / `UnitShopButton` | shop item pressed | `PURCHASE`, same checks and cost as the market |
 | `MovementPanel` | *Move* pressed | `MOVE_UNITS` |
-| `BuildingShopButton` / `UnitShopButton` | shop item pressed | `PLACE_BUILDING` / `BUY_UNIT` |
-| `CombatPanel` | unit chosen, *Fight* pressed | `combat_unit_selected`, `combat_ready` |
+| `ConnectedLanderButton` | neighbour pressed | `MOVE_UNITS` or `ATTACK` |
+| `CombatPanel` | unit chosen / removed, *Fight* pressed | `SELECT_COMBAT_UNIT` / `DESELECT_COMBAT_UNIT`, `DECLARE_COMBAT_READY` |
 
 ---
 
 ## 6. The Action pipeline
 
-Every player request takes the same route. The controller and UI never set the actor; `Player` stamps
-it, so the `ActionManager` always knows who asked.
+Every change to the game state takes this route, whether a player, the AI or the game itself asked
+for it.
 
 ```mermaid
-flowchart LR
-    Input["Mouse click /<br/>button press"] --> Create["Action.create(TYPE)<br/>+ set_* fields"]
-    Create --> Emit["PlayerController or UiManager<br/>action_requested"]
-    Emit --> Stamp["Player._on_child_action_requested<br/>action.set_actor(self)"]
-    Stamp --> AM{"ActionManager.request_action<br/>match type"}
-
-    AM -- PLACE_BIOME --> B1["valid placement?"] --> B2["biome_placement_approved<br/>→ LanderManager.spawn_biome_lander"]
-    AM -- PLACE_BUILDING --> C1["lander has no building?"] --> C2["build_approved<br/>→ LanderManager.build → Lander.build"]
-    AM -- PLACE_LANDER --> D1["valid placement?"] --> D2["spawn_random_lander<br/>+ turn_progress_approved"]
-    AM -- PURCHASE --> E1["wallet.can_afford?"] --> E2["wallet.subtract<br/>Lander.build / Lander.buy_unit"]
-    AM -- BUY_UNIT --> F1["building can spawn this unit type?"] --> F2["unit_purchase_approved<br/>→ LanderManager.buy_unit"]
-    AM -- MOVE_UNITS --> G1["target not hostile?"] --> G2["LanderManager.move_units"]
-    AM -- ATTACK --> H1["both sides have units,<br/>enemies, attacker owns units?"] --> H2["CombatManager.start_combat"]
-    AM -- PROGRESS_TURN --> I1["not an admin phase?"] --> I2["turn_progress_approved<br/>→ TurnManager.progress_phase"]
-
-    AM -.->|"any check fails"| R["_reject(): prints<br/>'ActionManager · Rejected TYPE · reason'"]
+flowchart TB
+    Req["Actor.request_action(action)<br/>stamps the actor"] --> Q[("ActionManager queue")]
+    Sys["Action.create_system(type)<br/>follow-ups the game queues itself"] --> Q
+    Q --> V{"_validate(action)<br/>returns a reason or ''"}
+    V -- "reason" --> Rej["action_rejected(action, reason)"]
+    V -- "ok" --> Pre["action_resolving(action)<br/>listeners may action.cancel(reason)"]
+    Pre -- "cancelled" --> Rej
+    Pre --> Ex["_execute(action)<br/>calls the managers"]
+    Ex --> Post["action_resolved(action)<br/>state is already updated"]
+    Ex -. "may queue follow-ups" .-> Q
+    Post -. "listeners (AI, abilities)<br/>may request more" .-> Q
 ```
+
+**What `_validate` checks**
+
+| Action | Allowed when |
+|---|---|
+| `PLACE_BIOME` | Setup; the position is clear |
+| `PLACE_BUILDING` | Setup; it's the actor's command tower; the lander has no building; the actor has no tower yet |
+| `PLACE_LANDER` | Main loop; actor's turn; `DUSTCLOUD_COLLAPSE`; the position is clear |
+| `PURCHASE` | Actor's turn; `BUYING`; actor owns the lander; the lander offers it; affordable; room for a unit / no building yet |
+| `MOVE_UNITS` | Actor's turn; `COMBAT`; no combat running; landers connected; actor's own units, on the source; target not hostile and has room |
+| `ATTACK` | Actor's turn; `COMBAT`; no combat running; landers connected; both have units; attacker owns its side, enemy on the other |
+| `PROGRESS_TURN` | Main loop; actor's turn; not an admin phase; no combat running (a system `PROGRESS_TURN` skips these) |
+| `SELECT` / `DESELECT_COMBAT_UNIT` | Combat choosing units; actor takes part; its own unit on its side's lander; within the unit limit |
+| `DECLARE` / `WITHDRAW_COMBAT_READY` | Combat choosing units; actor takes part |
+| `FINISH_SETUP`, `COLLECT_UPKEEP`, `RESOLVE_COMBAT` | System only |
+
+**Follow-ups the game queues itself**
+
+| After | Queued |
+|---|---|
+| `PLACE_BUILDING` (the command tower) | `FINISH_SETUP` |
+| `FINISH_SETUP` or `PROGRESS_TURN` into `UPKEEP` | `COLLECT_UPKEEP` for the active actor, then system `PROGRESS_TURN` |
+| `PROGRESS_TURN` into `CLEANUP` | system `PROGRESS_TURN` |
+| `PLACE_LANDER` | system `PROGRESS_TURN` (placing the lander is the whole phase) |
+| `DECLARE_COMBAT_READY` when both sides are ready | `RESOLVE_COMBAT` |
 
 ---
 
 ## 7. Playthrough: setup and two rounds
 
 This traces a short game through the real code paths: one human `Player` and one `SimpleAI`. The turn
-order is shuffled at start; here the Player is assumed to go first.
+order is shuffled at start; here the Player is assumed to go first. If the AI goes first, it plays its
+turn by itself straight after setup.
 
 **Phases each turn:** `UPKEEP → DUSTCLOUD_COLLAPSE → BUYING → COMBAT → CLEANUP`.
-`UPKEEP` and `CLEANUP` are *admin phases*: `TurnManager` announces them and moves on by itself.
+`UPKEEP` and `CLEANUP` are *admin phases*: the game passes through them with system actions.
 After `CLEANUP` the next actor's `UPKEEP` starts. When play wraps back to the first actor, the round
 number goes up and the season advances.
 
-> **Current behaviour worth knowing:** `SimpleAI` only reacts to combat. It has no turn logic, so on
-> its turn the human presses *Next* until play returns to them. Also, the very first main-loop turn
-> starts at `DUSTCLOUD_COLLAPSE`: `finish_setup()` progresses out of the initial `UPKEEP` without
-> announcing it, so no upkeep is paid on turn 1.
+**Reading these diagrams:** every arrow into `ActionManager` is queued. "resolve" marks the moment the
+queue gets to that action. Anything requested while an action is resolving waits its turn, so a long
+chain (like the AI's whole turn) runs one action at a time, in order.
 
 ### 7a. Boot and setup
 
@@ -609,46 +643,39 @@ sequenceDiagram
 
     Note over GR: main.tscn loads → GameRoot._ready()
     GR->>LM: spawn_random_lander(origin)
-    GR->>P: instantiate player.tscn, set species + starting wallet, bind managers
-    GR->>TM: register_actor(Player)
-    GR->>AI: new SimpleAI, set species + wallet, bind managers
+    GR->>P: _add_actor(Player): species, wallet, bind managers, action_requested → AM
+    GR->>AI: _add_actor(SimpleAI): the same
     GR->>LM: spawn_protected_lander(pos, AI, ai_starting_troops) ×N
-    LM->>L: add_units(garrison of base_footsoldier units)
-    GR->>TM: register_actor(AI)
     GR-->>TM: root_setup_finished → start()
-
-    TM-->>P: turn_order_generated, active_actor_changed(Player)
-    P->>UI: PlayersPanel shows turn order
-    TM-->>P: season_order_generated
-    P->>UI: SeasonsPanel shows seasons
-    TM-->>P: game_state_changed(SETUP)
-    P->>PC: state = SETUP
-    P->>UI: SetupPanel lists starting biomes
+    Note over TM: one batch, announced in order
+    TM-->>P: turn_order_generated, active_actor_changed(Player),<br/>season_order_generated, game_state_changed(SETUP)
+    P->>UI: PlayersPanel, SeasonsPanel and SetupPanel show
 
     loop for each starting biome (starting_biome_count = 4)
         U->>UI: pick a biome
         UI-->>PC: setup_biome_selected(biome_data)
         U->>PC: click the ground
-        PC-->>P: action_requested(PLACE_BIOME, position, biome_data)
-        P->>P: action.set_actor(self)
-        P-->>AM: action_requested → request_action
-        AM-->>LM: biome_placement_approved → spawn_biome_lander
-        AM-->>P: biome_placement_approved
-        P->>UI: SetupPanel removes that biome
+        PC-->>P: action_requested(PLACE_BIOME)
+        P->>AM: request_action (actor = Player)
+        Note over AM: resolve PLACE_BIOME: setup, position clear
+        AM->>LM: spawn_biome_lander(action)
+        AM-->>P: action_resolved(PLACE_BIOME) → SetupPanel removes that biome
     end
     UI-->>PC: all_setup_biomes_placed (now placing the command tower)
 
     U->>PC: click one of your landers
-    PC-->>P: action_requested(PLACE_BUILDING, target_lander, command_tower)
-    P-->>AM: request_action
-    AM-->>LM: build_approved → build(action)
-    LM->>L: build(action) → BuildingInstance.new(command_tower, Player)
-    L-->>P: building_built (through LanderManager)
-    AM-->>GR: build_approved (still SETUP) → finish_setup()
-    Note over TM: waits one frame
-    TM-->>P: game_state_changed(MAIN_LOOP)
-    P->>UI: SetupPanel hides, TurnPanel + WalletPanel show
-    TM->>TM: progress_phase(): UPKEEP → DUSTCLOUD_COLLAPSE
+    PC-->>P: action_requested(PLACE_BUILDING, command_tower)
+    P->>AM: request_action
+    Note over AM: resolve PLACE_BUILDING: setup, command tower, no tower yet
+    AM->>L: build(action) → BuildingInstance(command_tower, Player)
+    AM-->>P: action_resolved(PLACE_BUILDING) → controller leaves setup mode
+    Note over AM: resolve FINISH_SETUP (queued follow-up)
+    AM->>TM: begin_main_loop()
+    TM-->>P: game_state_changed(MAIN_LOOP), game_phase_changed(UPKEEP)
+    Note over AM: resolve COLLECT_UPKEEP(Player)
+    AM->>LM: run_upkeep(Player): wallet += upkeep of each owned lander
+    Note over AM: resolve PROGRESS_TURN (system)
+    AM->>TM: progress_phase() → DUSTCLOUD_COLLAPSE
 ```
 
 ### 7b. Round 1 (season 1)
@@ -664,85 +691,66 @@ sequenceDiagram
     participant TM as TurnManager
     participant LM as LanderManager
     participant L as Lander
-    participant W as Player wallet (EconData)
-    participant GR as GameRoot
+    participant AI as SimpleAI
 
     rect rgba(80, 140, 255, 0.12)
-    Note over U,GR: Player's turn: DUSTCLOUD_COLLAPSE
-    TM-->>P: game_phase_changed(DUSTCLOUD_COLLAPSE)
-    P->>PC: state = COLLAPSING_DUSTCLOUD (draws a placement preview)
+    Note over U,AI: Player's turn: DUSTCLOUD_COLLAPSE
+    TM-->>P: game_phase_changed → controller places with a preview
     U->>PC: click a free spot
-    PC-->>P: action_requested(PLACE_LANDER, position)
-    P-->>AM: request_action
+    PC-->>P: action_requested(PLACE_LANDER)
+    P->>AM: request_action
+    Note over AM: resolve PLACE_LANDER: your turn, right phase, clear spot
     AM->>LM: spawn_random_lander(position)
-    AM-->>TM: turn_progress_approved → progress_phase()
-    Note right of TM: placing the lander ends the phase by itself
+    Note over AM: resolve PROGRESS_TURN (system) → BUYING
     end
 
     rect rgba(80, 200, 120, 0.12)
-    Note over U,GR: Player's turn: BUYING
-    TM-->>P: game_phase_changed(BUYING)
-    P->>UI: PurchasePanel.open_market() lists landers with something to buy
+    Note over U,AI: Player's turn: BUYING
+    TM-->>P: game_phase_changed(BUYING) → PurchasePanel.open_market()
     U->>UI: pick the command-tower lander, then a unit
-    UI-->>P: action_requested(PURCHASE, source_lander, purchasable = UnitData)
-    P-->>AM: request_action
-    AM->>W: can_afford(unit cost)? → subtract(cost)
-    W-->>UI: amounts_changed → WalletPanel.refresh()
-    AM->>L: buy_unit(action)
-    L->>L: add_units([UnitInstance.new(unit_data, Player)]) → set_units()
-    L-->>P: unit_bought (through LanderManager) → refresh LanderPanel
+    UI-->>P: action_requested(PURCHASE, target_lander, UnitData)
+    P->>AM: request_action
+    Note over AM: resolve PURCHASE: owned lander offers it, affordable, not full
+    AM->>L: wallet.subtract(cost), then buy_unit(action)
+    AM-->>P: action_resolved(PURCHASE) → refresh LanderPanel and WalletPanel
     U->>UI: press Next
     UI-->>P: action_requested(PROGRESS_TURN)
-    P-->>AM: request_action
-    AM-->>TM: turn_progress_approved → progress_phase()
+    P->>AM: request_action → resolve → COMBAT
     end
 
     rect rgba(255, 170, 60, 0.12)
-    Note over U,GR: Player's turn: COMBAT (move units)
-    TM-->>P: game_phase_changed(COMBAT)
-    P->>PC: state = MOVEMENT
-    P->>UI: PurchasePanel hides
+    Note over U,AI: Player's turn: COMBAT (move units)
     U->>PC: drag from your lander to the connected new lander
-    PC-->>UI: movement_ui_requested(from, to) → MovementPanel.open()
+    PC-->>UI: movement_ui_requested → MovementPanel.open()
     U->>UI: choose units, press Move
-    UI-->>P: action_requested(MOVE_UNITS, source, target, units)
-    P-->>AM: request_action (target is neutral or yours)
+    UI-->>P: action_requested(MOVE_UNITS)
+    P->>AM: request_action
+    Note over AM: resolve MOVE_UNITS: connected, your units, target not hostile, room
     AM->>LM: move_units(action)
-    LM->>L: source.remove_units / target.add_units
-    LM-->>P: units_moved → UiManager.on_units_moved()
+    AM-->>P: action_resolved(MOVE_UNITS) → UiManager.on_units_moved()
     U->>UI: press Next
     UI-->>P: action_requested(PROGRESS_TURN)
-    P-->>AM: request_action
-    AM-->>TM: turn_progress_approved → progress_phase()
+    P->>AM: request_action
     end
 
     rect rgba(160, 160, 160, 0.15)
-    Note over U,GR: Hand-over: CLEANUP → AI's UPKEEP (both admin phases, automatic)
-    TM-->>P: game_phase_changed(CLEANUP)
-    TM->>TM: progress_phase(): wraps to UPKEEP, next actor
-    TM-->>P: active_actor_changed(SimpleAI)
-    P->>PC: is_active_player = false
-    TM-->>GR: game_phase_changed(UPKEEP)
-    GR->>LM: run_upkeep(SimpleAI): AI wallet += upkeep of each AI-owned lander
-    TM->>TM: progress_phase(): UPKEEP → DUSTCLOUD_COLLAPSE
-    end
-
-    rect rgba(220, 80, 80, 0.10)
-    Note over U,GR: SimpleAI's turn (no AI turn logic yet)
-    loop DUSTCLOUD_COLLAPSE → BUYING → COMBAT → CLEANUP
-        U->>UI: press Next
-        UI-->>P: action_requested(PROGRESS_TURN)
-        P-->>AM: request_action
-        AM-->>TM: turn_progress_approved → progress_phase()
-    end
-    TM->>TM: wrap: round_number 1 → 2, season_index + 1
-    TM-->>P: season_changed(1) → SeasonsPanel highlights the next season
-    TM-->>P: active_actor_changed(Player)
-    TM-->>GR: game_phase_changed(UPKEEP)
-    GR->>LM: run_upkeep(Player)
-    LM->>W: add(lander.get_upkeep()) for every Player-owned lander
-    W-->>UI: amounts_changed → WalletPanel.refresh()
-    TM->>TM: progress_phase(): UPKEEP → DUSTCLOUD_COLLAPSE
+    Note over U,AI: One queued chain from here, no more input needed
+    Note over AM: resolve PROGRESS_TURN (Player) → CLEANUP
+    Note over AM: resolve PROGRESS_TURN (system) → wraps to the AI's UPKEEP
+    TM-->>P: active_actor_changed(SimpleAI), then game_phase_changed(UPKEEP)
+    Note over AM: resolve COLLECT_UPKEEP(SimpleAI)
+    Note over AM: resolve PROGRESS_TURN (system) → DUSTCLOUD_COLLAPSE
+    TM-->>AI: game_phase_changed → _take_phase(DUSTCLOUD_COLLAPSE)
+    AI->>AM: request_action(PROGRESS_TURN) (queued)
+    Note over AM: resolve → BUYING
+    TM-->>AI: _take_phase(BUYING)
+    AI->>AM: PURCHASE per lander that can spawn a unit, then PROGRESS_TURN
+    Note over AM: resolve each → COMBAT
+    TM-->>AI: _take_phase(COMBAT)
+    AI->>AM: request_action(PROGRESS_TURN)
+    Note over AM: resolve → CLEANUP, then system PROGRESS_TURN wraps the round
+    TM-->>P: season_changed(1), active_actor_changed(Player), game_phase_changed(UPKEEP)
+    Note over AM: resolve COLLECT_UPKEEP(Player), then system PROGRESS_TURN → DUSTCLOUD_COLLAPSE
     end
 ```
 
@@ -756,7 +764,6 @@ sequenceDiagram
     participant PC as PlayerController
     participant P as Player
     participant AM as ActionManager
-    participant TM as TurnManager
     participant L as Lander
     participant CM as CombatManager
     participant C as Contest
@@ -766,65 +773,56 @@ sequenceDiagram
     Note over U,AI: Player's turn: DUSTCLOUD_COLLAPSE
     U->>PC: click a free spot
     PC-->>P: action_requested(PLACE_LANDER)
-    P-->>AM: request_action → spawn lander, progress_phase()
+    P->>AM: request_action → spawn lander, system PROGRESS_TURN → BUYING
     end
 
     rect rgba(80, 200, 120, 0.12)
-    Note over U,AI: Player's turn: BUYING (a building this time)
-    U->>UI: pick a lander, then a building
-    UI-->>P: action_requested(PURCHASE, purchasable = BuildingData)
-    P-->>AM: request_action
-    AM->>AM: wallet.can_afford? and lander has no building?
+    Note over U,AI: Player's turn: BUYING (a building, from the lander panel's shop)
+    U->>UI: BuildingShopButton
+    UI-->>P: action_requested(PURCHASE, target_lander, BuildingData)
+    P->>AM: request_action
+    Note over AM: resolve PURCHASE: same checks and cost as the market
     AM->>L: wallet.subtract(cost), then build(action)
-    L->>L: BuildingInstance.new(building_data, Player), refresh_mesh()
-    U->>UI: press Next → PROGRESS_TURN → progress_phase()
+    U->>UI: press Next → PROGRESS_TURN → COMBAT
     end
 
     rect rgba(255, 90, 60, 0.12)
     Note over U,AI: Player's turn: COMBAT (attack an AI lander)
     U->>PC: drag from your lander to a connected AI lander
     PC-->>P: action_requested(ATTACK, source_lander, target_lander)
-    P-->>AM: request_action
-    AM->>AM: both landers have units, they're enemies, and the Player owns the attackers?
+    P->>AM: request_action
+    Note over AM: resolve ATTACK: your turn, COMBAT phase, connected, enemies
     AM->>CM: start_combat(action)
     CM->>C: Contest.new(attacker = source, defender = target)
-    CM-->>P: combat_started(contest)
-    P->>P: set_combat_side(ATTACKER), _enter_combat
-    P->>UI: show_combat(contest) → CombatPanel.open()
-    P->>PC: enter_combat() (state = COMBAT)
-    CM-->>AI: combat_started(contest)
-    AI->>AI: set_combat_side(DEFENDER), _enter_combat
-    loop up to get_max_units(DEFENDER) times
-        AI-->>CM: combat_unit_selected(random unit) → select_unit
-        CM->>C: add_unit(DEFENDER, unit)
-    end
-    AI-->>CM: combat_ready(AI) → set_actor_ready → contest.set_ready(DEFENDER, true)
+    CM-->>P: combat_started → _enter_combat → CombatPanel.open()
+    CM-->>AI: combat_started → _enter_combat
+    AI->>AM: SELECT_COMBAT_UNIT ×(up to max), then DECLARE_COMBAT_READY (queued)
+    Note over AM: resolve each AI pick
+    AM->>CM: select_unit / set_actor_ready(AI, true)
+    CM-->>P: combat_updated → CombatPanel.refresh()
 
-    loop for each unit the Player picks (up to get_max_units(ATTACKER))
+    loop for each unit the Player picks
         U->>UI: pick a unit in SelectUnitsPanel
         UI-->>P: combat_unit_selected(unit)
-        P-->>CM: combat_selection_requested(Player, unit, true) → request_selection
-        CM->>C: add_unit(ATTACKER, unit)
-        CM-->>P: combat_updated(contest) → CombatPanel.refresh()
+        P->>AM: request_action(SELECT_COMBAT_UNIT, units = [unit])
+        Note over AM: resolve: your own unit, on your lander, within the limit
+        AM->>CM: select_unit(unit) → combat_updated
     end
 
     U->>UI: press Fight
     UI-->>P: combat_ready
-    P-->>CM: combat_selection_requested(Player, true, true) → set_actor_ready
-    CM->>C: set_ready(ATTACKER, true) → are_both_sides_ready() is true
-    Note over CM: _run_damage_phase()
-    CM->>CM: CombatOutcome.new(unit).roll_damage() for each selected unit,<br/>using unit.get_damage(): dice_count d dice_sides + modifier
-    CM->>CM: sort each side highest first, then pair them up.<br/>Higher total wins, a tie goes to the defender.<br/>set_reason(COMBAT_WON / COMBAT_LOST) sets ALIVE / DEAD
-    CM-->>P: combat_resolved(outcomes)
-    P->>UI: show_combat_outcome → slots show each roll total
-    P->>PC: exit_combat() (back to MOVEMENT)
-    CM->>L: remove_units(dead) on the attacker and defender landers
-    Note over CM: phase = CLEANUP
-    U->>UI: Exit combat, then press Next → progress_phase()
+    P->>AM: request_action(DECLARE_COMBAT_READY)
+    Note over AM: resolve: set_actor_ready(Player, true). Both ready, so RESOLVE_COMBAT is queued
+    Note over AM: resolve RESOLVE_COMBAT (system)
+    AM->>CM: resolve_combat()
+    CM->>CM: roll each unit's damage (unit.get_damage()),<br/>pair highest with highest, a tie goes to the defender
+    CM->>L: remove_units(dead) on both landers
+    CM-->>P: combat_resolved(outcomes) → outcome shown, controller back to MOVEMENT
+    U->>UI: Exit combat, then press Next
     end
 
     rect rgba(160, 160, 160, 0.15)
-    Note over U,AI: CLEANUP → AI UPKEEP → AI's turn (user presses Next ×4) → round 3, season 3
+    Note over U,AI: CLEANUP → the AI plays its turn by itself → round 3, season 3 → player's UPKEEP
     end
 ```
 
@@ -833,10 +831,10 @@ sequenceDiagram
 | Moment | State changes (all through hooked setters) |
 |---|---|
 | Boot | `Actor.species`, `Actor.wallet` (10 of each resource), AI garrison units on its landers |
-| Setup | 4 biome landers placed; command tower `BuildingInstance` on one of them, so the Player owns it. `game_state`: SETUP → MAIN_LOOP |
+| Setup | 4 biome landers; command tower `BuildingInstance` on one of them (now Player-owned). `game_state`: SETUP → MAIN_LOOP; first upkeep paid |
 | R1 Dustcloud | +1 neutral lander |
 | R1 Buying | `wallet` −unit cost; `Lander.units` +1 `UnitInstance` |
-| R1 Combat | `Lander.units` moved from the source lander to the target. The target becomes Player-owned because its units belong to the Player |
-| R1 → R2 | `active_actor` Player → AI → Player; `round_number` 2; `season_index` 1; AI then Player `wallet` += biome upkeep |
+| R1 Combat | `Lander.units` moved to the neighbour, which becomes Player-owned |
+| R1 → R2 | `active_actor` Player → AI → Player; AI upkeep, AI purchases (if any); `round_number` 2; `season_index` 1; Player upkeep |
 | R2 Buying | `wallet` −building cost; `Lander.building` = new `BuildingInstance` |
 | R2 Combat | `CombatManager.contest` created; `Contest.units` / `ready` per side filled; `CombatOutcome` totals and reasons set; dead units removed from both landers |

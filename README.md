@@ -15,6 +15,19 @@ Dev a digital version of a game for a friend and lols
 Naming and accessor rules: see [CONVENTIONS.md](CONVENTIONS.md).
 Class diagrams and a two-round data-flow walkthrough: see [docs/diagrams.md](docs/diagrams.md).
 
+## Action pipeline
+
+Every game-state change is an `Action` sent to `ActionManager.request_action()`. Actions are queued
+and resolved one at a time:
+
+```
+validate -> action_resolving (listeners may cancel) -> execute -> action_resolved
+```
+
+The Player (through its UI) and the AI (in code) both play through this pipeline. The game uses it
+too, with system actions for upkeep, finishing setup, resolving combat and skipping admin phases.
+`action_resolved` is the event stream that triggered and delayed abilities will listen to.
+
 ## AbilitySystem hook
 
 All gameplay state is read and written through `get_x()` / `set_x()` accessors that call
@@ -27,5 +40,6 @@ Today these return the original value unchanged; abilities will plug in there.
 godot --headless --path . res://tests/smoke_test.tscn
 ```
 
-Plays through setup, a full turn (place lander, buy, move, attack) and a round wrap with upkeep.
+Plays through setup, a full player turn (place lander, buy, move, attack), the AI playing its own
+turn, and a round wrap with upkeep. It also checks that the rules reject out-of-turn and out-of-phase actions.
 Exit code 0 means every check passed.
