@@ -1,420 +1,207 @@
-#combat_manager.gd
-extends GameManager
+# combat_manager.gd
+class_name CombatManager
+extends Node
 
-# signals
+## Runs a contest: both sides pick units and ready up, then damage is rolled and resolved.
+## Flow: start_combat() -> SELECT (selections/ready) -> DAMAGE -> CLEANUP.
+
 signal combat_started(contest: Contest)
 signal combat_updated(contest: Contest)
-signal combat_outcome(c_out: Array[CombatOutcome])
-signal combat_finished()
+signal combat_resolved(outcomes: Array[CombatOutcome])
 
-# enums
-enum CombatLoop {
+enum CombatPhase {
+	INACTIVE,
 	START,
 	SELECT,
 	DAMAGE,
 	CLEANUP,
-	INACTIVE
 }
 
-
-# constants
-
-# static variables
-var match_settings: Node 
-
-var max_attack_units: int
-var max_defend_units: int
-
-var max_attack_ablt: int
-var max_defend_ablt: int
-
-# @export variables
-
-# remaining regular variables
-var current_combat: Contest
-
-var combat_context: CombatContext = CombatContext.new(Contest.new())
-
-var outcome_emitted: bool = false
-
-# @onready variables	
-
-###################################################################################################
-# Internal Class
-class CombatContext:  # Local = private to this file only!
-	var contest: Contest
-	var outcomes: Array[CombatOutcome] = []
-	var phase := CombatLoop.INACTIVE
-	var select_req: CombatSelection
-
-	func _init(c: Contest):
-		contest = c
-
-
-class CombatSelection: # Local = private to this file only!
-	enum SelectAction {
-		SELECT,
-		DESELECT
-	}
-	
-	enum SelectType {
+## What a combat selection request is about.
+enum SelectionType {
 	UNIT,
 	ABILITY,
-	READY
-	}
+	READY,
+}
 
-	var who: Actor
-	var action: SelectAction
-	var type: SelectType
-	var selection: Variant 
-	var completed: bool = false
+var _match_settings: MatchSettings
+var _contest: Contest
+var _phase: CombatPhase = CombatPhase.INACTIVE
+var _outcome_emitted: bool = false
 
-
-###	Methods
-func free_children(parent: Node) -> void:
-	for i in parent.get_children():
-		i.queue_free()
+var _max_units := {Contest.Side.ATTACKER: 0, Contest.Side.DEFENDER: 0}
+var _max_abilities := {Contest.Side.ATTACKER: 0, Contest.Side.DEFENDER: 0}
 
 
-func sum(numbs: Array[int]) -> int:
-	if numbs.size() == 1:
-		return numbs[0]
-	elif numbs == []:
-		return 0.0
-	else:
-		numbs[0] = numbs[0] + numbs[-1]
-		numbs.pop_back()
-		return sum(numbs)
+#region Public API
+func bind_match_settings(match_settings: MatchSettings) -> void:
+	_match_settings = match_settings
+	set_max_units(Contest.Side.ATTACKER, match_settings.get_max_attacker_units())
+	set_max_units(Contest.Side.DEFENDER, match_settings.get_max_defender_units())
+	set_max_abilities(Contest.Side.ATTACKER, match_settings.get_max_attacker_abilities())
+	set_max_abilities(Contest.Side.DEFENDER, match_settings.get_max_defender_abilities())
 
 
-func action_to_contest(req: Action) -> Contest:
-	var contest = Contest.new()
-	contest.set_contested_lander(req.target_lander)
-	contest.set_invading_lander(req.selected_lander)
-	return contest
-
-###################################################################################################
-# STATE Machine
-func update_combat():
-	#print("update_combat called, phase:", combat_context.phase)
-	match combat_context.phase:
-		CombatLoop.START:
-			print("Combat Manager | Err | Update_combat() in phase 'START'")
-			return
-		CombatLoop.SELECT:
-			run_select_phase()
-			if not outcome_emitted:
-				combat_updated.emit(current_combat)
-		CombatLoop.DAMAGE:
-			run_damage_phase()
-		CombatLoop.CLEANUP:
-			#run_cleanup_phase()
-			#combat_finished.emit()
-			return
-		CombatLoop.INACTIVE:
-			print("Comabat Manager | ERR | update_combat() called outside of Combat")
-			return
-		_:
-			print("Comabat Manager | ERR | update_combat() called with an in-valid combat-phase.")
-			return
+func start_combat(action: Action) -> void:
+	_phase = CombatPhase.START
+	_outcome_emitted = false
+	set_contest(Contest.new(action.get_source_lander(), action.get_target_lander()))
+	_phase = CombatPhase.SELECT
+	combat_started.emit(get_contest())
 
 
-# State Proccesses
-func run_combat_start(req: Action):
-	# Reset Context
-	combat_context = null
-	current_combat = null
-	outcome_emitted = false
-
-	# Update Context
-	current_combat = action_to_contest(req)
-	combat_context = CombatContext.new(current_combat)
-	# Abilities or smth ...
-
-	# Progress State Machine
-	combat_context.phase = CombatLoop.SELECT
-	# Emit
-	combat_started.emit(current_combat)
-
-
-func run_select_phase():
-	if combat_context.phase != CombatLoop.SELECT:
-		print("Combat Manager | Err | run_select_phase called outside of select phase")
-		return
-	if(combat_context.select_req == null):
-		# Idk how it null but it probbably possible
-		# Throw error msg
-		return
-	elif(combat_context.select_req.completed):
-		# No change to selection has been made .... return
+## Entry point for the Player's combat UI.
+## `thing` is a UnitInstance (select/deselect it) or a bool (ready / not ready).
+func request_selection(actor: Actor, thing: Variant, is_selected: bool) -> void:
+	if _phase != CombatPhase.SELECT:
+		print("CombatManager | Selection request outside of the select phase")
 		return
 
-	match combat_context.select_req.type:
-		CombatSelection.SelectType.UNIT:
-			if not combat_context.select_req.selection is UnitObject:
-				print("Combat Manager | Err  | Selection and type not compatable")
-
-			match combat_context.select_req.action:
-				CombatSelection.SelectAction.SELECT:
-					actor_selected_unit(combat_context.select_req.selection)
-				CombatSelection.SelectAction.DESELECT:
-					actor_deselected_unit(combat_context.select_req.selection)
-				_:
-					print("Combat Manager |Err | Action type invalid")
-					return
-
-		CombatSelection.SelectType.ABILITY:
-			match combat_context.select_req.action:
-				CombatSelection.SelectAction.SELECT:
-					pass
-				CombatSelection.SelectAction.DESELECT:
-					pass
-				_:
-					print("Combat Manager |Err | Action type invalid")
-					return
-
-		CombatSelection.SelectType.READY:
-			match combat_context.select_req.action:
-				CombatSelection.SelectAction.SELECT:
-					player_ready(combat_context.select_req.who)
-				CombatSelection.SelectAction.DESELECT:
-					player_unready(combat_context.select_req.who)
-				_:
-					print("Combat Manager | Err | Action type invalid")
-					return
-
-		_:
-			print("Combat Manager | Err | Selection Type invalid")
-			return
-
-
-
-func run_damage_phase():
-	#print("Combat Manager | @ run damage phase")
-	# Calc Damage
-
-	# Calc Invading
-	var invading_dmg: Array[CombatOutcome] = []
-	for unit in current_combat.invading_units:
-		var unit_dmg = CombatOutcome.new()
-		unit_dmg.set_unit(unit)
-
-		var unit_dmg_data = unit.get_unit_data().get_dmg()
-		for die in unit_dmg_data.get_dice_amount():
-			var roll = (randi() % unit_dmg_data.get_damage_dice()) + 1
-			unit_dmg.add_roll(roll)
-		
-		unit_dmg.add_mod(unit_dmg_data.get_damage_mod())
-		unit_dmg.set_total(unit_dmg.calc_total())
-
-		invading_dmg.append(unit_dmg)
-	#print(invading_dmg)
-
-	# Calc Defending
-	var defending_dmg: Array[CombatOutcome] = []
-	for unit in current_combat.defending_units:
-		var unit_dmg = CombatOutcome.new()
-		unit_dmg.set_unit(unit)
-
-		var unit_dmg_data = unit.get_unit_data().get_dmg()
-		for die in unit_dmg_data.get_dice_amount():
-			var roll = (randi() % unit_dmg_data.get_damage_dice()) + 1
-			unit_dmg.add_roll(roll)
-		
-		unit_dmg.add_mod(unit_dmg_data.get_damage_mod())
-		unit_dmg.set_total(unit_dmg.calc_total())
-
-		defending_dmg.append(unit_dmg)
-	#print(invading_dmg)
-
-	# Calc Outcome
-	invading_dmg.sort_custom(func(a, b): return a.get_total() > b.get_total())
-	defending_dmg.sort_custom(func(a, b): return a.get_total() > b.get_total())
-
-	for i in range(min(invading_dmg.size(), defending_dmg.size())):
-		#if i >= defending_dmg.size():
-		# Use > bcs if tie give win to Defending
-		if invading_dmg[i].get_total() > defending_dmg[i].get_total():
-			invading_dmg[i].set_reason(CombatOutcome.Reasons.COMBAT_WON)
-			defending_dmg[i].set_reason(CombatOutcome.Reasons.COMBAT_LOST)
+	if thing is UnitInstance:
+		if is_selected:
+			select_unit(thing)
 		else:
-			invading_dmg[i].set_reason(CombatOutcome.Reasons.COMBAT_LOST)
-			defending_dmg[i].set_reason(CombatOutcome.Reasons.COMBAT_WON)
+			deselect_unit(thing)
+	elif thing is bool:
+		if is_selected:
+			set_actor_ready(actor)
+		else:
+			set_actor_not_ready(actor)
+	else:
+		print("CombatManager | Selection request is not a unit or ready flag")
+		return
 
-	for unit in invading_dmg:
-		print(unit.get_debug())
+	if not _outcome_emitted:
+		combat_updated.emit(get_contest())
+
+
+func select_unit(unit: UnitInstance) -> void:
+	var side := get_contest().get_side_of(unit.get_owner_actor())
+	if side == -1:
+		push_warning("CombatManager | Unit owner is not part of this contest")
+		return
+	if get_contest().get_units(side).size() >= get_max_units(side):
+		print("CombatManager | %s already has the maximum number of units selected" % Contest.Side.find_key(side))
+		return
+	get_contest().add_unit(side, unit)
+
+
+func deselect_unit(unit: UnitInstance) -> void:
+	var side := get_contest().get_side_of(unit.get_owner_actor())
+	if side == -1:
+		push_warning("CombatManager | Actor attempted to deselect a unit outside this contest")
+		return
+	get_contest().remove_unit(side, unit)
+
+
+func set_actor_ready(actor: Actor) -> void:
+	var side := get_contest().get_side_of(actor)
+	if side == -1:
+		push_warning("CombatManager | Actor outside of combat declared ready")
+		return
+	get_contest().set_ready(side, true)
+	if get_contest().are_both_sides_ready():
+		_run_damage_phase()
+
+
+func set_actor_not_ready(actor: Actor) -> void:
+	var side := get_contest().get_side_of(actor)
+	if side == -1:
+		push_warning("CombatManager | Actor outside of combat declared not ready")
+		return
+	get_contest().set_ready(side, false)
+#endregion
+
+
+#region Accessors
+func get_contest() -> Contest:
+	return AbilitySystem.resolve_get(self, &"contest", _contest)
+
+
+func set_contest(value: Contest) -> void:
+	_contest = AbilitySystem.resolve_set(self, &"contest", _contest, value)
+
+
+func get_phase() -> CombatPhase:
+	return _phase
+
+
+func get_max_units(side: Contest.Side) -> int:
+	return AbilitySystem.resolve_get(self, _side_key(side, "units"), _max_units[side])
+
+
+func set_max_units(side: Contest.Side, value: int) -> void:
+	_max_units[side] = AbilitySystem.resolve_set(self, _side_key(side, "units"), _max_units[side], value)
+
+
+func get_max_abilities(side: Contest.Side) -> int:
+	return AbilitySystem.resolve_get(self, _side_key(side, "abilities"), _max_abilities[side])
+
+
+func set_max_abilities(side: Contest.Side, value: int) -> void:
+	_max_abilities[side] = AbilitySystem.resolve_set(self, _side_key(side, "abilities"), _max_abilities[side], value)
+#endregion
+
+
+#region Private
+func _run_damage_phase() -> void:
+	if _phase != CombatPhase.SELECT:
+		push_warning("CombatManager | Damage phase requested outside of the select phase")
+		return
+	_phase = CombatPhase.DAMAGE
+
+	var contest := get_contest()
+	var attacker_outcomes := _roll_side(contest.get_units(Contest.Side.ATTACKER))
+	var defender_outcomes := _roll_side(contest.get_units(Contest.Side.DEFENDER))
+
+	# Highest roll faces highest roll. Ties go to the defender.
+	for i in mini(attacker_outcomes.size(), defender_outcomes.size()):
+		if attacker_outcomes[i].get_total() > defender_outcomes[i].get_total():
+			attacker_outcomes[i].set_reason(CombatOutcome.Reason.COMBAT_WON)
+			defender_outcomes[i].set_reason(CombatOutcome.Reason.COMBAT_LOST)
+		else:
+			attacker_outcomes[i].set_reason(CombatOutcome.Reason.COMBAT_LOST)
+			defender_outcomes[i].set_reason(CombatOutcome.Reason.COMBAT_WON)
+
+	for outcome in attacker_outcomes:
+		print(outcome.to_debug_dictionary())
 	print("#####")
-	for unit in defending_dmg:
-		print(unit.get_debug())
+	for outcome in defender_outcomes:
+		print(outcome.to_debug_dictionary())
 
-	combat_outcome.emit(invading_dmg + defending_dmg)
-	outcome_emitted = true
-	print("Combat Manager | Emit | Combat outcome emitted")
+	var all_outcomes: Array[CombatOutcome] = []
+	all_outcomes.append_array(attacker_outcomes)
+	all_outcomes.append_array(defender_outcomes)
+	combat_resolved.emit(all_outcomes)
+	_outcome_emitted = true
 
-	# Apply Outcome
-	for attacker in invading_dmg:
-		if attacker.get_outcome() == CombatOutcome.Outcome.DEAD:
-			current_combat.get_invading_lander().rmv_units([attacker.get_unit()])
-	for defender in defending_dmg:
-		if defender.get_outcome() == CombatOutcome.Outcome.DEAD:
-			current_combat.get_contested_lander().rmv_units([defender.get_unit()])
+	_remove_dead(attacker_outcomes, contest.get_lander(Contest.Side.ATTACKER))
+	_remove_dead(defender_outcomes, contest.get_lander(Contest.Side.DEFENDER))
 
-
-	print("Combat Manager | Combat outcome emitted")
-	
-	# Change to Cleanup
-	set_state_cleanup()
+	_phase = CombatPhase.CLEANUP
 
 
-func run_cleanup_phase():
-	# Abilities or smth ...
-
-	# Progress State Machine
-	set_state_inactive()
-	
-
-
-# State Transistions
-func set_state_damage():
-	if combat_context.phase != CombatLoop.SELECT:
-		print("Combat Manager | Err | Attempting to switch to Damage phase outside of Selecting Phase")
-		return
-	else:
-		combat_context.phase = CombatLoop.DAMAGE
-		update_combat()
+## Rolls damage for each unit and returns the outcomes sorted highest total first.
+func _roll_side(units: Array[UnitInstance]) -> Array[CombatOutcome]:
+	var outcomes: Array[CombatOutcome] = []
+	for unit in units:
+		var outcome := CombatOutcome.new(unit)
+		outcome.roll_damage()
+		outcomes.append(outcome)
+	outcomes.sort_custom(func(a: CombatOutcome, b: CombatOutcome) -> bool: return a.get_total() > b.get_total())
+	return outcomes
 
 
-func set_state_cleanup():
-	if combat_context.phase != CombatLoop.DAMAGE:
-		print("Combat Manager | ERR | Atempt to set phase to Cleanup outside of Damage Phase")
-		return
-	else:
-		combat_context.phase = CombatLoop.CLEANUP
+func _remove_dead(outcomes: Array[CombatOutcome], lander: Lander) -> void:
+	var dead: Array[UnitInstance] = []
+	for outcome in outcomes:
+		if outcome.get_outcome() == CombatOutcome.Outcome.DEAD:
+			dead.append(outcome.get_unit())
+	if not dead.is_empty():
+		lander.remove_units(dead)
 
 
-func set_state_inactive():
-	if combat_context.phase != CombatLoop.CLEANUP:
-		print("Combat Manager | ERR | Attempt to set phase to inactive outside of Cleanup phase")
-		return
-	else:
-		combat_context.phase = CombatLoop.INACTIVE
-		outcome_emitted = false
-
-
-## Calls
-func bind_match_settings(ms: Node):
-	match_settings = ms
-
-	max_attack_units = match_settings.max_attack_units
-	max_defend_units = match_settings.max_defend_units
-	max_attack_ablt = match_settings.max_attack_ablt
-	max_defend_ablt = match_settings.max_defend_ablt
-
-
-func attack_action(req: Action):
-	#print("Combat Manager | Combat Req recieved")
-	# other stuffs/edits
-	combat_context.phase = CombatLoop.START
-	run_combat_start(req)
-	
-
-func actor_selection_req(who: Actor, thing: Variant, select:bool): 
-	var new_selection_req = CombatSelection.new()
-	new_selection_req.who = who
-	new_selection_req.selection = thing
-	new_selection_req.action = CombatSelection.SelectAction.SELECT if select else CombatSelection.SelectAction.DESELECT 
-
-	### Co-Piolet converted if/else into match :3
-	match thing:
-		_ when thing is UnitObject:
-			new_selection_req.type = CombatSelection.SelectType.UNIT
-		_ when thing is bool:
-			new_selection_req.type = CombatSelection.SelectType.READY
-		#_ when thing is Ability:
-			#new_selection_req.type = CombatSelection.SelectType.ABILITY
-		_:
-			print("Combat Manager | Err | Selection request not of any compatable type")
-			return
-	
-	combat_context.select_req = new_selection_req
-	update_combat()
-
-func actor_selected_unit(unit:UnitObject):
-	if current_combat.get_invading_actor() == unit.get_owned_by():
-		if current_combat.get_invading_units().size() >= max_attack_units:
-			print("Combat Manager | Warning | Attacker selecting too many units to attack w/")
-		else:
-			current_combat.add_invading_unit(unit)
-			#combat_updated.emit(current_combat)
-			#print("Combat Manager | actor_selected_unit| combat_updated emiited")
-	elif current_combat.get_defending_actor() == unit.get_owned_by():
-		if current_combat.get_defending_units().size() >= max_defend_units:
-			print("Combat Manager | Warning | Defender selecting too many units to attack w/")
-
-		else:
-			current_combat.add_defending_unit(unit)
-			#print("Combat Manager | actor_selected_unit| combat_updated emiited")
-	else:
-		return # ERROR
-
-
-func actor_deselected_unit(unit: UnitObject):
-	if current_combat.get_invading_actor() != unit.get_owned_by():
-		print("Combat Manager | Err | Actor attempted to deslect un-owned unit")
-	else:
-		current_combat.rmv_invading_unit(unit)
-		#print("Combat Manager | actor_selected_unit| combat_updated emiited")
-
-
-func player_ready(ready_player: Actor):
-	if current_combat.get_invading_actor() == ready_player:
-		current_combat.set_invading_ready(true)
-	elif current_combat.get_defending_actor() == ready_player:
-		current_combat.set_defending_ready(true)
-	else: 
-		print("Combat Manager | ERROR | Actor outside of combat declared Ready")
-		return
-	#print("Combat Manager | Player Ready recieved")
-
-	if current_combat.get_invading_ready() and current_combat.get_defending_ready():
-		set_state_damage()
-
-
-func player_unready(unready_player: Actor):
-	if current_combat.get_invading_actor() == unready_player:
-		current_combat.set_invading_ready(false)
-	elif current_combat.get_defending_actor() == unready_player:
-		current_combat.set_defending_ready(false)
-	else: 
-		print("Combat Manager | ERROR | Actor outside of combat declared not Ready")
-		return
-	#print("Combat Manager | Player not Ready recieved")
-
-
-## Get/Set (er)s
-func get_max_attack_units() -> int:
-	return max_attack_units
-func set_max_attack_units(max_u: int):
-	max_attack_units = max_u
-
-
-func get_max_defend_units() -> int:
-	return max_defend_units
-func set_max_defend_units(max_u: int):
-	max_defend_units = max_u
-
-
-func get_max_attack_ablt() -> int:
-	return max_attack_ablt
-func set_max_attack_ablt(max_a: int):
-	max_attack_ablt = max_a
-
-
-func get_max_defend_ablt() -> int:
-	return max_defend_ablt
-func set_max_defend_ablt(max_a: int):
-	max_defend_ablt = max_a
-
-
-
-### Connected Signals
+## e.g. (ATTACKER, "units") -> &"max_attacker_units"
+func _side_key(side: Contest.Side, field: String) -> StringName:
+	return StringName("max_" + ("attacker_" if side == Contest.Side.ATTACKER else "defender_") + field)
+#endregion

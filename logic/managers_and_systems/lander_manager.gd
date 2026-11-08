@@ -1,155 +1,139 @@
-extends GameManager
+# lander_manager.gd
+class_name LanderManager
+extends Node
 
-#signals
-signal built_action_completed(req: Action)
-signal buy_unit_action_completed(req: Action)
-signal move_units_action_completed(req: Action)
-signal completed_upkeep()
+## Spawns landers, answers spatial questions about them, and executes lander-level actions.
 
-# enums
+signal building_built(action: Action)
+signal unit_bought(action: Action)
+signal units_moved(action: Action)
+signal upkeep_completed()
 
-# constants
-const LANDER_RADIUS:float = 1
-const MIN_DIST_BETWEEN_LANDERS = 2
-const MIN_DIST_SQUARED = MIN_DIST_BETWEEN_LANDERS ** 2
-const FLOOR_OFFSET:Vector3 = Vector3.UP * 2
+const LANDER_RADIUS: float = 1.0
+const MIN_DISTANCE_BETWEEN_LANDERS: float = 2.0
+const MIN_DISTANCE_SQUARED: float = MIN_DISTANCE_BETWEEN_LANDERS ** 2
+## Landers spawn slightly above the floor and drop into place.
+const SPAWN_OFFSET: Vector3 = Vector3.UP * 2
+## Protected (AI) landers are garrisoned with units that inherit from this.
+const GARRISON_BASE_UNIT: UnitData = preload("res://data/units/base_footsoldier.tres")
 
-# static variables
-var landers_sence_node: Node3D
+@export var lander_scene: PackedScene
+## Biomes picked from at random when a lander is placed without a chosen biome.
+@export var random_biome_pool: Array[BiomeData] = []
+## Landers closer than this are connected (units can move/attack between them).
+@export var connected_lander_distance: float = 2.5
 
-# @export variables
-@export var lander_sence: PackedScene
-@export var biome_types: Array[BiomeData]
-
-@export var connected_lander_distance: float:
-	set(value):
-		connected_distance_sq = value ** 2
-
-# remaining regular variables
-var landers:Array[Lander]
-var connected_distance_sq: float = 0.0
-
-# @onready variables
-
-###################################################################################################
-###	Methods
-func inst_lander(pos: Vector3):
-	var new_lander = lander_sence.instantiate()
-	#Acidental Feature:
-	#	Meant to have the lander slightly off the ground to prevent wobbling
-	#	Now has the lander fall to the ground when spawned	
-	new_lander.position = pos + FLOOR_OFFSET
-
-	wire_and_signal_lander(new_lander)
-
-	new_lander.set_biome(biome_types.pick_random())
-	landers_sence_node.add_child(new_lander)
-	landers.append(new_lander)
+var _landers: Array[Lander] = []
+var _landers_root: Node3D
 
 
-func inst_biome(req: Action):
-	var new_lander = lander_sence.instantiate()
-	#Acidental Feature:
-	#	Meant to have the lander slightly off the ground to prevent wobbling
-	#	Now has the lander fall to the ground when spawned	
-	new_lander.position = req.get_pos() + FLOOR_OFFSET
-
-	wire_and_signal_lander(new_lander)
-
-	new_lander.set_biome(req.get_biome_type())
-	landers_sence_node.add_child(new_lander)
-	landers.append(new_lander)
+#region Public API
+func bind_landers_root(landers_root: Node3D) -> void:
+	_landers_root = landers_root
 
 
-func spawn_protected_lander(pos: Vector3, ownr: Actor, amount_defenders: int):
-	inst_lander(pos)
-	#cmd ^ adds lander to end of landers[] and so below grabs the lander that was just instanced
-	var target = landers[-1]
+func spawn_random_lander(position: Vector3) -> Lander:
+	return _spawn_lander(position, random_biome_pool.pick_random())
 
-	#Get footsolider
-	for unit in ownr.species.units:
-		if (unit.base != null and unit.base.name == "Base Footsolider"):
-			for i in amount_defenders:
-				var footsoldier = UnitObject.new()
-				footsoldier.setup(unit, ownr)
 
-				var defending_units: Array[UnitObject]
-				defending_units.append(footsoldier)
+func spawn_biome_lander(action: Action) -> Lander:
+	return _spawn_lander(action.get_position(), action.get_biome_data())
 
-				target.add_units(defending_units)
-		else:
-			print("Failed to spawn troops on protected lander. \n error: species has no units with base of \'Base Footsolider\'")
 
-func is_pos_min_distance_apart(pos: Vector3) -> bool:
-	# Here using the LANDER_RADIUS as the min distance between landers
-	# Squaring this value to make it compariable to the squared distance between lander positions
-	# Using the distanced_squared_to over distance_to bcs its operationally faster
-	for lander in landers:
-		if (pos.distance_squared_to(lander.position) < MIN_DIST_SQUARED):
+## Spawns a random lander already garrisoned by `owner_actor`.
+func spawn_protected_lander(position: Vector3, owner_actor: Actor, defender_count: int) -> void:
+	var lander := spawn_random_lander(position)
+	var garrison: Array[UnitInstance] = []
+	for unit_data in owner_actor.get_species().get_units():
+		if unit_data.get_base() != GARRISON_BASE_UNIT:
+			continue
+		for i in defender_count:
+			garrison.append(UnitInstance.new(unit_data, owner_actor))
+	if garrison.is_empty():
+		push_warning("LanderManager | Species '%s' has no unit based on '%s'; protected lander is empty"
+			% [owner_actor.get_species().get_display_name(), GARRISON_BASE_UNIT.get_display_name()])
+	lander.add_units(garrison)
+
+
+func is_valid_lander_placement(position: Vector3) -> bool:
+	return is_position_clear(position)
+
+
+## True if no lander is within MIN_DISTANCE_BETWEEN_LANDERS of `position`.
+func is_position_clear(position: Vector3) -> bool:
+	for lander in get_landers():
+		if position.distance_squared_to(lander.position) < MIN_DISTANCE_SQUARED:
 			return false
 	return true
 
-func is_pos_lander_adjacent(pos: Vector3) -> bool:
-	for lander in landers:
-		if (pos.distance_squared_to(lander.position) < connected_distance_sq):
+
+## True if `position` is within connection range of any lander.
+func is_position_adjacent(position: Vector3) -> bool:
+	var range_squared := get_connected_lander_distance() ** 2
+	for lander in get_landers():
+		if position.distance_squared_to(lander.position) < range_squared:
 			return true
 	return false
 
 
-func get_connected_landers(target_lander: Lander) -> Array[Lander]:
-	var connected_landers: Array[Lander] = []
-	for lander in landers:
-		if (target_lander.position.distance_squared_to(lander.position) < connected_distance_sq):
-			if(lander != target_lander):
-				connected_landers.append(lander)
-	return connected_landers
+func get_connected_landers(lander: Lander) -> Array[Lander]:
+	var range_squared := get_connected_lander_distance() ** 2
+	var connected: Array[Lander] = []
+	for other in get_landers():
+		if other != lander and lander.position.distance_squared_to(other.position) < range_squared:
+			connected.append(other)
+	return AbilitySystem.resolve_get(self, &"connected_landers", connected)
 
 
-func get_lander_occpied_actor(target: Lander) -> Actor:
-	return target.get_ownr()
+func get_landers_owned_by(actor: Actor) -> Array[Lander]:
+	var owned: Array[Lander] = []
+	for lander in get_landers():
+		if lander.get_owner_actor() == actor:
+			owned.append(lander)
+	return owned
 
 
-func get_landers_actor_has(a: Actor) -> Array:
-	var return_landers = landers.map(func(lnd): if get_lander_occpied_actor(lnd) == a: return lnd )
-	return return_landers.filter(func(lnd): return bool(lnd != null))
+func build(action: Action) -> void:
+	action.get_target_lander().build(action)
 
 
-### Wires and Signals
-func wire_and_signal_lander(lander: Lander):
-	lander.built_action_completed.connect(self.fwd_build_action_completed)
-	lander.buy_unit_action_completed.connect(self.fwd_buy_unit_action_completed)
-
-func fwd_build_action_completed(req: Action):
-	built_action_completed.emit(req)
+func buy_unit(action: Action) -> void:
+	action.get_target_lander().buy_unit(action)
 
 
-func fwd_buy_unit_action_completed(req: Action):
-	buy_unit_action_completed.emit(req)
-
-### Calls
-func is_valid_lander_placement(req_pos: Vector3) -> bool:
-	return is_pos_min_distance_apart(req_pos)
+func move_units(action: Action) -> void:
+	action.get_source_lander().remove_units(action.get_units())
+	action.get_target_lander().add_units(action.get_units())
+	units_moved.emit(action)
 
 
-func build_action(req: Action):
-	req.get_target_lander().build_action(req)
+## Pays `actor` the upkeep of every lander they own.
+func run_upkeep(actor: Actor) -> void:
+	var wallet := actor.get_wallet()
+	for lander in get_landers_owned_by(actor):
+		wallet.add(lander.get_upkeep())
+	upkeep_completed.emit()
+#endregion
 
 
-func buy_unit_action(req: Action):
-	req.get_target_lander().buy_unit_action(req)
+#region Accessors
+func get_landers() -> Array[Lander]:
+	return AbilitySystem.resolve_get(self, &"landers", _landers)
 
 
-func move_units_action(req: Action):
-	# lander1.rvm(units)
-	req.selected_lander.rmv_units(req.selected_units)
-	# lander2.add(units)
-	req.target_lander.add_units(req.selected_units)
-	# Emit confirmation
-	move_units_action_completed.emit(req)
+func get_connected_lander_distance() -> float:
+	return AbilitySystem.resolve_get(self, &"connected_lander_distance", connected_lander_distance)
+#endregion
 
 
-func run_upkeep(who: Actor):
-	var ply_wallet = who.get_wallet()
-	for lander in get_landers_actor_has(who):
-		ply_wallet.add_resource(lander.get_upkeep_econ())
-	completed_upkeep.emit()
+#region Private
+func _spawn_lander(position: Vector3, biome_data: BiomeData) -> Lander:
+	var lander: Lander = lander_scene.instantiate()
+	lander.position = position + SPAWN_OFFSET
+	lander.set_biome_data(biome_data)
+	lander.building_built.connect(building_built.emit)
+	lander.unit_bought.connect(unit_bought.emit)
+	_landers_root.add_child(lander)
+	_landers.append(lander)
+	return lander
+#endregion

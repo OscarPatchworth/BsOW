@@ -9,6 +9,10 @@ extends Node
 @export var ai_starting_troops: int = 3
 @export var starting_biome_count: int = 4
 
+# Economy
+## Every resource in a new actor's wallet starts at this amount.
+@export var starting_resource_amount: int = 10
+
 # Landers
 @export var game_biomes: Array[BiomeData] = []
 
@@ -33,6 +37,10 @@ func get_ai_starting_troops() -> int:
 
 func get_starting_biome_count() -> int:
 	return AbilitySystem.resolve_get(self, &"starting_biome_count", starting_biome_count)
+
+
+func get_starting_resource_amount() -> int:
+	return AbilitySystem.resolve_get(self, &"starting_resource_amount", starting_resource_amount)
 
 
 func get_game_biomes() -> Array[BiomeData]:

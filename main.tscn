@@ -65,8 +65,8 @@ script = ExtResource("4_k2s5q")
 
 [node name="LanderManager" type="Node" parent="ManagersAndSystems"]
 script = ExtResource("5_igtti")
-lander_sence = ExtResource("7_l1cnn")
-biome_types = Array[ExtResource("7_5v68b")]([ExtResource("8_5i0m8"), ExtResource("9_p6myw"), ExtResource("10_33p1r"), ExtResource("11_388a1")])
+lander_scene = ExtResource("7_l1cnn")
+random_biome_pool = Array[ExtResource("7_5v68b")]([ExtResource("8_5i0m8"), ExtResource("9_p6myw"), ExtResource("10_33p1r"), ExtResource("11_388a1")])
 connected_lander_distance = 2.5
 
 [node name="ActionManager" type="Node" parent="ManagersAndSystems"]

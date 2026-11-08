@@ -1,219 +1,143 @@
-extends Node
+# game_root.gd
+class_name GameRoot
+extends Node3D
 
-# signals
-signal root_setup_finished
-# enums
+## Root of main.tscn. Creates the actors and wires every manager, actor and signal together.
+## This is the only place that knows about everything; other scripts get what they need via bind_*().
 
-# constants
+signal root_setup_finished()
 
-# static variables
-### Loadable sences
-var player_scene = preload("res://scenes/player.tscn")
+const PLAYER_SCENE: PackedScene = preload("res://scenes/player.tscn")
 
-# @export variables
-@export var game_species: Array[SpeciesData]
-# remaining regular variables
+@export var game_species: Array[SpeciesData] = []
 
-# @onready vars
-### Managers
-@onready var action_manager = self.find_child("ActionManager")
-@onready var lander_manager = self.find_child("LanderManager")
-@onready var turn_manager = self.find_child("TurnManager")
-@onready var match_settings = self.find_child("MatchSettings")
-@onready var combat_manager = self.find_child("CombatManager")
-@onready var actors_node = self.find_child("Actors")
-@onready var draw_3d = self.find_child("Draw3D")
-### Sence Nodes
-@onready var landers_sence_node = self.find_child("Landers")
+@onready var _action_manager: ActionManager = find_child("ActionManager")
+@onready var _lander_manager: LanderManager = find_child("LanderManager")
+@onready var _turn_manager: TurnManager = find_child("TurnManager")
+@onready var _combat_manager: CombatManager = find_child("CombatManager")
+@onready var _match_settings: MatchSettings = find_child("MatchSettings")
+@onready var _draw_3d: Draw3D = find_child("Draw3D")
+@onready var _actors_root: Node3D = find_child("Actors")
+@onready var _landers_root: Node3D = find_child("Landers")
 
 
-###################################################################################################
-# Called when the node enters the scene tree for the first time.
 func _ready() -> void:
-	init_game_managers_and_systems()
-	init_actors()
+	_setup_managers()
+	_add_player()
+	_add_ai()
 	root_setup_finished.emit()
-	
-
-###################################################################################################
-### Custom Funcs()
-# Init Game Managers
-func init_game_managers_and_systems():
-	init_action_manager()
-	init_lander_manager()
-	init_turn_manager()
-	init_combat_manager()
-	run_binders()
 
 
-# Init action manager
-func init_action_manager():
-	# Connect Wires
-	action_manager.lander_manager = lander_manager
-	action_manager.combat_manager = combat_manager
-	action_manager.turn_manager = turn_manager
+#region Managers
+func _setup_managers() -> void:
+	_action_manager.bind_lander_manager(_lander_manager)
+	_action_manager.bind_turn_manager(_turn_manager)
+	_action_manager.bind_combat_manager(_combat_manager)
+
+	_combat_manager.bind_match_settings(_match_settings)
+
+	_lander_manager.bind_landers_root(_landers_root)
+	_lander_manager.spawn_random_lander(Vector3.ZERO)
+
+	# Order matters: the lander is built before setup is finished.
+	_action_manager.build_approved.connect(_lander_manager.build)
+	_action_manager.build_approved.connect(_on_action_manager_build_approved)
+	_action_manager.unit_purchase_approved.connect(_lander_manager.buy_unit)
+	_action_manager.biome_placement_approved.connect(_lander_manager.spawn_biome_lander)
+	_action_manager.turn_progress_approved.connect(_turn_manager.progress_phase)
+
+	_turn_manager.game_phase_changed.connect(_on_turn_manager_game_phase_changed)
+	root_setup_finished.connect(_turn_manager.start)
+#endregion
 
 
-# Init lander manager
-func init_lander_manager():
-	lander_manager.landers_sence_node = self.landers_sence_node
-	lander_manager.inst_lander(Vector3.ZERO)
-	
-	# Connect Signals
-	action_manager.build_action.connect(lander_manager.build_action)
-	action_manager.buy_unit_action.connect(lander_manager.buy_unit_action)
-	turn_manager.game_phased_changed.connect(func(phase): 
-		if phase == turn_manager.GameLoop.UPKEEP: lander_manager.run_upkeep(turn_manager.get_active_actor()))
-	action_manager.place_biome.connect(lander_manager.inst_biome)
+#region Actors
+func _add_player() -> void:
+	var player: Player = PLAYER_SCENE.instantiate()
+	_bind_actor(player)
+	player.bind_draw_3d(_draw_3d)
+	player.bind_match_settings(_match_settings)
 
-## Init turn manager
-func init_turn_manager():
-	# Connect Binders
-	turn_manager.actors = actors_node.get_children()
-	# Connect Signals
-	combat_manager.combat_started.connect(turn_manager.combat_started)
-	action_manager.progress_turn.connect(turn_manager.progress_turn)
-	self.root_setup_finished.connect(turn_manager.self_init)
+	# Player -> game
+	player.action_requested.connect(_action_manager.request_action)
+	player.combat_selection_requested.connect(_combat_manager.request_selection)
 
-	action_manager.build_action.connect(func(req): if turn_manager.get_game_state() == turn_manager.GameSequence.SETUP: 
-		return await turn_manager.actor_finished_setup(req.actor))
-	
+	# Game -> player
+	_lander_manager.building_built.connect(player._on_lander_manager_building_built)
+	_lander_manager.unit_bought.connect(player._on_lander_manager_unit_bought)
+	_lander_manager.units_moved.connect(player._on_lander_manager_units_moved)
+	_combat_manager.combat_started.connect(player._on_combat_manager_combat_started)
+	_combat_manager.combat_updated.connect(player._on_combat_manager_combat_updated)
+	_combat_manager.combat_resolved.connect(player._on_combat_manager_combat_resolved)
+	_turn_manager.game_state_changed.connect(player._on_turn_manager_game_state_changed)
+	_turn_manager.game_phase_changed.connect(player._on_turn_manager_game_phase_changed)
+	_turn_manager.turn_order_generated.connect(player._on_turn_manager_turn_order_generated)
+	_turn_manager.active_actor_changed.connect(player._on_turn_manager_active_actor_changed)
+	_turn_manager.season_order_generated.connect(player._on_turn_manager_season_order_generated)
+	_turn_manager.season_changed.connect(player._on_turn_manager_season_changed)
+	_action_manager.biome_placement_approved.connect(player._on_action_manager_biome_placement_approved)
+	_action_manager.build_approved.connect(player._on_action_manager_build_approved)
 
-# Init combat manager
-func init_combat_manager():
-	# Connect Binders
-	combat_manager.bind_match_settings(match_settings)
-
-	# Connect Signals
+	_actors_root.add_child(player)
+	_turn_manager.register_actor(player)
 
 
-# Run binders
-func run_binders():
-	pass	
+func _add_ai() -> void:
+	var ai := SimpleAI.new()
+	ai.name = "SimpleAI"
+	_bind_actor(ai)
 
-# Init Actors
-func init_actors():
-	add_player()
-	add_ai()
+	_combat_manager.combat_started.connect(ai._on_combat_manager_combat_started)
+	ai.combat_unit_selected.connect(_combat_manager.select_unit)
+	ai.combat_unit_deselected.connect(_combat_manager.deselect_unit)
+	ai.combat_ready.connect(_combat_manager.set_actor_ready)
+	ai.combat_not_ready.connect(_combat_manager.set_actor_not_ready)
 
+	_spawn_ai_landers(ai)
 
-func add_player():
-	var actor_node = find_child("Actors")
-	var player_x = player_scene.instantiate()
-	init_player(player_x)
-	actor_node.add_child(player_x)
-
-	turn_manager.bind_actor_to_actor_group(player_x)
+	_actors_root.add_child(ai)
+	_turn_manager.register_actor(ai)
 
 
-func add_ai():
-	#print("Number of opponents this match: " + str(match_settings.number_of_opponents))
-	var actor_node = find_child("Actors")
-	var new_ai = SimpleAI.new()
-	init_ai(new_ai)
-	actor_node.add_child(new_ai)
-
-	turn_manager.bind_actor_to_actor_group(new_ai)
-
-
-func init_ai(sai: SimpleAI):
-	#print(ai)
-	# AI congif
-	sai.species = game_species.pick_random()
-	sai.wallet = EconData.new()
-	sai.wallet.set_resource_value("gold", 10)
-	sai.wallet.set_resource_value("food", 10)
-	sai.wallet.set_resource_value("mineral", 10)
-	sai.wallet.set_resource_value("wood", 10)
-	sai.wallet.set_resource_value("stone", 10)
+## Gives an actor a random species, a starting wallet, and the managers it needs.
+func _bind_actor(actor: Actor) -> void:
+	actor.set_species(game_species.pick_random())
+	actor.set_wallet(_create_starting_wallet())
+	actor.bind_turn_manager(_turn_manager)
+	actor.bind_lander_manager(_lander_manager)
+	actor.bind_combat_manager(_combat_manager)
 
 
-	# Wires
-	sai.turn_manager = self.turn_manager
-	sai.lander_manager = self.lander_manager
-	sai.combat_manager = self.combat_manager
+func _create_starting_wallet() -> EconData:
+	var wallet := EconData.new()
+	for key in EconData.RESOURCE_KEYS:
+		wallet.set_amount(key, _match_settings.get_starting_resource_amount())
+	return wallet
 
-	# Signals
-	# TO sai
-	combat_manager.combat_started.connect(sai.combat_req)
-	combat_manager.combat_updated.connect(sai.combat_update)
-	# FROM sai
-	sai.combat_unit_selected.connect(combat_manager.actor_selected_unit)
-	sai.unit_deslected.connect(combat_manager.actor_deselected_unit)
-	sai.combat_ready.connect(combat_manager.player_ready)
-	sai.combat_not_ready.connect(combat_manager.player_unready)
 
-	# Init Landers
-	for i in match_settings.starting_simple_troops:
-		var place_pos = Vector3.ZERO
-		place_pos.x = randf() * match_settings.map_size * ((-1)**(randi()%2))
-		place_pos.z = randf() * match_settings.map_size * ((-1)**(randi()%2))
-		if lander_manager.is_pos_min_distance_apart(place_pos):
-			lander_manager.spawn_protected_lander(place_pos, sai, match_settings.starting_simple_troops )
+func _spawn_ai_landers(ai: SimpleAI) -> void:
+	var troop_count := _match_settings.get_ai_starting_troops()
+	var map_size := _match_settings.get_map_size()
+	for i in troop_count:
+		var spawn_position := Vector3(
+			randf() * map_size * (1 if randi() % 2 == 0 else -1),
+			0,
+			randf() * map_size * (1 if randi() % 2 == 0 else -1))
+		if _lander_manager.is_position_clear(spawn_position):
+			_lander_manager.spawn_protected_lander(spawn_position, ai, troop_count)
 		else:
-			print("AI init lander spawn error: out of bounds")
-		
+			print("GameRoot | AI lander spawn skipped: position overlaps another lander")
+#endregion
 
 
-
-func init_player(player_x: Player):
-	# self_player.refrence = wire
-	var player_cntrl = player_x.find_child("PlayerController")
-	player_cntrl.action_manager = action_manager
-	player_x.turn_manager = self.turn_manager
-	player_x.lander_manager = self.lander_manager
-	player_x.combat_manager = self.combat_manager
-	player_x.draw_3d = self.draw_3d
-	player_x.match_settings = self.match_settings
-
-	# Connect Signals
-	# FROM self_player
-	player_x.build_action_req.connect(action_manager.action_request)
-	player_x.buy_unit_action_req.connect(action_manager.action_request)
-	player_x.move_units_action_req.connect(action_manager.action_request)
-	player_x.attack_action_req.connect(action_manager.action_request)
-	player_x.purchase_action_req.connect(action_manager.action_request)
-	#player_x.combat_unit_selected.connect(combat_manager.actor_selected_unit)
-	#player_x.unit_deslected.connect(combat_manager.actor_deselected_unit)
-	player_x.combat_unit_selected.connect(combat_manager.actor_selection_req)
-	player_x.unit_deslected.connect(combat_manager.actor_selection_req)
-	#player_x.player_combat_ready.connect(combat_manager.player_ready)
-	#player_x.player_combat_not_ready.connect(combat_manager.player_unready)
-	player_x.player_combat_ready.connect(combat_manager.actor_selection_req)
-	player_x.player_combat_not_ready.connect(combat_manager.actor_selection_req)
-	player_x.next_phase_req.connect(action_manager.action_request)
-	player_x.place_biome_req.connect(action_manager.action_request)
-	player_x.place_command_tower.connect(action_manager.action_request)
-
-	# TO self_player
-	lander_manager.built_action_completed.connect(player_x.fwd_build_action_completed)
-	lander_manager.buy_unit_action_completed.connect(player_x.fwd_buy_unit_action_completed)
-	lander_manager.move_units_action_completed.connect(player_x.fwd_move_units_action_completed)
-	# turn_manager.combat_assign.connect(player_x.contest_lander)
-	combat_manager.combat_started.connect(player_x.enter_combat)
-	combat_manager.combat_updated.connect(player_x.combat_update)
-	# combat_update
-	combat_manager.combat_outcome.connect(player_x.combat_outcome)
-	turn_manager.game_phased_changed.connect(player_x.game_phase_changed)
-	turn_manager.turn_order_generated.connect(player_x.setup_turn_order)
-	turn_manager.actor_turn_changed.connect(player_x.actor_turn_changed)
-	turn_manager.season_order_generated.connect(player_x.seasons_generated)
-	turn_manager.season_changed.connect(player_x.season_changed)
-	turn_manager.current_game_state.connect(player_x.game_state_changed)
-	action_manager.place_biome.connect(func(req): if req.actor == player_x: 
-		if turn_manager.get_game_state() == turn_manager.GameSequence.SETUP: 
-			return player_x.setup_biome_placed(req))
-	action_manager.build_action.connect(func(req): if req.actor == player_x: 
-		if turn_manager.get_game_state() == turn_manager.GameSequence.SETUP: 
-			return player_x.command_tower_placed())
-	
+#region Signal handlers
+func _on_action_manager_build_approved(_action: Action) -> void:
+	# The first building during setup is the command tower, which ends setup.
+	if _turn_manager.get_game_state() == TurnManager.GameState.SETUP:
+		_turn_manager.finish_setup()
 
 
-	player_x.species = game_species.pick_random()
-	#print("Player Species randomly selected: " + str(player_x.species.name))
-	player_x.wallet = EconData.new()
-	player_x.wallet.set_resource_value("gold", 10)
-	player_x.wallet.set_resource_value("food", 10)
-	player_x.wallet.set_resource_value("mineral", 10)
-	player_x.wallet.set_resource_value("wood", 10)
-	player_x.wallet.set_resource_value("stone", 10)
+func _on_turn_manager_game_phase_changed(phase: TurnManager.Phase) -> void:
+	if phase == TurnManager.Phase.UPKEEP:
+		_lander_manager.run_upkeep(_turn_manager.get_active_actor())
+#endregion
