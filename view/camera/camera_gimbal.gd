@@ -8,7 +8,7 @@ extends Node3D
 ##   └─ InnerGimbal (pitch)
 ##      └─ Camera3D
 ##
-## Controls:  WASD = pan across the board,  Q/E = rotate,
+## Controls:  WASD = pan across the board,  Q = rotate left, E = rotate right,
 ##            mouse wheel = zoom,  hold middle mouse + drag = orbit.
 ## focus_on(point) glides the rig to look at a point on the board.
 
@@ -76,7 +76,7 @@ func _unhandled_input(event: InputEvent) -> void:
 
 
 func _process(delta: float) -> void:
-	_rotate_yaw(Input.get_axis(ROTATE_RIGHT_ACTION, ROTATE_LEFT_ACTION) * rotation_speed * delta)
+	_rotate_yaw(Input.get_axis(ROTATE_LEFT_ACTION, ROTATE_RIGHT_ACTION) * rotation_speed * delta)
 
 	var pan_input := Input.get_vector("cam_left", "cam_right", "cam_up", "cam_down")
 	if pan_input != Vector2.ZERO:

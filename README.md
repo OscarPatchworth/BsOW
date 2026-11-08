@@ -10,7 +10,7 @@ Dev a digital version of a game for a friend and lols
 | `logic/managers_and_systems/` | Managers (`TurnManager`, `ActionManager`, ...), `GameRoot` wiring, and the `AbilitySystem` autoload |
 | `view/hud/` | The HUD, built in code and styled by `HudTheme` (top bar, inspector, battle and move dialogs, log, ...) |
 | `view/world/` | World-space hints (`PlacementPreview`) |
-| `view/camera/` | The camera rig (WASD pan, Q/E rotate, wheel zoom, middle-drag orbit) |
+| `view/camera/` | The camera rig (WASD pan, Q/E rotate left/right, wheel zoom, middle-drag orbit) |
 | `scenes/` | `player.tscn`, `lander.tscn`, building/unit meshes, reusable UI templates |
 | `tests/` | Headless smoke test |
 
