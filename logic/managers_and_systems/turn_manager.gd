@@ -4,6 +4,10 @@ extends Node
 
 ## Owns the game flow: setup vs. main loop, the phase of the current turn,
 ## whose turn it is, and the season cycle.
+##
+## Signals are announced after a whole change is finished: start() and progress_phase()
+## batch them, so a listener never sees e.g. the new active actor with the old phase.
+## Within a batch they fire in the order the changes happened, once each.
 
 signal game_state_changed(state: GameState)
 signal game_phase_changed(phase: Phase)
@@ -42,7 +46,8 @@ const SEASON_COLORS := {
 
 ## Phases that run automatically and can't be progressed by an actor.
 const ADMIN_PHASES: Array[Phase] = [Phase.UPKEEP, Phase.CLEANUP]
-## Phases an actor must act in before moving on.
+## Phases an actor can't end with PROGRESS_TURN: they end when their action is done
+## (DUSTCLOUD_COLLAPSE ends when the actor places a lander).
 const NON_SKIPPABLE_PHASES: Array[Phase] = [Phase.DUSTCLOUD_COLLAPSE]
 
 var _game_state: GameState = GameState.SETUP
@@ -53,6 +58,9 @@ var _round_number: int = 1
 var _seasons: Array[Season] = []
 var _season_index: int = 0
 
+var _batch_depth: int = 0
+var _pending_notifications: Array[Callable] = []
+
 
 #region Public API
 func register_actor(actor: Actor) -> void:
@@ -62,33 +70,32 @@ func register_actor(actor: Actor) -> void:
 
 ## Called once everything is wired up (GameRoot.root_setup_finished).
 func start() -> void:
+	_begin_batch()
 	_generate_turn_order()
 	_generate_seasons()
-	game_state_changed.emit(get_game_state())
+	_notify(_emit_game_state_changed)
+	_end_batch()
 
 
-## Moves to the next phase; wraps to the next actor after CLEANUP.
-## Admin phases are announced and then skipped automatically.
+## Moves one phase forward; after CLEANUP, wraps to the next actor's UPKEEP.
+## Doesn't skip admin phases by itself: the ActionManager queues that as a follow-up action.
 func progress_phase() -> void:
+	_begin_batch()
 	var phase := get_game_phase()
 	if phase == Phase.values()[-1]:
-		set_game_phase(Phase.values()[0])
 		_progress_turn_order()
+		set_game_phase(Phase.values()[0])
 	else:
 		set_game_phase(Phase.values()[phase + 1])
-	game_phase_changed.emit(get_game_phase())
-
-	if get_game_phase() in get_admin_phases():
-		progress_phase()
+	_end_batch()
 
 
-## Ends the setup stage and starts the main loop.
-func finish_setup() -> void:
-	if get_game_state() != GameState.SETUP:
-		return
-	await get_tree().process_frame
+## Ends setup: the main loop starts with the active actor's UPKEEP.
+func begin_main_loop() -> void:
+	_begin_batch()
 	set_game_state(GameState.MAIN_LOOP)
-	progress_phase()
+	set_game_phase(Phase.UPKEEP)
+	_end_batch()
 
 
 func get_turn_order_names() -> Array[String]:
@@ -144,19 +151,20 @@ func get_game_state() -> GameState:
 	return AbilitySystem.resolve_get(self, &"game_state", _game_state)
 
 
-## Also emits game_state_changed.
+## Also announces game_state_changed.
 func set_game_state(value: GameState) -> void:
 	_game_state = AbilitySystem.resolve_set(self, &"game_state", _game_state, value)
-	game_state_changed.emit(get_game_state())
+	_notify(_emit_game_state_changed)
 
 
 func get_game_phase() -> Phase:
 	return AbilitySystem.resolve_get(self, &"game_phase", _game_phase)
 
 
-## Does NOT emit game_phase_changed; progress_phase() does that.
+## Also announces game_phase_changed.
 func set_game_phase(value: Phase) -> void:
 	_game_phase = AbilitySystem.resolve_set(self, &"game_phase", _game_phase, value)
+	_notify(_emit_game_phase_changed)
 
 
 func get_turn_order() -> Array[Actor]:
@@ -171,10 +179,10 @@ func get_active_actor() -> Actor:
 	return AbilitySystem.resolve_get(self, &"active_actor", _active_actor)
 
 
-## Also emits active_actor_changed.
+## Also announces active_actor_changed.
 func set_active_actor(value: Actor) -> void:
 	_active_actor = AbilitySystem.resolve_set(self, &"active_actor", _active_actor, value)
-	active_actor_changed.emit(get_active_actor())
+	_notify(_emit_active_actor_changed)
 
 
 func get_round_number() -> int:
@@ -193,10 +201,10 @@ func get_season_index() -> int:
 	return AbilitySystem.resolve_get(self, &"season_index", _season_index)
 
 
-## Also emits season_changed.
+## Also announces season_changed.
 func set_season_index(value: int) -> void:
 	_season_index = AbilitySystem.resolve_set(self, &"season_index", _season_index, value)
-	season_changed.emit(get_season_index())
+	_notify(_emit_season_changed)
 
 
 func get_admin_phases() -> Array[Phase]:
@@ -214,11 +222,9 @@ func _generate_turn_order() -> void:
 	order.shuffle()
 	set_turn_order(order)
 	print("TurnManager | Turn order: " + str(get_turn_order_names()))
-	# Store the first actor before announcing the order (listeners read get_active_actor()),
-	# then announce the active actor once the order exists.
-	_active_actor = AbilitySystem.resolve_set(self, &"active_actor", _active_actor, get_turn_order()[0])
-	turn_order_generated.emit()
-	active_actor_changed.emit(get_active_actor())
+	# Announce the order before the active actor: the turn order UI must exist to highlight it.
+	_notify(turn_order_generated.emit)
+	set_active_actor(get_turn_order()[0])
 
 
 func _generate_seasons() -> void:
@@ -226,7 +232,7 @@ func _generate_seasons() -> void:
 	_season_index = 0
 	print("TurnManager | Starting season: " + Season.keys()[get_current_season()])
 	print("TurnManager | Season order: " + str(get_season_names()))
-	season_order_generated.emit()
+	_notify(season_order_generated.emit)
 
 
 func _progress_turn_order() -> void:
@@ -244,4 +250,45 @@ func _progress_season() -> void:
 	var next_index := (get_season_index() + 1) % get_seasons().size()
 	set_season_index(next_index)
 	print("TurnManager | New round, season: " + Season.keys()[get_current_season()])
+#endregion
+
+
+#region Notification batching
+func _begin_batch() -> void:
+	_batch_depth += 1
+
+
+func _end_batch() -> void:
+	_batch_depth -= 1
+	if _batch_depth > 0:
+		return
+	var notifications := _pending_notifications
+	_pending_notifications = []
+	for notification in notifications:
+		notification.call()
+
+
+## Runs `notification` now, or at the end of the current batch (once, however often it's queued).
+func _notify(notification: Callable) -> void:
+	if _batch_depth == 0:
+		notification.call()
+	elif notification not in _pending_notifications:
+		_pending_notifications.append(notification)
+
+
+# Emitters read the value when they fire, so a batched signal carries the final value.
+func _emit_game_state_changed() -> void:
+	game_state_changed.emit(get_game_state())
+
+
+func _emit_game_phase_changed() -> void:
+	game_phase_changed.emit(get_game_phase())
+
+
+func _emit_active_actor_changed() -> void:
+	active_actor_changed.emit(get_active_actor())
+
+
+func _emit_season_changed() -> void:
+	season_changed.emit(get_season_index())
 #endregion

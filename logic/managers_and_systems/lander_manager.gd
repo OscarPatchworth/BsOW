@@ -4,11 +4,6 @@ extends Node
 
 ## Spawns landers, answers spatial questions about them, and executes lander-level actions.
 
-signal building_built(action: Action)
-signal unit_bought(action: Action)
-signal units_moved(action: Action)
-signal upkeep_completed()
-
 const LANDER_RADIUS: float = 1.0
 const MIN_DISTANCE_BETWEEN_LANDERS: float = 2.0
 const MIN_DISTANCE_SQUARED: float = MIN_DISTANCE_BETWEEN_LANDERS ** 2
@@ -93,18 +88,9 @@ func get_landers_owned_by(actor: Actor) -> Array[Lander]:
 	return owned
 
 
-func build(action: Action) -> void:
-	action.get_target_lander().build(action)
-
-
-func buy_unit(action: Action) -> void:
-	action.get_target_lander().buy_unit(action)
-
-
 func move_units(action: Action) -> void:
 	action.get_source_lander().remove_units(action.get_units())
 	action.get_target_lander().add_units(action.get_units())
-	units_moved.emit(action)
 
 
 ## Pays `actor` the upkeep of every lander they own.
@@ -112,7 +98,6 @@ func run_upkeep(actor: Actor) -> void:
 	var wallet := actor.get_wallet()
 	for lander in get_landers_owned_by(actor):
 		wallet.add(lander.get_upkeep())
-	upkeep_completed.emit()
 #endregion
 
 
@@ -131,8 +116,6 @@ func _spawn_lander(position: Vector3, biome_data: BiomeData) -> Lander:
 	var lander: Lander = lander_scene.instantiate()
 	lander.position = position + SPAWN_OFFSET
 	lander.set_biome_data(biome_data)
-	lander.building_built.connect(building_built.emit)
-	lander.unit_bought.connect(unit_bought.emit)
 	_landers_root.add_child(lander)
 	_landers.append(lander)
 	return lander

@@ -3,9 +3,7 @@ class_name Lander
 extends RigidBody3D
 
 ## A tile on the board. Holds a biome, at most one building, and a group of units.
-
-signal building_built(action: Action)
-signal unit_bought(action: Action)
+## Changes are announced through ActionManager.action_resolved, not by the lander itself.
 
 const DEFAULT_UNIT_CAPACITY: int = 5
 const UNIT_SPREAD_RADIUS: float = 0.7
@@ -35,7 +33,6 @@ func build(action: Action) -> void:
 	building.bind_mesh_parent(_building_node)
 	set_building(building)
 	building.refresh_mesh()
-	building_built.emit(action)
 
 
 ## Spawns `action`'s unit (unit_data, or the purchasable) for the action's actor.
@@ -48,7 +45,6 @@ func buy_unit(action: Action) -> void:
 		return
 
 	add_units([UnitInstance.new(unit_data, action.get_actor())] as Array[UnitInstance])
-	unit_bought.emit(action)
 
 
 func add_units(new_units: Array[UnitInstance]) -> void:

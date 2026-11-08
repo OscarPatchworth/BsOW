@@ -3,7 +3,9 @@ class_name CombatManager
 extends Node
 
 ## Runs a contest: both sides pick units and ready up, then damage is rolled and resolved.
-## Flow: start_combat() -> SELECT (selections/ready) -> DAMAGE -> CLEANUP.
+## Flow: start_combat() -> SELECT (selections/ready) -> resolve_combat(): DAMAGE -> CLEANUP.
+## Every step is requested through the ActionManager, which checks the rules first;
+## this class only applies the change and announces it.
 
 signal combat_started(contest: Contest)
 signal combat_updated(contest: Contest)
@@ -17,17 +19,9 @@ enum CombatPhase {
 	CLEANUP,
 }
 
-## What a combat selection request is about.
-enum SelectionType {
-	UNIT,
-	ABILITY,
-	READY,
-}
-
 var _match_settings: MatchSettings
 var _contest: Contest
 var _phase: CombatPhase = CombatPhase.INACTIVE
-var _outcome_emitted: bool = false
 
 var _max_units := {Contest.Side.ATTACKER: 0, Contest.Side.DEFENDER: 0}
 var _max_abilities := {Contest.Side.ATTACKER: 0, Contest.Side.DEFENDER: 0}
@@ -44,35 +38,9 @@ func bind_match_settings(match_settings: MatchSettings) -> void:
 
 func start_combat(action: Action) -> void:
 	_phase = CombatPhase.START
-	_outcome_emitted = false
 	set_contest(Contest.new(action.get_source_lander(), action.get_target_lander()))
 	_phase = CombatPhase.SELECT
 	combat_started.emit(get_contest())
-
-
-## Entry point for the Player's combat UI.
-## `thing` is a UnitInstance (select/deselect it) or a bool (ready / not ready).
-func request_selection(actor: Actor, thing: Variant, is_selected: bool) -> void:
-	if _phase != CombatPhase.SELECT:
-		print("CombatManager | Selection request outside of the select phase")
-		return
-
-	if thing is UnitInstance:
-		if is_selected:
-			select_unit(thing)
-		else:
-			deselect_unit(thing)
-	elif thing is bool:
-		if is_selected:
-			set_actor_ready(actor)
-		else:
-			set_actor_not_ready(actor)
-	else:
-		print("CombatManager | Selection request is not a unit or ready flag")
-		return
-
-	if not _outcome_emitted:
-		combat_updated.emit(get_contest())
 
 
 func select_unit(unit: UnitInstance) -> void:
@@ -80,36 +48,72 @@ func select_unit(unit: UnitInstance) -> void:
 	if side == -1:
 		push_warning("CombatManager | Unit owner is not part of this contest")
 		return
-	if get_contest().get_units(side).size() >= get_max_units(side):
-		print("CombatManager | %s already has the maximum number of units selected" % Contest.Side.find_key(side))
-		return
 	get_contest().add_unit(side, unit)
+	combat_updated.emit(get_contest())
 
 
 func deselect_unit(unit: UnitInstance) -> void:
 	var side := get_contest().get_side_of(unit.get_owner_actor())
 	if side == -1:
-		push_warning("CombatManager | Actor attempted to deselect a unit outside this contest")
+		push_warning("CombatManager | Unit owner is not part of this contest")
 		return
 	get_contest().remove_unit(side, unit)
+	combat_updated.emit(get_contest())
 
 
-func set_actor_ready(actor: Actor) -> void:
+func set_actor_ready(actor: Actor, is_ready: bool) -> void:
 	var side := get_contest().get_side_of(actor)
 	if side == -1:
-		push_warning("CombatManager | Actor outside of combat declared ready")
+		push_warning("CombatManager | Actor outside of combat changed its ready state")
 		return
-	get_contest().set_ready(side, true)
-	if get_contest().are_both_sides_ready():
-		_run_damage_phase()
+	get_contest().set_ready(side, is_ready)
+	combat_updated.emit(get_contest())
 
 
-func set_actor_not_ready(actor: Actor) -> void:
-	var side := get_contest().get_side_of(actor)
-	if side == -1:
-		push_warning("CombatManager | Actor outside of combat declared not ready")
+## Rolls damage for both sides, decides each pairing, and removes the dead.
+func resolve_combat() -> void:
+	if _phase != CombatPhase.SELECT:
+		push_warning("CombatManager | resolve_combat() called outside of the select phase")
 		return
-	get_contest().set_ready(side, false)
+	_phase = CombatPhase.DAMAGE
+
+	var contest := get_contest()
+	var attacker_outcomes := _roll_side(contest.get_units(Contest.Side.ATTACKER))
+	var defender_outcomes := _roll_side(contest.get_units(Contest.Side.DEFENDER))
+
+	# Highest roll faces highest roll. Ties go to the defender.
+	for i in mini(attacker_outcomes.size(), defender_outcomes.size()):
+		if attacker_outcomes[i].get_total() > defender_outcomes[i].get_total():
+			attacker_outcomes[i].set_reason(CombatOutcome.Reason.COMBAT_WON)
+			defender_outcomes[i].set_reason(CombatOutcome.Reason.COMBAT_LOST)
+		else:
+			attacker_outcomes[i].set_reason(CombatOutcome.Reason.COMBAT_LOST)
+			defender_outcomes[i].set_reason(CombatOutcome.Reason.COMBAT_WON)
+
+	for outcome in attacker_outcomes:
+		print(outcome.to_debug_dictionary())
+	print("#####")
+	for outcome in defender_outcomes:
+		print(outcome.to_debug_dictionary())
+
+	_remove_dead(attacker_outcomes, contest.get_lander(Contest.Side.ATTACKER))
+	_remove_dead(defender_outcomes, contest.get_lander(Contest.Side.DEFENDER))
+	_phase = CombatPhase.CLEANUP
+
+	var all_outcomes: Array[CombatOutcome] = []
+	all_outcomes.append_array(attacker_outcomes)
+	all_outcomes.append_array(defender_outcomes)
+	combat_resolved.emit(all_outcomes)
+
+
+## Both sides are choosing units and readying up.
+func is_selecting() -> bool:
+	return _phase == CombatPhase.SELECT
+
+
+## A contest has started and not been resolved yet.
+func is_in_progress() -> bool:
+	return _phase in [CombatPhase.START, CombatPhase.SELECT, CombatPhase.DAMAGE]
 #endregion
 
 
@@ -144,43 +148,6 @@ func set_max_abilities(side: int, value: int) -> void:
 
 
 #region Private
-func _run_damage_phase() -> void:
-	if _phase != CombatPhase.SELECT:
-		push_warning("CombatManager | Damage phase requested outside of the select phase")
-		return
-	_phase = CombatPhase.DAMAGE
-
-	var contest := get_contest()
-	var attacker_outcomes := _roll_side(contest.get_units(Contest.Side.ATTACKER))
-	var defender_outcomes := _roll_side(contest.get_units(Contest.Side.DEFENDER))
-
-	# Highest roll faces highest roll. Ties go to the defender.
-	for i in mini(attacker_outcomes.size(), defender_outcomes.size()):
-		if attacker_outcomes[i].get_total() > defender_outcomes[i].get_total():
-			attacker_outcomes[i].set_reason(CombatOutcome.Reason.COMBAT_WON)
-			defender_outcomes[i].set_reason(CombatOutcome.Reason.COMBAT_LOST)
-		else:
-			attacker_outcomes[i].set_reason(CombatOutcome.Reason.COMBAT_LOST)
-			defender_outcomes[i].set_reason(CombatOutcome.Reason.COMBAT_WON)
-
-	for outcome in attacker_outcomes:
-		print(outcome.to_debug_dictionary())
-	print("#####")
-	for outcome in defender_outcomes:
-		print(outcome.to_debug_dictionary())
-
-	var all_outcomes: Array[CombatOutcome] = []
-	all_outcomes.append_array(attacker_outcomes)
-	all_outcomes.append_array(defender_outcomes)
-	combat_resolved.emit(all_outcomes)
-	_outcome_emitted = true
-
-	_remove_dead(attacker_outcomes, contest.get_lander(Contest.Side.ATTACKER))
-	_remove_dead(defender_outcomes, contest.get_lander(Contest.Side.DEFENDER))
-
-	_phase = CombatPhase.CLEANUP
-
-
 ## Rolls damage for each unit and returns the outcomes sorted highest total first.
 func _roll_side(units: Array[UnitInstance]) -> Array[CombatOutcome]:
 	var outcomes: Array[CombatOutcome] = []
