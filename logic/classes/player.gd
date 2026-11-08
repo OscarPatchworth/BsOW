@@ -8,6 +8,7 @@ extends Actor
 
 var _draw_3d: Draw3D
 var _match_settings: MatchSettings
+var _gravity_system: GravitySystem
 
 @onready var _controller: PlayerController = find_child("PlayerController")
 @onready var _ui: UiManager = find_child("UiManager")
@@ -27,6 +28,10 @@ func bind_draw_3d(draw_3d: Draw3D) -> void:
 
 func bind_match_settings(match_settings: MatchSettings) -> void:
 	_match_settings = match_settings
+
+
+func bind_gravity_system(gravity_system: GravitySystem) -> void:
+	_gravity_system = gravity_system
 
 
 func get_display_name() -> String:
@@ -143,7 +148,7 @@ func _bind_children() -> void:
 	_controller.bind_selector_manager(_selector_manager)
 	_controller.bind_turn_manager(_turn_manager)
 	_controller.bind_lander_manager(_lander_manager)
-	_controller.bind_draw_3d(_draw_3d)
+	_controller.bind_gravity_system(_gravity_system)
 
 	_ui.bind_player(self)
 	_ui.bind_selector_manager(_selector_manager)

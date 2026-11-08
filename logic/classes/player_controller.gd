@@ -2,7 +2,17 @@
 class_name PlayerController
 extends Node3D
 
-## Turns mouse input in the 3D world into selections and Actions for the local Player.
+## Turns mouse input in the 3D world into selections and Actions for the local Player, and
+## draws the world-space hints for them (PlacementPreview).
+##
+##   Left click a lander        select it (the HUD shows it)
+##   Right click a lander       select it too
+##   Dustcloud / setup          the ghost follows the cursor and shows where gravity pulls it;
+##                              left click places
+##   Combat phase               drag from your lander to a connected one: move units, attack,
+##                              or move onto an undefended enemy lander (capture or raze)
+##
+## Uses _unhandled_input, so clicks on HUD controls never reach the board.
 
 signal action_requested(action: Action)
 signal lander_selected(lander: Lander)
@@ -19,56 +29,76 @@ enum ControllerState {
 	SETUP,
 }
 
-const RAYCAST_LENGTH: float = 100.0
+const RAYCAST_LENGTH: float = 200.0
 const WORLD_SURFACE_LAYER: int = 1
 const LANDER_LAYER: int = 2
-const MOVEMENT_PREVIEW_INTERVAL: float = 1.0 / 30.0
-const DUSTCLOUD_PREVIEW_INTERVAL: float = 1.0 / 60.0
+## How often the gravity prediction is recalculated while the cursor moves.
+const PLACEMENT_PREVIEW_INTERVAL: float = 1.0 / 30.0
+## Moving the mouse less than this (pixels) between press and release counts as a click.
+const CLICK_SLOP: float = 8.0
+
+const DRAG_MOVE_COLOR := Color(1.0, 0.85, 0.3, 0.9)
+const DRAG_ATTACK_COLOR := Color(1.0, 0.3, 0.3, 0.9)
+const DRAG_TAKE_COLOR := Color(1.0, 0.6, 0.2, 0.9)
+const DRAG_INVALID_COLOR := Color(0.7, 0.7, 0.7, 0.5)
 
 var _player: Player
 var _selector_manager: SelectorManager
 var _turn_manager: TurnManager
 var _lander_manager: LanderManager
-var _draw_3d: Draw3D
+var _gravity_system: GravitySystem
 
 var _state: ControllerState = ControllerState.IDLE
 var _is_active_player: bool = false
 
-# Movement state
+var _pressed_lander: Lander
+var _press_position: Vector2
 var _is_dragging: bool = false
-var _drag_start_lander: Lander
-var _drag_end_lander: Lander
-var _drag_connected_landers: Array[Lander] = []
-var _movement_preview_timer: float = 0.0
-
-# Dustcloud collapse state
-var _dustcloud_preview_timer: float = 0.0
+var _hovered_lander: Lander
+var _placement_timer: float = 0.0
 
 # Setup state
 var _setup_selected_biome: BiomeData
 var _is_placing_command_tower: bool = false
 
 @onready var _camera: Camera3D = find_child("Camera3D")
+@onready var _gimbal: CameraGimbal = find_child("CamGimbal")
+var _preview: PlacementPreview
 
 
-func _input(event: InputEvent) -> void:
-	match _state:
-		ControllerState.COLLAPSING_DUSTCLOUD:
-			_input_collapsing_dustcloud(event)
-		ControllerState.MOVEMENT:
-			_input_movement(event)
-		ControllerState.SETUP:
-			_input_setup(event)
-		_:
-			_input_idle(event)
+func _ready() -> void:
+	_preview = PlacementPreview.new()
+	_preview.name = "PlacementPreview"
+	add_child(_preview)
+	if _lander_manager != null:
+		_preview.set_connection_distance(_lander_manager.get_connected_lander_distance())
+
+
+func _unhandled_input(event: InputEvent) -> void:
+	if event.is_action_pressed("left_click"):
+		_press_position = get_viewport().get_mouse_position()
+		_pressed_lander = _lander_under_mouse()
+		_is_dragging = _state == ControllerState.MOVEMENT and _pressed_lander != null \
+			and _pressed_lander.get_owner_actor() == _player
+	elif event.is_action_released("left_click"):
+		_on_left_click_released()
+	elif event.is_action_released("right_click"):
+		_select(_lander_under_mouse())
 
 
 func _process(delta: float) -> void:
+	_hovered_lander = _lander_under_mouse()
 	match _state:
 		ControllerState.COLLAPSING_DUSTCLOUD:
-			_process_collapsing_dustcloud(delta)
+			_update_placement_preview(delta, Color.TRANSPARENT)
+		ControllerState.SETUP:
+			_update_setup_preview(delta)
 		ControllerState.MOVEMENT:
-			_process_movement(delta)
+			_update_drag_preview()
+		_:
+			_preview.hide_placement()
+	if _state != ControllerState.SETUP or not _is_placing_command_tower:
+		_preview.show_hover(_hovered_lander)
 
 
 #region Public API
@@ -86,15 +116,21 @@ func bind_turn_manager(turn_manager: TurnManager) -> void:
 
 func bind_lander_manager(lander_manager: LanderManager) -> void:
 	_lander_manager = lander_manager
+	if _preview != null:
+		_preview.set_connection_distance(lander_manager.get_connected_lander_distance())
 
 
-func bind_draw_3d(draw_3d: Draw3D) -> void:
-	_draw_3d = draw_3d
+func bind_gravity_system(gravity_system: GravitySystem) -> void:
+	_gravity_system = gravity_system
+
+
+## Glides the camera to look at a point on the board.
+func focus_camera_on(point: Vector3) -> void:
+	_gimbal.focus_on(point)
 
 
 func apply_active_actor(active_actor: Actor) -> void:
 	set_is_active_player(active_actor == _player)
-	print("PlayerController | Active actor changed to: " + active_actor.name)
 
 
 func apply_game_phase(phase: TurnManager.Phase) -> void:
@@ -122,9 +158,9 @@ func enter_combat() -> void:
 
 
 func exit_combat() -> void:
-	if _turn_manager.get_active_actor() == _player:
+	if _turn_manager.get_active_actor() == _player and _turn_manager.get_game_phase() == TurnManager.Phase.COMBAT:
 		set_state(ControllerState.MOVEMENT)
-	else:
+	elif _turn_manager.get_active_actor() != _player:
 		set_state(ControllerState.IDLE)
 
 
@@ -142,6 +178,14 @@ func on_all_setup_biomes_placed() -> void:
 
 func on_command_tower_placed() -> void:
 	_is_placing_command_tower = false
+
+
+func is_placing_command_tower() -> bool:
+	return _is_placing_command_tower
+
+
+func get_setup_selected_biome() -> BiomeData:
+	return _setup_selected_biome
 #endregion
 
 
@@ -152,6 +196,8 @@ func get_state() -> ControllerState:
 
 func set_state(value: ControllerState) -> void:
 	_state = value
+	_is_dragging = false
+	_preview.hide_placement()
 
 
 func is_active_player() -> bool:
@@ -163,146 +209,58 @@ func set_is_active_player(value: bool) -> void:
 #endregion
 
 
-#region Input states
-func _input_idle(event: InputEvent) -> void:
-	if event.is_action_released("right_click"):
-		_view_lander_under_mouse()
-
-
-func _input_collapsing_dustcloud(event: InputEvent) -> void:
-	if event.is_action_released("left_click"):
-		var hit := _raycast_to_layer(WORLD_SURFACE_LAYER)
-		if hit:
-			var action := Action.create(Action.Type.PLACE_LANDER)
-			action.set_position(hit.position)
-			action_requested.emit(action)
-	elif event.is_action_released("right_click"):
-		_view_lander_under_mouse()
-
-
-func _input_movement(event: InputEvent) -> void:
-	if event.is_action_pressed("left_click"):
-		_is_dragging = true
-		var hit := _raycast_to_layer(LANDER_LAYER)
-		if hit:
-			_drag_start_lander = hit.collider
-			if _drag_start_lander.get_owner_actor() == _player:
-				_drag_connected_landers = _lander_manager.get_connected_landers(_drag_start_lander)
-			else:
-				_drag_connected_landers = []
-
-	elif event.is_action_released("left_click"):
-		_finish_drag()
-
-	elif event.is_action_released("right_click"):
-		_view_lander_under_mouse()
-
-
-func _input_setup(event: InputEvent) -> void:
-	if not event.is_action_pressed("left_click"):
-		return
-	if _is_placing_command_tower:
-		_try_place_command_tower()
-	else:
-		_try_place_setup_biome()
-#endregion
-
-
-#region Process states
-func _process_collapsing_dustcloud(delta: float) -> void:
-	_dustcloud_preview_timer += delta
-	if _dustcloud_preview_timer < DUSTCLOUD_PREVIEW_INTERVAL:
-		return
-	_dustcloud_preview_timer = 0
-
-	var hit := _raycast_to_layer(WORLD_SURFACE_LAYER)
-	if not hit.has("position"):
-		return
-	var mouse_position: Vector3 = hit["position"]
-
-	var color := Color.WEB_GREEN                       # free space
-	if not _lander_manager.is_position_clear(mouse_position):
-		color = Color.RED                              # overlapping a lander
-	elif _lander_manager.is_position_adjacent(mouse_position):
-		color = Color.REBECCA_PURPLE                   # next to a lander
-	_draw_3d.circle(mouse_position, LanderManager.LANDER_RADIUS, color, DUSTCLOUD_PREVIEW_INTERVAL)
-
-
-func _process_movement(delta: float) -> void:
-	if not _is_dragging or _drag_start_lander == null:
-		return
-	_movement_preview_timer += delta
-	if _movement_preview_timer < MOVEMENT_PREVIEW_INTERVAL:
-		return
-	_movement_preview_timer = 0
-	if _drag_start_lander.get_owner_actor() != _player:
-		return
-
-	var hit := _raycast_to_layer(LANDER_LAYER)
-	_drag_end_lander = hit.collider if hit else null
-
-	var start := _drag_start_lander.global_transform.origin + Vector3.UP
-	if _drag_end_lander != null and _drag_end_lander in _drag_connected_landers:
-		var end := _drag_end_lander.global_transform.origin + Vector3.UP
-		var end_owner := _drag_end_lander.get_owner_actor()
-		var color := Color.RED                         # enemy
-		if end_owner == null:
-			color = Color.GOLD                         # unoccupied
-		elif end_owner == _player:
-			color = Color.MAGENTA                      # own both
-		_draw_3d.line(start, end, color, MOVEMENT_PREVIEW_INTERVAL)
-	else:
-		var surface_hit := _raycast_to_layer(WORLD_SURFACE_LAYER)
-		if surface_hit:
-			_draw_3d.line(start, surface_hit.position, Color.LIGHT_BLUE, MOVEMENT_PREVIEW_INTERVAL)
-#endregion
-
-
-#region Private
-func _finish_drag() -> void:
-	var start := _drag_start_lander
-	var end := _drag_end_lander
+#region Clicks
+func _on_left_click_released() -> void:
+	var released_lander := _lander_under_mouse()
+	var was_click := get_viewport().get_mouse_position().distance_to(_press_position) < CLICK_SLOP
+	var was_dragging := _is_dragging
 	_is_dragging = false
-	_drag_start_lander = null
-	_drag_end_lander = null
 
-	if start == null or end == null:
-		return
-	if start.get_owner_actor() != _player or end not in _lander_manager.get_connected_landers(start):
-		return
+	match _state:
+		ControllerState.COLLAPSING_DUSTCLOUD:
+			if released_lander != null:
+				_select(released_lander)
+			elif was_click:
+				_request_place(Action.Type.PLACE_LANDER, null)
+		ControllerState.SETUP:
+			if _is_placing_command_tower:
+				_try_place_command_tower(released_lander)
+			elif released_lander != null:
+				_select(released_lander)
+			elif was_click and _setup_selected_biome != null:
+				_request_place(Action.Type.PLACE_BIOME, _setup_selected_biome)
+		ControllerState.MOVEMENT:
+			if was_dragging and released_lander != null and released_lander != _pressed_lander:
+				_finish_drag(_pressed_lander, released_lander)
+			elif released_lander != null:
+				_select(released_lander)
+		_:
+			if released_lander != null:
+				_select(released_lander)
+	_pressed_lander = null
+	_preview.hide_placement()
 
-	var end_owner := end.get_owner_actor()
-	if end_owner == null or end_owner == _player:
-		movement_ui_requested.emit(start, end)  # Neutral or allied: pick units to move
-	else:
-		var action := Action.create(Action.Type.ATTACK)
-		action.set_source_lander(start)
-		action.set_target_lander(end)
-		action_requested.emit(action)
+
+func _select(lander: Lander) -> void:
+	if lander == null:
+		return
+	lander_selected.emit(lander)
+	lander_view_requested.emit(lander)
 
 
-func _try_place_setup_biome() -> void:
-	if _setup_selected_biome == null:
-		print("PlayerController | No biome selected for setup placement")
+func _request_place(type: Action.Type, biome_data: BiomeData) -> void:
+	var spot: Variant = _board_point_under_mouse()
+	if spot == null:
 		return
-	var surface_hit := _raycast_to_layer(WORLD_SURFACE_LAYER)
-	var lander_hit := _raycast_to_layer(LANDER_LAYER)
-	if surface_hit.is_empty() or not lander_hit.is_empty():
-		print("PlayerController | Invalid lander placement during setup")
-		return
-	var action := Action.create(Action.Type.PLACE_BIOME)
-	action.set_position(surface_hit["position"])
-	action.set_biome_data(_setup_selected_biome)
+	var action := Action.create(type)
+	action.set_position(spot)
+	if biome_data != null:
+		action.set_biome_data(biome_data)
 	action_requested.emit(action)
 
 
-func _try_place_command_tower() -> void:
-	var lander_hit := _raycast_to_layer(LANDER_LAYER)
-	if lander_hit.is_empty():
-		return
-	var lander: Lander = lander_hit["collider"]
-	if lander.get_owner_actor() != null:
-		print("PlayerController | The command tower can not be placed on an occupied lander")
+func _try_place_command_tower(lander: Lander) -> void:
+	if lander == null:
 		return
 	var action := Action.create(Action.Type.PLACE_BUILDING)
 	action.set_target_lander(lander)
@@ -310,14 +268,95 @@ func _try_place_command_tower() -> void:
 	action_requested.emit(action)
 
 
-func _view_lander_under_mouse() -> void:
+func _finish_drag(start: Lander, end: Lander) -> void:
+	if start == null or start.get_owner_actor() != _player:
+		return
+	if not _lander_manager.are_connected(start, end):
+		_select(end)
+		return
+	var end_owner := end.get_owner_actor()
+	if end_owner != null and end_owner != _player and end.has_units():
+		var action := Action.create(Action.Type.ATTACK)
+		action.set_source_lander(start)
+		action.set_target_lander(end)
+		action_requested.emit(action)
+	else:
+		# Neutral, ours, or an undefended enemy lander: choose units (and capture/raze) in the HUD.
+		movement_ui_requested.emit(start, end)
+#endregion
+
+
+#region Previews
+func _update_placement_preview(delta: float, tint: Color) -> void:
+	_placement_timer -= delta
+	if _placement_timer > 0.0:
+		return
+	_placement_timer = PLACEMENT_PREVIEW_INTERVAL
+	var spot: Variant = _board_point_under_mouse()
+	if spot == null or _hovered_lander != null:
+		_preview.hide_placement()
+		return
+	var is_valid := _lander_manager.is_valid_lander_placement(spot)
+	var settle_spot: Vector3 = _gravity_system.predict_settle_position(spot) if is_valid else spot
+	var connects := _lander_manager.get_landers_within(settle_spot, _lander_manager.get_connected_lander_distance())
+	var pulls: Dictionary = _gravity_system.get_pull_preview(spot) if is_valid else {}
+	_preview.show_placement(spot, is_valid, settle_spot, pulls, connects, tint)
+
+
+func _update_setup_preview(delta: float) -> void:
+	if _is_placing_command_tower:
+		_preview.hide_placement()
+		var can_take := _hovered_lander != null and _hovered_lander.get_owner_actor() == null
+		_preview.show_hover(_hovered_lander, PlacementPreview.VALID_COLOR if can_take else PlacementPreview.INVALID_COLOR)
+	elif _setup_selected_biome != null:
+		var material := _setup_selected_biome.get_mesh_material() as StandardMaterial3D
+		_update_placement_preview(delta, material.albedo_color if material != null else Color.TRANSPARENT)
+	else:
+		_preview.hide_placement()
+
+
+func _update_drag_preview() -> void:
+	if not _is_dragging or _pressed_lander == null:
+		_preview.hide_placement()
+		return
+	var start := _pressed_lander.get_board_position()
+	var target := _hovered_lander
+	if target != null and target != _pressed_lander:
+		var color := DRAG_INVALID_COLOR
+		if _lander_manager.are_connected(_pressed_lander, target):
+			var target_owner := target.get_owner_actor()
+			if target_owner == null or target_owner == _player:
+				color = DRAG_MOVE_COLOR
+			elif target.has_units():
+				color = DRAG_ATTACK_COLOR
+			else:
+				color = DRAG_TAKE_COLOR
+		_preview.show_drag(start, target.get_board_position(), color)
+	else:
+		var point: Variant = _board_point_under_mouse()
+		if point != null:
+			_preview.show_drag(start, point, DRAG_INVALID_COLOR)
+#endregion
+
+
+#region Raycasts
+func _lander_under_mouse() -> Lander:
 	var hit := _raycast_to_layer(LANDER_LAYER)
-	if hit:
-		lander_selected.emit(hit.collider)
-		lander_view_requested.emit(hit.collider)
+	return hit.get("collider") as Lander if not hit.is_empty() else null
+
+
+## The point on the floor under the mouse, or null.
+func _board_point_under_mouse() -> Variant:
+	var hit := _raycast_to_layer(WORLD_SURFACE_LAYER)
+	if hit.is_empty():
+		return null
+	var point: Vector3 = hit["position"]
+	return Vector3(point.x, 0, point.z)
 
 
 func _raycast_to_layer(layer: int) -> Dictionary:
+	if _camera == null or not is_inside_tree():
+		return {}
 	var mouse_position := get_viewport().get_mouse_position()
 	var ray_start := _camera.project_ray_origin(mouse_position)
 	var ray_end := ray_start + _camera.project_ray_normal(mouse_position) * RAYCAST_LENGTH

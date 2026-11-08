@@ -22,6 +22,7 @@ const ACTOR_COLORS: Array[Color] = [
 @onready var _lander_manager: LanderManager = find_child("LanderManager")
 @onready var _turn_manager: TurnManager = find_child("TurnManager")
 @onready var _combat_manager: CombatManager = find_child("CombatManager")
+@onready var _gravity_system: GravitySystem = find_child("GravitySystem")
 @onready var _match_settings: MatchSettings = find_child("MatchSettings")
 @onready var _draw_3d: Draw3D = find_child("Draw3D")
 @onready var _actors_root: Node3D = find_child("Actors")
@@ -45,6 +46,7 @@ func _setup_managers() -> void:
 	_combat_manager.bind_match_settings(_match_settings)
 
 	_lander_manager.bind_landers_root(_landers_root)
+	_gravity_system.bind_lander_manager(_lander_manager)
 	_lander_manager.spawn_random_lander(Vector3.ZERO)
 
 	root_setup_finished.connect(_turn_manager.start)
@@ -56,6 +58,7 @@ func _add_player() -> void:
 	var player: Player = PLAYER_SCENE.instantiate()
 	player.bind_draw_3d(_draw_3d)
 	player.bind_match_settings(_match_settings)
+	player.bind_gravity_system(_gravity_system)
 	_add_actor(player)
 
 

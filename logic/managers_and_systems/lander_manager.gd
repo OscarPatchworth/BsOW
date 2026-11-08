@@ -14,7 +14,7 @@ const LANDER_RADIUS: float = 1.0
 const MIN_DISTANCE_BETWEEN_LANDERS: float = 2.0
 const MIN_DISTANCE_SQUARED: float = MIN_DISTANCE_BETWEEN_LANDERS ** 2
 ## Landers spawn slightly above the floor and drop into place.
-const SPAWN_OFFSET: Vector3 = Vector3.UP * 2
+const SPAWN_OFFSET: Vector3 = Vector3.UP * 0.4
 ## Protected (AI) landers are garrisoned with units that inherit from this.
 const GARRISON_BASE_UNIT: UnitData = preload("res://data/units/base_footsoldier.tres")
 

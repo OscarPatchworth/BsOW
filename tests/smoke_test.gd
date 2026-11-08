@@ -25,6 +25,7 @@ var _turn_manager: TurnManager
 var _lander_manager: LanderManager
 var _combat_manager: CombatManager
 var _action_manager: ActionManager
+var _gravity_system: GravitySystem
 var _rejections: Array[String] = []
 var _resolved_types: Array[Action.Type] = []
 var _resolved_actions: Array[Action] = []
@@ -52,6 +53,7 @@ func _ready() -> void:
 	_lander_manager = _root.find_child("LanderManager", true, false)
 	_combat_manager = _root.find_child("CombatManager", true, false)
 	_action_manager = _root.find_child("ActionManager", true, false)
+	_gravity_system = _root.find_child("GravitySystem", true, false)
 	_upkeep_gold = _root.find_child("MatchSettings", true, false).get_upkeep_gold()
 	_action_manager.action_rejected.connect(_on_action_rejected)
 	_action_manager.action_resolved.connect(_on_action_resolved)
@@ -139,10 +141,15 @@ func _test_main_loop() -> void:
 		"DUSTCLOUD_COLLAPSE can't be skipped with PROGRESS_TURN")
 	var landers_before := _lander_manager.get_landers().size()
 	var place := Action.create(Action.Type.PLACE_LANDER)
-	place.set_position(SETUP_ORIGIN + Vector3(0, 0, 10))
+	# Out of connection range but inside gravity range: the pull should bring it in.
+	place.set_position(SETUP_ORIGIN + Vector3(0, 0, 4.5))
 	_request(place)
 	await _frames(1)
 	_check(_lander_manager.get_landers().size() == landers_before + 1, "PLACE_LANDER spawned a lander")
+	var placed := _lander_manager.get_landers()[-1]
+	_check(await _await_settled(), "gravity settles the board")
+	_check(not _lander_manager.get_connected_landers(placed).is_empty(), "gravity pulled the new lander into connection range")
+	_check(placed.position.y < 0.5, "the pulled lander rests on the floor (not stacked on another)")
 	_check(_turn_manager.get_game_phase() == TurnManager.Phase.BUYING, "PLACE_LANDER progressed to BUYING")
 
 	# Rules: no attacking outside COMBAT.
@@ -398,6 +405,14 @@ func _lander_at(position: Vector3) -> Lander:
 		if flat.length() < 0.5:
 			best = lander
 	return best
+
+
+## Waits for GravitySystem.board_settled (true), or gives up after `timeout` seconds (false).
+func _await_settled(timeout: float = 8.0) -> bool:
+	var deadline := Time.get_ticks_msec() + int(timeout * 1000)
+	while not _gravity_system.is_settled() and Time.get_ticks_msec() < deadline:
+		await get_tree().physics_frame
+	return _gravity_system.is_settled()
 
 
 func _frames(count: int) -> void:
