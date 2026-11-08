@@ -31,6 +31,7 @@ const SYSTEM_TYPES: Array[Action.Type] = [
 var _lander_manager: LanderManager
 var _turn_manager: TurnManager
 var _combat_manager: CombatManager
+var _match_settings: MatchSettings
 
 var _queue: Array[Action] = []
 var _is_resolving: bool = false
@@ -47,6 +48,10 @@ func bind_turn_manager(turn_manager: TurnManager) -> void:
 
 func bind_combat_manager(combat_manager: CombatManager) -> void:
 	_combat_manager = combat_manager
+
+
+func bind_match_settings(match_settings: MatchSettings) -> void:
+	_match_settings = match_settings
 
 
 ## Queues `action`. If nothing is resolving, resolves it (and everything it causes) right away.
@@ -414,11 +419,18 @@ func _execute(action: Action) -> void:
 			_combat_manager.resolve_combat()
 
 		Action.Type.COLLECT_UPKEEP:
-			_lander_manager.run_upkeep(action.get_actor())
+			_collect_upkeep(action.get_actor())
 #endregion
 
 
 #region Private
+## Every actor's flat upkeep gold, plus the upkeep of each lander they own.
+func _collect_upkeep(actor: Actor) -> void:
+	var wallet := actor.get_wallet()
+	wallet.set_amount(&"gold", wallet.get_amount(&"gold") + _match_settings.get_upkeep_gold())
+	_lander_manager.run_upkeep(actor)
+
+
 func _get_cost(purchasable: Resource) -> EconData:
 	if purchasable is BuildingData:
 		return (purchasable as BuildingData).get_cost()

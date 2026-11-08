@@ -35,6 +35,9 @@ var _food_after_upkeep := {}
 var _expected_food_upkeep := {}
 ## A copy of each actor's wallet right after their latest upkeep.
 var _wallet_after_upkeep := {}
+var _gold_before_upkeep := {}
+var _expected_gold_upkeep := {}
+var _upkeep_gold: int = 0
 
 
 func _ready() -> void:
@@ -49,6 +52,7 @@ func _ready() -> void:
 	_lander_manager = _root.find_child("LanderManager", true, false)
 	_combat_manager = _root.find_child("CombatManager", true, false)
 	_action_manager = _root.find_child("ActionManager", true, false)
+	_upkeep_gold = _root.find_child("MatchSettings", true, false).get_upkeep_gold()
 	_action_manager.action_rejected.connect(_on_action_rejected)
 	_action_manager.action_resolved.connect(_on_action_resolved)
 	_action_manager.action_resolving.connect(_on_action_resolving)
@@ -221,6 +225,9 @@ func _test_main_loop() -> void:
 	_check(_turn_manager.get_season_index() == (season_before + 1) % 4, "season advanced")
 	_check(_food_after_upkeep[_ai] == _food_before_upkeep[_ai] + _expected_food_upkeep[_ai], "AI collected upkeep for its landers")
 	_check(_food_after_upkeep[_player] == _food_before_upkeep[_player] + _expected_food_upkeep[_player], "player collected upkeep for owned landers")
+	for actor: Actor in [_ai, _player]:
+		_check(_wallet_after_upkeep[actor].get_amount(&"gold") == _gold_before_upkeep[actor] + _expected_gold_upkeep[actor],
+			"%s gained %d upkeep gold (plus any lander gold)" % [actor.name, _upkeep_gold])
 	_check_ai_turn(scenario)
 
 
@@ -357,6 +364,8 @@ func _on_action_resolving(action: Action) -> void:
 	if action.get_type() == Action.Type.COLLECT_UPKEEP:
 		_food_before_upkeep[action.get_actor()] = action.get_actor().get_wallet().get_amount(&"food")
 		_expected_food_upkeep[action.get_actor()] = _expected_upkeep(action.get_actor(), &"food")
+		_gold_before_upkeep[action.get_actor()] = action.get_actor().get_wallet().get_amount(&"gold")
+		_expected_gold_upkeep[action.get_actor()] = _upkeep_gold + _expected_upkeep(action.get_actor(), &"gold")
 
 
 ## Stands in for the human when the AI attacks: picks the first unit and declares ready.

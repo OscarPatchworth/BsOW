@@ -33,6 +33,7 @@ func _setup_managers() -> void:
 	_action_manager.bind_lander_manager(_lander_manager)
 	_action_manager.bind_turn_manager(_turn_manager)
 	_action_manager.bind_combat_manager(_combat_manager)
+	_action_manager.bind_match_settings(_match_settings)
 
 	_combat_manager.bind_match_settings(_match_settings)
 

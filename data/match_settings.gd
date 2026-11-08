@@ -12,6 +12,8 @@ extends Node
 # Economy
 ## Every resource in a new actor's wallet starts at this amount.
 @export var starting_resource_amount: int = 10
+## Gold every actor gains at the start of their turn (UPKEEP), on top of their landers' upkeep.
+@export var upkeep_gold: int = 2
 
 # Landers
 @export var game_biomes: Array[BiomeData] = []
@@ -41,6 +43,10 @@ func get_starting_biome_count() -> int:
 
 func get_starting_resource_amount() -> int:
 	return AbilitySystem.resolve_get(self, &"starting_resource_amount", starting_resource_amount)
+
+
+func get_upkeep_gold() -> int:
+	return AbilitySystem.resolve_get(self, &"upkeep_gold", upkeep_gold)
 
 
 func get_game_biomes() -> Array[BiomeData]:

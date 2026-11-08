@@ -106,6 +106,7 @@ classDiagram
         +int ai_starting_troops
         +int starting_biome_count
         +int starting_resource_amount
+        +int upkeep_gold
         +Array~BiomeData~ game_biomes
         +int map_size
         +int max_attacker_units
@@ -606,7 +607,7 @@ flowchart TB
 | After | Queued |
 |---|---|
 | `PLACE_BUILDING` (the command tower) | `FINISH_SETUP` |
-| `FINISH_SETUP` or `PROGRESS_TURN` into `UPKEEP` | `COLLECT_UPKEEP` for the active actor, then system `PROGRESS_TURN` |
+| `FINISH_SETUP` or `PROGRESS_TURN` into `UPKEEP` | `COLLECT_UPKEEP` for the active actor (`upkeep_gold` plus each owned lander's upkeep), then system `PROGRESS_TURN` |
 | `PROGRESS_TURN` into `CLEANUP` | system `PROGRESS_TURN` |
 | `PLACE_LANDER` | system `PROGRESS_TURN` (placing the lander is the whole phase) |
 | `DECLARE_COMBAT_READY` when both sides are ready | `RESOLVE_COMBAT` |
@@ -676,6 +677,7 @@ sequenceDiagram
     AM->>TM: begin_main_loop()
     TM-->>P: game_state_changed(MAIN_LOOP), game_phase_changed(UPKEEP)
     Note over AM: resolve COLLECT_UPKEEP(Player)
+    AM->>AM: wallet gold += MatchSettings.upkeep_gold (2)
     AM->>LM: run_upkeep(Player): wallet += upkeep of each owned lander
     Note over AM: resolve PROGRESS_TURN (system)
     AM->>TM: progress_phase() → DUSTCLOUD_COLLAPSE
