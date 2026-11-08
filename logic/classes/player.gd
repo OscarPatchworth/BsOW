@@ -49,9 +49,16 @@ func _on_combat_manager_combat_updated(contest: Contest) -> void:
 		_ui.update_combat(contest)
 
 
+## One round's dice. The battle may go on to another round.
 func _on_combat_manager_combat_resolved(outcomes: Array[CombatOutcome]) -> void:
-	_ui.show_combat_outcome(outcomes)
-	_controller.exit_combat()
+	if _combat_manager.get_contest().is_involved(self):
+		_ui.show_combat_outcome(outcomes)
+
+
+func _on_combat_manager_combat_ended(contest: Contest) -> void:
+	if contest.is_involved(self):
+		_ui.show_combat_ended(contest)
+		_controller.exit_combat()
 
 
 func _on_turn_manager_game_state_changed(state: TurnManager.GameState) -> void:
@@ -181,6 +188,7 @@ func _connect_children() -> void:
 func _connect_managers() -> void:
 	_combat_manager.combat_updated.connect(_on_combat_manager_combat_updated)
 	_combat_manager.combat_resolved.connect(_on_combat_manager_combat_resolved)
+	_combat_manager.combat_ended.connect(_on_combat_manager_combat_ended)
 	_turn_manager.game_state_changed.connect(_on_turn_manager_game_state_changed)
 	_turn_manager.turn_order_generated.connect(_on_turn_manager_turn_order_generated)
 	_turn_manager.active_actor_changed.connect(_on_turn_manager_active_actor_changed)

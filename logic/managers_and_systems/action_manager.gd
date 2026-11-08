@@ -139,8 +139,12 @@ func _validate(action: Action) -> String:
 			return _validate_select_combat_unit(action)
 		Action.Type.DESELECT_COMBAT_UNIT:
 			return _validate_deselect_combat_unit(action)
-		Action.Type.DECLARE_COMBAT_READY, Action.Type.WITHDRAW_COMBAT_READY:
+		Action.Type.DECLARE_COMBAT_READY:
+			return _validate_declare_combat_ready(action)
+		Action.Type.WITHDRAW_COMBAT_READY:
 			return _require_combat_participant(action)
+		Action.Type.RETREAT_COMBAT:
+			return _validate_retreat_combat(action)
 		Action.Type.COLLECT_UPKEEP:
 			return "" if action.get_actor() != null else "Upkeep needs an actor"
 		Action.Type.RESOLVE_COMBAT:
@@ -323,6 +327,27 @@ func _validate_deselect_combat_unit(action: Action) -> String:
 	return ""
 
 
+## A side that still has units must pick at least one, or the battle could never end.
+func _validate_declare_combat_ready(action: Action) -> String:
+	var reason := _require_combat_participant(action)
+	if reason != "":
+		return reason
+	var contest := _combat_manager.get_contest()
+	var side := contest.get_side_of(action.get_actor())
+	if contest.get_units(side).is_empty() and not contest.get_available_units(side).is_empty():
+		return "Select at least one unit to fight with first"
+	return ""
+
+
+func _validate_retreat_combat(action: Action) -> String:
+	var reason := _require_combat_participant(action)
+	if reason != "":
+		return reason
+	if _combat_manager.get_contest().get_side_of(action.get_actor()) != Contest.Side.ATTACKER:
+		return "Only the attacker can retreat"
+	return ""
+
+
 func _validate_resolve_combat() -> String:
 	if not _combat_manager.is_selecting():
 		return "No combat is waiting to be resolved"
@@ -416,6 +441,9 @@ func _execute(action: Action) -> void:
 
 		Action.Type.WITHDRAW_COMBAT_READY:
 			_combat_manager.set_actor_ready(action.get_actor(), false)
+
+		Action.Type.RETREAT_COMBAT:
+			_combat_manager.retreat()
 
 		Action.Type.RESOLVE_COMBAT:
 			_combat_manager.resolve_combat()

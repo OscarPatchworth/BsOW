@@ -275,10 +275,13 @@ func _check_ai_turn(scenario: Dictionary) -> void:
 	_check(attacks.size() <= SimpleAI.MAX_ATTACKS_PER_TURN, "AI stayed within its attack limit")
 	# It claims an empty neighbour: the one in the scenario, the bait if its attack emptied it,
 	# or the lander it placed this turn (it aims those at the nearest enemy, i.e. the bait).
+	# Battles can last several rounds, so the AI may have no units to spare afterwards.
 	var claims := moves.filter(func(action: Action) -> bool: return action.get_source_lander() == scenario["ai_base"])
-	_check(not claims.is_empty(), "AI moved units from its base onto a neighbouring lander")
-	_check(claims.all(func(action: Action) -> bool: return action.get_target_lander().get_owner_actor() == _ai),
-		"AI now owns the lander it claimed")
+	if claims.is_empty():
+		_check(scenario["ai_base"].get_units().size() <= 1, "AI only stays put when it has no spare units (it keeps one home)")
+	else:
+		_check(claims.all(func(action: Action) -> bool: return action.get_target_lander().get_owner_actor() == _ai),
+			"AI moved spare units from its base and now owns the lander it claimed")
 	_check(scenario["ai_base"].has_units(), "AI kept units behind on its base")
 
 
@@ -348,7 +351,9 @@ func _test_combat(home: Lander) -> void:
 	_check(enemy.get_owner_actor() == _ai and enemy.get_units().size() == 2, "AI garrison spawned")
 
 	var resolved: Array = []
+	var ended: Array = []
 	_combat_manager.combat_resolved.connect(func(outcomes: Array[CombatOutcome]) -> void: resolved.append(outcomes))
+	_combat_manager.combat_ended.connect(func(ended_contest: Contest) -> void: ended.append(ended_contest))
 
 	var attack := Action.create(Action.Type.ATTACK)
 	attack.set_source_lander(home)
@@ -367,16 +372,20 @@ func _test_combat(home: Lander) -> void:
 	_check(contest.get_units(Contest.Side.ATTACKER) == [attacker_unit], "player selected an attacker")
 	_request(_combat_unit_action(Action.Type.DESELECT_COMBAT_UNIT, attacker_unit))
 	_check(contest.get_units(Contest.Side.ATTACKER).is_empty(), "player deselected the attacker")
+	_request(Action.create(Action.Type.DECLARE_COMBAT_READY))
+	_check(not contest.is_ready(Contest.Side.ATTACKER) and _last_rejection_contains("at least one unit"),
+		"can't ready up without selecting a unit")
 	_request(Action.create(Action.Type.PROGRESS_TURN))
 	_check(_turn_manager.get_game_phase() == TurnManager.Phase.COMBAT, "can't end the phase in the middle of a combat")
 	_request(_combat_unit_action(Action.Type.SELECT_COMBAT_UNIT, attacker_unit))
 	_resolved_types.clear()
 	_request(Action.create(Action.Type.DECLARE_COMBAT_READY))
 	await _frames(1)
-	_check(_resolved_types == ([Action.Type.DECLARE_COMBAT_READY, Action.Type.RESOLVE_COMBAT] as Array[Action.Type]),
+	# (If the battle continues, the AI's picks for round 2 follow in the same chain.)
+	_check(_resolved_types.slice(0, 2) == ([Action.Type.DECLARE_COMBAT_READY, Action.Type.RESOLVE_COMBAT] as Array[Action.Type]),
 		"both sides ready -> RESOLVE_COMBAT queued as a follow-up action")
 
-	_check(resolved.size() == 1, "combat resolved once")
+	_check(resolved.size() == 1, "round 1 resolved")
 	if resolved.size() == 1:
 		var outcomes: Array = resolved[0]
 		_check(outcomes.size() == 3, "one outcome per fighting unit")
@@ -385,6 +394,18 @@ func _test_combat(home: Lander) -> void:
 			if outcome.get_outcome() == CombatOutcome.Outcome.DEAD:
 				var lander := home if outcome.get_unit().get_owner_actor() == _player else enemy
 				_check(outcome.get_unit() not in lander.get_units(), "dead unit removed from its lander")
+
+	if contest.is_over():
+		# Our single attacker died, so the defender won in one round.
+		_check(contest.get_result() == Contest.Result.DEFENDER_WON and not home.has_units(), "battle over: defender won")
+	else:
+		# Both sides still have units: the battle goes on with the survivors still selected.
+		_check(_combat_manager.is_in_progress() and contest.get_round() == 2, "battle continues into round 2")
+		_check(contest.get_units(Contest.Side.ATTACKER) == [attacker_unit], "the surviving attacker stays selected")
+		_check(not contest.is_ready(Contest.Side.ATTACKER), "ready flags reset for the next round")
+		_request(Action.create(Action.Type.RETREAT_COMBAT))
+		_check(contest.get_result() == Contest.Result.RETREATED, "attacker retreated")
+	_check(ended.size() == 1 and not _combat_manager.is_in_progress(), "combat_ended fired once and the battle is over")
 	_check(_combat_manager.get_phase() == CombatManager.CombatPhase.CLEANUP, "combat ended in CLEANUP")
 #endregion
 
@@ -418,6 +439,10 @@ func _on_action_rejected(_action: Action, reason: String) -> void:
 func _on_action_resolved(action: Action) -> void:
 	_resolved_types.append(action.get_type())
 	_resolved_actions.append(action)
+	if action.get_type() == Action.Type.RESOLVE_COMBAT and _combat_manager.is_in_progress():
+		var contest := _combat_manager.get_contest()
+		if contest.get_side_of(_player) == Contest.Side.DEFENDER:
+			_auto_defend_round(contest)  # Stand in for the human in every round the AI attacks.
 	if action.get_type() == Action.Type.COLLECT_UPKEEP:
 		_food_after_upkeep[action.get_actor()] = action.get_actor().get_wallet().get_amount(&"food")
 		var wallet_copy := EconData.new()
@@ -435,9 +460,13 @@ func _on_action_resolving(action: Action) -> void:
 
 ## Stands in for the human when the AI attacks: picks the first unit and declares ready.
 func _on_combat_started_auto_defend(contest: Contest) -> void:
-	if contest.get_side_of(_player) != Contest.Side.DEFENDER:
-		return
-	_request(_combat_unit_action(Action.Type.SELECT_COMBAT_UNIT, contest.get_lander(Contest.Side.DEFENDER).get_units()[0]))
+	if contest.get_side_of(_player) == Contest.Side.DEFENDER:
+		_auto_defend_round(contest)
+
+
+func _auto_defend_round(contest: Contest) -> void:
+	if contest.get_units(Contest.Side.DEFENDER).is_empty():
+		_request(_combat_unit_action(Action.Type.SELECT_COMBAT_UNIT, contest.get_available_units(Contest.Side.DEFENDER)[0]))
 	_request(Action.create(Action.Type.DECLARE_COMBAT_READY))
 
 

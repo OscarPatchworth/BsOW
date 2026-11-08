@@ -106,6 +106,10 @@ func update_combat(contest: Contest) -> void:
 	_combat_panel.refresh(contest)
 
 
+func show_combat_ended(_contest: Contest) -> void:
+	pass  # The combat panel already shows the last round; the HUD rebuild adds a summary.
+
+
 func show_combat_outcome(outcomes: Array[CombatOutcome]) -> void:
 	_combat_panel.show_outcome(outcomes)
 

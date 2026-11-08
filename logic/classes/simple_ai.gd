@@ -45,20 +45,20 @@ func _take_phase(phase: TurnManager.Phase) -> void:
 
 
 func _enter_combat(contest: Contest) -> void:
-	var side: int = get_combat_side()
-	var units := contest.get_lander(side).get_units().duplicate()
-	units.sort_custom(_is_stronger)
-	for i in mini(units.size(), _combat_manager.get_max_units(side)):
-		var select := Action.create(Action.Type.SELECT_COMBAT_UNIT)
-		select.set_units([units[i]] as Array[UnitInstance])
-		request_action(select)
-	request_action(Action.create(Action.Type.DECLARE_COMBAT_READY))
+	_select_and_ready(contest)
 
 
 func _action_resolved(action: Action) -> void:
-	# A fight we started is over: decide what to do next this phase.
-	if action.get_type() == Action.Type.RESOLVE_COMBAT and _is_my_phase(TurnManager.Phase.COMBAT):
-		_continue_combat_phase()
+	match action.get_type():
+		Action.Type.RESOLVE_COMBAT:
+			var contest := _combat_manager.get_contest()
+			if _combat_manager.is_in_progress() and contest.is_involved(self):
+				_fight_next_round(contest)
+			elif _is_my_phase(TurnManager.Phase.COMBAT):
+				_continue_combat_phase()  # Our battle is over: carry on with the turn.
+		Action.Type.RETREAT_COMBAT:
+			if _is_my_phase(TurnManager.Phase.COMBAT):
+				_continue_combat_phase()
 
 
 func _action_rejected(action: Action, reason: String) -> void:
@@ -189,6 +189,38 @@ func _request_purchase(lander: Lander, purchasable: Resource) -> void:
 	purchase.set_target_lander(lander)
 	purchase.set_purchasable(purchasable)
 	request_action(purchase)
+#endregion
+
+
+#region Battles
+## Tops up our selection with the strongest units still standing, then readies up.
+func _select_and_ready(contest: Contest) -> void:
+	var side := contest.get_side_of(self)
+	var selected := contest.get_units(side)
+	var available := contest.get_available_units(side).duplicate()
+	available.sort_custom(_is_stronger)
+	var room := _combat_manager.get_max_units(side) - selected.size()
+	for unit in available:
+		if room <= 0:
+			break
+		if unit in selected:
+			continue
+		var select := Action.create(Action.Type.SELECT_COMBAT_UNIT)
+		select.set_units([unit] as Array[UnitInstance])
+		request_action(select)
+		room -= 1
+	request_action(Action.create(Action.Type.DECLARE_COMBAT_READY))
+
+
+## A round is over and the battle goes on: keep fighting, or (as attacker) retreat when outnumbered.
+func _fight_next_round(contest: Contest) -> void:
+	var side := contest.get_side_of(self)
+	var ours := contest.get_available_units(side).size()
+	var theirs := contest.get_available_units(Contest.get_opposite_side(side)).size()
+	if side == Contest.Side.ATTACKER and ours < theirs:
+		request_action(Action.create(Action.Type.RETREAT_COMBAT))
+	else:
+		_select_and_ready(contest)
 #endregion
 
 

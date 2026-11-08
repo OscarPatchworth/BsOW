@@ -19,6 +19,7 @@ enum Type {
 	DESELECT_COMBAT_UNIT,
 	DECLARE_COMBAT_READY,
 	WITHDRAW_COMBAT_READY,
+	RETREAT_COMBAT,
 	# System actions (only the game requests these)
 	FINISH_SETUP,
 	COLLECT_UPKEEP,
