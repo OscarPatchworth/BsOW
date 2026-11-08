@@ -11,8 +11,8 @@
 [resource]
 resource_name = "Lycanthrope"
 script = ExtResource("2_u5824")
-name = "Lycanthrope"
+display_name = "Lycanthrope"
 buildings = Array[ExtResource("1_lsw80")]([ExtResource("2_7tf32")])
 units = Array[ExtResource("4_pw3b2")]([ExtResource("5_6jcvb")])
-starting_landers = Array[ExtResource("4_12ucf")]([ExtResource("5_0ckvg"), ExtResource("5_0ckvg")])
+starting_biomes = Array[ExtResource("4_12ucf")]([ExtResource("5_0ckvg"), ExtResource("5_0ckvg")])
 command_tower = ExtResource("2_7tf32")

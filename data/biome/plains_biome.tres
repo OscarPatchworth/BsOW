@@ -18,7 +18,7 @@ stone = 0
 [resource]
 resource_name = "Plains"
 script = ExtResource("2_pboum")
-name = "Plains"
+display_name = "Plains"
 mesh_material = SubResource("StandardMaterial3D_0cy03")
-poker_icon = ExtResource("1_5cvlk")
-upkeep_econ = SubResource("Resource_uy21h")
+icon = ExtResource("1_5cvlk")
+upkeep = SubResource("Resource_uy21h")

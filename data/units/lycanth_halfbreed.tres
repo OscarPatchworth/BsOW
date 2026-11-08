@@ -8,7 +8,7 @@
 resource_name = "Lycanth Halfbreed"
 script = ExtResource("2_t8ece")
 base = ExtResource("1_lsrus")
-name = "Lycanth Halfbreed"
-type = -1
+display_name = "Lycanth Halfbreed"
+unit_type = -1
 can_build = false
 buildables = Array[ExtResource("2_ekh8c")]([])

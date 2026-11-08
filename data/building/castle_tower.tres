@@ -14,13 +14,13 @@ stone = 2
 
 [resource]
 script = ExtResource("1_y1e7o")
-name = "Castle Tower"
+display_name = "Castle Tower"
 cost = SubResource("Resource_xb8rn")
-build_mesh = ExtResource("1_ojjku")
-unique_build = false
-override_unit_capacity = false
+mesh_scene = ExtResource("1_ojjku")
+is_unique = false
+overrides_unit_capacity = false
 unit_capacity = -1
 can_spawn = true
-spawn_type = Array[int]([0, 2])
+spawnable_unit_types = Array[int]([0, 2])
 can_upgrade = false
 upgrades = Array[ExtResource("1_y1e7o")]([])

@@ -18,7 +18,7 @@ stone = 0
 [resource]
 resource_name = "Forest"
 script = ExtResource("2_fjgpp")
-name = "Forest"
+display_name = "Forest"
 mesh_material = SubResource("StandardMaterial3D_yy1fi")
-poker_icon = ExtResource("1_87hpa")
-upkeep_econ = SubResource("Resource_3cc8x")
+icon = ExtResource("1_87hpa")
+upkeep = SubResource("Resource_3cc8x")

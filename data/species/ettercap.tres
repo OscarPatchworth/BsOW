@@ -11,8 +11,8 @@
 [resource]
 resource_name = "Ettercap"
 script = ExtResource("2_fkjdq")
-name = "Ettercap"
+display_name = "Ettercap"
 buildings = Array[ExtResource("1_rh7g3")]([ExtResource("2_7bpwy")])
 units = Array[ExtResource("4_mng3l")]([ExtResource("5_q8cca")])
-starting_landers = Array[ExtResource("4_h4pfu")]([ExtResource("5_o6xyn"), ExtResource("5_o6xyn")])
+starting_biomes = Array[ExtResource("4_h4pfu")]([ExtResource("5_o6xyn"), ExtResource("5_o6xyn")])
 command_tower = ExtResource("2_7bpwy")
