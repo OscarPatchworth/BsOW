@@ -80,7 +80,7 @@ func _ready() -> void:
 func _test_setup() -> void:
 	var setup_panel: SetupPanel = _player.find_child("SetupPanel", true, false)
 	var biome_count := _root.find_child("MatchSettings", true, false).get_starting_biome_count() as int
-	var remaining: Array[BiomeData] = setup_panel._remaining_biomes.duplicate()
+	var remaining: Array[BiomeData] = setup_panel.get_remaining_biomes().duplicate()
 	_check(remaining.size() == biome_count, "setup panel offers %d biomes" % biome_count)
 
 	var landers_before := _lander_manager.get_landers().size()
@@ -92,7 +92,7 @@ func _test_setup() -> void:
 	await _frames(2)
 	_check(_lander_manager.get_landers().size() == landers_before + biome_count, "all setup biomes placed as landers")
 	_setup_landers.assign(_lander_manager.get_landers().slice(landers_before))
-	_check(setup_panel._remaining_biomes.is_empty(), "setup panel list emptied")
+	_check(setup_panel.get_remaining_biomes().is_empty(), "setup panel list emptied")
 	var controller: PlayerController = _player.find_child("PlayerController", true, false)
 	_check(controller._is_placing_command_tower, "controller switched to command tower placement")
 
@@ -164,15 +164,14 @@ func _test_main_loop() -> void:
 	_request(early_attack)
 	_check(_combat_manager.get_contest() == null, "ATTACK rejected outside the COMBAT phase")
 
-	# The lander panel's shop buttons now send a PURCHASE (they used to buy for free).
-	var shop_button := UnitShopButton.new()
-	shop_button.set_unit_data(unit_data)
-	var shop_actions: Array[Action] = []
-	shop_button.action_requested.connect(func(action: Action) -> void: shop_actions.append(action))
-	shop_button._pressed()
+	# The lander inspector's shop buttons send a PURCHASE on that lander.
+	var shop_button := ShopButton.new()
+	shop_button.set_purchasable(unit_data)
+	shop_button.set_target_lander(home)
+	var shop_action := shop_button.make_action()
 	shop_button.free()
-	_check(shop_actions.size() == 1 and shop_actions[0].get_type() == Action.Type.PURCHASE
-		and shop_actions[0].get_purchasable() == unit_data, "unit shop button requests a PURCHASE")
+	_check(shop_action.get_type() == Action.Type.PURCHASE and shop_action.get_purchasable() == unit_data
+		and shop_action.get_target_lander() == home, "shop button requests a PURCHASE on its lander")
 
 	# Buying: purchase a unit on the home lander.
 	var gold_before := _player.get_wallet().get_amount(&"gold")
@@ -191,7 +190,7 @@ func _test_main_loop() -> void:
 
 	# Lander panel UI paths.
 	_player.get_selector_manager().select_lander(home)
-	_player._ui.show_lander_panel(home)
+	_player.get_ui().show_lander_panel(home)
 	await _frames(1)
 
 	_request(Action.create(Action.Type.PROGRESS_TURN))
@@ -375,12 +374,16 @@ func _test_combat(home: Lander) -> void:
 	_check(contest.get_units(Contest.Side.DEFENDER).size() == 2, "AI chose its defenders")
 
 	var attacker_unit := home.get_units()[0]
+	var battle_dialog := _player.get_ui().get_battle_dialog()
+	_check(battle_dialog.visible and battle_dialog.get_contest() == contest, "the battle dialog opened for the player's battle")
+	_check(contest.get_units(Contest.Side.ATTACKER) == [attacker_unit], "the battle dialog pre-selected the player's units")
+	_request(_combat_unit_action(Action.Type.DESELECT_COMBAT_UNIT, attacker_unit))
+	_check(contest.get_units(Contest.Side.ATTACKER).is_empty(), "player deselected the attacker")
 	_request(_combat_unit_action(Action.Type.SELECT_COMBAT_UNIT, enemy.get_units()[0]))
 	_check(contest.get_units(Contest.Side.ATTACKER).is_empty(), "player can't select an enemy unit")
 	_request(_combat_unit_action(Action.Type.SELECT_COMBAT_UNIT, attacker_unit))
 	_check(contest.get_units(Contest.Side.ATTACKER) == [attacker_unit], "player selected an attacker")
 	_request(_combat_unit_action(Action.Type.DESELECT_COMBAT_UNIT, attacker_unit))
-	_check(contest.get_units(Contest.Side.ATTACKER).is_empty(), "player deselected the attacker")
 	_request(Action.create(Action.Type.DECLARE_COMBAT_READY))
 	_check(not contest.is_ready(Contest.Side.ATTACKER) and _last_rejection_contains("at least one unit"),
 		"can't ready up without selecting a unit")
