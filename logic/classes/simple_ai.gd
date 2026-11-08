@@ -255,12 +255,22 @@ func _spread_units() -> void:
 			_request_move(source, advance_target, units, units.size() - 1, incoming)
 
 
+## An empty neighbour to claim: an undefended enemy lander (its building can be taken) first,
+## otherwise an empty neutral one nearest an enemy.
 func _pick_claim_target(source: Lander, incoming: Dictionary, enemy_positions: Array[Vector3]) -> Lander:
 	var best: Lander = null
 	for target in _lander_manager.get_connected_landers(source):
-		if target in incoming or target.get_owner_actor() != null or target.has_units():
+		if target in incoming or target.has_units():
 			continue
-		if best == null or _closer_to_enemy(target, best, enemy_positions):
+		var target_owner := target.get_owner_actor()
+		if target_owner == self:
+			continue
+		if best == null:
+			best = target
+			continue
+		var is_enemy := target_owner != null
+		var best_is_enemy := best.get_owner_actor() != null
+		if (is_enemy and not best_is_enemy) or (is_enemy == best_is_enemy and _closer_to_enemy(target, best, enemy_positions)):
 			best = target
 	return best
 
@@ -291,7 +301,16 @@ func _request_move(source: Lander, target: Lander, units: Array[UnitInstance], w
 	move.set_source_lander(source)
 	move.set_target_lander(target)
 	move.set_units(moving)
+	if target.has_building() and target.get_building().get_owner_actor() != self:
+		move.set_building_fate(_choose_building_fate(target.get_building()))
 	request_action(move)
+
+
+## Capture a building our species could build itself (we can use it); raze anything else.
+func _choose_building_fate(building: BuildingInstance) -> Action.BuildingFate:
+	if building.get_building_data() in get_species().get_buildings():
+		return Action.BuildingFate.CAPTURE
+	return Action.BuildingFate.RAZE
 
 
 func _free_slots(lander: Lander, incoming: Dictionary) -> int:

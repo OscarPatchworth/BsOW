@@ -203,6 +203,7 @@ func _test_main_loop() -> void:
 	_request(move)
 	await _frames(1)
 	_check(home.get_units().size() == 1 and neighbour.get_units().size() == 1, "MOVE_UNITS moved one unit")
+	await _test_undefended_buildings(neighbour)
 
 	await _test_combat(home)
 
@@ -279,6 +280,63 @@ func _check_ai_turn(scenario: Dictionary) -> void:
 	_check(claims.all(func(action: Action) -> bool: return action.get_target_lander().get_owner_actor() == _ai),
 		"AI now owns the lander it claimed")
 	_check(scenario["ai_base"].has_units(), "AI kept units behind on its base")
+
+
+## Two AI castle towers with no troops next to `source`: one is razed, one captured.
+func _test_undefended_buildings(source: Lander) -> void:
+	source.add_units([UnitInstance.new(_player.get_species().get_units()[0], _player)] as Array[UnitInstance])
+	var raze_target := _spawn_undefended_ai_building(source)
+	var capture_target := _spawn_undefended_ai_building(source)
+	_check(await _await_settled(), "board settled around the undefended AI buildings")
+	_check(_lander_manager.are_connected(source, raze_target) and _lander_manager.are_connected(source, capture_target),
+		"undefended AI buildings are connected to the source lander")
+
+	var no_choice := _move_one(source, raze_target, Action.BuildingFate.NONE)
+	_check(no_choice and _last_rejection_contains("capture or raze"), "moving onto an undefended enemy building needs a choice")
+	_check(_ai_attack_rejected_without_defenders(source, raze_target), "attacking a lander with no defenders is refused")
+
+	_move_one(source, raze_target, Action.BuildingFate.RAZE)
+	_check(not raze_target.has_building() and raze_target.get_owner_actor() == _player, "RAZE destroys the building; the lander is ours")
+	_move_one(source, capture_target, Action.BuildingFate.CAPTURE)
+	_check(capture_target.has_building() and capture_target.get_building().get_owner_actor() == _player,
+		"CAPTURE takes the building over")
+	_check(capture_target.get_owner_actor() == _player, "the captured lander is ours")
+
+
+## Moves one unit; returns true if the move was rejected.
+func _move_one(source: Lander, target: Lander, fate: Action.BuildingFate) -> bool:
+	var rejections_before := _rejections.size()
+	var move := Action.create(Action.Type.MOVE_UNITS)
+	move.set_source_lander(source)
+	move.set_target_lander(target)
+	move.set_units([source.get_units()[0]] as Array[UnitInstance])
+	move.set_building_fate(fate)
+	_request(move)
+	return _rejections.size() > rejections_before
+
+
+func _ai_attack_rejected_without_defenders(source: Lander, target: Lander) -> bool:
+	var attack := Action.create(Action.Type.ATTACK)
+	attack.set_source_lander(source)
+	attack.set_target_lander(target)
+	_request(attack)
+	return _combat_manager.get_contest() == null and _last_rejection_contains("no defenders")
+
+
+func _spawn_undefended_ai_building(near: Lander) -> Lander:
+	var spot := near.get_board_position()
+	for i in 12:
+		var angle := TAU * i / 12.0
+		var candidate := near.get_board_position() + Vector3(cos(angle), 0, sin(angle)) * 2.2
+		if _lander_manager.is_position_clear(candidate):
+			spot = candidate
+			break
+	var lander := _lander_manager.spawn_random_lander(spot)
+	var build := Action.create(Action.Type.PURCHASE)
+	build.set_actor(_ai)
+	build.set_building_data(preload("res://data/building/castle_tower.tres"))
+	lander.build(build)
+	return lander
 
 
 func _test_combat(home: Lander) -> void:

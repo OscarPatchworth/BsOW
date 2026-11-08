@@ -241,9 +241,10 @@ func _validate_move_units(action: Action) -> String:
 			return "A chosen unit is not on the source lander"
 		if unit.get_owner_actor() != actor:
 			return "A chosen unit belongs to someone else"
-	var target_owner := target.get_owner_actor()
-	if target_owner != null and target_owner != actor:
-		return "Target lander is hostile"
+	if target.has_units() and target.get_units()[0].get_owner_actor() != actor:
+		return "Target lander has enemy units: attack it instead"
+	if _has_enemy_building(target, actor) and action.get_building_fate() == Action.BuildingFate.NONE:
+		return "The enemy building is undefended: choose to capture or raze it"
 	if target.get_units().size() + units.size() > target.get_unit_capacity():
 		return "Target lander doesn't have room for those units"
 	return ""
@@ -264,7 +265,7 @@ func _validate_attack(action: Action) -> String:
 	if source_units.is_empty():
 		return "Source lander has no units"
 	if target_units.is_empty():
-		return "Target lander has no units"
+		return "Target lander has no defenders: move in instead (and capture or raze any building)"
 	if source_units[0].get_owner_actor() != action.get_actor():
 		return "Attacking units don't belong to the attacking actor"
 	if target_units[0].get_owner_actor() == action.get_actor():
@@ -392,6 +393,7 @@ func _execute(action: Action) -> void:
 				action.get_target_lander().buy_unit(action)
 
 		Action.Type.MOVE_UNITS:
+			_take_undefended_building(action)
 			_lander_manager.move_units(action)
 
 		Action.Type.ATTACK:
@@ -441,6 +443,23 @@ func _get_cost(purchasable: Resource) -> EconData:
 
 func _has_command_tower(actor: Actor) -> bool:
 	return _owns_building(actor, actor.get_species().get_command_tower())
+
+
+func _has_enemy_building(lander: Lander, actor: Actor) -> bool:
+	return lander.has_building() and lander.get_building().get_owner_actor() != actor
+
+
+## Capture or raze the enemy building on a MOVE_UNITS target (validation made sure it's undefended).
+func _take_undefended_building(action: Action) -> void:
+	var target := action.get_target_lander()
+	if not _has_enemy_building(target, action.get_actor()):
+		return
+	match action.get_building_fate():
+		Action.BuildingFate.CAPTURE:
+			target.get_building().set_owner_actor(action.get_actor())
+			target.refresh_markers()
+		Action.BuildingFate.RAZE:
+			target.remove_building()
 
 
 func _owns_building(actor: Actor, building_data: BuildingData) -> bool:
