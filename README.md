@@ -30,6 +30,24 @@ The Player (through its UI) and the AI (in code) both play through this pipeline
 too, with system actions for upkeep, finishing setup, resolving combat and skipping admin phases.
 `action_resolved` is the event stream that triggered and delayed abilities will listen to.
 
+## Rules in brief
+
+* **Winning:** every player has a command tower (the Base). Units moved onto an enemy lander with
+  no defenders can capture or raze its building, but command towers can only be razed, and razing
+  one knocks its owner out. The last player standing wins.
+* **Races:** each race has a basic builder unit (trained at the Base or a Castle Tower), a race
+  building, and an advanced unit that only its race building trains:
+
+  | Race | Builder | Race building | Advanced unit |
+  |---|---|---|---|
+  | Lycanthrope | Lycanth Halfbreed | Moon Den | Alpha Werewolf (2d6) |
+  | Ettercap | Ettercap spawn | Web Spire | Venom Spitter (1d10) |
+
+* **Building:** only units with `can_build` can put a building on a lander that has none, and only
+  the buildings in their `buildables` list. A building trains only the unit types in its
+  `spawnable_unit_types`.
+* **Battles** last several rounds, until a side is wiped out or the attacker retreats.
+
 ## Gravity
 
 When a lander is placed, the `GravitySystem` turns it into a short-lived gravity well: it and every

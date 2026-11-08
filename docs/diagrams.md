@@ -248,9 +248,11 @@ classDiagram
         DESELECT_COMBAT_UNIT
         DECLARE_COMBAT_READY
         WITHDRAW_COMBAT_READY
+        RETREAT_COMBAT
         FINISH_SETUP (system)
         COLLECT_UPKEEP (system)
         RESOLVE_COMBAT (system)
+        ELIMINATE_ACTOR (system)
     }
 
     class Contest {
@@ -595,15 +597,15 @@ flowchart TB
 | `PLACE_BIOME` | Setup; the position is clear |
 | `PLACE_BUILDING` | Setup; it's the actor's command tower; the lander has no building; the actor has no tower yet |
 | `PLACE_LANDER` | Main loop; actor's turn; `DUSTCLOUD_COLLAPSE`; the position is clear |
-| `PURCHASE` | Actor's turn; `BUYING`; actor owns the lander; the lander offers it; affordable; room for a unit / no building yet; a unique building only once |
-| `MOVE_UNITS` | Actor's turn; `COMBAT`; no combat running; landers connected; actor's own units, on the source; no enemy units on the target; room; an undefended enemy building needs `building_fate` CAPTURE or RAZE |
+| `PURCHASE` | Actor's turn; `BUYING`; actor owns the lander; the lander offers it (its building trains that unit type, or one of the actor's `can_build` units there can build it); affordable; room for a unit / no building yet; a unique building only once |
+| `MOVE_UNITS` | Actor's turn; `COMBAT`; no combat running; landers connected; actor's own units, on the source; no enemy units on the target; room; an undefended enemy building needs `building_fate` CAPTURE or RAZE (a command tower can only be razed) |
 | `ATTACK` | Actor's turn; `COMBAT`; no combat running; landers connected; both have units (no defenders: move in instead); attacker owns its side, enemy on the other |
 | `PROGRESS_TURN` | Main loop; actor's turn; not an admin phase; not `DUSTCLOUD_COLLAPSE` (that ends by placing a lander); no combat running. A system `PROGRESS_TURN` skips these checks |
 | `SELECT` / `DESELECT_COMBAT_UNIT` | Combat choosing units; actor takes part; its own unit on its side's lander; within the unit limit |
 | `DECLARE_COMBAT_READY` | Combat choosing units; actor takes part; at least one unit selected (if it has any) |
 | `WITHDRAW_COMBAT_READY` | Combat choosing units; actor takes part |
 | `RETREAT_COMBAT` | Combat choosing units; the actor is the attacker |
-| `FINISH_SETUP`, `COLLECT_UPKEEP`, `RESOLVE_COMBAT` | System only |
+| `FINISH_SETUP`, `COLLECT_UPKEEP`, `RESOLVE_COMBAT`, `ELIMINATE_ACTOR` | System only |
 
 **Follow-ups the game queues itself**
 
@@ -613,6 +615,7 @@ flowchart TB
 | `FINISH_SETUP` or `PROGRESS_TURN` into `UPKEEP` | `COLLECT_UPKEEP` for the active actor (`upkeep_gold` plus each owned lander's upkeep), then system `PROGRESS_TURN` |
 | `PROGRESS_TURN` into `CLEANUP` | system `PROGRESS_TURN` |
 | `PLACE_LANDER` | system `PROGRESS_TURN` (placing the lander is the whole phase) |
+| `MOVE_UNITS` that razes a command tower | `ELIMINATE_ACTOR` for its owner: their units and buildings are removed, they leave the turn order, and if one actor is left the game ends (`TurnManager.game_over`) |
 | `DECLARE_COMBAT_READY` when both sides are ready | `RESOLVE_COMBAT`. If both sides still have units afterwards, the next round starts (survivors stay selected); otherwise the battle ends (`combat_ended`) |
 
 ---
