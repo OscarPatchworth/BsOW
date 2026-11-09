@@ -89,6 +89,9 @@ func refresh() -> void:
 	_identity_swatch.color = _player.get_color()
 	_identity_label.text = "%s · %s" % [_player.get_display_name(), _player.get_species().get_display_name()]
 	_identity_label.add_theme_color_override("font_color", _player.get_color().lightened(0.25))
+	_identity_label.mouse_filter = Control.MOUSE_FILTER_PASS
+	_identity_label.tooltip_text = HudTheme.abilities_text("%s traits" % _player.get_species().get_display_name(),
+		_player.get_species().get_abilities())
 	_refresh_wallet()
 	_refresh_round()
 	_refresh_phase_track()

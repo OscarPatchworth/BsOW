@@ -107,6 +107,16 @@ static func format_cost(econ: EconData) -> String:
 	return " ".join(parts) if not parts.is_empty() else "free"
 
 
+## A title then one "• Name: description" line per ability (for tooltips).
+static func abilities_text(title: String, abilities: Array[Ability]) -> String:
+	var lines: Array[String] = [title + ":"]
+	for ability in abilities:
+		lines.append("• %s: %s" % [ability.get_display_name(), ability.get_description()])
+	if abilities.is_empty():
+		lines.append("• none")
+	return "\n".join(lines)
+
+
 ## "+2 gold, +1 stone" in plain words, or "nothing" for an empty bundle.
 static func format_yield(econ: EconData) -> String:
 	var parts: Array[String] = []

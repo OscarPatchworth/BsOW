@@ -84,17 +84,42 @@ pull together and connect. Landers are physics bodies (Jolt), so they slide and 
 `board_settled` fires once everything has stopped and snapped; the AI and the tests wait for it.
 The placement preview shows where a lander will end up, snap included.
 
-## AbilitySystem hook
+## Abilities
 
-All gameplay state is read and written through `get_x()` / `set_x()` accessors that call
-`AbilitySystem.resolve_get()` / `resolve_set()` (`logic/managers_and_systems/ability_system.gd`).
-Today these return the original value unchanged; abilities will plug in there.
+An ability is a small Resource script (`data/abilities/`, extends `Ability`) saved as a `.tres` and
+attached where it belongs: a race (`SpeciesData.abilities`), a kind of unit (`UnitData.abilities`),
+a building (`BuildingData.abilities`) or the whole match (`MatchSettings.rule_abilities`). The
+`AbilitySystem` autoload finds the abilities that apply to a unit (its race, its unit type, the
+building and any web on its lander, and the match rules) and asks them at the moments that matter:
+
+* `modify_roll`: bonuses and penalties on a battle roll (shown in the battle dialog by name).
+* `check_move` / `move_spends_movement`: whether a unit may move somewhere, and whether that
+  uses up its one move this turn.
+* `on_defeated_opponent`: react when a unit kills the unit it faced.
+* `modify_value`: change any value read through an accessor. All gameplay state is read and
+  written through `get_x()` / `set_x()` accessors that call `AbilitySystem.resolve_get()` /
+  `resolve_set()`; an ability that lists a property in `value_hooks` gets to change it.
+
+| Ability | Attached to | Effect |
+|---|---|---|
+| Forest Runners | Lycanthrope | Forest to Forest moves don't use up the unit's move |
+| Mountain Shy | Lycanthrope | Can't move onto Mountains (except to take or raze an enemy building there) |
+| Pack Call | Alpha Werewolf | Each enemy unit it kills calls a Lycanth Halfbreed to its lander, if there's room |
+| Web | Ettercap | Buy a web (1 gold, 2 mineral) on a lander next to yours: non-Ettercaps on it get -1 and can't move off until one spends its move tearing it down; it wears off after 2 of your turns |
+| Lurkers | Ettercap | +1 when defending a Mountain lander |
+| Castle Tower | Castle Tower | The owner's units fighting on its lander (defending or attacking from it) get +2 |
+| Combined Arms | Match rule | Ranged units get +2 when allied melee units fight alongside them |
+
+To add one: write a script extending `Ability` (or reuse one with new exports), make a `.tres`,
+and add it to the right `abilities` list. Hover your race in the top bar to see its traits.
 
 ## Smoke test
 
 ```
 godot --headless --path . res://tests/smoke_test.tscn
 ```
+
+It uses a fixed random seed; set `SMOKE_SEED=n` to try other races and turn orders.
 
 Plays through setup, a full player turn (place lander, buy, move, attack), the AI playing its own
 turn in a prepared spot (it places, buys, attacks and claims a lander by itself), and a round wrap

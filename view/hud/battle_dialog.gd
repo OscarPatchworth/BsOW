@@ -273,8 +273,12 @@ func _on_move_in_pressed() -> void:
 	move_in_requested.emit(from, to)
 
 
+## "🎲7" or, with abilities, "🎲7 (+2 Castle Tower, -1 Web)".
 static func _roll_text(outcome: CombatOutcome) -> String:
-	return "🎲%d" % outcome.get_total()
+	var parts: Array[String] = []
+	for modifier: Array in outcome.get_labelled_modifiers():
+		parts.append("%+d %s" % [modifier[0], modifier[1]])
+	return "🎲%d" % outcome.get_total() + (" (%s)" % ", ".join(parts) if not parts.is_empty() else "")
 
 
 static func _strength(damage: DamageData) -> float:

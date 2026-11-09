@@ -322,6 +322,8 @@ func _log_round(outcomes: Array[CombatOutcome]) -> void:
 	var defender := contest.get_actor(Contest.Side.DEFENDER)
 	_event_log.add_line("   Round result: %s lost %d, %s lost %d" % [EventLog.actor_tag(attacker), lost.get(attacker, 0),
 		EventLog.actor_tag(defender), lost.get(defender, 0)], HudTheme.MUTED)
+	for note in contest.get_last_notes():
+		_event_log.add_line("   ✦ " + note, HudTheme.ACCENT)
 
 
 func _battle_summary(contest: Contest) -> String:

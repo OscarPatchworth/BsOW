@@ -249,6 +249,8 @@ classDiagram
         DECLARE_COMBAT_READY
         WITHDRAW_COMBAT_READY
         RETREAT_COMBAT
+        ENWEB
+        RAZE_WEB
         FINISH_SETUP (system)
         COLLECT_UPKEEP (system)
         RESOLVE_COMBAT (system)
@@ -426,9 +428,41 @@ classDiagram
 
     class AbilitySystem {
         <<autoload>>
+        +begin_match(actors)
         +resolve_get(target, property, base_value) Variant
         +resolve_set(target, property, current, new_value) Variant
+        +abilities_for(unit, lander) Array~Ability~
+        +add_combat_modifiers(outcome, contest, side)
+        +check_move(unit, from, to) String
+        +move_spends_movement(unit, from, to) bool
+        +after_combat_round(contest, outcomes) Array~String~
     }
+
+    class Ability {
+        <<Resource>>
+        +String display_name
+        +String description
+        +Array~StringName~ value_hooks
+        +modify_roll(outcome, unit, lander, contest, side)
+        +check_move(unit, from, to) String
+        +move_spends_movement(unit, from, to) bool
+        +on_defeated_opponent(outcome, lander) String
+        +modify_value(target, property, value) Variant
+    }
+    Ability <|-- BuildingWardAbility
+    Ability <|-- CombinedArmsAbility
+    Ability <|-- BiomeStrideAbility
+    Ability <|-- BiomeAversionAbility
+    Ability <|-- PackCallAbility
+    Ability <|-- SideBonusAbility
+    Ability <|-- EnwebAbility
+    AbilitySystem ..> Ability : asks
+    class WebInstance {
+        +Actor owner_actor
+        +EnwebAbility ability
+        +int turns_left
+    }
+    WebInstance --> EnwebAbility
 
     class Player
     class PlayerController {
@@ -570,6 +604,7 @@ flowchart TB
 | `ShopButton` in the inspector | `PURCHASE` on that lander |
 | `MoveDialog` | `MOVE_UNITS` (with `building_fate` CAPTURE / RAZE for undefended enemy buildings) |
 | `BattleDialog` | `SELECT` / `DESELECT_COMBAT_UNIT`, `DECLARE` / `WITHDRAW_COMBAT_READY`, `RETREAT_COMBAT` |
+| `LanderInspector` ability buttons | `ENWEB` (Spin a web here), `RAZE_WEB` (Tear down the web) |
 
 On the board, the `PlayerController` handles clicks (select a lander; drag to move or attack;
 place landers) and draws the `PlacementPreview`: the ghost lander, where gravity will pull it,
@@ -611,6 +646,9 @@ flowchart TB
 | `DECLARE_COMBAT_READY` | Combat choosing units; actor takes part; at least one unit selected (if it has any) |
 | `WITHDRAW_COMBAT_READY` | Combat choosing units; actor takes part |
 | `RETREAT_COMBAT` | Combat choosing units; the actor is the attacker |
+| `ENWEB` | Actor's turn; `BUYING`; the actor's race has `EnwebAbility`; the target isn't theirs, has no web, and is connected to a lander they own; affordable |
+| `RAZE_WEB` | Actor's turn; `COMBAT`; no combat running; the target has someone else's web; one of the actor's units on it that hasn't moved this turn (it spends its move) |
+| any `MOVE_UNITS` | also every ability's `check_move` (e.g. Mountain Shy, webs); `move_spends_movement` decides whether the move is used up (Forest Runners) |
 | `FINISH_SETUP`, `COLLECT_UPKEEP`, `RESOLVE_COMBAT`, `ELIMINATE_ACTOR` | System only |
 
 **Follow-ups the game queues itself**
