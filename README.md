@@ -8,11 +8,12 @@ Dev a digital version of a game for a friend and lols
 | `data/` | Authored `Resource` definitions (`*Data`) and their `.tres` files, plus `MatchSettings` |
 | `logic/classes/` | Runtime game objects: `Action`, `Actor`/`Player`/`SimpleAI`, `Lander`, `UnitInstance`, `Contest`, ... |
 | `logic/managers_and_systems/` | Managers (`TurnManager`, `ActionManager`, ...), `GameRoot` wiring, and the `AbilitySystem` autoload |
+| `view/menus/`, `scenes/menus/` | Start screen and match setup (race, number of AIs); the project starts on the start screen |
 | `view/hud/` | The HUD, built in code and styled by `HudTheme` (top bar, inspector, battle and move dialogs, log, ...) |
 | `view/world/` | World-space hints (`PlacementPreview`) |
 | `view/camera/` | The camera rig (WASD pan, Q/E rotate left/right, wheel zoom, middle-drag orbit) |
 | `scenes/` | `player.tscn`, `lander.tscn`, building/unit meshes, reusable UI templates |
-| `tests/` | Headless smoke test |
+| `tests/` | Headless tests: smoke (one on one), free-for-all, menus |
 
 Naming and accessor rules: see [CONVENTIONS.md](CONVENTIONS.md).
 Class diagrams and a two-round data-flow walkthrough: see [docs/diagrams.md](docs/diagrams.md).
@@ -32,8 +33,12 @@ too, with system actions for upkeep, finishing setup, resolving combat and skipp
 
 ## Rules in brief
 
-* **Players:** you against two AIs (`MatchSettings.opponent_count`), free-for-all: everyone
-  plays for themselves and the last one standing wins.
+* **Starting a match:** Start screen -> Play -> pick your race (or Random) and 1-3 AIs -> Start
+  match. The choices travel to the game in `MatchRequest`; "Play again" on the game over panel
+  replays the same match, "Main menu" goes back to the start.
+* **Players:** you against the AIs, free-for-all: everyone plays for themselves and the last one
+  standing wins. Loading `main.tscn` directly (as the tests do) uses `MatchSettings.opponent_count`
+  (2) and a random race.
 * **Setup:** everyone, the AIs included, places their starting biome landers and then builds their
   command tower on one of them. Nobody starts with units. The game begins once every player has
   a command tower.
@@ -122,7 +127,8 @@ godot --headless --path . res://tests/smoke_test.tscn
 ```
 
 It uses a fixed random seed; set `SMOKE_SEED=n` to try other races and turn orders. It plays one
-on one; `res://tests/ffa_test.tscn` checks the default three-player free-for-all (`FFA_SEED=n`).
+on one; `res://tests/ffa_test.tscn` checks the default three-player free-for-all (`FFA_SEED=n`),
+and `res://tests/menu_test.tscn` clicks through the menus into a game.
 
 On the board, the lander in the side panel has a pulsing white ring, and every battle gets an
 arrow from attacker to defender (in the attacker's colour) until it ends: "UNDER ATTACK!" and an

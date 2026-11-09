@@ -31,6 +31,9 @@ const ACTOR_COLORS: Array[Color] = [
 
 func _ready() -> void:
 	_setup_managers()
+	# The menus' choices (MatchRequest), if the game was started from them.
+	if MatchRequest.opponent_count > 0:
+		_match_settings.opponent_count = MatchRequest.opponent_count
 	_add_player()
 	# Every AI plays for itself: a free-for-all, last one standing wins.
 	for i in _match_settings.get_opponent_count():
@@ -67,7 +70,7 @@ func _add_player() -> void:
 	player.bind_draw_3d(_draw_3d)
 	player.bind_match_settings(_match_settings)
 	player.bind_gravity_system(_gravity_system)
-	_add_actor(player)
+	_add_actor(player, MatchRequest.player_species)
 
 
 func _add_ai(ai_name: String) -> void:
@@ -79,10 +82,11 @@ func _add_ai(ai_name: String) -> void:
 	_add_actor(ai)
 
 
-## Every actor is set up the same way: a random species, a starting wallet, the managers,
-## and its actions go to the ActionManager. Actors connect their own manager signals.
-func _add_actor(actor: Actor) -> void:
-	actor.set_species(game_species.pick_random())
+## Every actor is set up the same way: a species (`species`, or a random one), a starting
+## wallet, the managers, and its actions go to the ActionManager. Actors connect their own
+## manager signals.
+func _add_actor(actor: Actor, species: SpeciesData = null) -> void:
+	actor.set_species(species if species != null else game_species.pick_random())
 	actor.set_color(ACTOR_COLORS[_actors_root.get_child_count() % ACTOR_COLORS.size()])
 	actor.set_wallet(_create_starting_wallet())
 	actor.bind_action_manager(_action_manager)

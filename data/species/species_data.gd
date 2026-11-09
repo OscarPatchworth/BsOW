@@ -5,6 +5,8 @@ extends Resource
 ## Authored definition of a playable species.
 
 @export var display_name: String
+## A line or two about the race (shown on the race select screen).
+@export_multiline var description: String
 @export var buildings: Array[BuildingData] = []
 @export var units: Array[UnitData] = []
 @export var starting_biomes: Array[BiomeData] = []
@@ -16,6 +18,10 @@ extends Resource
 #region Accessors
 func get_display_name() -> String:
 	return AbilitySystem.resolve_get(self, &"display_name", display_name)
+
+
+func get_description() -> String:
+	return AbilitySystem.resolve_get(self, &"description", description)
 
 
 func get_buildings() -> Array[BuildingData]:

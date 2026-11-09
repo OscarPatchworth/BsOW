@@ -18,6 +18,7 @@
 resource_name = "Ettercap"
 script = ExtResource("2_fkjdq")
 display_name = "Ettercap"
+description = "Spider-folk of the high crags. They spin webs that slow and trap their enemies, and dig in hard when defending the Mountains."
 buildings = Array[ExtResource("1_rh7g3")]([ExtResource("2_7bpwy"), ExtResource("6_castle"), ExtResource("7_spire")])
 units = Array[ExtResource("4_mng3l")]([ExtResource("5_q8cca"), ExtResource("8_spitter")])
 starting_biomes = Array[ExtResource("4_h4pfu")]([ExtResource("5_o6xyn"), ExtResource("5_o6xyn")])
