@@ -64,12 +64,16 @@ var _is_placing_command_tower: bool = false
 @onready var _camera: Camera3D = find_child("Camera3D")
 @onready var _gimbal: CameraGimbal = find_child("CamGimbal")
 var _preview: PlacementPreview
+var _markers: BoardMarkers
 
 
 func _ready() -> void:
 	_preview = PlacementPreview.new()
 	_preview.name = "PlacementPreview"
 	add_child(_preview)
+	_markers = BoardMarkers.new()
+	_markers.name = "BoardMarkers"
+	add_child(_markers)
 	if _lander_manager != null:
 		_preview.set_connection_distance(_lander_manager.get_connected_lander_distance())
 
@@ -123,6 +127,11 @@ func bind_lander_manager(lander_manager: LanderManager) -> void:
 
 func bind_gravity_system(gravity_system: GravitySystem) -> void:
 	_gravity_system = gravity_system
+
+
+## Selection rings and battle / move arrows on the board.
+func get_markers() -> BoardMarkers:
+	return _markers
 
 
 ## Glides the camera to look at a point on the board.

@@ -8,8 +8,10 @@ extends Actor
 ##   DUSTCLOUD_COLLAPSE  places a lander next to one of its own, heading towards the nearest enemy.
 ##   BUYING              buys a spawning building where it has none, then the best units it can afford.
 ##   COMBAT              attacks weaker neighbours one fight at a time (waiting for each to resolve),
-##                       then claims empty neighbouring landers and marches spare units towards
-##                       the nearest enemy, and ends its turn.
+##                       then tears down webs it's caught in, greedily claims as many empty
+##                       neighbouring landers as it can (for their upkeep), marches spare units
+##                       to its frontier, and ends its turn. Races that spin webs web the
+##                       strongest enemy force next to them in BUYING.
 ## In any combat it picks its strongest units and declares ready.
 ## Everything goes through request_action(), so it plays by exactly the same rules as the Player.
 ##
@@ -269,13 +271,25 @@ func _find_lander_spot() -> Variant:
 	if candidates.is_empty():
 		return null
 
+	# Greedy: prefer spots next to a lander with spare units, so the new lander can be claimed
+	# this turn. Then pick among the few spots closest to an enemy (heading their way without
+	# being predictable).
+	var fed := candidates.filter(_is_next_to_spare_units)
+	if not fed.is_empty():
+		candidates.assign(fed)
 	var enemy_positions := _enemy_lander_positions()
 	if enemy_positions.is_empty():
 		return candidates.pick_random()
-	# Pick among the few spots closest to an enemy, so it heads their way without being predictable.
 	candidates.sort_custom(func(a: Vector3, b: Vector3) -> bool:
 		return _distance_to_nearest(a, enemy_positions) < _distance_to_nearest(b, enemy_positions))
 	return candidates.slice(0, PLACEMENT_SHORTLIST).pick_random()
+
+
+func _is_next_to_spare_units(spot: Vector3) -> bool:
+	for lander in _lander_manager.get_landers_in_hex_range(spot, _lander_manager.get_connected_lander_distance()):
+		if lander.get_owner_actor() == self and _movable_units(lander).size() > _units_to_keep(lander):
+			return true
+	return false
 
 
 func _clear_spots_around(centre: Vector3, radius: float) -> Array[Vector3]:
@@ -323,6 +337,28 @@ func _buy() -> void:
 	for lander in landers:
 		if not lander.has_building() and _buy_spawning_building(lander, budget):
 			break
+	_spin_web(budget)
+
+
+## Races with EnwebAbility: one web a turn, on the strongest enemy force next to us.
+func _spin_web(budget: EconData) -> void:
+	var ability := AbilitySystem.find_species_ability(get_species(), EnwebAbility) as EnwebAbility
+	if ability == null or not budget.can_afford(ability.get_cost()):
+		return
+	var best: Lander = null
+	for lander in _lander_manager.get_landers_owned_by(self):
+		for target in _lander_manager.get_connected_landers(lander):
+			var target_owner := target.get_owner_actor()
+			if target_owner == null or target_owner == self or target.has_web() or not target.has_units():
+				continue
+			if best == null or target.get_units().size() > best.get_units().size():
+				best = target
+	if best == null:
+		return
+	budget.subtract(ability.get_cost())
+	var web := Action.create(Action.Type.ENWEB)
+	web.set_target_lander(best)
+	_send(web)
 
 
 ## Builds a spawning building, preferring a kind we don't own yet (e.g. our race's building,
@@ -426,8 +462,24 @@ func _continue_combat_phase() -> void:
 		return  # Still fighting; _action_resolved calls back in when it's over.
 	if _attacks_this_turn < MAX_ATTACKS_PER_TURN and _try_attack():
 		return
+	_tear_down_webs()
 	_spread_units()
 	_end_phase()
+
+
+## A unit on each of our webbed landers spends its move tearing the web down. (The others stay
+## put this turn: they can't leave until it's gone.)
+func _tear_down_webs() -> void:
+	for lander in _lander_manager.get_landers_owned_by(self):
+		if not lander.has_web() or lander.get_web().get_owner_actor() == self:
+			continue
+		var movable := _movable_units(lander)
+		if movable.is_empty():
+			continue
+		var raze := Action.create(Action.Type.RAZE_WEB)
+		raze.set_target_lander(lander)
+		raze.set_units(movable.slice(0, 1))
+		_send(raze)
 
 
 ## Attacks the weakest enemy neighbour we clearly outnumber. Returns true if an attack was requested.
@@ -460,60 +512,111 @@ func _try_attack() -> bool:
 	return true
 
 
-## Each lander with spare units (it always keeps one behind) makes one move per turn:
-##   1. claim an empty, unowned neighbour with half its units (the one nearest an enemy), or
-##   2. send all its spare units to an owned neighbour that is closer to an enemy,
-##      so units march along the AI's chain of landers towards the front.
-## Moves only ever go strictly closer to an enemy, so units never bounce back and forth.
+## Greedy: the AI wants as many landers as it can hold, for their upkeep. Each lander's spare
+## units (ones that haven't moved this turn, beyond what it keeps behind) first claim empty
+## neighbours one unit each, best payoff first; whatever is left marches one lander towards
+## the frontier (an owned lander next to unclaimed ones) or else towards the enemy. Units move
+## one lander per turn, so a unit that just arrived waits for next turn.
 func _spread_units() -> void:
 	var enemy_positions := _enemy_lander_positions()
 	var incoming := {}  # Lander -> units already sent there this turn.
-	for source in _lander_manager.get_landers_owned_by(self):
-		var units := source.get_units()
-		if units.size() < 2:
+	var sources := _lander_manager.get_landers_owned_by(self)
+	sources.sort_custom(func(a: Lander, b: Lander) -> bool: return _movable_units(a).size() > _movable_units(b).size())
+	for source in sources:
+		var movable := _movable_units(source)
+		var spare := mini(movable.size(), source.get_units().size() - _units_to_keep(source))
+		if spare <= 0:
 			continue
-
-		var claim_target := _pick_claim_target(source, incoming, enemy_positions)
-		if claim_target != null:
-			_request_move(source, claim_target, units, floori(units.size() / 2.0), incoming)
+		for target in _claim_targets(source, incoming, enemy_positions):
+			if spare <= 0:
+				break
+			if AbilitySystem.check_move(movable[0], source, target) != "":
+				continue
+			_request_move(source, target, movable.slice(0, 1), 1, incoming)
+			movable = movable.slice(1)
+			spare -= 1
+		if spare <= 0:
 			continue
-		var advance_target := _pick_advance_target(source, incoming, enemy_positions)
+		var advance_target := _pick_advance_target(source, incoming, enemy_positions, movable[0])
 		if advance_target != null:
-			_request_move(source, advance_target, units, units.size() - 1, incoming)
+			_request_move(source, advance_target, movable, spare, incoming)
 
 
-## An empty neighbour to claim: an undefended enemy lander (its building can be taken) first,
-## otherwise an empty neutral one nearest an enemy.
-func _pick_claim_target(source: Lander, incoming: Dictionary, enemy_positions: Array[Vector3]) -> Lander:
-	var best: Lander = null
+func _movable_units(lander: Lander) -> Array[UnitInstance]:
+	var movable: Array[UnitInstance] = []
+	for unit in lander.get_units():
+		if not unit.has_moved():
+			movable.append(unit)
+	return movable
+
+
+## Units a lander keeps behind: none on a lander our own (non-command) building already holds
+## when no enemy units are next to it; two on the command tower when enemies are next to it;
+## otherwise one (an empty lander with no building would stop being ours).
+func _units_to_keep(lander: Lander) -> int:
+	var threatened := _lander_manager.get_connected_landers(lander).any(func(other: Lander) -> bool:
+		return other.has_units() and other.get_owner_actor() != self)
+	if lander.has_building() and lander.get_building().get_owner_actor() == self:
+		if lander.get_building().is_command_tower():
+			return 2 if threatened else 1
+		return 1 if threatened else 0
+	return 1
+
+
+## Empty neighbours we could take by moving in, best first: an enemy command tower (taking it
+## knocks them out), other undefended enemy buildings, then the richest landers (most upkeep),
+## nearest an enemy on a tie.
+func _claim_targets(source: Lander, incoming: Dictionary, enemy_positions: Array[Vector3]) -> Array[Lander]:
+	var targets: Array[Lander] = []
 	for target in _lander_manager.get_connected_landers(source):
-		if target in incoming or target.has_units():
+		if target in incoming or target.has_units() or target.get_owner_actor() == self:
 			continue
-		var target_owner := target.get_owner_actor()
-		if target_owner == self:
-			continue
-		if best == null:
-			best = target
-			continue
-		var is_enemy := target_owner != null
-		var best_is_enemy := best.get_owner_actor() != null
-		if (is_enemy and not best_is_enemy) or (is_enemy == best_is_enemy and _closer_to_enemy(target, best, enemy_positions)):
-			best = target
-	return best
+		targets.append(target)
+	targets.sort_custom(func(a: Lander, b: Lander) -> bool:
+		var value_a := _claim_value(a)
+		var value_b := _claim_value(b)
+		if value_a != value_b:
+			return value_a > value_b
+		return _closer_to_enemy(a, b, enemy_positions))
+	return targets
 
 
-func _pick_advance_target(source: Lander, incoming: Dictionary, enemy_positions: Array[Vector3]) -> Lander:
-	if enemy_positions.is_empty():
-		return null
+func _claim_value(lander: Lander) -> int:
+	var value := 0
+	var upkeep := lander.get_upkeep()
+	for key in EconData.RESOURCE_KEYS:
+		value += upkeep.get_amount(key)
+	if lander.has_building() and lander.get_building().get_owner_actor() != self:
+		value += 100 if lander.get_building().is_command_tower() else 3
+	return value
+
+
+## Where spare units go once nothing is left to claim: an owned neighbour on the frontier
+## (it has unclaimed neighbours, so they can claim next turn), else one closer to an enemy.
+## Never towards a lander that is neither, so units don't bounce back and forth.
+func _pick_advance_target(source: Lander, incoming: Dictionary, enemy_positions: Array[Vector3], mover: UnitInstance) -> Lander:
 	var best: Lander = null
+	var best_is_frontier := false
 	for target in _lander_manager.get_connected_landers(source):
 		if target.get_owner_actor() != self or _free_slots(target, incoming) <= 0:
 			continue
-		if not _closer_to_enemy(target, source, enemy_positions):
+		if AbilitySystem.check_move(mover, source, target) != "":
 			continue
-		if best == null or _closer_to_enemy(target, best, enemy_positions):
+		var is_frontier := _is_frontier(target)
+		var is_closer := _closer_to_enemy(target, source, enemy_positions)
+		if not is_frontier and not is_closer:
+			continue
+		if best == null or (is_frontier and not best_is_frontier) or \
+				(is_frontier == best_is_frontier and _closer_to_enemy(target, best, enemy_positions)):
 			best = target
+			best_is_frontier = is_frontier
 	return best
+
+
+## True if `lander` has an empty neighbour that isn't ours (something left to claim from it).
+func _is_frontier(lander: Lander) -> bool:
+	return _lander_manager.get_connected_landers(lander).any(func(other: Lander) -> bool:
+		return not other.has_units() and other.get_owner_actor() != self)
 
 
 func _request_move(source: Lander, target: Lander, units: Array[UnitInstance], wanted: int, incoming: Dictionary) -> void:

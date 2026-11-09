@@ -5,7 +5,8 @@ extends Node
 ## Per-match rules. Lives in main.tscn as the "MatchSettings" node.
 
 # Actors
-@export var opponent_count: int = 1
+## AI opponents. Everyone plays for themselves (free-for-all).
+@export var opponent_count: int = 2
 @export var starting_biome_count: int = 4
 
 # Economy
@@ -20,6 +21,8 @@ extends Node
 
 # Landers
 @export var game_biomes: Array[BiomeData] = []
+## Rules that apply to everyone this match (e.g. combined arms). See Ability.
+@export var rule_abilities: Array[Ability] = []
 
 # Map
 @export var map_size: int = 10
@@ -68,6 +71,10 @@ func get_ai_step_delay() -> float:
 
 func get_game_biomes() -> Array[BiomeData]:
 	return AbilitySystem.resolve_get(self, &"game_biomes", game_biomes)
+
+
+func get_rule_abilities() -> Array[Ability]:
+	return rule_abilities
 
 
 func get_map_size() -> int:

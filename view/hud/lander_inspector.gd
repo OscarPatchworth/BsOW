@@ -20,6 +20,7 @@ var _owner_label: Label
 var _details: VBoxContainer
 var _shop_box: VBoxContainer
 var _shop_title: Label
+var _abilities_box: VBoxContainer
 var _hint: Label
 
 
@@ -52,6 +53,8 @@ func _init() -> void:
 	box.add_child(_shop_title)
 	_shop_box = VBoxContainer.new()
 	box.add_child(_shop_box)
+	_abilities_box = VBoxContainer.new()
+	box.add_child(_abilities_box)
 	_hint = HudTheme.make_label("", HudTheme.SMALL_FONT_SIZE, HudTheme.MUTED)
 	_hint.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	_hint.custom_minimum_size.x = 300
@@ -90,6 +93,7 @@ func refresh() -> void:
 		_owner_label.add_theme_color_override("font_color", owner_actor.get_color().lightened(0.3))
 	_refresh_details(owner_actor)
 	_refresh_shop(owner_actor)
+	_refresh_ability_actions()
 #endregion
 
 
@@ -114,11 +118,15 @@ func _refresh_details(owner_actor: Actor) -> void:
 		var trains := _trainable_names(building)
 		if not trains.is_empty():
 			_details.add_child(HudTheme.make_label("   Trains: " + ", ".join(trains), HudTheme.SMALL_FONT_SIZE, HudTheme.MUTED))
+		for ability in building.get_building_data().get_abilities():
+			_details.add_child(_wrapped_label("   ✦ %s: %s" % [ability.get_display_name(), ability.get_description()], HudTheme.ACCENT))
 	else:
 		_details.add_child(HudTheme.make_label("No building", HudTheme.FONT_SIZE, HudTheme.MUTED))
 
 	var units := _lander.get_units()
-	_details.add_child(HudTheme.make_label("Units %d / %d" % [units.size(), _lander.get_unit_capacity()]))
+	var moved := units.filter(func(unit: UnitInstance) -> bool: return unit.has_moved()).size()
+	_details.add_child(HudTheme.make_label("Units %d / %d%s" % [units.size(), _lander.get_unit_capacity(),
+		"   (%d moved this turn)" % moved if moved > 0 else ""]))
 	var counts := {}
 	for unit in units:
 		counts[unit.get_display_name()] = counts.get(unit.get_display_name(), 0) + 1
@@ -127,6 +135,12 @@ func _refresh_details(owner_actor: Actor) -> void:
 		var damage := sample.get_damage()
 		_details.add_child(HudTheme.make_label("   %d × %s   %s%s" % [counts[unit_name], unit_name, _dice_text(damage),
 			"   (builder)" if sample.can_build_buildings() else ""], HudTheme.SMALL_FONT_SIZE))
+
+	if _lander.has_web():
+		var web := _lander.get_web()
+		_details.add_child(_wrapped_label("Web by %s, %d more turn%s: units here that aren't %s get %+d and can't move off." % [
+			web.get_owner_actor().get_display_name(), web.get_turns_left(), "" if web.get_turns_left() == 1 else "s",
+			web.get_owner_actor().get_species().get_display_name(), web.get_ability().penalty], HudTheme.WARN))
 
 	var connected := _lander_manager.get_connected_landers(_lander)
 	_details.add_child(HudTheme.make_label("Connected to %d lander%s" % [connected.size(), "" if connected.size() == 1 else "s"],
@@ -170,6 +184,66 @@ func _refresh_shop(owner_actor: Actor) -> void:
 	else:
 		_hint.text = "Nothing to buy here. Units can build a building on a lander that has none."
 	_hint.visible = _hint.text != ""
+
+
+## "Spin a web here" (Ettercap players, on a lander next to theirs) and "Tear down the web"
+## (for the local player's units stuck on a web). Hidden when they don't apply.
+func _refresh_ability_actions() -> void:
+	HudTheme.clear_children(_abilities_box)
+	var is_our_turn := (_turn_manager.get_game_state() == TurnManager.GameState.MAIN_LOOP
+		and _turn_manager.get_active_actor() == _player)
+	var phase := _turn_manager.get_game_phase()
+
+	var web_ability := AbilitySystem.find_species_ability(_player.get_species(), EnwebAbility) as EnwebAbility
+	var next_to_ours := _lander_manager.get_connected_landers(_lander).any(func(lander: Lander) -> bool:
+		return lander.get_owner_actor() == _player)
+	if web_ability != null and _lander.get_owner_actor() != _player and not _lander.has_web() and next_to_ours:
+		var spin := HudTheme.make_button("Spin a web here  (%s)" % HudTheme.format_cost(web_ability.get_cost()))
+		var problem := ""
+		if not is_our_turn or phase != TurnManager.Phase.BUYING:
+			problem = "Webs are spun in your Buying phase"
+		elif not _player.get_wallet().can_afford(web_ability.get_cost()):
+			problem = "Not enough resources"
+		spin.disabled = problem != ""
+		spin.tooltip_text = problem if problem != "" else web_ability.get_description()
+		spin.pressed.connect(_request_on_lander.bind(Action.Type.ENWEB, null))
+		_abilities_box.add_child(spin)
+
+	if _lander.has_web() and _lander.get_web().get_owner_actor() != _player:
+		var free_unit: UnitInstance = null
+		var has_ours := false
+		for unit in _lander.get_units():
+			if unit.get_owner_actor() == _player:
+				has_ours = true
+				if free_unit == null and not unit.has_moved():
+					free_unit = unit
+		if has_ours:
+			var tear := HudTheme.make_button("Tear down the web  (uses one unit's move)")
+			var problem := ""
+			if not is_our_turn or phase != TurnManager.Phase.COMBAT:
+				problem = "Webs are torn down in your Combat phase (when units move)"
+			elif free_unit == null:
+				problem = "Every unit here has already moved this turn"
+			tear.disabled = problem != ""
+			tear.tooltip_text = problem if problem != "" else "%s spends its move tearing the web down" % free_unit.get_display_name()
+			tear.pressed.connect(_request_on_lander.bind(Action.Type.RAZE_WEB, free_unit))
+			_abilities_box.add_child(tear)
+	_abilities_box.visible = _abilities_box.get_child_count() > 0
+
+
+func _request_on_lander(type: Action.Type, unit: UnitInstance) -> void:
+	var action := Action.create(type)
+	action.set_target_lander(_lander)
+	if unit != null:
+		action.set_units([unit] as Array[UnitInstance])
+	action_requested.emit(action)
+
+
+func _wrapped_label(text: String, color: Color) -> Label:
+	var label := HudTheme.make_label(text, HudTheme.SMALL_FONT_SIZE, color)
+	label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	label.custom_minimum_size.x = 300
+	return label
 
 
 ## The building owner's units this building can train.

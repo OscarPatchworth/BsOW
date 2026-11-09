@@ -89,6 +89,9 @@ func refresh() -> void:
 	_identity_swatch.color = _player.get_color()
 	_identity_label.text = "%s · %s" % [_player.get_display_name(), _player.get_species().get_display_name()]
 	_identity_label.add_theme_color_override("font_color", _player.get_color().lightened(0.25))
+	_identity_label.mouse_filter = Control.MOUSE_FILTER_PASS
+	_identity_label.tooltip_text = HudTheme.abilities_text("%s traits" % _player.get_species().get_display_name(),
+		_player.get_species().get_abilities())
 	_refresh_wallet()
 	_refresh_round()
 	_refresh_phase_track()
@@ -104,7 +107,42 @@ func _refresh_wallet() -> void:
 		var gain := income.get_amount(key)
 		var label: Label = _wallet_labels[key]
 		label.text = "%s %d%s" % [HudTheme.resource_icon(key), wallet.get_amount(key), "  +%d" % gain if gain > 0 else ""]
-		label.tooltip_text = "%s: %d (+%d at your next upkeep)" % [String(key).capitalize(), wallet.get_amount(key), gain]
+		label.tooltip_text = _income_tooltip(key, wallet.get_amount(key), gain)
+
+
+## "Gold: 12 now, +9 at your next upkeep" and where each part comes from, e.g.
+## "+6  3 × Badlands" and "+2  Base (building)".
+func _income_tooltip(key: StringName, amount: int, gain: int) -> String:
+	var lines: Array[String] = ["%s: %d now, +%d at your next upkeep" % [String(key).capitalize(), amount, gain]]
+	var flat := _match_settings.get_upkeep_gold() if key == &"gold" else 0
+	if flat > 0:
+		lines.append("   +%d   every player, every upkeep" % flat)
+	# Group the sources: "Badlands" -> [count, total], biomes first, then buildings.
+	var biomes := {}
+	var buildings := {}
+	for lander in _lander_manager.get_landers_owned_by(_player):
+		var from_biome := lander.get_biome_data().get_upkeep().get_amount(key)
+		if from_biome > 0:
+			_add_source(biomes, lander.get_biome_data().get_display_name(), from_biome)
+		if lander.has_building():
+			var from_building := lander.get_building().get_building_data().get_upkeep().get_amount(key)
+			if from_building > 0:
+				_add_source(buildings, lander.get_building().get_display_name(), from_building)
+	for source_name: String in biomes:
+		var entry: Array = biomes[source_name]
+		lines.append("   +%d   %d × %s" % [entry[1], entry[0], source_name])
+	for source_name: String in buildings:
+		var entry: Array = buildings[source_name]
+		lines.append("   +%d   %s%s (building)" % [entry[1], "%d × " % entry[0] if entry[0] > 1 else "", source_name])
+	if biomes.is_empty() and buildings.is_empty():
+		lines.append("   None of your landers produce %s yet" % key)
+	return "
+".join(lines)
+
+
+func _add_source(sources: Dictionary, source_name: String, amount: int) -> void:
+	var entry: Array = sources.get(source_name, [0, 0])
+	sources[source_name] = [entry[0] + 1, entry[1] + amount]
 
 
 ## What the player gains at their next upkeep: the flat gold plus each owned lander's upkeep.

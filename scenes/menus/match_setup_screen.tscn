@@ -1,0 +1,16 @@
+[gd_scene load_steps=5 format=3]
+
+[ext_resource type="Script" path="res://view/menus/match_setup_screen.gd" id="1_setup"]
+[ext_resource type="Script" path="res://data/species/species_data.gd" id="2_species"]
+[ext_resource type="Resource" uid="uid://cojb8wwjom73a" path="res://data/species/lycanthrope.tres" id="3_lycan"]
+[ext_resource type="Resource" uid="uid://b6i0g0eoslsoo" path="res://data/species/ettercap.tres" id="4_ettercap"]
+
+[node name="MatchSetupScreen" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_setup")
+species_options = Array[ExtResource("2_species")]([ExtResource("3_lycan"), ExtResource("4_ettercap")])

@@ -24,10 +24,13 @@ var _biome_data: BiomeData
 var _building: BuildingInstance
 var _units: Array[UnitInstance] = []
 var _unit_capacity: int = DEFAULT_UNIT_CAPACITY
+## A web spun on this lander (EnwebAbility), or null.
+var _web: WebInstance
 
 var _owner_ring: MeshInstance3D
 var _owner_ring_material := StandardMaterial3D.new()
 var _info_label: Label3D
+var _web_mesh: MeshInstance3D
 var _flash_tween: Tween
 
 @onready var _building_node: Node3D = find_child("Building")
@@ -111,6 +114,10 @@ func remove_units(units_to_remove: Array[UnitInstance]) -> void:
 	set_units(units)
 
 
+func has_web() -> bool:
+	return get_web() != null
+
+
 func has_building() -> bool:
 	return get_building() != null
 
@@ -165,8 +172,11 @@ func refresh_markers() -> void:
 		lines.append("%d" % get_units().size())
 	if owner_actor != null:
 		lines.append(owner_actor.get_display_name())
+	if has_web():
+		lines.append("Web (%d)" % get_web().get_turns_left())
 	_info_label.text = "\n".join(lines)
 	_info_label.modulate = owner_actor.get_color() if owner_actor != null else NEUTRAL_COLOR
+	_web_mesh.visible = has_web()
 
 
 ## Briefly pulses the owner ring, e.g. to show what the AI just did.
@@ -195,6 +205,15 @@ func get_biome_data() -> BiomeData:
 func set_biome_data(value: BiomeData) -> void:
 	_biome_data = AbilitySystem.resolve_set(self, &"biome_data", _biome_data, value)
 	_refresh_biome_mesh()
+
+
+func get_web() -> WebInstance:
+	return AbilitySystem.resolve_get(self, &"web", _web)
+
+
+func set_web(value: WebInstance) -> void:
+	_web = AbilitySystem.resolve_set(self, &"web", _web, value)
+	refresh_markers()
 
 
 func get_building() -> BuildingInstance:
@@ -282,6 +301,19 @@ func _build_markers() -> void:
 	_owner_ring.position = Vector3(0, 0.95, 0)
 	add_child(_owner_ring)
 
+	# A web: pale hex rings with spokes, over the biome.
+	var web_material := StandardMaterial3D.new()
+	web_material.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
+	web_material.cull_mode = BaseMaterial3D.CULL_DISABLED
+	web_material.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
+	web_material.albedo_color = Color(0.95, 0.95, 1.0, 0.85)
+	_web_mesh = MeshInstance3D.new()
+	_web_mesh.name = "Web"
+	_web_mesh.mesh = _make_web_mesh(web_material)
+	_web_mesh.position = Vector3(0, 0.97, 0)
+	_web_mesh.visible = false
+	add_child(_web_mesh)
+
 	_info_label = Label3D.new()
 	_info_label.name = "InfoLabel"
 	_info_label.billboard = BaseMaterial3D.BILLBOARD_ENABLED
@@ -293,3 +325,21 @@ func _build_markers() -> void:
 	_info_label.position = Vector3(0, 2.4, 0)
 	add_child(_info_label)
 #endregion
+
+
+## Three hex rings and six spokes, flat, as one mesh.
+static func _make_web_mesh(material: Material) -> ArrayMesh:
+	var vertices := PackedVector3Array()
+	for radius: float in [0.35, 0.68, 1.0]:
+		var ring := Hex.ring_mesh(Hex.RADIUS * radius - 0.025, Hex.RADIUS * radius + 0.025)
+		vertices.append_array(ring.surface_get_arrays(0)[Mesh.ARRAY_VERTEX])
+	for corner in Hex.corners(Hex.RADIUS * 0.98):
+		var side := corner.cross(Vector3.UP).normalized() * 0.022
+		vertices.append_array([side, corner + side, corner - side, side, corner - side, -side])
+	var arrays := []
+	arrays.resize(Mesh.ARRAY_MAX)
+	arrays[Mesh.ARRAY_VERTEX] = vertices
+	var mesh := ArrayMesh.new()
+	mesh.add_surface_from_arrays(Mesh.PRIMITIVE_TRIANGLES, arrays)
+	mesh.surface_set_material(0, material)
+	return mesh

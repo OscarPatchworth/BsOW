@@ -85,4 +85,10 @@ static func describe(action: Action, viewer: Actor) -> String:
 			return "⚔ %s attacked %s %s lander!" % [who, whose, lander_name(action.get_target_lander())]
 		Action.Type.RETREAT_COMBAT:
 			return "%s retreated" % who
+		Action.Type.ENWEB:
+			var webbed := action.get_target_lander().get_owner_actor()
+			var whose_lander := "your" if webbed == viewer else ("%s's" % actor_tag(webbed) if webbed != null else "an empty")
+			return "%s spun a web on %s %s lander" % [who, whose_lander, lander_name(action.get_target_lander())]
+		Action.Type.RAZE_WEB:
+			return "%s tore down the web on %s" % [who, lander_name(action.get_target_lander())]
 	return ""

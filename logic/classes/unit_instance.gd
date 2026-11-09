@@ -8,6 +8,8 @@ extends RefCounted
 var _unit_data: UnitData
 var _owner_actor: Actor
 var _hit_points: int = 1
+## Units move one lander per turn: set by MOVE_UNITS, cleared at the owner's upkeep.
+var _has_moved: bool = false
 
 
 func _init(unit_data: UnitData = null, owner_actor: Actor = null) -> void:
@@ -38,6 +40,15 @@ func get_hit_points() -> int:
 
 func set_hit_points(value: int) -> void:
 	_hit_points = AbilitySystem.resolve_set(self, &"hit_points", _hit_points, value)
+
+
+## True once this unit has moved this turn (it can't move again until its owner's next upkeep).
+func has_moved() -> bool:
+	return AbilitySystem.resolve_get(self, &"has_moved", _has_moved)
+
+
+func set_has_moved(value: bool) -> void:
+	_has_moved = AbilitySystem.resolve_set(self, &"has_moved", _has_moved, value)
 
 
 # --- Per-instance views of UnitData stats ---

@@ -105,6 +105,12 @@ func finish_binding() -> void:
 
 
 #region Public API (called by the Player)
+## A short, eye-catching line under the top bar (also logged).
+func alert(text: String, color: Color = HudTheme.BAD) -> void:
+	_hint.flash_alert(text, color)
+	_event_log.add_line(text, color)
+
+
 func show_lander_panel(lander: Lander) -> void:
 	_inspector.show_lander(lander)
 	_queue_relayout()
@@ -322,6 +328,8 @@ func _log_round(outcomes: Array[CombatOutcome]) -> void:
 	var defender := contest.get_actor(Contest.Side.DEFENDER)
 	_event_log.add_line("   Round result: %s lost %d, %s lost %d" % [EventLog.actor_tag(attacker), lost.get(attacker, 0),
 		EventLog.actor_tag(defender), lost.get(defender, 0)], HudTheme.MUTED)
+	for note in contest.get_last_notes():
+		_event_log.add_line("   ✦ " + note, HudTheme.ACCENT)
 
 
 func _battle_summary(contest: Contest) -> String:

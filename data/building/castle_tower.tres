@@ -4,6 +4,9 @@
 [ext_resource type="Script" path="res://data/building/building_data.gd" id="1_y1e7o"]
 [ext_resource type="Script" path="res://data/econ/econ_data.gd" id="2_glv22"]
 
+[ext_resource type="Script" path="res://data/abilities/ability.gd" id="90_ability"]
+[ext_resource type="Resource" path="res://data/abilities/castle_tower_ward.tres" id="91_ward"]
+
 [sub_resource type="Resource" id="Resource_xb8rn"]
 script = ExtResource("2_glv22")
 gold = 1
@@ -24,3 +27,4 @@ can_spawn = true
 spawnable_unit_types = Array[int]([0, 2])
 can_upgrade = false
 upgrades = Array[ExtResource("1_y1e7o")]([])
+abilities = Array[ExtResource("90_ability")]([ExtResource("91_ward")])

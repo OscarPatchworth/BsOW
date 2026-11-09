@@ -132,6 +132,10 @@ func _validate(action: Action) -> String:
 			return _validate_purchase(action)
 		Action.Type.MOVE_UNITS:
 			return _validate_move_units(action)
+		Action.Type.ENWEB:
+			return _validate_enweb(action)
+		Action.Type.RAZE_WEB:
+			return _validate_raze_web(action)
 		Action.Type.ATTACK:
 			return _validate_attack(action)
 		Action.Type.PROGRESS_TURN:
@@ -263,6 +267,11 @@ func _validate_move_units(action: Action) -> String:
 			return "A chosen unit is not on the source lander"
 		if unit.get_owner_actor() != actor:
 			return "A chosen unit belongs to someone else"
+		if unit.has_moved():
+			return "%s has already moved this turn (units move one lander per turn)" % unit.get_display_name()
+		var ability_reason := AbilitySystem.check_move(unit, source, target)
+		if ability_reason != "":
+			return ability_reason
 	if target.has_units() and target.get_units()[0].get_owner_actor() != actor:
 		return "Target lander has enemy units: attack it instead"
 	if _has_enemy_building(target, actor):
@@ -272,6 +281,54 @@ func _validate_move_units(action: Action) -> String:
 			return "Command towers can't be captured: raze it to knock its owner out"
 	if target.get_units().size() + units.size() > target.get_unit_capacity():
 		return "Target lander doesn't have room for those units"
+	return ""
+
+
+## Spin a web: Buying phase; the actor's race has EnwebAbility and can afford it; the target
+## isn't theirs, has no web yet, and is connected to a lander they own.
+func _validate_enweb(action: Action) -> String:
+	var reason := _require_turn(action, TurnManager.Phase.BUYING)
+	if reason != "":
+		return reason
+	var actor := action.get_actor()
+	var ability := AbilitySystem.find_species_ability(actor.get_species(), EnwebAbility) as EnwebAbility
+	if ability == null:
+		return "Your race can't spin webs"
+	var target := action.get_target_lander()
+	if target == null:
+		return "No lander chosen"
+	if target.get_owner_actor() == actor:
+		return "Spin webs on landers you don't own"
+	if target.has_web():
+		return "That lander is already webbed"
+	if not _lander_manager.get_connected_landers(target).any(func(lander: Lander) -> bool: return lander.get_owner_actor() == actor):
+		return "Webs go on a lander next to one of yours"
+	if not actor.get_wallet().can_afford(ability.get_cost()):
+		return "Actor can not afford a web"
+	return ""
+
+
+## Tear a web down: Combat phase (when units move); a unit of the actor's on the webbed
+## lander that hasn't moved this turn spends its move.
+func _validate_raze_web(action: Action) -> String:
+	var reason := _require_turn(action, TurnManager.Phase.COMBAT)
+	if reason != "":
+		return reason
+	if _combat_manager.is_in_progress():
+		return "Finish the current combat first"
+	var target := action.get_target_lander()
+	if target == null or not target.has_web():
+		return "There's no web there"
+	if target.get_web().get_owner_actor() == action.get_actor():
+		return "That's your own web"
+	var units := action.get_units()
+	if units.size() != 1:
+		return "Choose one unit to tear the web down"
+	var unit := units[0]
+	if unit not in target.get_units() or unit.get_owner_actor() != action.get_actor():
+		return "Only your units on the webbed lander can tear it down"
+	if unit.has_moved():
+		return "%s has already moved this turn" % unit.get_display_name()
 	return ""
 
 
@@ -441,7 +498,19 @@ func _execute(action: Action) -> void:
 
 		Action.Type.MOVE_UNITS:
 			_take_undefended_building(action)
+			for unit in action.get_units():
+				if AbilitySystem.move_spends_movement(unit, action.get_source_lander(), action.get_target_lander()):
+					unit.set_has_moved(true)
 			_lander_manager.move_units(action)
+
+		Action.Type.ENWEB:
+			var ability := AbilitySystem.find_species_ability(action.get_actor().get_species(), EnwebAbility) as EnwebAbility
+			action.get_actor().get_wallet().subtract(ability.get_cost())
+			action.get_target_lander().set_web(WebInstance.new(action.get_actor(), ability))
+
+		Action.Type.RAZE_WEB:
+			action.get_units()[0].set_has_moved(true)
+			action.get_target_lander().set_web(null)
 
 		Action.Type.ATTACK:
 			_combat_manager.start_combat(action)
@@ -482,6 +551,8 @@ func _execute(action: Action) -> void:
 #region Private
 ## Every actor's flat upkeep gold, plus the upkeep of each lander they own.
 func _collect_upkeep(actor: Actor) -> void:
+	_lander_manager.refresh_unit_moves(actor)
+	_lander_manager.age_webs_of(actor)
 	var wallet := actor.get_wallet()
 	wallet.set_amount(&"gold", wallet.get_amount(&"gold") + _match_settings.get_upkeep_gold())
 	_lander_manager.run_upkeep(actor)

@@ -23,6 +23,8 @@ enum UnitType {
 @export var damage: DamageData
 @export var can_build := false
 @export var buildables: Array[BuildingData] = []
+## Traits of this kind of unit (inherited from `base` when empty). See Ability.
+@export var abilities: Array[Ability] = []
 
 
 #region Public API
@@ -92,4 +94,12 @@ func get_buildables() -> Array[BuildingData]:
 	if value.is_empty() and get_base() != null:
 		value = get_base().get_buildables()
 	return AbilitySystem.resolve_get(self, &"buildables", value)
+
+
+## Abilities this kind of unit brings into play (see Ability).
+func get_abilities() -> Array[Ability]:
+	var value: Array[Ability] = abilities
+	if value.is_empty() and get_base() != null:
+		value = get_base().get_abilities()
+	return AbilitySystem.resolve_get(self, &"abilities", value)
 #endregion

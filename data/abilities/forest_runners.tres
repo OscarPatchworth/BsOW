@@ -1,0 +1,10 @@
+[gd_resource type="Resource" script_class="BiomeStrideAbility" load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://data/abilities/biome_stride_ability.gd" id="1_script"]
+[ext_resource type="Resource" uid="uid://d04jxtc7utmqq" path="res://data/biome/forest_biome.tres" id="2_biome"]
+
+[resource]
+script = ExtResource("1_script")
+display_name = "Forest Runners"
+description = "Moving from one Forest lander to another doesn't use up a Lycanthrope's move."
+biome = ExtResource("2_biome")

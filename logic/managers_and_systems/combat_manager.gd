@@ -86,11 +86,13 @@ func resolve_combat() -> void:
 	_phase = CombatPhase.DAMAGE
 
 	var contest := get_contest()
-	var attacker_outcomes := _roll_side(contest.get_units(Contest.Side.ATTACKER))
-	var defender_outcomes := _roll_side(contest.get_units(Contest.Side.DEFENDER))
+	var attacker_outcomes := _roll_side(contest, Contest.Side.ATTACKER)
+	var defender_outcomes := _roll_side(contest, Contest.Side.DEFENDER)
 
 	# Highest roll faces highest roll. Ties go to the defender.
 	for i in mini(attacker_outcomes.size(), defender_outcomes.size()):
+		attacker_outcomes[i].set_opponent(defender_outcomes[i])
+		defender_outcomes[i].set_opponent(attacker_outcomes[i])
 		if attacker_outcomes[i].get_total() > defender_outcomes[i].get_total():
 			attacker_outcomes[i].set_reason(CombatOutcome.Reason.COMBAT_WON)
 			defender_outcomes[i].set_reason(CombatOutcome.Reason.COMBAT_LOST)
@@ -106,6 +108,9 @@ func resolve_combat() -> void:
 
 	_remove_dead(attacker_outcomes, contest.get_lander(Contest.Side.ATTACKER))
 	_remove_dead(defender_outcomes, contest.get_lander(Contest.Side.DEFENDER))
+	# Abilities react to the kills (after the dead are gone, so there's room for new units).
+	contest.set_last_notes(AbilitySystem.after_combat_round(contest, {
+		Contest.Side.ATTACKER: attacker_outcomes, Contest.Side.DEFENDER: defender_outcomes}))
 
 	var all_outcomes: Array[CombatOutcome] = []
 	all_outcomes.append_array(attacker_outcomes)
@@ -190,12 +195,14 @@ func _end_combat() -> void:
 	combat_ended.emit(get_contest())
 
 
-## Rolls damage for each unit and returns the outcomes sorted highest total first.
-func _roll_side(units: Array[UnitInstance]) -> Array[CombatOutcome]:
+## Rolls damage for each unit on `side` (abilities add their bonuses and penalties) and
+## returns the outcomes sorted highest total first.
+func _roll_side(contest: Contest, side: int) -> Array[CombatOutcome]:
 	var outcomes: Array[CombatOutcome] = []
-	for unit in units:
+	for unit in contest.get_units(side):
 		var outcome := CombatOutcome.new(unit)
 		outcome.roll_damage()
+		AbilitySystem.add_combat_modifiers(outcome, contest, side)
 		outcomes.append(outcome)
 	outcomes.sort_custom(func(a: CombatOutcome, b: CombatOutcome) -> bool: return a.get_total() > b.get_total())
 	return outcomes

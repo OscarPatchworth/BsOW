@@ -17,6 +17,8 @@ extends Resource
 @export var spawnable_unit_types: Array[UnitData.UnitType] = []
 @export var can_upgrade := false
 @export var upgrades: Array[BuildingData] = []
+## Effects of this building on its lander. See Ability.
+@export var abilities: Array[Ability] = []
 
 
 #region Accessors
@@ -67,4 +69,9 @@ func can_be_upgraded() -> bool:
 
 func get_upgrades() -> Array[BuildingData]:
 	return AbilitySystem.resolve_get(self, &"upgrades", upgrades)
+
+
+## Abilities this brings into play (see Ability).
+func get_abilities() -> Array[Ability]:
+	return AbilitySystem.resolve_get(self, &"abilities", abilities)
 #endregion

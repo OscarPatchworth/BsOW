@@ -15,10 +15,20 @@ var _gravity_system: GravitySystem
 @onready var _selector_manager: SelectorManager = find_child("SelectorManager")
 
 
+## MOVE_UNITS -> who owned the target before it resolved (to tell "they took your lander").
+var _owner_before_move := {}
+
+
 func _ready() -> void:
 	_bind_children()
 	_connect_children()
 	_connect_managers()
+
+
+## The selection ring follows whatever the lander panel is showing.
+func _process(_delta: float) -> void:
+	var inspector := _ui.get_inspector()
+	_controller.get_markers().show_selection(inspector.get_lander() if inspector.visible else null)
 
 
 #region Public API
@@ -124,6 +134,7 @@ func _action_resolved(action: Action) -> void:
 				_controller.on_command_tower_placed()
 	elif action.get_actor() != null and not action.is_system():
 		_flash_affected_landers(action)
+		_mark_others_move(action)
 	_ui.on_action_resolved(action)
 
 
@@ -149,6 +160,46 @@ func _flash_affected_landers(action: Action) -> void:
 		Action.Type.MOVE_UNITS, Action.Type.ATTACK:
 			action.get_source_lander().flash(color)
 			action.get_target_lander().flash(color)
+
+
+## Another player's move: a short arrow, and an alert when it takes something of ours.
+func _mark_others_move(action: Action) -> void:
+	if action.get_type() != Action.Type.MOVE_UNITS:
+		return
+	var target := action.get_target_lander()
+	var label := ""
+	match action.get_building_fate():
+		Action.BuildingFate.CAPTURE:
+			label = "Captured!"
+		Action.BuildingFate.RAZE:
+			label = "Razed!"
+	_controller.get_markers().add_arrow(action, action.get_source_lander(), target, action.get_actor().get_color(), label, 3.0)
+	if _owner_before_move.get(action) == self:
+		_ui.alert("%s %s your %s lander!" % [action.get_actor().get_display_name(),
+			"razed the building on" if action.get_building_fate() == Action.BuildingFate.RAZE else "took", EventLog.lander_name(target)])
+	_owner_before_move.erase(action)
+
+
+## Every battle gets an arrow from attacker to defender until it ends, ours or not.
+func _on_any_combat_started(contest: Contest) -> void:
+	var attacker := contest.get_actor(Contest.Side.ATTACKER)
+	var defender := contest.get_actor(Contest.Side.DEFENDER)
+	var defender_lander := contest.get_lander(Contest.Side.DEFENDER)
+	var label := "UNDER ATTACK!" if defender == self else ("ATTACKING" if attacker == self
+		else "%s attacks %s" % [attacker.get_display_name(), defender.get_display_name() if defender != null else "?"])
+	_controller.get_markers().add_arrow(contest, contest.get_lander(Contest.Side.ATTACKER), defender_lander,
+		attacker.get_color(), label)
+	if defender == self:
+		_ui.alert("⚔ %s is attacking your %s lander!" % [attacker.get_display_name(), EventLog.lander_name(defender_lander)])
+
+
+func _on_any_combat_ended(contest: Contest) -> void:
+	_controller.get_markers().remove_arrow(contest)
+
+
+func _on_action_manager_action_resolving(action: Action) -> void:
+	if action.get_type() == Action.Type.MOVE_UNITS and action.get_actor() != self:
+		_owner_before_move[action] = action.get_target_lander().get_owner_actor()
 
 
 func _bind_children() -> void:
@@ -189,6 +240,9 @@ func _connect_managers() -> void:
 	_combat_manager.combat_updated.connect(_on_combat_manager_combat_updated)
 	_combat_manager.combat_resolved.connect(_on_combat_manager_combat_resolved)
 	_combat_manager.combat_ended.connect(_on_combat_manager_combat_ended)
+	_combat_manager.combat_started.connect(_on_any_combat_started)
+	_combat_manager.combat_ended.connect(_on_any_combat_ended)
+	_action_manager.action_resolving.connect(_on_action_manager_action_resolving)
 	_turn_manager.game_state_changed.connect(_on_turn_manager_game_state_changed)
 	_turn_manager.turn_order_generated.connect(_on_turn_manager_turn_order_generated)
 	_turn_manager.active_actor_changed.connect(_on_turn_manager_active_actor_changed)

@@ -2,7 +2,10 @@
 class_name GameOverPanel
 extends PanelContainer
 
-## Shown when the game ends: Victory or Defeat, why, and Play again / Keep looking.
+## Shown when the game ends: Victory or Defeat, why, and Main menu / Keep looking / Play again
+## (the same race and number of AIs: MatchRequest keeps them).
+
+const MAIN_MENU_SCENE := "res://scenes/menus/start_screen.tscn"
 
 var _title: Label
 var _reason: Label
@@ -24,6 +27,10 @@ func _init() -> void:
 	box.add_child(_reason)
 	var buttons := HBoxContainer.new()
 	buttons.alignment = BoxContainer.ALIGNMENT_CENTER
+	var main_menu := HudTheme.make_button("Main menu")
+	main_menu.name = "MainMenuButton"
+	main_menu.pressed.connect(func() -> void: get_tree().change_scene_to_file(MAIN_MENU_SCENE))
+	buttons.add_child(main_menu)
 	var keep_looking := HudTheme.make_button("Keep looking")
 	keep_looking.pressed.connect(hide)
 	var play_again := HudTheme.make_button("Play again", true)

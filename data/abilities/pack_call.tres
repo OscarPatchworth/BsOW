@@ -1,0 +1,8 @@
+[gd_resource type="Resource" script_class="PackCallAbility" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://data/abilities/pack_call_ability.gd" id="1_script"]
+
+[resource]
+script = ExtResource("1_script")
+display_name = "Pack Call"
+description = "Each enemy unit an Alpha Werewolf kills calls a Lycanth Halfbreed to the werewolf's lander (if there's room)."
