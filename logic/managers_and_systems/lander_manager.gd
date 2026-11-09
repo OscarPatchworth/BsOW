@@ -184,9 +184,19 @@ func remove_assets_of(actor: Actor) -> void:
 			lander.remove_units(their_units)
 		if lander.has_building() and lander.get_building().get_owner_actor() == actor:
 			lander.remove_building()
+		if lander.has_web() and lander.get_web().get_owner_actor() == actor:
+			lander.set_web(null)
 
 
-## Pays `actor` the upkeep of every lander they own.
+## `actor`'s turn came round again: each of their webs has one turn less; spent ones vanish.
+func age_webs_of(actor: Actor) -> void:
+	for lander in get_landers():
+		if lander.has_web() and lander.get_web().get_owner_actor() == actor:
+			var web := lander.get_web()
+			web.set_turns_left(web.get_turns_left() - 1)
+			lander.set_web(web if web.get_turns_left() > 0 else null)
+
+
 ## A new turn for `actor`: each of their units can move one lander again.
 func refresh_unit_moves(actor: Actor) -> void:
 	for lander in get_landers():
@@ -195,6 +205,7 @@ func refresh_unit_moves(actor: Actor) -> void:
 				unit.set_has_moved(false)
 
 
+## Pays `actor` the upkeep of every lander they own.
 func run_upkeep(actor: Actor) -> void:
 	var wallet := actor.get_wallet()
 	for lander in get_landers_owned_by(actor):

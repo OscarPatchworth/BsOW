@@ -12,6 +12,12 @@ const MAIN_SCENE: PackedScene = preload("res://main.tscn")
 ## Far from the origin lander, so the player's setup landers don't collide with anything.
 const SETUP_ORIGIN := Vector3(-15, 0, -15)
 ## Where the AI scenario is built (far from everything else).
+const LYCANTHROPE: SpeciesData = preload("res://data/species/lycanthrope.tres")
+const ETTERCAP: SpeciesData = preload("res://data/species/ettercap.tres")
+const CASTLE_TOWER: BuildingData = preload("res://data/building/castle_tower.tres")
+const PLAINS: BiomeData = preload("res://data/biome/plains_biome.tres")
+const MOUNTAIN: BiomeData = preload("res://data/biome/mountain_biome.tres")
+const FOREST: BiomeData = preload("res://data/biome/forest_biome.tres")
 const LANDER_SPACING: float = 2.2  # Above MIN_DISTANCE (2.0), below connection range (2.5).
 
 var _failures: Array[String] = []
@@ -46,7 +52,8 @@ var _upkeep_gold: int = 0
 
 
 func _ready() -> void:
-	seed(12345)
+	var seed_text := OS.get_environment("SMOKE_SEED")
+	seed(int(seed_text) if seed_text != "" else 12345)  # SMOKE_SEED=n to try other races / turn orders.
 	_root = MAIN_SCENE.instantiate()
 	add_child(_root)
 	await _frames(3)
@@ -71,6 +78,7 @@ func _ready() -> void:
 	await _test_setup()
 	await _test_walls()
 	_test_content_rules()
+	_test_abilities()
 	await _test_main_loop()
 	await _test_elimination()
 
@@ -159,6 +167,147 @@ func _test_setup() -> void:
 	_request(Action.create(Action.Type.COLLECT_UPKEEP))
 	_check(_player.get_wallet().get_amount(&"food") == food_now and _last_rejection_contains("Only the game"),
 		"actors can't request system actions")
+
+
+## Every default ability, in small set-ups well away from the game, with stand-in actors of
+## each race (so it doesn't matter which races the player and AI got).
+func _test_abilities() -> void:
+	var lycan := _stand_in(LYCANTHROPE, "TestLycan")
+	var ettercap := _stand_in(ETTERCAP, "TestEttercap")
+	var origin := _far_clear_spot()
+	var plains := _test_lander(origin, PLAINS)
+	var mountain := _test_lander(origin + Vector3(2.0, 0, 0), MOUNTAIN)
+	var forest := _test_lander(origin + Vector3(0, 0, 2.3), FOREST)
+	var forest_2 := _test_lander(origin + Vector3(2.0, 0, 2.3), FOREST)
+	var halfbreed: UnitData = LYCANTHROPE.get_units()[0]
+	var alpha: UnitData = LYCANTHROPE.get_units()[1]
+	var spawn: UnitData = ETTERCAP.get_units()[0]
+	var spitter: UnitData = ETTERCAP.get_units()[1]
+
+	# 1. Forest Runners: forest -> forest is free for Lycanthropes, nothing else is.
+	var runner := UnitInstance.new(halfbreed, lycan)
+	_check(not AbilitySystem.move_spends_movement(runner, forest, forest_2), "Lycanthropes move Forest to Forest without using their move")
+	_check(AbilitySystem.move_spends_movement(runner, forest, plains), "leaving the Forest uses a Lycanthrope's move")
+	_check(AbilitySystem.move_spends_movement(UnitInstance.new(spawn, ettercap), forest, forest_2), "Forest Runners is Lycanthrope only")
+
+	# 2. Mountain Shy: Lycanthropes can't move onto Mountains.
+	_check("Mountain" in AbilitySystem.check_move(runner, plains, mountain), "Lycanthropes can't move onto Mountains")
+	_check(AbilitySystem.check_move(UnitInstance.new(spawn, ettercap), plains, mountain) == "", "Ettercaps can")
+	mountain.build_for(ETTERCAP.get_command_tower(), ettercap)
+	_check(AbilitySystem.check_move(runner, plains, mountain) == "",
+		"Lycanthropes do go onto a Mountain to take an enemy building (else an Ettercap tower there could never be razed)")
+	mountain.remove_building()
+
+	# 3. Castle Tower: +2 to the owner's units fighting on its lander.
+	plains.build_for(CASTLE_TOWER, lycan)
+	var guard := UnitInstance.new(halfbreed, lycan)
+	plains.add_units([guard] as Array[UnitInstance])
+	var raider := UnitInstance.new(spawn, ettercap)
+	mountain.add_units([raider] as Array[UnitInstance])
+	var contest := Contest.new(mountain, plains)
+	contest.add_unit(Contest.Side.ATTACKER, raider)
+	contest.add_unit(Contest.Side.DEFENDER, guard)
+	_check(_ability_bonus(guard, contest, Contest.Side.DEFENDER) == 2, "Castle Tower gives its owner's defenders +2")
+	_check(_ability_bonus(raider, contest, Contest.Side.ATTACKER) == 0, "but not the attackers")
+
+	# 6. Lurkers (my pick): Ettercaps get +1 defending a Mountain.
+	var reverse := Contest.new(plains, mountain)
+	reverse.add_unit(Contest.Side.ATTACKER, guard)
+	reverse.add_unit(Contest.Side.DEFENDER, raider)
+	_check(_ability_bonus(raider, reverse, Contest.Side.DEFENDER) == 1, "Lurkers: Ettercaps get +1 defending a Mountain")
+	_check(_ability_bonus(guard, reverse, Contest.Side.ATTACKER) == 2, "Castle Tower also helps units attacking out of it")
+
+	# 4. Combined Arms: ranged +2 only alongside an allied melee unit.
+	var lone := Contest.new(plains, mountain)
+	var sniper := UnitInstance.new(spitter, ettercap)
+	lone.add_unit(Contest.Side.ATTACKER, sniper)
+	_check(_ability_bonus(sniper, lone, Contest.Side.ATTACKER) == 0, "a ranged unit alone gets no Combined Arms bonus")
+	lone.add_unit(Contest.Side.ATTACKER, UnitInstance.new(spawn, ettercap))
+	_check(_ability_bonus(sniper, lone, Contest.Side.ATTACKER) == 2, "Combined Arms: ranged +2 alongside allied melee")
+
+	# 5a. Web: -1 and stuck for everyone but Ettercaps, then it wears off.
+	var web_ability := AbilitySystem.find_species_ability(ETTERCAP, EnwebAbility) as EnwebAbility
+	plains.set_web(WebInstance.new(ettercap, web_ability))
+	_check(_ability_bonus(guard, contest, Contest.Side.DEFENDER) == 2 + web_ability.penalty, "a web gives non-Ettercaps on it -1")
+	_check("web" in AbilitySystem.check_move(guard, plains, forest), "a web stops non-Ettercaps leaving")
+	var ettercap_on_web := UnitInstance.new(spawn, ettercap)
+	plains.add_units([ettercap_on_web] as Array[UnitInstance])
+	_check(AbilitySystem.check_move(ettercap_on_web, plains, forest) == "", "Ettercaps walk out of webs")
+	_lander_manager.age_webs_of(ettercap)
+	_check(plains.has_web() and plains.get_web().get_turns_left() == 1, "a web counts down at its owner's upkeep")
+	_lander_manager.age_webs_of(ettercap)
+	_check(not plains.has_web(), "and wears off after 2 of its owner's turns")
+
+	# 5b. Pack Call: an Alpha Werewolf's kill calls a Halfbreed to its lander.
+	var wolf := UnitInstance.new(alpha, lycan)
+	forest.add_units([wolf] as Array[UnitInstance])
+	var victim := UnitInstance.new(spawn, ettercap)
+	forest_2.add_units([victim] as Array[UnitInstance])
+	var hunt := Contest.new(forest, forest_2)
+	hunt.add_unit(Contest.Side.ATTACKER, wolf)
+	hunt.add_unit(Contest.Side.DEFENDER, victim)
+	var won := CombatOutcome.new(wolf)
+	var lost := CombatOutcome.new(victim)
+	won.set_reason(CombatOutcome.Reason.COMBAT_WON)
+	lost.set_reason(CombatOutcome.Reason.COMBAT_LOST)
+	won.set_opponent(lost)
+	lost.set_opponent(won)
+	var notes := AbilitySystem.after_combat_round(hunt, {Contest.Side.ATTACKER: [won] as Array[CombatOutcome]})
+	_check(forest.get_units().size() == 2 and forest.get_units()[1].get_unit_data() == halfbreed and not notes.is_empty(),
+		"Pack Call: an Alpha Werewolf's kill calls a Lycanth Halfbreed")
+	var guard_won := CombatOutcome.new(guard)
+	guard_won.set_reason(CombatOutcome.Reason.COMBAT_WON)
+	guard_won.set_opponent(lost)
+	var plains_units := plains.get_units().size()
+	AbilitySystem.after_combat_round(contest, {Contest.Side.DEFENDER: [guard_won] as Array[CombatOutcome]})
+	_check(plains.get_units().size() == plains_units, "only Alpha Werewolves call the pack")
+
+	# Value hooks: an ability listing a property in value_hooks changes it through resolve_get.
+	var doubler := _ValueHookTest.new()
+	doubler.value_hooks = [&"unit_capacity"] as Array[StringName]
+	AbilitySystem._register(doubler)
+	_check(plains.get_unit_capacity() == Lander.DEFAULT_UNIT_CAPACITY * 2, "value hooks change values read through resolve_get")
+	(AbilitySystem._value_hooks[&"unit_capacity"] as Array).erase(doubler)
+	AbilitySystem._all_abilities.erase(doubler)
+	_check(plains.get_unit_capacity() == Lander.DEFAULT_UNIT_CAPACITY, "and unhooked values pass straight through")
+
+	# Clear the test landers so the game carries on as before (they stay as empty neutral landers).
+	for lander: Lander in [plains, mountain, forest, forest_2]:
+		lander.remove_units(lander.get_units().duplicate())
+		if lander.has_building():
+			lander.remove_building()
+		lander.set_web(null)
+	lycan.free()
+	ettercap.free()
+
+
+class _ValueHookTest extends Ability:
+	func modify_value(_target: Object, property: StringName, value: Variant) -> Variant:
+		return value * 2 if property == &"unit_capacity" else value
+
+
+## The total of every ability modifier `unit` gets fighting for `side` of `contest`.
+func _ability_bonus(unit: UnitInstance, contest: Contest, side: int) -> int:
+	var outcome := CombatOutcome.new(unit)
+	AbilitySystem.add_combat_modifiers(outcome, contest, side)
+	var total := 0
+	for modifier: Array in outcome.get_labelled_modifiers():
+		total += modifier[0]
+	return total
+
+
+func _stand_in(species: SpeciesData, actor_name: String) -> Actor:
+	var actor := Actor.new()
+	actor.name = actor_name
+	actor.set_species(species)
+	return actor
+
+
+func _test_lander(position: Vector3, biome: BiomeData) -> Lander:
+	var place := Action.create(Action.Type.PLACE_BIOME)
+	place.set_position(position)
+	place.set_biome_data(biome)
+	return _lander_manager.spawn_biome_lander(place)
 
 
 ## Each race: the Base trains basic units, the race building trains the advanced unit, and only
@@ -264,6 +413,19 @@ func _test_main_loop() -> void:
 	_check(shop_action.get_type() == Action.Type.PURCHASE and shop_action.get_purchasable() == unit_data
 		and shop_action.get_target_lander() == home, "shop button requests a PURCHASE on its lander")
 
+	# Webs through the ActionManager: only a race with the Web ability can spin one.
+	var web_spot: Lander = _setup_landers[1]
+	var enweb := Action.create(Action.Type.ENWEB)
+	enweb.set_target_lander(web_spot)
+	var own_web_ability := AbilitySystem.find_species_ability(_player.get_species(), EnwebAbility) as EnwebAbility
+	_request(enweb)
+	if own_web_ability != null:
+		_check(web_spot.has_web() and web_spot.get_web().get_owner_actor() == _player, "ENWEB spins a web on a lander next to yours")
+		web_spot.set_web(null)
+		_player.get_wallet().add(own_web_ability.get_cost())
+	else:
+		_check(not web_spot.has_web() and _last_rejection_contains("can't spin webs"), "races without the Web ability can't ENWEB")
+
 	# Buying: purchase a unit on the home lander.
 	var gold_before := _player.get_wallet().get_amount(&"gold")
 	var buy := Action.create(Action.Type.PURCHASE)
@@ -289,8 +451,10 @@ func _test_main_loop() -> void:
 	await _frames(1)
 	_check(_turn_manager.get_game_phase() == TurnManager.Phase.COMBAT, "progressed to COMBAT")
 
-	# Move one unit to the neighbouring (empty) setup lander.
+	# Move one unit to the neighbouring (empty) setup lander. It's made Plains so race traits
+	# (Forest Runners, Mountain Shy) don't change this move; _test_abilities covers those.
 	var neighbour := _setup_landers[1]
+	neighbour.set_biome_data(PLAINS)
 	_check(neighbour in _lander_manager.get_connected_landers(home), "neighbour lander is connected")
 	var move := Action.create(Action.Type.MOVE_UNITS)
 	move.set_source_lander(home)
@@ -309,6 +473,26 @@ func _test_main_loop() -> void:
 	_check(neighbour.get_units().has(moved_unit) and _last_rejection_contains("already moved"),
 		"a unit can only move one lander per turn")
 	_moved_unit_to_watch = moved_unit
+
+	# Stuck in a web: can't leave, and tearing it down uses the unit's move.
+	var weaver := _stand_in(ETTERCAP, "TestWeaver")
+	var trapped := UnitInstance.new(_player.get_species().get_units()[0], _player)
+	neighbour.add_units([trapped] as Array[UnitInstance])
+	neighbour.set_web(WebInstance.new(weaver, AbilitySystem.find_species_ability(ETTERCAP, EnwebAbility)))
+	if _player.get_species() != ETTERCAP:
+		var escape := Action.create(Action.Type.MOVE_UNITS)
+		escape.set_source_lander(neighbour)
+		escape.set_target_lander(home)
+		escape.set_units([trapped] as Array[UnitInstance])
+		_request(escape)
+		_check(trapped in neighbour.get_units() and _last_rejection_contains("web"), "units can't move off a web")
+	var tear := Action.create(Action.Type.RAZE_WEB)
+	tear.set_target_lander(neighbour)
+	tear.set_units([trapped] as Array[UnitInstance])
+	_request(tear)
+	_check(not neighbour.has_web() and trapped.has_moved(), "RAZE_WEB tears the web down and uses the unit's move")
+	neighbour.remove_units([trapped] as Array[UnitInstance])
+	weaver.free()
 	await _test_undefended_buildings(neighbour)
 
 	await _test_combat(home)
@@ -488,6 +672,12 @@ func _check_ai_turn(scenario: Dictionary) -> void:
 	_check(attacks.any(func(action: Action) -> bool: return action.get_target_lander() == scenario["bait"]),
 		"AI attacked the weaker player lander next to it")
 	_check(attacks.size() <= SimpleAI.MAX_ATTACKS_PER_TURN, "AI stayed within its attack limit")
+	var ai_web := AbilitySystem.find_species_ability(_ai.get_species(), EnwebAbility) as EnwebAbility
+	if ai_web != null:
+		_check(not _ai_actions(Action.Type.ENWEB).is_empty() or not _ai.get_wallet().can_afford(ai_web.get_cost()),
+			"an Ettercap AI webs the player force next to it (when it can afford to)")
+	else:
+		_check(_ai_actions(Action.Type.ENWEB).is_empty(), "a race without the Web ability never tries to spin one")
 	# It claims an empty neighbour: the one in the scenario, the bait if its attack emptied it,
 	# or the lander it placed this turn (it aims those at the nearest enemy, i.e. the bait).
 	# Battles can last several rounds, so the AI may have no units to spare afterwards.
@@ -497,7 +687,14 @@ func _check_ai_turn(scenario: Dictionary) -> void:
 	else:
 		_check(claims.all(func(action: Action) -> bool: return action.get_target_lander().get_owner_actor() == _ai),
 			"AI moved spare units from its base and now owns the lander it claimed")
-	_check(scenario["ai_base"].has_units(), "AI kept units behind on its base")
+	# It keeps a unit home unless its own building holds the lander and nothing threatens it
+	# (or its garrison died attacking: then it sent nobody away).
+	var ai_base: Lander = scenario["ai_base"]
+	var held_by_building: bool = ai_base.has_building() and ai_base.get_building().get_owner_actor() == _ai
+	_check(ai_base.has_units() or claims.is_empty() or (held_by_building and ai_base.get_owner_actor() == _ai),
+		"AI kept units behind on its base (or its building holds it) [units %d, building %s, owner %s, moves out %d]" % [
+			ai_base.get_units().size(), ai_base.get_building().get_display_name() if ai_base.has_building() else "none",
+			ai_base.get_owner_actor().get_display_name() if ai_base.get_owner_actor() else "none", claims.size()])
 
 
 ## Two AI castle towers with no troops next to `source`: one is razed, one captured.

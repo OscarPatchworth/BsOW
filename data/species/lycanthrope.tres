@@ -10,6 +10,9 @@
 [ext_resource type="Resource" uid="uid://ikctw3t6aoeq" path="res://data/building/castle_tower.tres" id="6_castle"]
 [ext_resource type="Resource" path="res://data/building/moon_den.tres" id="7_den"]
 [ext_resource type="Resource" path="res://data/units/alpha_werewolf.tres" id="8_alpha"]
+[ext_resource type="Script" path="res://data/abilities/ability.gd" id="90_ability"]
+[ext_resource type="Resource" path="res://data/abilities/forest_runners.tres" id="91_runners"]
+[ext_resource type="Resource" path="res://data/abilities/mountain_shy.tres" id="92_shy"]
 
 [resource]
 resource_name = "Lycanthrope"
@@ -19,3 +22,4 @@ buildings = Array[ExtResource("1_lsw80")]([ExtResource("2_7tf32"), ExtResource("
 units = Array[ExtResource("4_pw3b2")]([ExtResource("5_6jcvb"), ExtResource("8_alpha")])
 starting_biomes = Array[ExtResource("4_12ucf")]([ExtResource("5_0ckvg"), ExtResource("5_0ckvg")])
 command_tower = ExtResource("2_7tf32")
+abilities = Array[ExtResource("90_ability")]([ExtResource("91_runners"), ExtResource("92_shy")])

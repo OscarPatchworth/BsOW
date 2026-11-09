@@ -1,0 +1,12 @@
+[gd_resource type="Resource" script_class="SideBonusAbility" load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://data/abilities/side_bonus_ability.gd" id="1_script"]
+[ext_resource type="Resource" uid="uid://bo0vvivlki1y1" path="res://data/biome/mountain_biome.tres" id="2_biome"]
+
+[resource]
+script = ExtResource("1_script")
+display_name = "Lurkers"
+description = "Ettercap units get +1 when defending a Mountain lander."
+bonus = 1
+side = 1
+biome = ExtResource("2_biome")

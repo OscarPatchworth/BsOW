@@ -7,6 +7,9 @@
 [ext_resource type="PackedScene" path="res://scenes/units/alpha_werewolf.tscn" id="5_mesh"]
 [ext_resource type="Texture2D" path="res://visuals/textures/diamond_icons/red_diamond_icon.png" id="6_icon"]
 
+[ext_resource type="Script" path="res://data/abilities/ability.gd" id="90_ability"]
+[ext_resource type="Resource" path="res://data/abilities/pack_call.tres" id="91_pack"]
+
 [sub_resource type="Resource" id="Resource_cost"]
 script = ExtResource("2_econ")
 gold = 3
@@ -32,3 +35,4 @@ unit_type = 1
 damage = SubResource("Resource_damage")
 can_build = false
 buildables = Array[ExtResource("4_building")]([])
+abilities = Array[ExtResource("90_ability")]([ExtResource("91_pack")])

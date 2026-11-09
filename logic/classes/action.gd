@@ -20,6 +20,8 @@ enum Type {
 	DECLARE_COMBAT_READY,
 	WITHDRAW_COMBAT_READY,
 	RETREAT_COMBAT,
+	ENWEB,     ## Spin a web (EnwebAbility) on `target_lander`, in the Buying phase.
+	RAZE_WEB,  ## One of `units` on `target_lander` spends its move to tear the web down.
 	# System actions (only the game requests these)
 	FINISH_SETUP,
 	COLLECT_UPKEEP,

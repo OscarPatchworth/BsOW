@@ -31,6 +31,7 @@ var _actors := {Side.ATTACKER: null, Side.DEFENDER: null}
 var _round: int = 1
 var _result: Result = Result.ONGOING
 var _last_outcomes: Array[CombatOutcome] = []
+var _last_notes: Array[String] = []
 
 
 func _init(attacker_lander: Lander = null, defender_lander: Lander = null) -> void:
@@ -163,6 +164,15 @@ func set_result(value: Result) -> void:
 
 
 ## The outcomes of the most recent round (empty before the first roll).
+## What abilities did after the last round (log lines), e.g. a Pack Call.
+func get_last_notes() -> Array[String]:
+	return _last_notes
+
+
+func set_last_notes(value: Array[String]) -> void:
+	_last_notes = value
+
+
 func get_last_outcomes() -> Array[CombatOutcome]:
 	return _last_outcomes
 

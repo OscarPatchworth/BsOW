@@ -1,0 +1,10 @@
+[gd_resource type="Resource" script_class="BiomeAversionAbility" load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://data/abilities/biome_aversion_ability.gd" id="1_script"]
+[ext_resource type="Resource" uid="uid://bo0vvivlki1y1" path="res://data/biome/mountain_biome.tres" id="2_biome"]
+
+[resource]
+script = ExtResource("1_script")
+display_name = "Mountain Shy"
+description = "Lycanthropes won't move onto Mountain landers (they can still attack them, and go in to take or raze an enemy building)."
+biome = ExtResource("2_biome")

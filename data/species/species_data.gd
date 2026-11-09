@@ -9,6 +9,8 @@ extends Resource
 @export var units: Array[UnitData] = []
 @export var starting_biomes: Array[BiomeData] = []
 @export var command_tower: BuildingData
+## Race traits (apply to this race's units). See Ability.
+@export var abilities: Array[Ability] = []
 
 
 #region Accessors
@@ -30,4 +32,9 @@ func get_starting_biomes() -> Array[BiomeData]:
 
 func get_command_tower() -> BuildingData:
 	return AbilitySystem.resolve_get(self, &"command_tower", command_tower)
+
+
+## Abilities this brings into play (see Ability).
+func get_abilities() -> Array[Ability]:
+	return AbilitySystem.resolve_get(self, &"abilities", abilities)
 #endregion

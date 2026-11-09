@@ -33,6 +33,9 @@ func _ready() -> void:
 	_setup_managers()
 	_add_player()
 	_add_ai()
+	# Abilities in play: the match rules plus everything the actors' races bring.
+	AbilitySystem.bind_match_settings(_match_settings)
+	AbilitySystem.begin_match(_turn_manager.get_turn_order())
 	root_setup_finished.emit()
 	# Everyone sets up the same way (starting landers, then a command tower): no head starts.
 	for actor in _turn_manager.get_turn_order():

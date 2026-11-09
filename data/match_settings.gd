@@ -20,6 +20,8 @@ extends Node
 
 # Landers
 @export var game_biomes: Array[BiomeData] = []
+## Rules that apply to everyone this match (e.g. combined arms). See Ability.
+@export var rule_abilities: Array[Ability] = []
 
 # Map
 @export var map_size: int = 10
@@ -68,6 +70,10 @@ func get_ai_step_delay() -> float:
 
 func get_game_biomes() -> Array[BiomeData]:
 	return AbilitySystem.resolve_get(self, &"game_biomes", game_biomes)
+
+
+func get_rule_abilities() -> Array[Ability]:
+	return rule_abilities
 
 
 func get_map_size() -> int:

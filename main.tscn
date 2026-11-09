@@ -20,6 +20,8 @@
 [ext_resource type="Script" path="res://logic/managers_and_systems/combat_manager.gd" id="18_x7sqw"]
 [ext_resource type="Script" path="res://logic/classes/draw_3d.gd" id="19_67nka"]
 
+[ext_resource type="Script" path="res://data/abilities/ability.gd" id="90_ability"]
+[ext_resource type="Resource" path="res://data/abilities/combined_arms.tres" id="91_arms"]
 [sub_resource type="BoxShape3D" id="BoxShape3D_r86o6"]
 size = Vector3(10, 0.1, 10)
 
@@ -77,6 +79,7 @@ script = ExtResource("7_k8fui")
 
 [node name="MatchSettings" type="Node" parent="ManagersAndSystems"]
 script = ExtResource("17_535i8")
+rule_abilities = Array[ExtResource("90_ability")]([ExtResource("91_arms")])
 game_biomes = Array[ExtResource("7_5v68b")]([ExtResource("8_5i0m8"), ExtResource("9_p6myw"), ExtResource("10_33p1r"), ExtResource("11_388a1")])
 
 [node name="CombatManager" type="Node" parent="ManagersAndSystems"]

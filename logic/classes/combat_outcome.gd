@@ -30,6 +30,11 @@ const REASON_TEXT := {
 var _unit: UnitInstance
 var _rolls: Array[int] = []
 var _modifiers: Array[int] = []
+## Where each modifier came from (same order as _modifiers): "" for the unit's own dice bonus,
+## otherwise the ability's name.
+var _modifier_labels: Array[String] = []
+## The outcome of the unit this one was paired against (null if it had no opponent).
+var _opponent: CombatOutcome
 var _total: int = 0
 var _outcome: Outcome = Outcome.ALIVE
 var _reason: Reason = Reason.NO_COMBAT
@@ -67,14 +72,35 @@ func clear_rolls() -> void:
 	set_rolls([] as Array[int])
 
 
-func add_modifier(modifier: int) -> void:
+## Adds `modifier` to the roll. `label` says where it came from (an ability's name).
+func add_modifier(modifier: int, label: String = "") -> void:
 	var modifiers := get_modifiers().duplicate()
 	modifiers.append(modifier)
 	set_modifiers(modifiers)
+	_modifier_labels.append(label)
 
 
 func clear_modifiers() -> void:
 	set_modifiers([] as Array[int])
+	_modifier_labels.clear()
+
+
+## The labelled modifiers, e.g. [[2, "Castle Tower"], [-1, "Web"]] (unlabelled ones left out).
+func get_labelled_modifiers() -> Array[Array]:
+	var labelled: Array[Array] = []
+	var modifiers := get_modifiers()
+	for i in mini(modifiers.size(), _modifier_labels.size()):
+		if _modifier_labels[i] != "" and modifiers[i] != 0:
+			labelled.append([modifiers[i], _modifier_labels[i]])
+	return labelled
+
+
+func get_opponent() -> CombatOutcome:
+	return _opponent
+
+
+func set_opponent(value: CombatOutcome) -> void:
+	_opponent = value
 
 
 func to_debug_dictionary() -> Dictionary:
@@ -82,6 +108,7 @@ func to_debug_dictionary() -> Dictionary:
 		"unit": get_unit().get_display_name() if get_unit() else "",
 		"rolls": get_rolls(),
 		"modifiers": get_modifiers(),
+		"from": get_labelled_modifiers(),
 		"total": get_total(),
 		"outcome": Outcome.find_key(get_outcome()),
 		"reason": get_reason_text(get_reason()),

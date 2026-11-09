@@ -1,0 +1,9 @@
+[gd_resource type="Resource" script_class="BuildingWardAbility" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://data/abilities/building_ward_ability.gd" id="1_script"]
+
+[resource]
+script = ExtResource("1_script")
+display_name = "Castle Tower"
+description = "Your units fighting on a lander with your Castle Tower (defending it or attacking from it) get +2."
+bonus = 2

@@ -10,6 +10,9 @@
 [ext_resource type="Resource" uid="uid://ikctw3t6aoeq" path="res://data/building/castle_tower.tres" id="6_castle"]
 [ext_resource type="Resource" path="res://data/building/web_spire.tres" id="7_spire"]
 [ext_resource type="Resource" path="res://data/units/venom_spitter.tres" id="8_spitter"]
+[ext_resource type="Script" path="res://data/abilities/ability.gd" id="90_ability"]
+[ext_resource type="Resource" path="res://data/abilities/web.tres" id="91_web"]
+[ext_resource type="Resource" path="res://data/abilities/lurkers.tres" id="92_lurkers"]
 
 [resource]
 resource_name = "Ettercap"
@@ -19,3 +22,4 @@ buildings = Array[ExtResource("1_rh7g3")]([ExtResource("2_7bpwy"), ExtResource("
 units = Array[ExtResource("4_mng3l")]([ExtResource("5_q8cca"), ExtResource("8_spitter")])
 starting_biomes = Array[ExtResource("4_h4pfu")]([ExtResource("5_o6xyn"), ExtResource("5_o6xyn")])
 command_tower = ExtResource("2_7bpwy")
+abilities = Array[ExtResource("90_ability")]([ExtResource("91_web"), ExtResource("92_lurkers")])
