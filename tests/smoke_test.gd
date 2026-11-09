@@ -55,6 +55,8 @@ func _ready() -> void:
 	var seed_text := OS.get_environment("SMOKE_SEED")
 	seed(int(seed_text) if seed_text != "" else 12345)  # SMOKE_SEED=n to try other races / turn orders.
 	_root = MAIN_SCENE.instantiate()
+	# The detailed checks below are written for one opponent; tests/ffa_test covers more.
+	(_root.find_child("MatchSettings", true, false) as MatchSettings).opponent_count = 1
 	add_child(_root)
 	await _frames(3)
 
@@ -719,6 +721,10 @@ func _test_undefended_buildings(source: Lander) -> void:
 	_check(capture_target.has_building() and capture_target.get_building().get_owner_actor() == _player,
 		"CAPTURE takes the building over")
 	_check(capture_target.get_owner_actor() == _player, "the captured lander is ours")
+	_check(not capture_target.get_purchasables(_player).any(func(item: Resource) -> bool: return item is BuildingData),
+		"a captured building's lander doesn't offer a new building")
+	_check(raze_target.get_purchasables(_player).all(func(item: Resource) -> bool: return item is BuildingData),
+		"a razed lander offers only buildings (for builder units on it)")
 
 
 ## Moves one unit that hasn't moved yet this turn; returns true if the move was rejected.

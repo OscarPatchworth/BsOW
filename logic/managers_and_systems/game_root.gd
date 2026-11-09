@@ -32,7 +32,9 @@ const ACTOR_COLORS: Array[Color] = [
 func _ready() -> void:
 	_setup_managers()
 	_add_player()
-	_add_ai()
+	# Every AI plays for itself: a free-for-all, last one standing wins.
+	for i in _match_settings.get_opponent_count():
+		_add_ai("SimpleAI" if i == 0 else "SimpleAI %d" % (i + 1))
 	# Abilities in play: the match rules plus everything the actors' races bring.
 	AbilitySystem.bind_match_settings(_match_settings)
 	AbilitySystem.begin_match(_turn_manager.get_turn_order())
@@ -68,9 +70,9 @@ func _add_player() -> void:
 	_add_actor(player)
 
 
-func _add_ai() -> void:
+func _add_ai(ai_name: String) -> void:
 	var ai := SimpleAI.new()
-	ai.name = "SimpleAI"
+	ai.name = ai_name
 	ai.step_delay = _match_settings.get_ai_step_delay()
 	ai.bind_gravity_system(_gravity_system)
 	ai.bind_match_settings(_match_settings)

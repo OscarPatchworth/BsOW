@@ -32,7 +32,9 @@ too, with system actions for upkeep, finishing setup, resolving combat and skipp
 
 ## Rules in brief
 
-* **Setup:** everyone, the AI included, places their starting biome landers and then builds their
+* **Players:** you against two AIs (`MatchSettings.opponent_count`), free-for-all: everyone
+  plays for themselves and the last one standing wins.
+* **Setup:** everyone, the AIs included, places their starting biome landers and then builds their
   command tower on one of them. Nobody starts with units. The game begins once every player has
   a command tower.
 * **Winning:** every player has a command tower (the Base). Units moved onto an enemy lander with
@@ -119,7 +121,12 @@ and add it to the right `abilities` list. Hover your race in the top bar to see 
 godot --headless --path . res://tests/smoke_test.tscn
 ```
 
-It uses a fixed random seed; set `SMOKE_SEED=n` to try other races and turn orders.
+It uses a fixed random seed; set `SMOKE_SEED=n` to try other races and turn orders. It plays one
+on one; `res://tests/ffa_test.tscn` checks the default three-player free-for-all (`FFA_SEED=n`).
+
+On the board, the lander in the side panel has a pulsing white ring, and every battle gets an
+arrow from attacker to defender (in the attacker's colour) until it ends: "UNDER ATTACK!" and an
+alert when it's one of yours. Other players' moves show a short arrow ("Captured!" / "Razed!").
 
 Plays through setup, a full player turn (place lander, buy, move, attack), the AI playing its own
 turn in a prepared spot (it places, buys, attacks and claims a lander by itself), and a round wrap

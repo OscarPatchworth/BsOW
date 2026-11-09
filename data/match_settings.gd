@@ -5,7 +5,8 @@ extends Node
 ## Per-match rules. Lives in main.tscn as the "MatchSettings" node.
 
 # Actors
-@export var opponent_count: int = 1
+## AI opponents. Everyone plays for themselves (free-for-all).
+@export var opponent_count: int = 2
 @export var starting_biome_count: int = 4
 
 # Economy
