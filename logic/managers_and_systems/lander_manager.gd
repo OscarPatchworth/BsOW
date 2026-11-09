@@ -4,15 +4,18 @@ extends Node
 
 ## Spawns landers, answers spatial questions about them, and executes lander-level actions.
 ## All distances are measured on the board (flat, ignoring height): see Lander.get_board_position.
+## Landers are hexagons (see Hex): spacing and connections use the face-to-face Hex.distance,
+## so two landers sitting flat face to face are exactly MIN_DISTANCE_BETWEEN_LANDERS apart.
 
 ## A lander was added to the board (the GravitySystem pulls landers together after this).
 signal lander_spawned(lander: Lander)
 ## Two landers hit each other. Emitted once per crash.
 signal landers_crashed(first: Lander, second: Lander, impact_speed: float)
 
-const LANDER_RADIUS: float = 1.0
-const MIN_DISTANCE_BETWEEN_LANDERS: float = 2.0
-const MIN_DISTANCE_SQUARED: float = MIN_DISTANCE_BETWEEN_LANDERS ** 2
+## Centre to corner.
+const LANDER_RADIUS: float = Hex.RADIUS
+## Hex distance at which two landers touch face to face (closer would overlap).
+const MIN_DISTANCE_BETWEEN_LANDERS: float = Hex.APOTHEM * 2.0
 ## Landers spawn slightly above the floor and drop into place.
 const SPAWN_OFFSET: Vector3 = Vector3.UP * 0.4
 ## Physics layer of the invisible board walls (landers collide with it; mouse rays don't).
@@ -25,7 +28,8 @@ const GARRISON_BASE_UNIT: UnitData = preload("res://data/units/base_footsoldier.
 @export var lander_scene: PackedScene
 ## Biomes picked from at random when a lander is placed without a chosen biome.
 @export var random_biome_pool: Array[BiomeData] = []
-## Landers closer than this are connected (units can move/attack between them).
+## Landers closer than this (hex distance) are connected (units can move/attack between them):
+## a face-to-face gap of up to 0.5.
 @export var connected_lander_distance: float = 2.5
 ## The play area is the square ±board_half_size around the origin (the floor's edge).
 ## Invisible walls stand there and landers can't be placed with any part outside it.
@@ -114,21 +118,29 @@ func is_inside_board(position: Vector3) -> bool:
 	return absf(position.x) <= limit and absf(position.z) <= limit
 
 
-## True if no lander is within MIN_DISTANCE_BETWEEN_LANDERS of `position`.
+## True if a lander at `position` wouldn't overlap any other.
 func is_position_clear(position: Vector3) -> bool:
-	var spot := _flat(position)
 	for lander in get_landers():
-		if spot.distance_squared_to(lander.get_board_position()) < MIN_DISTANCE_SQUARED:
+		if Hex.distance(position, lander.get_board_position()) < MIN_DISTANCE_BETWEEN_LANDERS - 0.001:
 			return false
 	return true
 
 
 ## True if `position` is within connection range of any lander.
 func is_position_adjacent(position: Vector3) -> bool:
-	return not get_landers_within(position, get_connected_lander_distance()).is_empty()
+	return not get_landers_in_hex_range(position, get_connected_lander_distance()).is_empty()
 
 
-## Landers whose board position is within `radius` of `position`.
+## Landers whose hex distance from `position` is at most `distance` (e.g. connection range).
+func get_landers_in_hex_range(position: Vector3, distance: float, exclude: Lander = null) -> Array[Lander]:
+	var found: Array[Lander] = []
+	for lander in get_landers():
+		if lander != exclude and Hex.distance(position, lander.get_board_position()) <= distance:
+			found.append(lander)
+	return found
+
+
+## Landers whose board position is within `radius` of `position` (straight-line distance).
 func get_landers_within(position: Vector3, radius: float, exclude: Lander = null) -> Array[Lander]:
 	var spot := _flat(position)
 	var found: Array[Lander] = []
@@ -139,7 +151,7 @@ func get_landers_within(position: Vector3, radius: float, exclude: Lander = null
 
 
 func get_connected_landers(lander: Lander) -> Array[Lander]:
-	var connected := get_landers_within(lander.get_board_position(), get_connected_lander_distance(), lander)
+	var connected := get_landers_in_hex_range(lander.get_board_position(), get_connected_lander_distance(), lander)
 	return AbilitySystem.resolve_get(self, &"connected_landers", connected)
 
 

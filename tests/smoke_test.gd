@@ -227,6 +227,11 @@ func _test_main_loop() -> void:
 	_check(await _await_settled(), "gravity settles the board")
 	_check(not _lander_manager.get_connected_landers(placed).is_empty(), "gravity pulled the new lander into connection range")
 	_check(placed.position.y < 0.5, "the pulled lander rests on the floor (not stacked on another)")
+	var face_to_face := false
+	for other in _lander_manager.get_landers():
+		for slot in Hex.neighbour_slots(other.get_board_position()):
+			face_to_face = face_to_face or (other != placed and slot.distance_to(placed.get_board_position()) < 0.03)
+	_check(face_to_face, "the pulled lander snapped face to face with a neighbour")
 	_check(_turn_manager.get_game_phase() == TurnManager.Phase.BUYING, "PLACE_LANDER progressed to BUYING")
 
 	# Rules: no attacking outside COMBAT.

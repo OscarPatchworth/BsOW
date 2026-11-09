@@ -14,8 +14,13 @@ extends Node
 ## up against it instead of slamming into it. Landers at rest are settled_mass_scale times
 ## heavier than ones being pulled, so a bump barely shoves a settled cluster.
 ##
-## board_settled fires once no pull is active and every lander has stopped moving. Actors and
-## tests wait for it before reading positions (connections can change while landers move).
+## Snapping: once everything stops, each lander that moved and is touching another slides
+## (snap_duration) into the nearest free spot face to face with it (Hex.neighbour_slots), so
+## clusters fit together. Landers that didn't move stay put and act as anchors.
+##
+## board_settled fires once no pull is active, every lander has stopped moving and snapping is
+## done. Actors and tests wait for it before reading positions (connections can change while
+## landers move).
 
 signal board_settled()
 
@@ -44,6 +49,12 @@ signal board_settled()
 @export var max_speed: float = 6.0
 ## Settled landers are this much heavier than a lander being pulled (harder to shove).
 @export var settled_mass_scale: float = 4.0
+## A lander whose face gap to another is under this counts as touching it, and snaps to it.
+@export var snap_touch_gap: float = 0.4
+## Landers don't snap further than this.
+@export var max_snap_distance: float = 1.3
+## Seconds a snap takes.
+@export var snap_duration: float = 0.25
 
 ## Closer than this (centre to centre) landers are touching and stop pulling each other.
 const CONTACT_DISTANCE: float = LanderManager.MIN_DISTANCE_BETWEEN_LANDERS + 0.05
@@ -54,6 +65,10 @@ const DOCKED_GAP: float = 0.06
 var _lander_manager: LanderManager
 ## Active pulls: Lander -> seconds left.
 var _pulls := {}
+## Lander -> board position when the board last settled (to tell which landers moved since).
+var _rest_positions := {}
+## Snap tweens still running.
+var _snapping: int = 0
 var _is_settled: bool = true
 var _lander_material := PhysicsMaterial.new()
 
@@ -89,25 +104,26 @@ func predict_settle_position(spot: Vector3) -> Vector3:
 		velocity *= maxf(0.0, 1.0 - damping * PREDICTION_STEP)
 		var gap := INF
 		for other in others:
-			gap = minf(gap, other.get_board_position().distance_to(position) - LanderManager.MIN_DISTANCE_BETWEEN_LANDERS)
+			gap = minf(gap, Hex.distance(other.get_board_position(), position) - LanderManager.MIN_DISTANCE_BETWEEN_LANDERS)
 		var limit := minf(dock_speed + dock_braking * maxf(gap, 0.0), max_speed)
 		if velocity.length() > limit:
 			velocity = velocity.normalized() * limit
 		var next := position + velocity * PREDICTION_STEP
 		for other in others:
 			var other_position := other.get_board_position()
-			if next.distance_to(other_position) < LanderManager.MIN_DISTANCE_BETWEEN_LANDERS:
-				# Would touch this lander: it stops against it.
+			if Hex.distance(next, other_position) < LanderManager.MIN_DISTANCE_BETWEEN_LANDERS:
+				# Would touch this lander: it stops against it, then snaps.
 				var away := (position - other_position)
 				away.y = 0
 				if away.length() < 0.01:
 					return position
-				return other_position + away.normalized() * LanderManager.MIN_DISTANCE_BETWEEN_LANDERS
+				var touching := other_position + away * (LanderManager.MIN_DISTANCE_BETWEEN_LANDERS / Hex.distance(Vector3.ZERO, away))
+				return _predict_snap(touching)
 		position = next
 		time += PREDICTION_STEP
 		if time > pull_duration and velocity.length() < rest_speed:
 			break
-	return position
+	return _predict_snap(position)
 
 
 ## Landers within gravity range of `spot`, and how strongly each would pull (0..1), for previews.
@@ -137,9 +153,9 @@ func _physics_process(delta: float) -> void:
 	if not _is_settled:
 		_limit_speeds()
 
-	if not _is_settled and _pulls.is_empty() and _all_landers_at_rest():
-		_is_settled = true
-		board_settled.emit()
+	if not _is_settled and _snapping == 0 and _pulls.is_empty() and _all_landers_at_rest():
+		if _snap_moved_landers() == 0:
+			_finish_settling()
 #endregion
 
 
@@ -178,13 +194,13 @@ func _limit_speeds() -> void:
 			lander.linear_velocity = Vector3(flat.x, velocity.y, flat.y)
 
 
-## Edge-to-edge distance from `position` to the nearest lander other than `ignore` (and
+## Face-to-face gap from `position` to the nearest lander other than `ignore` (and
 ## `also_ignore`).
 func _gap_to_nearest(position: Vector3, ignore: Lander = null, also_ignore: Lander = null) -> float:
 	var nearest := INF
 	for other in _lander_manager.get_landers_within(position, gravity_range * 1.5, ignore):
 		if other != also_ignore:
-			nearest = minf(nearest, other.get_board_position().distance_to(position))
+			nearest = minf(nearest, Hex.distance(other.get_board_position(), position))
 	return maxf(0.0, nearest - LanderManager.MIN_DISTANCE_BETWEEN_LANDERS)
 
 
@@ -208,9 +224,106 @@ func _pull_on(from: Vector3, to: Vector3) -> Vector3:
 	var offset := to - from
 	offset.y = 0
 	var distance := offset.length()
-	if distance <= CONTACT_DISTANCE or distance > gravity_range:
+	if Hex.distance(from, to) <= CONTACT_DISTANCE or distance > gravity_range:
 		return Vector3.ZERO
 	return offset / distance * minf(strength / (distance * distance), max_acceleration)
+
+
+func _finish_settling() -> void:
+	_rest_positions.clear()
+	for lander in _lander_manager.get_landers():
+		_rest_positions[lander] = lander.get_board_position()
+	_is_settled = true
+	board_settled.emit()
+
+
+## Starts a snap for every lander that moved since the board last settled and is touching
+## another. Returns how many snaps started.
+func _snap_moved_landers() -> int:
+	var landers := _lander_manager.get_landers()
+	var planned := {}  # Lander -> where it will be once the snaps finish.
+	var moved: Array[Lander] = []
+	var anchors: Array[Lander] = []
+	for lander in landers:
+		planned[lander] = lander.get_board_position()
+		var rest: Variant = _rest_positions.get(lander)
+		if rest == null or (rest as Vector3).distance_to(planned[lander]) > 0.02:
+			moved.append(lander)
+		else:
+			anchors.append(lander)
+	# Snap to anchors first; a moved lander touching only other moved ones snaps once one of
+	# them has been placed (or becomes the anchor itself).
+	while not moved.is_empty():
+		var snapped_one := false
+		for lander in moved.duplicate():
+			var slot: Variant = _best_slot(planned[lander], lander, anchors, planned)
+			if slot != null:
+				planned[lander] = slot
+				moved.erase(lander)
+				anchors.append(lander)
+				snapped_one = true
+		if not snapped_one:
+			anchors.append(moved.pop_front())
+	var started := 0
+	for lander in landers:
+		var target: Vector3 = planned[lander]
+		if target.distance_to(lander.get_board_position()) > 0.01:
+			_start_snap(lander, target)
+			started += 1
+	return started
+
+
+## The free face-to-face slot next to one of `anchors` closest to `position`, or null.
+func _best_slot(position: Vector3, lander: Lander, anchors: Array[Lander], planned: Dictionary) -> Variant:
+	var best: Variant = null
+	var best_distance := max_snap_distance
+	for anchor in anchors:
+		var anchor_position: Vector3 = planned[anchor]
+		if Hex.distance(position, anchor_position) > LanderManager.MIN_DISTANCE_BETWEEN_LANDERS + snap_touch_gap:
+			continue
+		for slot in Hex.neighbour_slots(anchor_position):
+			var distance := slot.distance_to(position)
+			if distance <= best_distance and _is_slot_free(slot, lander, planned):
+				best = slot
+				best_distance = distance
+	return best
+
+
+func _is_slot_free(slot: Vector3, lander: Lander, planned: Dictionary) -> bool:
+	if not _lander_manager.is_inside_board(slot):
+		return false
+	for other: Lander in planned:
+		if other != lander and Hex.distance(slot, planned[other]) < LanderManager.MIN_DISTANCE_BETWEEN_LANDERS - 0.01:
+			return false
+	return true
+
+
+func _start_snap(lander: Lander, target: Vector3) -> void:
+	_snapping += 1
+	lander.freeze_mode = RigidBody3D.FREEZE_MODE_KINEMATIC
+	lander.freeze = true
+	var tween := lander.create_tween()
+	tween.tween_property(lander, "position", Vector3(target.x, lander.position.y, target.z), snap_duration) \
+		.set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_OUT)
+	tween.finished.connect(_on_snap_finished.bind(lander))
+
+
+func _on_snap_finished(lander: Lander) -> void:
+	_snapping -= 1
+	if is_instance_valid(lander):
+		lander.freeze = false
+		lander.linear_velocity = Vector3.ZERO
+
+
+## Where a lander resting at `position` would snap to (itself if it touches nothing).
+func _predict_snap(position: Vector3) -> Vector3:
+	var planned := {}
+	var near: Array[Lander] = []
+	for lander in _lander_manager.get_landers_within(position, gravity_range):
+		planned[lander] = lander.get_board_position()
+		near.append(lander)
+	var slot: Variant = _best_slot(position, null, near, planned)
+	return slot if slot != null else position
 
 
 func _all_landers_at_rest() -> bool:

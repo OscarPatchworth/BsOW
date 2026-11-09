@@ -307,7 +307,7 @@ func _update_placement_preview(delta: float, tint: Color, caption: String = "") 
 	var problem := _lander_manager.get_placement_problem(spot)
 	var is_valid := problem == ""
 	var settle_spot: Vector3 = _gravity_system.predict_settle_position(spot) if is_valid else spot
-	var connects := _lander_manager.get_landers_within(settle_spot, _lander_manager.get_connected_lander_distance())
+	var connects := _lander_manager.get_landers_in_hex_range(settle_spot, _lander_manager.get_connected_lander_distance())
 	var pulls: Dictionary = _gravity_system.get_pull_preview(spot) if is_valid else {}
 	_preview.show_placement(spot, is_valid, settle_spot, pulls, connects, tint, caption, problem)
 

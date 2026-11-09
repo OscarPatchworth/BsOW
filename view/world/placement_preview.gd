@@ -32,10 +32,10 @@ var _caption: Label3D
 
 
 func _ready() -> void:
-	_ghost = _make_disc(1.0, 0.1, _ghost_material, 0.45)
-	_settle_marker = _make_ring(0.92, 1.08, _settle_material)
-	_connect_ring = _make_ring(_connection_distance - 0.04, _connection_distance + 0.04, _make_flat_material(Color(1, 1, 1, 0.35)))
-	_hover_ring = _make_ring(1.14, 1.26, _make_flat_material(HOVER_COLOR))
+	_ghost = _make_disc(Hex.RADIUS, 0.1, _ghost_material, 0.45)
+	_settle_marker = _make_ring(Hex.RADIUS * 0.86, Hex.RADIUS * 1.0, _settle_material)
+	_connect_ring = _make_ring(_connect_ring_radius() - 0.05, _connect_ring_radius() + 0.05, _make_flat_material(Color(1, 1, 1, 0.35)))
+	_hover_ring = _make_ring(Hex.RADIUS * 1.02, Hex.RADIUS * 1.12, _make_flat_material(HOVER_COLOR))
 	_caption = Label3D.new()
 	_caption.billboard = BaseMaterial3D.BILLBOARD_ENABLED
 	_caption.no_depth_test = true
@@ -65,9 +65,8 @@ func _ready() -> void:
 func set_connection_distance(distance: float) -> void:
 	_connection_distance = distance
 	if _connect_ring != null:
-		var torus := _connect_ring.mesh as TorusMesh
-		torus.inner_radius = distance - 0.04
-		torus.outer_radius = distance + 0.04
+		var material := _connect_ring.mesh.surface_get_material(0)
+		_connect_ring.mesh = Hex.ring_mesh(_connect_ring_radius() - 0.05, _connect_ring_radius() + 0.05, material)
 
 
 ## `pulls` maps Lander -> pull strength (0..1). `connects` are landers it would connect to.
@@ -189,6 +188,8 @@ func _make_disc(radius: float, height: float, material: StandardMaterial3D, alph
 	mesh.top_radius = radius
 	mesh.bottom_radius = radius * 0.85
 	mesh.height = height
+	mesh.radial_segments = 6
+	mesh.rings = 1
 	mesh.material = material
 	var instance := MeshInstance3D.new()
 	instance.mesh = mesh
@@ -196,20 +197,21 @@ func _make_disc(radius: float, height: float, material: StandardMaterial3D, alph
 	return instance
 
 
+## A flat hexagonal outline (corner radii `inner`..`outer`), lined up with the landers.
 func _make_ring(inner: float, outer: float, material: StandardMaterial3D) -> MeshInstance3D:
 	material.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
 	material.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
-	var mesh := TorusMesh.new()
-	mesh.inner_radius = inner
-	mesh.outer_radius = outer
-	mesh.rings = 64
-	mesh.ring_segments = 4
-	mesh.material = material
+	material.cull_mode = BaseMaterial3D.CULL_DISABLED
+	material.no_depth_test = true
 	var instance := MeshInstance3D.new()
-	instance.mesh = mesh
-	instance.scale = Vector3(1, 0.3, 1)
+	instance.mesh = Hex.ring_mesh(inner, outer, material)
 	add_child(instance)
 	return instance
+
+
+## Lander centres inside this hex (corner radius) are within connection range of the ghost.
+func _connect_ring_radius() -> float:
+	return _connection_distance * 2.0 / sqrt(3.0)
 
 
 func _make_flat_material(color: Color) -> StandardMaterial3D:

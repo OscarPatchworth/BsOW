@@ -269,18 +269,12 @@ func _refresh_unit_meshes() -> void:
 
 
 func _build_markers() -> void:
-	var ring_mesh := TorusMesh.new()
-	ring_mesh.inner_radius = 0.98
-	ring_mesh.outer_radius = 1.12
-	ring_mesh.rings = 48
-	ring_mesh.ring_segments = 6
 	_owner_ring_material.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
-	ring_mesh.material = _owner_ring_material
+	_owner_ring_material.cull_mode = BaseMaterial3D.CULL_DISABLED
 	_owner_ring = MeshInstance3D.new()
 	_owner_ring.name = "OwnerRing"
-	_owner_ring.mesh = ring_mesh
+	_owner_ring.mesh = Hex.ring_mesh(Hex.RADIUS * 0.84, Hex.RADIUS * 0.98, _owner_ring_material)
 	_owner_ring.position = Vector3(0, 0.95, 0)
-	_owner_ring.scale = Vector3(1, 0.35, 1)
 	add_child(_owner_ring)
 
 	_info_label = Label3D.new()
