@@ -10,9 +10,8 @@ extends Node
 
 const MAIN_SCENE: PackedScene = preload("res://main.tscn")
 ## Far from the origin lander, so the player's setup landers don't collide with anything.
-const SETUP_ORIGIN := Vector3(-30, 0, -30)
+const SETUP_ORIGIN := Vector3(-15, 0, -15)
 ## Where the AI scenario is built (far from everything else).
-const AI_TEST_ORIGIN := Vector3(30, 0, 30)
 const LANDER_SPACING: float = 2.2  # Above MIN_DISTANCE (2.0), below connection range (2.5).
 
 var _failures: Array[String] = []
@@ -68,6 +67,7 @@ func _ready() -> void:
 	_check(_turn_manager.get_game_state() == TurnManager.GameState.SETUP, "game starts in SETUP")
 
 	await _test_setup()
+	await _test_walls()
 	_test_content_rules()
 	await _test_main_loop()
 	await _test_elimination()
@@ -96,7 +96,7 @@ func _test_setup() -> void:
 	_setup_landers.assign(_lander_manager.get_setup_landers_of(_player))
 	_check(_setup_landers.size() == biome_count, "the setup landers are remembered as the player's")
 	var extra := Action.create(Action.Type.PLACE_BIOME)
-	extra.set_position(SETUP_ORIGIN + Vector3(0, 0, -6))
+	extra.set_position(SETUP_ORIGIN + Vector3(0, 0, -3.5))
 	extra.set_biome_data(remaining[0])
 	_request(extra)
 	_check(_last_rejection_contains("All your starting landers"), "no more than the starting number of setup landers")
@@ -380,6 +380,26 @@ func _test_shop_click(lander: Lander) -> void:
 	lander.remove_units([lander.get_units()[-1]] as Array[UnitInstance])
 
 
+## Placement outside the walls is refused, and a lander flung at a wall stays on the board.
+func _test_walls() -> void:
+	var edge := _lander_manager.board_half_size
+	_check(_lander_manager.get_placement_problem(Vector3(edge + 3, 0, 0)) == "Outside the play area",
+		"no placing landers outside the play area")
+	_check(_lander_manager.get_placement_problem(Vector3(0, 0, -edge + 0.3)) == "Outside the play area",
+		"no placing a lander that would stick out past a wall")
+	var spot := Vector3(edge - LanderManager.LANDER_RADIUS - 0.5, 0, 0)
+	for z in [0.0, 6.0, -6.0, 12.0, -12.0]:
+		if _lander_manager.is_valid_lander_placement(Vector3(spot.x, 0, z)):
+			spot.z = z
+			break
+	var flung := _lander_manager.spawn_random_lander(spot)
+	await _frames(10)
+	flung.linear_velocity = Vector3(25, 0, 0)
+	await _await_settled()
+	_check(flung.get_board_position().x < edge, "a lander flung at a wall stays inside it")
+	_check(flung.position.y > -0.5, "and stays on the floor")
+
+
 func _command_tower_lander_of(actor: Actor) -> Lander:
 	for lander in _lander_manager.get_landers():
 		if lander.has_building() and lander.get_building().get_owner_actor() == actor and lander.get_building().is_command_tower():
@@ -387,20 +407,32 @@ func _command_tower_lander_of(actor: Actor) -> Lander:
 	return null
 
 
+## The placeable spot (inside the walls, with room for a couple of neighbours) furthest from
+## every lander on the board.
 func _far_clear_spot() -> Vector3:
-	for spot: Vector3 in [Vector3(18, 0, -18), Vector3(-18, 0, 18), Vector3(18, 0, 18), Vector3(0, 0, -19), Vector3(-19, 0, 0)]:
-		if _lander_manager.is_position_clear(spot) and _lander_manager.get_landers_within(spot, 6.5).is_empty():
-			return spot
-	return Vector3(19, 0, -19)
+	var best := Vector3.ZERO
+	var best_distance := -1.0
+	var limit := int(_lander_manager.board_half_size - LanderManager.LANDER_RADIUS - LANDER_SPACING)
+	for x in range(-limit, limit + 1):
+		for z in range(-limit, limit + 1):
+			var spot := Vector3(x, 0, z)
+			var nearest := INF
+			for lander in _lander_manager.get_landers():
+				nearest = minf(nearest, lander.get_board_position().distance_to(spot))
+			if nearest > best_distance:
+				best = spot
+				best_distance = nearest
+	return best
 
 
 ## A spot where the AI should act: a 3-unit AI garrison, an empty neutral lander next to it,
 ## and a player lander with a single unit next to it.
 func _build_ai_scenario() -> Dictionary:
-	_lander_manager.spawn_protected_lander(AI_TEST_ORIGIN, _ai, 3)
+	var ai_origin := _far_clear_spot()
+	_lander_manager.spawn_protected_lander(ai_origin, _ai, 3)
 	var ai_base := _lander_manager.get_landers()[-1]
-	var neutral := _lander_manager.spawn_random_lander(AI_TEST_ORIGIN + Vector3(LANDER_SPACING, 0, 0))
-	var bait := _lander_manager.spawn_random_lander(AI_TEST_ORIGIN + Vector3(0, 0, LANDER_SPACING))
+	var neutral := _lander_manager.spawn_random_lander(ai_origin + Vector3(LANDER_SPACING, 0, 0))
+	var bait := _lander_manager.spawn_random_lander(ai_origin + Vector3(0, 0, LANDER_SPACING))
 	bait.add_units([UnitInstance.new(_player.get_species().get_units()[0], _player)] as Array[UnitInstance])
 	await _frames(2)
 	return {"ai_base": ai_base, "neutral": neutral, "bait": bait}

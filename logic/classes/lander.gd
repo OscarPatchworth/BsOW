@@ -35,6 +35,7 @@ var _flash_tween: Tween
 
 
 func _ready() -> void:
+	collision_mask |= LanderManager.WALL_LAYER
 	axis_lock_angular_x = true
 	axis_lock_angular_y = true
 	axis_lock_angular_z = true

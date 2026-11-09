@@ -71,16 +71,18 @@ func set_connection_distance(distance: float) -> void:
 
 
 ## `pulls` maps Lander -> pull strength (0..1). `connects` are landers it would connect to.
-## `caption` is shown above the ghost (e.g. which biome is about to land).
+## `caption` is shown above the ghost (e.g. which biome is about to land); `problem` is why
+## it can't land there, shown under the caption when it's invalid.
 func show_placement(spot: Vector3, is_valid: bool, settle_spot: Vector3, pulls: Dictionary,
-		connects: Array[Lander], tint: Color = Color.TRANSPARENT, caption: String = "") -> void:
+		connects: Array[Lander], tint: Color = Color.TRANSPARENT, caption: String = "",
+		problem: String = "Can't place a lander here") -> void:
 	var color := VALID_COLOR if is_valid else INVALID_COLOR
 	if is_valid and tint.a > 0.0:
 		color = tint
 	_ghost_material.albedo_color = Color(color, 0.45)
 	_ghost.position = _flat(spot) + Vector3.UP * 0.9
 	_ghost.visible = true
-	_caption.text = caption if is_valid else (caption + "\n" if caption != "" else "") + "Too close to another lander"
+	_caption.text = caption if is_valid else (caption + "\n" if caption != "" else "") + problem
 	_caption.modulate = Color(tint, 1.0).lightened(0.6) if is_valid and tint.a > 0.0 else Color(color, 1.0)
 	_caption.position = _flat(spot) + Vector3.UP * 2.3
 	_caption.visible = _caption.text != ""

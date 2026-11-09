@@ -162,8 +162,9 @@ func _validate_place_biome(action: Action) -> String:
 		return "No biome chosen"
 	if _lander_manager.get_setup_landers_of(action.get_actor()).size() >= _match_settings.get_starting_biome_count():
 		return "All your starting landers are placed"
-	if not _lander_manager.is_valid_lander_placement(action.get_position()):
-		return "Invalid lander placement"
+	var problem := _lander_manager.get_placement_problem(action.get_position())
+	if problem != "":
+		return problem
 	return ""
 
 
@@ -206,8 +207,9 @@ func _validate_place_lander(action: Action) -> String:
 	var reason := _require_turn(action, TurnManager.Phase.DUSTCLOUD_COLLAPSE)
 	if reason != "":
 		return reason
-	if not _lander_manager.is_valid_lander_placement(action.get_position()):
-		return "Invalid lander placement"
+	var problem := _lander_manager.get_placement_problem(action.get_position())
+	if problem != "":
+		return problem
 	return ""
 
 

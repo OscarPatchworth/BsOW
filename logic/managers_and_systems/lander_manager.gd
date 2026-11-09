@@ -15,6 +15,10 @@ const MIN_DISTANCE_BETWEEN_LANDERS: float = 2.0
 const MIN_DISTANCE_SQUARED: float = MIN_DISTANCE_BETWEEN_LANDERS ** 2
 ## Landers spawn slightly above the floor and drop into place.
 const SPAWN_OFFSET: Vector3 = Vector3.UP * 0.4
+## Physics layer of the invisible board walls (landers collide with it; mouse rays don't).
+const WALL_LAYER: int = 4
+const WALL_HEIGHT: float = 4.0
+const WALL_THICKNESS: float = 1.0
 ## Protected (AI) landers are garrisoned with units that inherit from this.
 const GARRISON_BASE_UNIT: UnitData = preload("res://data/units/base_footsoldier.tres")
 
@@ -23,6 +27,9 @@ const GARRISON_BASE_UNIT: UnitData = preload("res://data/units/base_footsoldier.
 @export var random_biome_pool: Array[BiomeData] = []
 ## Landers closer than this are connected (units can move/attack between them).
 @export var connected_lander_distance: float = 2.5
+## The play area is the square ±board_half_size around the origin (the floor's edge).
+## Invisible walls stand there and landers can't be placed with any part outside it.
+@export var board_half_size: float = 20.0
 
 var _landers: Array[Lander] = []
 var _landers_root: Node3D
@@ -36,6 +43,7 @@ var _setup_placers := {}
 #region Public API
 func bind_landers_root(landers_root: Node3D) -> void:
 	_landers_root = landers_root
+	_build_walls()
 
 
 func spawn_random_lander(position: Vector3) -> Lander:
@@ -88,7 +96,22 @@ func spawn_protected_lander(position: Vector3, owner_actor: Actor, defender_coun
 
 
 func is_valid_lander_placement(position: Vector3) -> bool:
-	return is_position_clear(position)
+	return get_placement_problem(position) == ""
+
+
+## Why a lander can't go at `position` ("" if it can).
+func get_placement_problem(position: Vector3) -> String:
+	if not is_inside_board(position):
+		return "Outside the play area"
+	if not is_position_clear(position):
+		return "Too close to another lander"
+	return ""
+
+
+## True if a whole lander centred at `position` fits inside the walls.
+func is_inside_board(position: Vector3) -> bool:
+	var limit := board_half_size - LANDER_RADIUS
+	return absf(position.x) <= limit and absf(position.z) <= limit
 
 
 ## True if no lander is within MIN_DISTANCE_BETWEEN_LANDERS of `position`.
@@ -179,6 +202,26 @@ func _spawn_lander(position: Vector3, biome_data: BiomeData) -> Lander:
 	_landers.append(lander)
 	lander_spawned.emit(lander)
 	return lander
+
+
+## Four invisible walls around the play area, so landers can't slide off the board.
+func _build_walls() -> void:
+	if _landers_root == null or _landers_root.has_node("BoardWalls"):
+		return
+	var walls := StaticBody3D.new()
+	walls.name = "BoardWalls"
+	walls.collision_layer = WALL_LAYER
+	walls.collision_mask = 0
+	var length := (board_half_size + WALL_THICKNESS) * 2.0
+	var offset := board_half_size + WALL_THICKNESS * 0.5
+	for side: Vector3 in [Vector3.RIGHT, Vector3.LEFT, Vector3.FORWARD, Vector3.BACK]:
+		var box := BoxShape3D.new()
+		box.size = Vector3(WALL_THICKNESS, WALL_HEIGHT, length) if side.x != 0.0 else Vector3(length, WALL_HEIGHT, WALL_THICKNESS)
+		var shape := CollisionShape3D.new()
+		shape.shape = box
+		shape.position = side * offset + Vector3.UP * WALL_HEIGHT * 0.5
+		walls.add_child(shape)
+	_landers_root.add_child(walls)
 
 
 func _flat(position: Vector3) -> Vector3:
