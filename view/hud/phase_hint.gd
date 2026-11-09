@@ -29,7 +29,16 @@ func set_hint(text: String, color: Color = HudTheme.TEXT) -> void:
 
 ## Shows `reason` in red for a few seconds, then goes back to the hint.
 func flash_problem(reason: String) -> void:
-	_show("✗  " + reason, HudTheme.BAD)
+	_flash("✗  " + reason, HudTheme.BAD)
+
+
+## Shows `text` (e.g. "SimpleAI is attacking your Plains lander!") for a few seconds.
+func flash_alert(text: String, color: Color = HudTheme.WARN) -> void:
+	_flash(text, color)
+
+
+func _flash(text: String, color: Color) -> void:
+	_show(text, color)
 	if _problem_tween != null:
 		_problem_tween.kill()
 	_problem_tween = create_tween()

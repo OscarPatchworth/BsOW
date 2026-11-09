@@ -105,6 +105,12 @@ func finish_binding() -> void:
 
 
 #region Public API (called by the Player)
+## A short, eye-catching line under the top bar (also logged).
+func alert(text: String, color: Color = HudTheme.BAD) -> void:
+	_hint.flash_alert(text, color)
+	_event_log.add_line(text, color)
+
+
 func show_lander_panel(lander: Lander) -> void:
 	_inspector.show_lander(lander)
 	_queue_relayout()
