@@ -4,3 +4,8 @@
 
 # Godot editor temp files
 *.tmp
+
+# Exported builds (share them as a GitHub Release, not in git)
+build/
+/*.exe
+/*.pck
