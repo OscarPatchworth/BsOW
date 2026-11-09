@@ -60,6 +60,13 @@ func is_active_actor() -> bool:
 #endregion
 
 
+#region Setup
+## GameRoot calls this on every actor once they've all been added.
+func begin_setup() -> void:
+	_take_setup()
+#endregion
+
+
 #region Accessors
 func get_species() -> SpeciesData:
 	return AbilitySystem.resolve_get(self, &"species", _species)
@@ -126,6 +133,12 @@ func _on_combat_manager_combat_started(contest: Contest) -> void:
 
 
 #region Virtual
+## Override in subclasses: setup has started (every actor exists). Place the starting landers
+## (PLACE_BIOME) and then the command tower (PLACE_BUILDING) on one of them.
+func _take_setup() -> void:
+	pass
+
+
 ## Override in subclasses: called whenever the game phase changes, whoever's turn it is.
 func _game_phase_changed(_phase: TurnManager.Phase) -> void:
 	pass

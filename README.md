@@ -32,6 +32,9 @@ too, with system actions for upkeep, finishing setup, resolving combat and skipp
 
 ## Rules in brief
 
+* **Setup:** everyone, the AI included, places their starting biome landers and then builds their
+  command tower on one of them. Nobody starts with units. The game begins once every player has
+  a command tower.
 * **Winning:** every player has a command tower (the Base). Units moved onto an enemy lander with
   no defenders can capture or raze its building, but command towers can only be razed, and razing
   one knocks its owner out. The last player standing wins.

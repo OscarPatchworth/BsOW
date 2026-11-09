@@ -93,13 +93,36 @@ func _test_setup() -> void:
 		_request(action)
 	await _frames(2)
 	_check(_lander_manager.get_landers().size() == landers_before + biome_count, "all setup biomes placed as landers")
-	_setup_landers.assign(_lander_manager.get_landers().slice(landers_before))
-	_check(_command_tower_lander_of(_ai) != null, "the AI starts with a command tower on one of its garrisons")
+	_setup_landers.assign(_lander_manager.get_setup_landers_of(_player))
+	_check(_setup_landers.size() == biome_count, "the setup landers are remembered as the player's")
+	var extra := Action.create(Action.Type.PLACE_BIOME)
+	extra.set_position(SETUP_ORIGIN + Vector3(0, 0, -6))
+	extra.set_biome_data(remaining[0])
+	_request(extra)
+	_check(_last_rejection_contains("All your starting landers"), "no more than the starting number of setup landers")
 	_check(setup_panel.get_remaining_biomes().is_empty(), "setup panel list emptied")
 	var controller: PlayerController = _player.find_child("PlayerController", true, false)
 	_check(controller._is_placing_command_tower, "controller switched to command tower placement")
 
 	var home := _setup_landers[0]
+	# Wait for the AI to finish its own setup, so the checks below see a full board.
+	var deadline := Time.get_ticks_msec() + 20000
+	while _command_tower_lander_of(_ai) == null and Time.get_ticks_msec() < deadline:
+		await _frames(5)
+	var ai_setup := _lander_manager.get_setup_landers_of(_ai)
+	_check(ai_setup.size() == biome_count, "the AI placed its own %d starting landers" % biome_count)
+	_check(_command_tower_lander_of(_ai) in ai_setup, "the AI built its command tower on one of its starting landers")
+	_check(_turn_manager.get_game_state() == TurnManager.GameState.SETUP, "setup waits until every actor has a command tower")
+	var ai_units := 0
+	for lander in _lander_manager.get_landers():
+		for unit in lander.get_units():
+			ai_units += 1 if unit.get_owner_actor() == _ai else 0
+	_check(ai_units == 0, "the AI gets no free starting units")
+	var steal := Action.create(Action.Type.PLACE_BUILDING)
+	steal.set_target_lander(ai_setup[0] if ai_setup[0] != _command_tower_lander_of(_ai) else ai_setup[1])
+	steal.set_building_data(_player.get_species().get_command_tower())
+	_request(steal)
+	_check(_last_rejection_contains("one of the landers you placed"), "you can't build your command tower on the AI's landers")
 	var food_before_main_loop := {}
 	for actor: Actor in [_player, _ai]:
 		food_before_main_loop[actor] = actor.get_wallet().get_amount(&"food")

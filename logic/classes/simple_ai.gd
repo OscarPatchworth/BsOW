@@ -2,7 +2,9 @@
 class_name SimpleAI
 extends Actor
 
-## A simple opponent so a game can be play-tested alone. Its turn:
+## A simple opponent so a game can be play-tested alone. Setup: it drops its starting biomes
+## in a cluster away from everyone else, then builds its command tower on the best-connected one.
+## Its turn:
 ##   DUSTCLOUD_COLLAPSE  places a lander next to one of its own, heading towards the nearest enemy.
 ##   BUYING              buys a spawning building where it has none, then the best units it can afford.
 ##   COMBAT              attacks weaker neighbours one fight at a time (waiting for each to resolve),
@@ -26,11 +28,15 @@ const MAX_UNITS_BOUGHT_PER_LANDER: int = 2
 const PLACEMENT_ANGLES: int = 12
 ## The new lander goes on one of this many spots closest to an enemy.
 const PLACEMENT_SHORTLIST: int = 3
+## Setup: how far from the middle of the board the AI starts, and how far apart its landers go.
+const SETUP_RADIUS: float = 8.0
+const SETUP_SPACING: float = 2.2
 
 ## Seconds between the AI's actions. GameRoot sets it from MatchSettings.ai_step_delay.
 var step_delay: float = 0.6
 
 var _gravity_system: GravitySystem
+var _match_settings: MatchSettings
 var _steps: Array[Callable] = []
 var _step_tokens: Array[int] = []
 var _phase_token: int = 0
@@ -39,10 +45,16 @@ var _is_running_steps: bool = false
 var _attacks_this_turn: int = 0
 var _attacked_landers: Array[Lander] = []
 var _placement_attempts: int = 0
+var _setup_biomes: Array[BiomeData] = []
+var _setup_centre := Vector3.ZERO
 
 
 func bind_gravity_system(gravity_system: GravitySystem) -> void:
 	_gravity_system = gravity_system
+
+
+func bind_match_settings(match_settings: MatchSettings) -> void:
+	_match_settings = match_settings
 
 
 ## True while the AI still has steps to take (tests wait for this).
@@ -51,6 +63,13 @@ func is_busy() -> bool:
 
 
 #region Virtual overrides
+func _take_setup() -> void:
+	_setup_biomes = _match_settings_biomes()
+	for i in _setup_biomes.size():
+		_queue_step(_place_setup_biome)
+	_queue_step(_place_command_tower)
+
+
 func _game_phase_changed(_phase: TurnManager.Phase) -> void:
 	_phase_token += 1  # Anything still queued from the previous phase is stale.
 
@@ -98,6 +117,9 @@ func _action_rejected(action: Action, reason: String) -> void:
 	match action.get_type():
 		Action.Type.PLACE_LANDER:
 			_queue_step(_place_lander)
+		Action.Type.PLACE_BIOME:
+			_setup_biomes.push_front(action.get_biome_data())
+			_queue_step(_place_setup_biome)
 		Action.Type.ATTACK:
 			if _is_my_phase(TurnManager.Phase.COMBAT):
 				_queue_step(_continue_combat_phase)
@@ -143,6 +165,74 @@ func _pause_before_step() -> void:
 		await get_tree().create_timer(step_delay).timeout
 	if _gravity_system != null and not _gravity_system.is_settled():
 		await _gravity_system.board_settled
+#endregion
+
+
+#region Setup
+func _match_settings_biomes() -> Array[BiomeData]:
+	if _match_settings == null:
+		push_warning("SimpleAI | No MatchSettings bound; placing no starting landers")
+		return []
+	return _match_settings.pick_starting_biomes(get_species())
+
+
+## A spot well away from every lander already down (others may have started placing), so
+## gravity doesn't drag the starting clusters into each other.
+func _pick_setup_centre() -> Vector3:
+	var best := Vector3.ZERO
+	var best_distance := -1.0
+	var others: Array[Vector3] = []
+	for lander in _lander_manager.get_landers():
+		others.append(lander.get_board_position())
+	for i in 24:
+		var angle := randf() * TAU
+		var radius := SETUP_RADIUS * (1.0 if i % 2 == 0 else 1.6)
+		var candidate := Vector3(cos(angle), 0, sin(angle)) * radius
+		var distance := _distance_to_nearest(candidate, others) if not others.is_empty() else randf()
+		if distance > best_distance:
+			best = candidate
+			best_distance = distance
+	return best
+
+
+## Drops the next starting biome next to the ones already placed (or at the centre first).
+func _place_setup_biome() -> void:
+	if _setup_biomes.is_empty():
+		return
+	var mine := _lander_manager.get_setup_landers_of(self)
+	if mine.is_empty():
+		_setup_centre = _pick_setup_centre()  # Decided now, seeing whatever is already down.
+	var candidates: Array[Vector3] = []
+	if mine.is_empty() and _lander_manager.is_valid_lander_placement(_setup_centre):
+		candidates.append(_setup_centre)
+	for lander in mine:
+		candidates.append_array(_clear_spots_around(lander.get_board_position(), SETUP_SPACING))
+	if candidates.is_empty():
+		candidates.append_array(_clear_spots_around(_setup_centre, SETUP_SPACING * 2.0))
+	if candidates.is_empty():
+		push_warning("SimpleAI | Nowhere to place a starting lander")
+		return
+	# Keep the cluster tight: the spot closest to the centre.
+	candidates.sort_custom(func(a: Vector3, b: Vector3) -> bool:
+		return a.distance_squared_to(_setup_centre) < b.distance_squared_to(_setup_centre))
+	var place := Action.create(Action.Type.PLACE_BIOME)
+	place.set_position(candidates[0])
+	place.set_biome_data(_setup_biomes.pop_front())
+	request_action(place)
+
+
+## The command tower goes on the starting lander with the most connections (easiest to defend).
+func _place_command_tower() -> void:
+	var mine := _lander_manager.get_setup_landers_of(self)
+	if mine.is_empty():
+		push_warning("SimpleAI | No starting lander to build a command tower on")
+		return
+	mine.sort_custom(func(a: Lander, b: Lander) -> bool:
+		return _lander_manager.get_connected_landers(a).size() > _lander_manager.get_connected_landers(b).size())
+	var tower := Action.create(Action.Type.PLACE_BUILDING)
+	tower.set_target_lander(mine[0])
+	tower.set_building_data(get_species().get_command_tower())
+	request_action(tower)
 #endregion
 
 

@@ -314,7 +314,8 @@ func _update_placement_preview(delta: float, tint: Color, caption: String = "") 
 func _update_setup_preview(delta: float) -> void:
 	if _is_placing_command_tower:
 		_preview.hide_placement()
-		var can_take := _hovered_lander != null and _hovered_lander.get_owner_actor() == null
+		var can_take := (_hovered_lander != null and not _hovered_lander.has_building()
+			and _hovered_lander in _lander_manager.get_setup_landers_of(_player))
 		_preview.show_hover(_hovered_lander, PlacementPreview.VALID_COLOR if can_take else PlacementPreview.INVALID_COLOR)
 	elif _setup_selected_biome != null:
 		_update_placement_preview(delta, HudTheme.biome_color(_setup_selected_biome), _biome_caption(_setup_selected_biome))

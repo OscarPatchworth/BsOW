@@ -289,6 +289,8 @@ func _hint_text() -> String:
 		var winner := _turn_manager.get_winner()
 		return "Game over: %s." % ("you win" if winner == _player else "%s wins" % HudTheme.actor_name(winner))
 	if _turn_manager.get_game_state() == TurnManager.GameState.SETUP:
+		if not _lander_manager.get_landers_owned_by(_player).is_empty():
+			return "Setup done: waiting for everyone else to finish theirs…"
 		if _setup_panel.get_remaining_biomes().is_empty():
 			return "Setup: click one of your new landers to build your command tower on it."
 		return "Setup: pick a biome below, then click open ground to drop it. The ghost shows where gravity will pull it."

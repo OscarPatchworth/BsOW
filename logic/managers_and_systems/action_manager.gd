@@ -160,6 +160,8 @@ func _validate_place_biome(action: Action) -> String:
 		return "Biomes can only be placed during setup"
 	if action.get_biome_data() == null:
 		return "No biome chosen"
+	if _lander_manager.get_setup_landers_of(action.get_actor()).size() >= _match_settings.get_starting_biome_count():
+		return "All your starting landers are placed"
 	if not _lander_manager.is_valid_lander_placement(action.get_position()):
 		return "Invalid lander placement"
 	return ""
@@ -178,6 +180,8 @@ func _validate_place_building(action: Action) -> String:
 		return "Missing target lander"
 	if lander.has_building():
 		return "Lander already has a building"
+	if lander not in _lander_manager.get_setup_landers_of(action.get_actor()):
+		return "Build your command tower on one of the landers you placed"
 	if _has_command_tower(action.get_actor()):
 		return "Actor already has a command tower"
 	return ""
@@ -186,7 +190,16 @@ func _validate_place_building(action: Action) -> String:
 func _validate_finish_setup(_action: Action) -> String:
 	if _turn_manager.get_game_state() != TurnManager.GameState.SETUP:
 		return "Setup is already finished"
+	if not _is_everyone_set_up():
+		return "Not everyone has built their command tower yet"
 	return ""
+
+
+func _is_everyone_set_up() -> bool:
+	for actor in _turn_manager.get_turn_order():
+		if not _has_command_tower(actor):
+			return false
+	return true
 
 
 func _validate_place_lander(action: Action) -> String:
@@ -404,8 +417,9 @@ func _execute(action: Action) -> void:
 
 		Action.Type.PLACE_BUILDING:
 			action.get_target_lander().build(action)
-			# The command tower is the last setup step.
-			_queue_system_action(Action.Type.FINISH_SETUP)
+			# The command tower is each actor's last setup step; the game starts once everyone has one.
+			if _is_everyone_set_up():
+				_queue_system_action(Action.Type.FINISH_SETUP)
 
 		Action.Type.FINISH_SETUP:
 			_turn_manager.begin_main_loop()

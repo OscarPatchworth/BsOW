@@ -29,6 +29,8 @@ var _landers_root: Node3D
 ## Actor -> BiomeData: the biome of that actor's next dustcloud lander, rolled in advance so
 ## the player can see what they're about to place.
 var _next_biomes := {}
+## Lander -> Actor: who placed each setup (PLACE_BIOME) lander. Their command tower goes on one.
+var _setup_placers := {}
 
 
 #region Public API
@@ -55,7 +57,18 @@ func spawn_next_lander_for(actor: Actor, position: Vector3) -> Lander:
 
 
 func spawn_biome_lander(action: Action) -> Lander:
-	return _spawn_lander(action.get_position(), action.get_biome_data())
+	var lander := _spawn_lander(action.get_position(), action.get_biome_data())
+	_setup_placers[lander] = action.get_actor()
+	return lander
+
+
+## The landers `actor` placed during setup (that are still on the board).
+func get_setup_landers_of(actor: Actor) -> Array[Lander]:
+	var placed: Array[Lander] = []
+	for lander in get_landers():
+		if _setup_placers.get(lander) == actor:
+			placed.append(lander)
+	return placed
 
 
 ## Spawns a random lander already garrisoned by `owner_actor`.

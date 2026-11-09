@@ -34,6 +34,9 @@ func _ready() -> void:
 	_add_player()
 	_add_ai()
 	root_setup_finished.emit()
+	# Everyone sets up the same way (starting landers, then a command tower): no head starts.
+	for actor in _turn_manager.get_turn_order():
+		actor.begin_setup()
 
 
 #region Managers
@@ -67,8 +70,8 @@ func _add_ai() -> void:
 	ai.name = "SimpleAI"
 	ai.step_delay = _match_settings.get_ai_step_delay()
 	ai.bind_gravity_system(_gravity_system)
+	ai.bind_match_settings(_match_settings)
 	_add_actor(ai)
-	_spawn_ai_landers(ai)
 
 
 ## Every actor is set up the same way: a random species, a starting wallet, the managers,
@@ -91,27 +94,4 @@ func _create_starting_wallet() -> EconData:
 	for key in EconData.RESOURCE_KEYS:
 		wallet.set_amount(key, _match_settings.get_starting_resource_amount())
 	return wallet
-
-
-## The AI's garrisons. The first one gets the AI's command tower (razing it knocks the AI out).
-func _spawn_ai_landers(ai: SimpleAI) -> void:
-	var troop_count := _match_settings.get_ai_starting_troops()
-	var map_size := _match_settings.get_map_size()
-	var has_command_tower := false
-	for i in troop_count:
-		var spawn_position := Vector3.ZERO
-		for attempt in 20:
-			spawn_position = Vector3(
-				randf() * map_size * (1 if randi() % 2 == 0 else -1),
-				0,
-				randf() * map_size * (1 if randi() % 2 == 0 else -1))
-			if _lander_manager.is_position_clear(spawn_position):
-				break
-		if not _lander_manager.is_position_clear(spawn_position):
-			print("GameRoot | AI lander spawn skipped: no clear position found")
-			continue
-		var lander := _lander_manager.spawn_protected_lander(spawn_position, ai, troop_count)
-		if not has_command_tower:
-			lander.build_for(ai.get_species().get_command_tower(), ai)
-			has_command_tower = true
 #endregion

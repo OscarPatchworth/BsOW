@@ -103,7 +103,6 @@ classDiagram
     class MatchSettings {
         <<Node>>
         +int opponent_count
-        +int ai_starting_troops
         +int starting_biome_count
         +int starting_resource_amount
         +int upkeep_gold
@@ -379,7 +378,10 @@ classDiagram
         +Array~Lander~ landers
         +spawn_random_lander(pos) Lander
         +spawn_biome_lander(action) Lander
-        +spawn_protected_lander(pos, owner, count)
+        +spawn_next_lander_for(actor, pos) Lander
+        +peek_next_biome(actor) BiomeData
+        +get_setup_landers_of(actor) Array
+        +spawn_protected_lander(pos, owner, count) (tests)
         +lander_spawned(lander) signal
         +landers_crashed(a, b, speed) signal
         +get_connected_landers(lander) Array
@@ -594,8 +596,8 @@ flowchart TB
 
 | Action | Allowed when |
 |---|---|
-| `PLACE_BIOME` | Setup; the position is clear |
-| `PLACE_BUILDING` | Setup; it's the actor's command tower; the lander has no building; the actor has no tower yet |
+| `PLACE_BIOME` | Setup; the actor has placed fewer than `starting_biome_count`; the position is clear |
+| `PLACE_BUILDING` | Setup; it's the actor's command tower; the lander is one the actor placed in setup and has no building; the actor has no tower yet |
 | `PLACE_LANDER` | Main loop; actor's turn; `DUSTCLOUD_COLLAPSE`; the position is clear |
 | `PURCHASE` | Actor's turn; `BUYING`; actor owns the lander; the lander offers it (its building trains that unit type, or one of the actor's `can_build` units there can build it); affordable; room for a unit / no building yet; a unique building only once |
 | `MOVE_UNITS` | Actor's turn; `COMBAT`; no combat running; landers connected; actor's own units, on the source; no enemy units on the target; room; an undefended enemy building needs `building_fate` CAPTURE or RAZE (a command tower can only be razed) |
@@ -655,8 +657,8 @@ sequenceDiagram
     GR->>LM: spawn_random_lander(origin)
     GR->>P: _add_actor(Player): species, wallet, bind managers, action_requested → AM
     GR->>AI: _add_actor(SimpleAI): the same
-    GR->>LM: spawn_protected_lander(pos, AI, ai_starting_troops) ×N
     GR-->>TM: root_setup_finished → start()
+    GR->>AI: begin_setup() → paced steps: PLACE_BIOME ×4 in a cluster away from others,<br/>then PLACE_BUILDING (command tower), the same actions the Player sends below
     Note over TM: one batch, announced in order
     TM-->>P: turn_order_generated, active_actor_changed(Player),<br/>season_order_generated, game_state_changed(SETUP)
     P->>UI: TopBar, PlayersList and SetupPanel show
@@ -676,10 +678,10 @@ sequenceDiagram
     U->>PC: click one of your landers
     PC-->>P: action_requested(PLACE_BUILDING, command_tower)
     P->>AM: request_action
-    Note over AM: resolve PLACE_BUILDING: setup, command tower, no tower yet
+    Note over AM: resolve PLACE_BUILDING: setup, command tower, one of your setup landers, no tower yet
     AM->>L: build(action) → BuildingInstance(command_tower, Player)
     AM-->>P: action_resolved(PLACE_BUILDING) → controller leaves setup mode
-    Note over AM: resolve FINISH_SETUP (queued follow-up)
+    Note over AM: resolve FINISH_SETUP (queued once every actor has a command tower)
     AM->>TM: begin_main_loop()
     TM-->>P: game_state_changed(MAIN_LOOP), game_phase_changed(UPKEEP)
     Note over AM: resolve COLLECT_UPKEEP(Player)
@@ -852,8 +854,8 @@ sequenceDiagram
 
 | Moment | State changes (all through hooked setters) |
 |---|---|
-| Boot | `Actor.species`, `Actor.wallet` (10 of each resource), AI garrison units on its landers |
-| Setup | 4 biome landers; command tower `BuildingInstance` on one of them (now Player-owned). `game_state`: SETUP → MAIN_LOOP; first upkeep paid |
+| Boot | `Actor.species`, `Actor.wallet` (10 of each resource) |
+| Setup | Each actor: 4 biome landers; command tower `BuildingInstance` on one of them (now owned). No starting units. `game_state`: SETUP → MAIN_LOOP; first upkeep paid |
 | R1 Dustcloud | +1 neutral lander |
 | R1 Buying | `wallet` −unit cost; `Lander.units` +1 `UnitInstance` |
 | R1 Combat | `Lander.units` moved to the neighbour, which becomes Player-owned |

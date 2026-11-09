@@ -44,7 +44,7 @@ func bind(player: Player, match_settings: MatchSettings) -> void:
 
 
 func begin() -> void:
-	_remaining_biomes = _pick_starting_biomes()
+	_remaining_biomes = _match_settings.pick_starting_biomes(_player.get_species())
 	show()
 	_select(_remaining_biomes[0] if not _remaining_biomes.is_empty() else null)
 
@@ -92,15 +92,4 @@ func _refresh() -> void:
 		_buttons.add_child(button)
 
 
-## The species' starting biomes (if allowed in this match), topped up with random game biomes.
-func _pick_starting_biomes() -> Array[BiomeData]:
-	var picked: Array[BiomeData] = []
-	var species_biomes := _player.get_species().get_starting_biomes()
-	var game_biomes := _match_settings.get_game_biomes()
-	for i in _match_settings.get_starting_biome_count():
-		if i < species_biomes.size() and species_biomes[i] in game_biomes:
-			picked.append(species_biomes[i])
-		else:
-			picked.append(game_biomes.pick_random())
-	return picked
 #endregion
