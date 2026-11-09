@@ -187,6 +187,14 @@ func remove_assets_of(actor: Actor) -> void:
 
 
 ## Pays `actor` the upkeep of every lander they own.
+## A new turn for `actor`: each of their units can move one lander again.
+func refresh_unit_moves(actor: Actor) -> void:
+	for lander in get_landers():
+		for unit in lander.get_units():
+			if unit.get_owner_actor() == actor:
+				unit.set_has_moved(false)
+
+
 func run_upkeep(actor: Actor) -> void:
 	var wallet := actor.get_wallet()
 	for lander in get_landers_owned_by(actor):

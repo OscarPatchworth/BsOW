@@ -28,6 +28,8 @@ var _gravity_system: GravitySystem
 ## The player's setup landers in the order they were placed ([0] gets the command tower).
 ## Kept by identity: gravity moves landers, so their positions change.
 var _setup_landers: Array[Lander] = []
+## A player unit that moved in the first turn: it can move again after the next upkeep.
+var _moved_unit_to_watch: UnitInstance
 var _rejections: Array[String] = []
 var _resolved_types: Array[Action.Type] = []
 var _resolved_actions: Array[Action] = []
@@ -143,6 +145,14 @@ func _test_setup() -> void:
 	var first_actor := _turn_manager.get_active_actor()
 	_check(first_actor.get_wallet().get_amount(&"food") == food_before_main_loop[first_actor] + _expected_upkeep(first_actor, &"food"),
 		"first actor collected upkeep at the start of the main loop")
+
+	# The wallet tooltip explains next upkeep's income source by source.
+	var top_bar: TopBar = _player.find_children("*", "TopBar", true, false)[0]
+	var food_tip := top_bar._income_tooltip(&"food", 0, 0)
+	_check("every player" in top_bar._income_tooltip(&"gold", 0, 0) and "Base (building)" in food_tip,
+		"the wallet tooltip lists where upkeep comes from")
+	print("  (food tooltip: %s)" % food_tip.replace("
+", " | "))
 
 	# Only the game may request system actions.
 	var food_now := _player.get_wallet().get_amount(&"food")
@@ -289,6 +299,16 @@ func _test_main_loop() -> void:
 	_request(move)
 	await _frames(1)
 	_check(home.get_units().size() == 1 and neighbour.get_units().size() == 1, "MOVE_UNITS moved one unit")
+	var moved_unit := neighbour.get_units()[0]
+	_check(moved_unit.has_moved(), "a unit that moved is marked as moved")
+	var move_back := Action.create(Action.Type.MOVE_UNITS)
+	move_back.set_source_lander(neighbour)
+	move_back.set_target_lander(home)
+	move_back.set_units([moved_unit] as Array[UnitInstance])
+	_request(move_back)
+	_check(neighbour.get_units().has(moved_unit) and _last_rejection_contains("already moved"),
+		"a unit can only move one lander per turn")
+	_moved_unit_to_watch = moved_unit
 	await _test_undefended_buildings(neighbour)
 
 	await _test_combat(home)
@@ -321,6 +341,7 @@ func _test_main_loop() -> void:
 	_check(phase_seen_on_actor_change == ([TurnManager.Phase.UPKEEP, TurnManager.Phase.UPKEEP] as Array[TurnManager.Phase]),
 		"active_actor_changed fires once the phase is already the new turn's UPKEEP")
 	_check(_turn_manager.get_game_phase() == TurnManager.Phase.DUSTCLOUD_COLLAPSE, "player's next turn starts at DUSTCLOUD_COLLAPSE")
+	_check(_moved_unit_to_watch != null and not _moved_unit_to_watch.has_moved(), "units can move again after their owner's upkeep")
 	_check(_turn_manager.get_round_number() == round_before + 1, "round number incremented once")
 	_check(_turn_manager.get_season_index() == (season_before + 1) % 4, "season advanced")
 	_check(_food_after_upkeep[_ai] == _food_before_upkeep[_ai] + _expected_food_upkeep[_ai], "AI collected upkeep for its landers")
@@ -481,7 +502,10 @@ func _check_ai_turn(scenario: Dictionary) -> void:
 
 ## Two AI castle towers with no troops next to `source`: one is razed, one captured.
 func _test_undefended_buildings(source: Lander) -> void:
-	source.add_units([UnitInstance.new(_player.get_species().get_units()[0], _player)] as Array[UnitInstance])
+	var fresh: Array[UnitInstance] = []
+	for i in 2:
+		fresh.append(UnitInstance.new(_player.get_species().get_units()[0], _player))
+	source.add_units(fresh)
 	var raze_target := _spawn_undefended_ai_building(source)
 	var capture_target := _spawn_undefended_ai_building(source)
 	_check(await _await_settled(), "board settled around the undefended AI buildings")
@@ -500,13 +524,14 @@ func _test_undefended_buildings(source: Lander) -> void:
 	_check(capture_target.get_owner_actor() == _player, "the captured lander is ours")
 
 
-## Moves one unit; returns true if the move was rejected.
+## Moves one unit that hasn't moved yet this turn; returns true if the move was rejected.
 func _move_one(source: Lander, target: Lander, fate: Action.BuildingFate) -> bool:
 	var rejections_before := _rejections.size()
 	var move := Action.create(Action.Type.MOVE_UNITS)
 	move.set_source_lander(source)
 	move.set_target_lander(target)
-	move.set_units([source.get_units()[0]] as Array[UnitInstance])
+	var unmoved := source.get_units().filter(func(unit: UnitInstance) -> bool: return not unit.has_moved())
+	move.set_units([unmoved[0] if not unmoved.is_empty() else source.get_units()[0]] as Array[UnitInstance])
 	move.set_building_fate(fate)
 	_request(move)
 	return _rejections.size() > rejections_before

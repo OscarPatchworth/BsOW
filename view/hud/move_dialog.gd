@@ -3,7 +3,8 @@ class_name MoveDialog
 extends PanelContainer
 
 ## Choose which units move from one lander to a connected one. Opens with all but one unit
-## selected (so the lander you leave stays yours). When the target is an undefended enemy
+## selected (so the lander you leave stays yours). Units move one lander per turn: ones that
+## already moved are shown greyed out. When the target is an undefended enemy
 ## lander with a building, the confirm button becomes "Capture" / "Raze".
 
 signal action_requested(action: Action)
@@ -71,13 +72,19 @@ func open(from: Lander, to: Lander, select_all: bool = false) -> void:
 	HudTheme.clear_children(_units_box)
 	_unit_buttons.clear()
 	var units := from.get_units()
-	for i in units.size():
-		var button := HudTheme.make_button(units[i].get_display_name())
+	var movable := units.filter(func(unit: UnitInstance) -> bool: return not unit.has_moved())
+	for unit in units:
+		var button := HudTheme.make_button(unit.get_display_name() + ("  (moved)" if unit.has_moved() else ""))
 		button.toggle_mode = true
-		button.button_pressed = select_all or units.size() == 1 or i < units.size() - 1
-		button.set_meta(&"unit", units[i])
-		button.toggled.connect(func(_on: bool) -> void: _refresh())
-		_unit_buttons.append(button)
+		if unit.has_moved():
+			button.disabled = true
+			button.tooltip_text = "Already moved this turn: units move one lander per turn"
+		else:
+			var index := movable.find(unit)
+			button.button_pressed = select_all or movable.size() == 1 or index < movable.size() - 1
+			button.set_meta(&"unit", unit)
+			button.toggled.connect(func(_on: bool) -> void: _refresh())
+			_unit_buttons.append(button)
 		_units_box.add_child(button)
 	_build_confirm_buttons()
 	show()
@@ -128,6 +135,8 @@ func _refresh() -> void:
 	if _is_undefended_enemy_building():
 		notes.append("%s's %s has no defenders: take it by moving in." % [
 			_to.get_building().get_owner_actor().get_display_name(), _to.get_building().get_display_name()])
+	if _unit_buttons.is_empty():
+		notes.append("Every unit here has already moved this turn.")
 	if chosen == _from.get_units().size() and not _from.has_building():
 		notes.append("Moving every unit leaves %s unclaimed." % EventLog.lander_name(_from))
 	if chosen > room:

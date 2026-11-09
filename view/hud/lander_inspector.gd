@@ -118,7 +118,9 @@ func _refresh_details(owner_actor: Actor) -> void:
 		_details.add_child(HudTheme.make_label("No building", HudTheme.FONT_SIZE, HudTheme.MUTED))
 
 	var units := _lander.get_units()
-	_details.add_child(HudTheme.make_label("Units %d / %d" % [units.size(), _lander.get_unit_capacity()]))
+	var moved := units.filter(func(unit: UnitInstance) -> bool: return unit.has_moved()).size()
+	_details.add_child(HudTheme.make_label("Units %d / %d%s" % [units.size(), _lander.get_unit_capacity(),
+		"   (%d moved this turn)" % moved if moved > 0 else ""]))
 	var counts := {}
 	for unit in units:
 		counts[unit.get_display_name()] = counts.get(unit.get_display_name(), 0) + 1

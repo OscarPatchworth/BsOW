@@ -263,6 +263,8 @@ func _validate_move_units(action: Action) -> String:
 			return "A chosen unit is not on the source lander"
 		if unit.get_owner_actor() != actor:
 			return "A chosen unit belongs to someone else"
+		if unit.has_moved():
+			return "%s has already moved this turn (units move one lander per turn)" % unit.get_display_name()
 	if target.has_units() and target.get_units()[0].get_owner_actor() != actor:
 		return "Target lander has enemy units: attack it instead"
 	if _has_enemy_building(target, actor):
@@ -442,6 +444,8 @@ func _execute(action: Action) -> void:
 		Action.Type.MOVE_UNITS:
 			_take_undefended_building(action)
 			_lander_manager.move_units(action)
+			for unit in action.get_units():
+				unit.set_has_moved(true)
 
 		Action.Type.ATTACK:
 			_combat_manager.start_combat(action)
@@ -482,6 +486,7 @@ func _execute(action: Action) -> void:
 #region Private
 ## Every actor's flat upkeep gold, plus the upkeep of each lander they own.
 func _collect_upkeep(actor: Actor) -> void:
+	_lander_manager.refresh_unit_moves(actor)
 	var wallet := actor.get_wallet()
 	wallet.set_amount(&"gold", wallet.get_amount(&"gold") + _match_settings.get_upkeep_gold())
 	_lander_manager.run_upkeep(actor)
