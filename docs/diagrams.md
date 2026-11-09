@@ -16,6 +16,7 @@ diagrams small.
 6. [HUD and board markers](#6-hud-and-board-markers)
 7. [The Action pipeline](#7-the-action-pipeline)
 8. [Playthrough: menus, setup and two rounds](#8-playthrough-menus-setup-and-two-rounds)
+9. [Who built what](#9-who-built-what)
 
 ---
 
@@ -1121,3 +1122,88 @@ sequenceDiagram
 | R1 → R2 | `active_actor` Player → each AI → Player; each AI's upkeep, purchases and moves; `round_number` 2; `season_index` 1; the Player's upkeep clears `has_moved` and ages webs |
 | R2 Buying | `wallet` −building cost; `Lander.building` = new `BuildingInstance` |
 | R2 Combat | `CombatManager.contest` created; `Contest.units` / `ready` per side filled; each `CombatOutcome`'s rolls, labelled modifiers, opponent, total and reason set; dead units removed; Pack Call may add a unit; `Contest.last_notes` filled |
+
+---
+
+## 9. Who built what
+
+The project has two authors: **you** (391 commits, March 2025 to April 2026) and **Claude** (49
+commits, 8 to 9 November 2026, every one asked for by you; commits with a `Co-Authored-By: Claude`
+line). You made the game and its first working version; Claude restructured it and built the later
+features you asked for on top.
+
+```mermaid
+timeline
+    title BsOW, commit history
+    section You
+        Mar 2025 : Godot project, world plane, camera gimbal : Blender imports and materials : raycast placement
+        Jun - Jul 2025 : Terrain tiles that pull together (the first gravity) : game master, player and player controller : buildings on tiles
+        Aug - Sep 2025 : Race, unit and building resources : lander info panel and shop buttons : buying units, moving, combat states
+        Oct - Nov 2025 : A basic AI : AI starting landers
+        Dec 2025 - Feb 2026 : Prototype rebuild - ActionManager, LanderManager, UiManager : biome resources, building shop : CombatManager, MatchSettings
+        Mar - Apr 2026 : Combat outcome and combat UI : TurnManager, turn order and seasons : movement lines, market and wallet UI, automatic upkeep
+    section Claude
+        8 Nov 2026 : Accessor refactor and the AbilitySystem hook : one Action pipeline, rule checks, SimpleAI : Godot 4.7
+        9 Nov 2026 : Physics gravity, hex board, walls : new HUD, multi-round battles, capture or raze : races, economy, one move per turn : abilities, free-for-all, menus, board markers : tests and docs
+```
+
+```mermaid
+flowchart LR
+    subgraph You["You"]
+        direction TB
+        Y1["The game: landers, races, dust cloud,<br/>seasons, gravity, buildings and units"]
+        Y2["Art and assets: Blender meshes,<br/>materials, 198 textures, icons"]
+        Y3["First versions of the architecture:<br/>managers, data resources, actors,<br/>camera gimbal, UI panels"]
+        Y4["Direction: what to build next,<br/>play-testing, bug reports, design calls"]
+    end
+
+    subgraph Both["Overlap: you built it, Claude reworked it"]
+        direction TB
+        O1["ActionManager → one queued pipeline<br/>with every rule check"]
+        O2["TurnManager (phases, seasons, turn order)<br/>→ batched signals, knock-outs"]
+        O3["CombatManager and CombatOutcome<br/>→ multi-round battles, ability modifiers"]
+        O4["Your gravity pull → physics gravity,<br/>docking, hex snapping"]
+        O5["Landers and terrain → hexagons,<br/>owner rings, webs"]
+        O6["Your UI panels → HUD built in code"]
+        O7["Your basic AI → SimpleAI"]
+        O8["Your plan that every value can be<br/>intercepted → the AbilitySystem and abilities"]
+    end
+
+    subgraph Claude["Claude"]
+        direction TB
+        C1["Accessor refactor and conventions"]
+        C2["New content: Moon Den, Web Spire,<br/>Alpha Werewolf, Venom Spitter<br/>(placeholder meshes)"]
+        C3["Abilities, menus, board markers,<br/>walls, economy numbers"]
+        C4["Tests: smoke, free-for-all, menus<br/>and these docs"]
+    end
+
+    Y3 --> Both
+    Y1 --> Both
+    Y4 -. "asked for" .-> Claude
+    Both --> Claude
+```
+
+**The numbers**
+
+| | You | Claude |
+|---|---|---|
+| Commits | 391 | 49 (4 of them merges into `prototype`) |
+| When | Mar 2025 – Apr 2026 (14 months) | 8 – 9 Nov 2026 (2 days) |
+| Non-script files added (scenes, resources, art) | 239, including 198 textures | 20: ability `.tres` files, the new race content, menu and test scenes |
+| Script lines, by last edit (`git blame`) | 719 of 9,673 | 8,954 of 9,673 |
+| Scripts with lines from both of us | 28 of 60 | 28 of 60 |
+
+The `git blame` line counts understate your part. Claude's first refactor renamed, moved and
+re-typed almost every script, so a line you wrote and Claude re-indented now counts as Claude's.
+The structure underneath (the managers, the data resources, Actor and Player, the turn and combat
+flow) is yours: the refactor kept it and changed how values are read and written.
+
+**How the work differs**
+
+| | You | Claude |
+|---|---|---|
+| Starting point | An empty Godot project | A working prototype (yours) |
+| Decided | What the game is, its rules and races, what to build next, how it should feel | How to build each request, the numbers (costs, gravity tuning), small rule fixes it flagged to you (e.g. the Mountain Shy exception) |
+| Made | Art, assets, scenes, the first version of every core system | Restructuring, the rules engine, AI behaviour, new systems on request, tests, docs |
+| Checked by | Playing it | The headless tests and screenshots, then your play-testing |
+
