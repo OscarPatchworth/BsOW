@@ -49,7 +49,12 @@ too, with system actions for upkeep, finishing setup, resolving combat and skipp
 * **Building:** only units with `can_build` can put a building on a lander that has none, and only
   the buildings in their `buildables` list. A building trains only the unit types in its
   `spawnable_unit_types`.
+* **Movement:** each unit moves one lander per turn (it can move again after its owner's next
+  upkeep). Fighting doesn't count as a move, so attackers can still move in after a win.
 * **Battles** last several rounds, until a side is wiped out or the attacker retreats.
+* **SimpleAI** is greedy: it spreads its spare units one per empty neighbour to hold as many
+  landers (and their upkeep) as it can, best-yielding first, and drops new landers where it
+  can claim them straight away.
 * **Economy:** at each upkeep every player gets 3 gold, plus what their landers produce. Each
   biome yields 2 resource points: Plains 2 food, Forest 2 wood, Mountain 1 mineral and 1 stone,
   Badlands 2 gold. Buildings can add their own yield (`BuildingData.upkeep`); the Base adds 2

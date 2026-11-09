@@ -604,7 +604,7 @@ flowchart TB
 | `PLACE_BUILDING` | Setup; it's the actor's command tower; the lander is one the actor placed in setup and has no building; the actor has no tower yet |
 | `PLACE_LANDER` | Main loop; actor's turn; `DUSTCLOUD_COLLAPSE`; the position is clear |
 | `PURCHASE` | Actor's turn; `BUYING`; actor owns the lander; the lander offers it (its building trains that unit type, or one of the actor's `can_build` units there can build it); affordable; room for a unit / no building yet; a unique building only once |
-| `MOVE_UNITS` | Actor's turn; `COMBAT`; no combat running; landers connected; actor's own units, on the source; no enemy units on the target; room; an undefended enemy building needs `building_fate` CAPTURE or RAZE (a command tower can only be razed) |
+| `MOVE_UNITS` | Actor's turn; `COMBAT`; no combat running; landers connected; actor's own units, on the source, none moved yet this turn (cleared at the owner's upkeep); no enemy units on the target; room; an undefended enemy building needs `building_fate` CAPTURE or RAZE (a command tower can only be razed) |
 | `ATTACK` | Actor's turn; `COMBAT`; no combat running; landers connected; both have units (no defenders: move in instead); attacker owns its side, enemy on the other |
 | `PROGRESS_TURN` | Main loop; actor's turn; not an admin phase; not `DUSTCLOUD_COLLAPSE` (that ends by placing a lander); no combat running. A system `PROGRESS_TURN` skips these checks |
 | `SELECT` / `DESELECT_COMBAT_UNIT` | Combat choosing units; actor takes part; its own unit on its side's lander; within the unit limit |
