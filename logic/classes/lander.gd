@@ -234,8 +234,13 @@ func get_owner_actor() -> Actor:
 	return AbilitySystem.resolve_get(self, &"owner_actor", owner_actor)
 
 
+## What the owner gains here each upkeep: the biome's yield plus the building's.
 func get_upkeep() -> EconData:
-	return AbilitySystem.resolve_get(self, &"upkeep", get_biome_data().get_upkeep())
+	var total := EconData.new()
+	total.add(get_biome_data().get_upkeep())
+	if has_building():
+		total.add(get_building().get_building_data().get_upkeep())
+	return AbilitySystem.resolve_get(self, &"upkeep", total)
 #endregion
 
 

@@ -12,7 +12,7 @@ extends Node
 ## Every resource in a new actor's wallet starts at this amount.
 @export var starting_resource_amount: int = 10
 ## Gold every actor gains at the start of their turn (UPKEEP), on top of their landers' upkeep.
-@export var upkeep_gold: int = 2
+@export var upkeep_gold: int = 3
 
 # Pacing
 ## Seconds between the AI's actions on its turn (0 = instant).

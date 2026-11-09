@@ -314,9 +314,12 @@ func _buy() -> void:
 	# Units first (an army now), then at most one new building per turn with what's left
 	# (otherwise it puts a building on every new lander and never affords units).
 	var landers := _lander_manager.get_landers_owned_by(self)
-	for lander in landers:
-		if lander.has_building():
-			_buy_units(lander, budget)
+	# Shop where the strongest units are trained first (e.g. our race building), so the gold
+	# doesn't all go on basic units elsewhere.
+	var trainers := landers.filter(func(lander: Lander) -> bool: return lander.has_building())
+	trainers.sort_custom(func(a: Lander, b: Lander) -> bool: return _best_trainable_damage(a) > _best_trainable_damage(b))
+	for lander: Lander in trainers:
+		_buy_units(lander, budget)
 	for lander in landers:
 		if not lander.has_building() and _buy_spawning_building(lander, budget):
 			break
@@ -365,6 +368,15 @@ func _buy_units(lander: Lander, budget: EconData) -> void:
 			budget.subtract(unit_data.get_cost())
 			_request_purchase(lander, unit_data)
 			bought += 1
+
+
+## Average damage of the strongest unit `lander` can train for us (0 if none).
+func _best_trainable_damage(lander: Lander) -> float:
+	var best := 0.0
+	for purchasable in lander.get_purchasables(self):
+		if purchasable is UnitData:
+			best = maxf(best, _average_damage((purchasable as UnitData).get_damage()))
+	return best
 
 
 func _request_purchase(lander: Lander, purchasable: Resource) -> void:

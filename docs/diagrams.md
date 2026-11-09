@@ -61,6 +61,7 @@ classDiagram
     class BuildingData {
         +String display_name
         +EconData cost
+        +EconData upkeep
         +PackedScene mesh_scene
         +Texture2D icon
         +bool is_unique
@@ -396,6 +397,9 @@ classDiagram
         +float gravity_range
         +float strength
         +float neighbour_share
+        +float dock_speed
+        +float dock_braking
+        +float snap_touch_gap
         +is_settled() bool
         +predict_settle_position(spot) Vector3
         +get_pull_preview(spot) Dictionary
@@ -685,8 +689,8 @@ sequenceDiagram
     AM->>TM: begin_main_loop()
     TM-->>P: game_state_changed(MAIN_LOOP), game_phase_changed(UPKEEP)
     Note over AM: resolve COLLECT_UPKEEP(Player)
-    AM->>AM: wallet gold += MatchSettings.upkeep_gold (2)
-    AM->>LM: run_upkeep(Player): wallet += upkeep of each owned lander
+    AM->>AM: wallet gold += MatchSettings.upkeep_gold (3)
+    AM->>LM: run_upkeep(Player): wallet += upkeep of each owned lander (biome + building)
     Note over AM: resolve PROGRESS_TURN (system)
     AM->>TM: progress_phase() → DUSTCLOUD_COLLAPSE
 ```

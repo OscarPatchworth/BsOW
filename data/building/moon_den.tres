@@ -7,8 +7,8 @@
 
 [sub_resource type="Resource" id="Resource_cost"]
 script = ExtResource("2_econ")
-gold = 0
-food = 2
+gold = 1
+food = 0
 mineral = 0
 wood = 3
 stone = 2

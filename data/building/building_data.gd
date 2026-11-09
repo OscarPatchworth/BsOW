@@ -6,6 +6,8 @@ extends Resource
 
 @export var display_name: String
 @export var cost: EconData
+## Resources the owner gains each upkeep from this building (on top of the biome).
+@export var upkeep: EconData
 @export var mesh_scene: PackedScene
 @export var icon: Texture2D
 @export var is_unique := false
@@ -24,6 +26,11 @@ func get_display_name() -> String:
 
 func get_cost() -> EconData:
 	return AbilitySystem.resolve_get(self, &"cost", cost)
+
+
+## What the building produces each upkeep (an empty bundle if nothing).
+func get_upkeep() -> EconData:
+	return AbilitySystem.resolve_get(self, &"upkeep", upkeep if upkeep != null else EconData.new())
 
 
 func get_mesh_scene() -> PackedScene:

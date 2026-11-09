@@ -10,7 +10,7 @@ albedo_color = Color(0.669238, 0.628006, 0.332019, 1)
 [sub_resource type="Resource" id="Resource_uy21h"]
 script = ExtResource("3_xxr4u")
 gold = 0
-food = 1
+food = 2
 mineral = 0
 wood = 0
 stone = 0

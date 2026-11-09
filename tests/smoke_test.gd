@@ -134,6 +134,10 @@ func _test_setup() -> void:
 
 	_check(home.has_building(), "command tower built")
 	_check(home.get_owner_actor() == _player, "home lander owned by player")
+	_check(home.get_upkeep().get_amount(&"food") == home.get_biome_data().get_upkeep().get_amount(&"food")
+		+ home.get_building().get_building_data().get_upkeep().get_amount(&"food") and
+		home.get_building().get_building_data().get_upkeep().get_amount(&"food") > 0,
+		"the command tower adds its own food to the lander's upkeep")
 	_check(_turn_manager.get_game_state() == TurnManager.GameState.MAIN_LOOP, "setup finished -> MAIN_LOOP")
 	_check(_turn_manager.get_game_phase() == TurnManager.Phase.DUSTCLOUD_COLLAPSE, "first phase is DUSTCLOUD_COLLAPSE")
 	var first_actor := _turn_manager.get_active_actor()

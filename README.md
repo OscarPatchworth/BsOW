@@ -50,14 +50,34 @@ too, with system actions for upkeep, finishing setup, resolving combat and skipp
   the buildings in their `buildables` list. A building trains only the unit types in its
   `spawnable_unit_types`.
 * **Battles** last several rounds, until a side is wiped out or the attacker retreats.
+* **Economy:** at each upkeep every player gets 3 gold, plus what their landers produce. Each
+  biome yields 2 resource points: Plains 2 food, Forest 2 wood, Mountain 1 mineral and 1 stone,
+  Badlands 2 gold. Buildings can add their own yield (`BuildingData.upkeep`); the Base adds 2
+  food. Basic units cost 2 gold and 1 food; advanced units lean on food (Alpha Werewolf 3 gold
+  3 food, Venom Spitter 2 gold 2 food 2 mineral).
+* **The board** is the 40 × 40 floor, with invisible walls at its edge. Landers can't be placed
+  with any part outside it.
 
 ## Gravity
+
+Landers are hexagons, all lined up the same way (`logic/classes/hex.gd`). Spacing and connections
+use the face-to-face hex distance: face to face is 2.0 apart, and a gap of up to 0.5 still counts
+as connected.
 
 When a lander is placed, the `GravitySystem` turns it into a short-lived gravity well: it and every
 lander within `gravity_range` attract each other (inverse square), so close-but-not-touching landers
 pull together and connect. Landers are physics bodies (Jolt), so they slide and can crash
-(`LanderManager.landers_crashed`). `board_settled` fires once everything has stopped; the AI and the
-tests wait for it. The placement preview shows where a lander will end up.
+(`LanderManager.landers_crashed`).
+
+* **Docking:** a moving lander's speed is capped by its gap to the nearest lander, so it can
+  build up speed over open ground but eases in up close, and its pull ends as soon as it touches
+  another. Settled landers are heavier, and landers already in a cluster barely feel the pull, so
+  a new lander doesn't shove or drag a cluster apart. Loose landers still drift toward it.
+* **Snapping:** once everything stops, each lander that moved and is touching another slides into
+  the nearest free face-to-face spot next to it.
+
+`board_settled` fires once everything has stopped and snapped; the AI and the tests wait for it.
+The placement preview shows where a lander will end up, snap included.
 
 ## AbilitySystem hook
 

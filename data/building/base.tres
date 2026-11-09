@@ -1,4 +1,4 @@
-[gd_resource type="Resource" script_class="BuildingData" load_steps=5 format=3 uid="uid://c30rqnqmpoirn"]
+[gd_resource type="Resource" script_class="BuildingData" load_steps=6 format=3 uid="uid://c30rqnqmpoirn"]
 
 [ext_resource type="Script" path="res://data/building/building_data.gd" id="1_mgkkg"]
 [ext_resource type="PackedScene" uid="uid://c84n2wywirjkd" path="res://scenes/buildings/base.tscn" id="1_xa416"]
@@ -12,11 +12,20 @@ mineral = 0
 wood = 0
 stone = 0
 
+[sub_resource type="Resource" id="Resource_upkeep"]
+script = ExtResource("2_nf6yy")
+gold = 0
+food = 2
+mineral = 0
+wood = 0
+stone = 0
+
 [resource]
 resource_name = "Base"
 script = ExtResource("1_mgkkg")
 display_name = "Base"
 cost = SubResource("Resource_dfrq4")
+upkeep = SubResource("Resource_upkeep")
 mesh_scene = ExtResource("1_xa416")
 is_unique = false
 overrides_unit_capacity = false
