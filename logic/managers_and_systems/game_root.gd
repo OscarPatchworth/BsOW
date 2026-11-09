@@ -8,6 +8,13 @@ extends Node3D
 signal root_setup_finished()
 
 const PLAYER_SCENE: PackedScene = preload("res://scenes/player.tscn")
+## Actor colours, in the order actors are added (the local player first).
+const ACTOR_COLORS: Array[Color] = [
+	Color(0.27, 0.62, 1.0),   # blue
+	Color(0.95, 0.33, 0.30),  # red
+	Color(0.98, 0.78, 0.25),  # yellow
+	Color(0.55, 0.85, 0.40),  # green
+]
 
 @export var game_species: Array[SpeciesData] = []
 
@@ -15,6 +22,7 @@ const PLAYER_SCENE: PackedScene = preload("res://scenes/player.tscn")
 @onready var _lander_manager: LanderManager = find_child("LanderManager")
 @onready var _turn_manager: TurnManager = find_child("TurnManager")
 @onready var _combat_manager: CombatManager = find_child("CombatManager")
+@onready var _gravity_system: GravitySystem = find_child("GravitySystem")
 @onready var _match_settings: MatchSettings = find_child("MatchSettings")
 @onready var _draw_3d: Draw3D = find_child("Draw3D")
 @onready var _actors_root: Node3D = find_child("Actors")
@@ -26,6 +34,9 @@ func _ready() -> void:
 	_add_player()
 	_add_ai()
 	root_setup_finished.emit()
+	# Everyone sets up the same way (starting landers, then a command tower): no head starts.
+	for actor in _turn_manager.get_turn_order():
+		actor.begin_setup()
 
 
 #region Managers
@@ -38,6 +49,7 @@ func _setup_managers() -> void:
 	_combat_manager.bind_match_settings(_match_settings)
 
 	_lander_manager.bind_landers_root(_landers_root)
+	_gravity_system.bind_lander_manager(_lander_manager)
 	_lander_manager.spawn_random_lander(Vector3.ZERO)
 
 	root_setup_finished.connect(_turn_manager.start)
@@ -49,20 +61,24 @@ func _add_player() -> void:
 	var player: Player = PLAYER_SCENE.instantiate()
 	player.bind_draw_3d(_draw_3d)
 	player.bind_match_settings(_match_settings)
+	player.bind_gravity_system(_gravity_system)
 	_add_actor(player)
 
 
 func _add_ai() -> void:
 	var ai := SimpleAI.new()
 	ai.name = "SimpleAI"
+	ai.step_delay = _match_settings.get_ai_step_delay()
+	ai.bind_gravity_system(_gravity_system)
+	ai.bind_match_settings(_match_settings)
 	_add_actor(ai)
-	_spawn_ai_landers(ai)
 
 
 ## Every actor is set up the same way: a random species, a starting wallet, the managers,
 ## and its actions go to the ActionManager. Actors connect their own manager signals.
 func _add_actor(actor: Actor) -> void:
 	actor.set_species(game_species.pick_random())
+	actor.set_color(ACTOR_COLORS[_actors_root.get_child_count() % ACTOR_COLORS.size()])
 	actor.set_wallet(_create_starting_wallet())
 	actor.bind_action_manager(_action_manager)
 	actor.bind_turn_manager(_turn_manager)
@@ -78,18 +94,4 @@ func _create_starting_wallet() -> EconData:
 	for key in EconData.RESOURCE_KEYS:
 		wallet.set_amount(key, _match_settings.get_starting_resource_amount())
 	return wallet
-
-
-func _spawn_ai_landers(ai: SimpleAI) -> void:
-	var troop_count := _match_settings.get_ai_starting_troops()
-	var map_size := _match_settings.get_map_size()
-	for i in troop_count:
-		var spawn_position := Vector3(
-			randf() * map_size * (1 if randi() % 2 == 0 else -1),
-			0,
-			randf() * map_size * (1 if randi() % 2 == 0 else -1))
-		if _lander_manager.is_position_clear(spawn_position):
-			_lander_manager.spawn_protected_lander(spawn_position, ai, troop_count)
-		else:
-			print("GameRoot | AI lander spawn skipped: position overlaps another lander")
 #endregion

@@ -6,14 +6,17 @@ extends Node
 
 # Actors
 @export var opponent_count: int = 1
-@export var ai_starting_troops: int = 3
 @export var starting_biome_count: int = 4
 
 # Economy
 ## Every resource in a new actor's wallet starts at this amount.
 @export var starting_resource_amount: int = 10
 ## Gold every actor gains at the start of their turn (UPKEEP), on top of their landers' upkeep.
-@export var upkeep_gold: int = 2
+@export var upkeep_gold: int = 3
+
+# Pacing
+## Seconds between the AI's actions on its turn (0 = instant).
+@export var ai_step_delay: float = 0.6
 
 # Landers
 @export var game_biomes: Array[BiomeData] = []
@@ -33,8 +36,18 @@ func get_opponent_count() -> int:
 	return AbilitySystem.resolve_get(self, &"opponent_count", opponent_count)
 
 
-func get_ai_starting_troops() -> int:
-	return AbilitySystem.resolve_get(self, &"ai_starting_troops", ai_starting_troops)
+## The biomes an actor of `species` places during setup: the species' starting biomes (if
+## allowed in this match), topped up with random game biomes. Same rule for every actor.
+func pick_starting_biomes(species: SpeciesData) -> Array[BiomeData]:
+	var picked: Array[BiomeData] = []
+	var species_biomes := species.get_starting_biomes()
+	var biomes := get_game_biomes()
+	for i in get_starting_biome_count():
+		if i < species_biomes.size() and species_biomes[i] in biomes:
+			picked.append(species_biomes[i])
+		else:
+			picked.append(biomes.pick_random())
+	return picked
 
 
 func get_starting_biome_count() -> int:
@@ -47,6 +60,10 @@ func get_starting_resource_amount() -> int:
 
 func get_upkeep_gold() -> int:
 	return AbilitySystem.resolve_get(self, &"upkeep_gold", upkeep_gold)
+
+
+func get_ai_step_delay() -> float:
+	return ai_step_delay
 
 
 func get_game_biomes() -> Array[BiomeData]:

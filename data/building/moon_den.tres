@@ -1,0 +1,29 @@
+[gd_resource type="Resource" script_class="BuildingData" load_steps=6 format=3]
+
+[ext_resource type="Script" path="res://data/building/building_data.gd" id="1_building"]
+[ext_resource type="Script" path="res://data/econ/econ_data.gd" id="2_econ"]
+[ext_resource type="PackedScene" path="res://scenes/buildings/moon_den.tscn" id="3_mesh"]
+[ext_resource type="Texture2D" path="res://visuals/textures/hex_icons/purple_hex_icon.png" id="4_icon"]
+
+[sub_resource type="Resource" id="Resource_cost"]
+script = ExtResource("2_econ")
+gold = 1
+food = 0
+mineral = 0
+wood = 3
+stone = 2
+
+[resource]
+resource_name = "Moon Den"
+script = ExtResource("1_building")
+display_name = "Moon Den"
+cost = SubResource("Resource_cost")
+mesh_scene = ExtResource("3_mesh")
+icon = ExtResource("4_icon")
+is_unique = false
+overrides_unit_capacity = false
+unit_capacity = -1
+can_spawn = true
+spawnable_unit_types = Array[int]([1])
+can_upgrade = false
+upgrades = Array[ExtResource("1_building")]([])

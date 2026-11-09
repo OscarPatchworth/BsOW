@@ -1,0 +1,34 @@
+[gd_resource type="Resource" script_class="UnitData" load_steps=9 format=3]
+
+[ext_resource type="Script" path="res://data/units/unit_data.gd" id="1_unit"]
+[ext_resource type="Script" path="res://data/econ/econ_data.gd" id="2_econ"]
+[ext_resource type="Script" path="res://data/damage/damage_data.gd" id="3_damage"]
+[ext_resource type="Script" path="res://data/building/building_data.gd" id="4_building"]
+[ext_resource type="PackedScene" path="res://scenes/units/venom_spitter.tscn" id="5_mesh"]
+[ext_resource type="Texture2D" path="res://visuals/textures/diamond_icons/green_diamond_icon.png" id="6_icon"]
+
+[sub_resource type="Resource" id="Resource_cost"]
+script = ExtResource("2_econ")
+gold = 2
+food = 2
+mineral = 2
+wood = 0
+stone = 0
+
+[sub_resource type="Resource" id="Resource_damage"]
+script = ExtResource("3_damage")
+dice_count = 1
+dice_sides = 10
+modifier = 0
+
+[resource]
+resource_name = "Venom Spitter"
+script = ExtResource("1_unit")
+display_name = "Venom Spitter"
+mesh_scene = ExtResource("5_mesh")
+icon = ExtResource("6_icon")
+cost = SubResource("Resource_cost")
+unit_type = 3
+damage = SubResource("Resource_damage")
+can_build = false
+buildables = Array[ExtResource("4_building")]([])

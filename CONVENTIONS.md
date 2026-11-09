@@ -24,6 +24,9 @@ func set_hit_points(value: int) -> void:
   `can_spawn` gets a slightly longer getter (`can_spawn_units()`); the AbilitySystem key stays `&"can_spawn"`.
 * Per-side values in combat take a `side` argument (`contest.get_units(side)`) instead of
   attacker/defender copies. `side` is typed `int` and holds a `Contest.Side` value.
+* Godot 4.7 can mis-resolve an enum type passed between classes that reference each other
+  ("Cannot pass a value of type X.E as E"). When that happens, type the parameter `int` and say
+  which enum it holds (see `Contest.Side`, `UiManager.Corner`).
 * Collections: `get_units()`, `add_unit()`, `remove_unit()`, `clear_units()`.
   Add/remove build a new array and write it through `set_units()`, so there is only one write path.
 * Inside a class, prefer the accessor over the field too. Use the raw `_field` only inside the
@@ -92,7 +95,16 @@ Write words out in full: `remove` not `rmv`, `button` not `btn`, `ability` not `
   `DUSTCLOUD_COLLAPSE`, which ends when they place a lander. An actor that has to wait (e.g. for a
   fight to resolve) carries on from `_action_resolved`.
 
-## 6. Script layout
+## 6. HUD
+
+* The HUD is built in code (`view/hud/`): each panel creates its children in `_init()` and is
+  styled by `HudTheme` (colours, Theme, `make_label`/`make_button` helpers). No hand-anchored scenes.
+* Panels send requests as Actions (`action_requested`) and never change game state directly.
+  They read state through the managers they are bound to and refresh when the UiManager tells them.
+* Anything that can be refused should say why: disabled buttons get a tooltip with the reason,
+  and rejected actions are shown in the PhaseHint and EventLog.
+
+## 7. Script layout
 
 Use the order in `script_templates/Node/project_default.gd` (it appears in Godot's
 *New Script* dialog): signals, enums, constants, exports, public state, private state,

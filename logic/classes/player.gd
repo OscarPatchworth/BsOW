@@ -2,12 +2,13 @@
 class_name Player
 extends Actor
 
-## The local human player. Owns a PlayerController (world input), a UiManager (HUD)
+## The local human player. Owns a PlayerController (world input and previews), a UiManager (HUD)
 ## and a SelectorManager (what is currently selected), and connects them to the game.
 ## Everything the children request is sent on as an Action through request_action().
 
 var _draw_3d: Draw3D
 var _match_settings: MatchSettings
+var _gravity_system: GravitySystem
 
 @onready var _controller: PlayerController = find_child("PlayerController")
 @onready var _ui: UiManager = find_child("UiManager")
@@ -29,8 +30,24 @@ func bind_match_settings(match_settings: MatchSettings) -> void:
 	_match_settings = match_settings
 
 
+func bind_gravity_system(gravity_system: GravitySystem) -> void:
+	_gravity_system = gravity_system
+
+
+func get_display_name() -> String:
+	return "You"
+
+
 func get_selector_manager() -> SelectorManager:
 	return _selector_manager
+
+
+func get_ui() -> UiManager:
+	return _ui
+
+
+func get_controller() -> PlayerController:
+	return _controller
 #endregion
 
 
@@ -40,9 +57,16 @@ func _on_combat_manager_combat_updated(contest: Contest) -> void:
 		_ui.update_combat(contest)
 
 
+## One round's dice. The battle may go on to another round.
 func _on_combat_manager_combat_resolved(outcomes: Array[CombatOutcome]) -> void:
-	_ui.show_combat_outcome(outcomes)
-	_controller.exit_combat()
+	if _combat_manager.get_contest().is_involved(self):
+		_ui.show_combat_outcome(outcomes)
+
+
+func _on_combat_manager_combat_ended(contest: Contest) -> void:
+	if contest.is_involved(self):
+		_ui.show_combat_ended(contest)
+		_controller.exit_combat()
 
 
 func _on_turn_manager_game_state_changed(state: TurnManager.GameState) -> void:
@@ -69,28 +93,18 @@ func _on_turn_manager_season_changed(season_index: int) -> void:
 	_ui.apply_season(season_index)
 
 
+func _on_turn_manager_actor_eliminated(actor: Actor) -> void:
+	_ui.on_actor_eliminated(actor)
+
+
+func _on_turn_manager_game_over(winner: Actor) -> void:
+	_ui.show_game_over(winner)
 #endregion
 
 
 #region Signal handlers (children)
 func _on_child_action_requested(action: Action) -> void:
 	request_action(action)
-
-
-func _on_ui_combat_unit_selected(unit: UnitInstance) -> void:
-	_request_combat_unit(Action.Type.SELECT_COMBAT_UNIT, unit)
-
-
-func _on_ui_combat_unit_deselected(unit: UnitInstance) -> void:
-	_request_combat_unit(Action.Type.DESELECT_COMBAT_UNIT, unit)
-
-
-func _on_ui_combat_ready() -> void:
-	request_action(Action.create(Action.Type.DECLARE_COMBAT_READY))
-
-
-func _on_ui_combat_not_ready() -> void:
-	request_action(Action.create(Action.Type.WITHDRAW_COMBAT_READY))
 #endregion
 
 
@@ -101,22 +115,20 @@ func _game_phase_changed(phase: TurnManager.Phase) -> void:
 
 
 func _action_resolved(action: Action) -> void:
-	match action.get_type():
-		Action.Type.PLACE_BIOME:
-			if action.get_actor() == self:
+	if action.get_actor() == self:
+		match action.get_type():
+			Action.Type.PLACE_BIOME:
 				_controller.on_setup_biome_placed()
 				_ui.on_setup_biome_placed(action)
-		Action.Type.PLACE_BUILDING:
-			if action.get_actor() == self:
+			Action.Type.PLACE_BUILDING:
 				_controller.on_command_tower_placed()
-		Action.Type.PURCHASE:
-			if action.get_actor() == self:
-				_ui.refresh_lander_panel()
-		Action.Type.MOVE_UNITS:
-			if (action.get_actor() == self
-					or action.get_source_lander() == _selector_manager.get_selected_lander()
-					or action.get_target_lander() == _selector_manager.get_target_lander()):
-				_ui.on_units_moved()
+	elif action.get_actor() != null and not action.is_system():
+		_flash_affected_landers(action)
+	_ui.on_action_resolved(action)
+
+
+func _action_rejected(action: Action, reason: String) -> void:
+	_ui.on_action_rejected(action, reason)
 
 
 func _enter_combat(contest: Contest) -> void:
@@ -126,10 +138,17 @@ func _enter_combat(contest: Contest) -> void:
 
 
 #region Private
-func _request_combat_unit(type: Action.Type, unit: UnitInstance) -> void:
-	var action := Action.create(type)
-	action.set_units([unit] as Array[UnitInstance])
-	request_action(action)
+## Shows where another actor just acted, in their colour.
+func _flash_affected_landers(action: Action) -> void:
+	var color := action.get_actor().get_color()
+	match action.get_type():
+		Action.Type.PLACE_LANDER:
+			_lander_manager.get_landers()[-1].flash(color)
+		Action.Type.PURCHASE:
+			action.get_target_lander().flash(color)
+		Action.Type.MOVE_UNITS, Action.Type.ATTACK:
+			action.get_source_lander().flash(color)
+			action.get_target_lander().flash(color)
 
 
 func _bind_children() -> void:
@@ -139,7 +158,7 @@ func _bind_children() -> void:
 	_controller.bind_selector_manager(_selector_manager)
 	_controller.bind_turn_manager(_turn_manager)
 	_controller.bind_lander_manager(_lander_manager)
-	_controller.bind_draw_3d(_draw_3d)
+	_controller.bind_gravity_system(_gravity_system)
 
 	_ui.bind_player(self)
 	_ui.bind_selector_manager(_selector_manager)
@@ -147,7 +166,7 @@ func _bind_children() -> void:
 	_ui.bind_lander_manager(_lander_manager)
 	_ui.bind_combat_manager(_combat_manager)
 	_ui.bind_match_settings(_match_settings)
-	_ui.bind_wallet(get_wallet())
+	_ui.finish_binding()
 
 
 func _connect_children() -> void:
@@ -157,12 +176,9 @@ func _connect_children() -> void:
 	_controller.movement_ui_requested.connect(_ui.show_movement_panel)
 
 	_ui.action_requested.connect(_on_child_action_requested)
-	_ui.combat_unit_selected.connect(_on_ui_combat_unit_selected)
-	_ui.combat_unit_deselected.connect(_on_ui_combat_unit_deselected)
-	_ui.combat_ready.connect(_on_ui_combat_ready)
-	_ui.combat_not_ready.connect(_on_ui_combat_not_ready)
 	_ui.setup_biome_selected.connect(_controller.on_setup_biome_selected)
 	_ui.all_setup_biomes_placed.connect(_controller.on_all_setup_biomes_placed)
+	_ui.camera_focus_requested.connect(_controller.focus_camera_on)
 
 	get_wallet().amounts_changed.connect(_ui.on_wallet_changed)
 
@@ -172,9 +188,12 @@ func _connect_children() -> void:
 func _connect_managers() -> void:
 	_combat_manager.combat_updated.connect(_on_combat_manager_combat_updated)
 	_combat_manager.combat_resolved.connect(_on_combat_manager_combat_resolved)
+	_combat_manager.combat_ended.connect(_on_combat_manager_combat_ended)
 	_turn_manager.game_state_changed.connect(_on_turn_manager_game_state_changed)
 	_turn_manager.turn_order_generated.connect(_on_turn_manager_turn_order_generated)
 	_turn_manager.active_actor_changed.connect(_on_turn_manager_active_actor_changed)
 	_turn_manager.season_order_generated.connect(_on_turn_manager_season_order_generated)
 	_turn_manager.season_changed.connect(_on_turn_manager_season_changed)
+	_turn_manager.actor_eliminated.connect(_on_turn_manager_actor_eliminated)
+	_turn_manager.game_over.connect(_on_turn_manager_game_over)
 #endregion

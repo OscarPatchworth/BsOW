@@ -26,6 +26,7 @@ const SYSTEM_TYPES: Array[Action.Type] = [
 	Action.Type.FINISH_SETUP,
 	Action.Type.COLLECT_UPKEEP,
 	Action.Type.RESOLVE_COMBAT,
+	Action.Type.ELIMINATE_ACTOR,
 ]
 
 var _lander_manager: LanderManager
@@ -139,12 +140,18 @@ func _validate(action: Action) -> String:
 			return _validate_select_combat_unit(action)
 		Action.Type.DESELECT_COMBAT_UNIT:
 			return _validate_deselect_combat_unit(action)
-		Action.Type.DECLARE_COMBAT_READY, Action.Type.WITHDRAW_COMBAT_READY:
+		Action.Type.DECLARE_COMBAT_READY:
+			return _validate_declare_combat_ready(action)
+		Action.Type.WITHDRAW_COMBAT_READY:
 			return _require_combat_participant(action)
+		Action.Type.RETREAT_COMBAT:
+			return _validate_retreat_combat(action)
 		Action.Type.COLLECT_UPKEEP:
 			return "" if action.get_actor() != null else "Upkeep needs an actor"
 		Action.Type.RESOLVE_COMBAT:
 			return _validate_resolve_combat()
+		Action.Type.ELIMINATE_ACTOR:
+			return "" if action.get_actor() in _turn_manager.get_turn_order() else "That actor is already out of the game"
 	return "Unknown action type"
 
 
@@ -153,8 +160,11 @@ func _validate_place_biome(action: Action) -> String:
 		return "Biomes can only be placed during setup"
 	if action.get_biome_data() == null:
 		return "No biome chosen"
-	if not _lander_manager.is_valid_lander_placement(action.get_position()):
-		return "Invalid lander placement"
+	if _lander_manager.get_setup_landers_of(action.get_actor()).size() >= _match_settings.get_starting_biome_count():
+		return "All your starting landers are placed"
+	var problem := _lander_manager.get_placement_problem(action.get_position())
+	if problem != "":
+		return problem
 	return ""
 
 
@@ -171,6 +181,8 @@ func _validate_place_building(action: Action) -> String:
 		return "Missing target lander"
 	if lander.has_building():
 		return "Lander already has a building"
+	if lander not in _lander_manager.get_setup_landers_of(action.get_actor()):
+		return "Build your command tower on one of the landers you placed"
 	if _has_command_tower(action.get_actor()):
 		return "Actor already has a command tower"
 	return ""
@@ -179,15 +191,25 @@ func _validate_place_building(action: Action) -> String:
 func _validate_finish_setup(_action: Action) -> String:
 	if _turn_manager.get_game_state() != TurnManager.GameState.SETUP:
 		return "Setup is already finished"
+	if not _is_everyone_set_up():
+		return "Not everyone has built their command tower yet"
 	return ""
+
+
+func _is_everyone_set_up() -> bool:
+	for actor in _turn_manager.get_turn_order():
+		if not _has_command_tower(actor):
+			return false
+	return true
 
 
 func _validate_place_lander(action: Action) -> String:
 	var reason := _require_turn(action, TurnManager.Phase.DUSTCLOUD_COLLAPSE)
 	if reason != "":
 		return reason
-	if not _lander_manager.is_valid_lander_placement(action.get_position()):
-		return "Invalid lander placement"
+	var problem := _lander_manager.get_placement_problem(action.get_position())
+	if problem != "":
+		return problem
 	return ""
 
 
@@ -241,9 +263,13 @@ func _validate_move_units(action: Action) -> String:
 			return "A chosen unit is not on the source lander"
 		if unit.get_owner_actor() != actor:
 			return "A chosen unit belongs to someone else"
-	var target_owner := target.get_owner_actor()
-	if target_owner != null and target_owner != actor:
-		return "Target lander is hostile"
+	if target.has_units() and target.get_units()[0].get_owner_actor() != actor:
+		return "Target lander has enemy units: attack it instead"
+	if _has_enemy_building(target, actor):
+		if action.get_building_fate() == Action.BuildingFate.NONE:
+			return "The enemy building is undefended: choose to capture or raze it"
+		if action.get_building_fate() == Action.BuildingFate.CAPTURE and target.get_building().is_command_tower():
+			return "Command towers can't be captured: raze it to knock its owner out"
 	if target.get_units().size() + units.size() > target.get_unit_capacity():
 		return "Target lander doesn't have room for those units"
 	return ""
@@ -264,7 +290,7 @@ func _validate_attack(action: Action) -> String:
 	if source_units.is_empty():
 		return "Source lander has no units"
 	if target_units.is_empty():
-		return "Target lander has no units"
+		return "Target lander has no defenders: move in instead (and capture or raze any building)"
 	if source_units[0].get_owner_actor() != action.get_actor():
 		return "Attacking units don't belong to the attacking actor"
 	if target_units[0].get_owner_actor() == action.get_actor():
@@ -322,6 +348,27 @@ func _validate_deselect_combat_unit(action: Action) -> String:
 	return ""
 
 
+## A side that still has units must pick at least one, or the battle could never end.
+func _validate_declare_combat_ready(action: Action) -> String:
+	var reason := _require_combat_participant(action)
+	if reason != "":
+		return reason
+	var contest := _combat_manager.get_contest()
+	var side := contest.get_side_of(action.get_actor())
+	if contest.get_units(side).is_empty() and not contest.get_available_units(side).is_empty():
+		return "Select at least one unit to fight with first"
+	return ""
+
+
+func _validate_retreat_combat(action: Action) -> String:
+	var reason := _require_combat_participant(action)
+	if reason != "":
+		return reason
+	if _combat_manager.get_contest().get_side_of(action.get_actor()) != Contest.Side.ATTACKER:
+		return "Only the attacker can retreat"
+	return ""
+
+
 func _validate_resolve_combat() -> String:
 	if not _combat_manager.is_selecting():
 		return "No combat is waiting to be resolved"
@@ -372,15 +419,16 @@ func _execute(action: Action) -> void:
 
 		Action.Type.PLACE_BUILDING:
 			action.get_target_lander().build(action)
-			# The command tower is the last setup step.
-			_queue_system_action(Action.Type.FINISH_SETUP)
+			# The command tower is each actor's last setup step; the game starts once everyone has one.
+			if _is_everyone_set_up():
+				_queue_system_action(Action.Type.FINISH_SETUP)
 
 		Action.Type.FINISH_SETUP:
 			_turn_manager.begin_main_loop()
 			_queue_phase_automation()
 
 		Action.Type.PLACE_LANDER:
-			_lander_manager.spawn_random_lander(action.get_position())
+			_lander_manager.spawn_next_lander_for(action.get_actor(), action.get_position())
 			# Placing the lander is the whole DUSTCLOUD_COLLAPSE phase.
 			_queue_system_action(Action.Type.PROGRESS_TURN)
 
@@ -392,6 +440,7 @@ func _execute(action: Action) -> void:
 				action.get_target_lander().buy_unit(action)
 
 		Action.Type.MOVE_UNITS:
+			_take_undefended_building(action)
 			_lander_manager.move_units(action)
 
 		Action.Type.ATTACK:
@@ -415,11 +464,18 @@ func _execute(action: Action) -> void:
 		Action.Type.WITHDRAW_COMBAT_READY:
 			_combat_manager.set_actor_ready(action.get_actor(), false)
 
+		Action.Type.RETREAT_COMBAT:
+			_combat_manager.retreat()
+
 		Action.Type.RESOLVE_COMBAT:
 			_combat_manager.resolve_combat()
 
 		Action.Type.COLLECT_UPKEEP:
 			_collect_upkeep(action.get_actor())
+
+		Action.Type.ELIMINATE_ACTOR:
+			_lander_manager.remove_assets_of(action.get_actor())
+			_turn_manager.eliminate_actor(action.get_actor())
 #endregion
 
 
@@ -441,6 +497,29 @@ func _get_cost(purchasable: Resource) -> EconData:
 
 func _has_command_tower(actor: Actor) -> bool:
 	return _owns_building(actor, actor.get_species().get_command_tower())
+
+
+func _has_enemy_building(lander: Lander, actor: Actor) -> bool:
+	return lander.has_building() and lander.get_building().get_owner_actor() != actor
+
+
+## Capture or raze the enemy building on a MOVE_UNITS target (validation made sure it's undefended).
+func _take_undefended_building(action: Action) -> void:
+	var target := action.get_target_lander()
+	if not _has_enemy_building(target, action.get_actor()):
+		return
+	match action.get_building_fate():
+		Action.BuildingFate.CAPTURE:
+			target.get_building().set_owner_actor(action.get_actor())
+			target.refresh_markers()
+		Action.BuildingFate.RAZE:
+			var building := target.get_building()
+			var was_command_tower := building.is_command_tower()
+			var former_owner := building.get_owner_actor()
+			target.remove_building()
+			if was_command_tower:
+				# Losing the command tower knocks its owner out of the game.
+				_queue_system_action(Action.Type.ELIMINATE_ACTOR, former_owner)
 
 
 func _owns_building(actor: Actor, building_data: BuildingData) -> bool:

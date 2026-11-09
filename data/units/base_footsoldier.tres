@@ -11,7 +11,7 @@
 [sub_resource type="Resource" id="Resource_5iuxu"]
 script = ExtResource("3_t6t2s")
 gold = 2
-food = 2
+food = 1
 mineral = 0
 wood = 0
 stone = 0

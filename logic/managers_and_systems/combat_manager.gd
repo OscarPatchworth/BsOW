@@ -2,14 +2,22 @@
 class_name CombatManager
 extends Node
 
-## Runs a contest: both sides pick units and ready up, then damage is rolled and resolved.
-## Flow: start_combat() -> SELECT (selections/ready) -> resolve_combat(): DAMAGE -> CLEANUP.
+## Runs a battle (Contest) in rounds: both sides pick units and ready up, damage is rolled and
+## the dead removed. If both sides still have units, the next round starts with the survivors
+## still selected; otherwise (or on retreat, or after MAX_ROUNDS) the battle ends.
+## Flow: start_combat() -> SELECT -> resolve_combat() -> SELECT (next round) ... -> end -> CLEANUP.
 ## Every step is requested through the ActionManager, which checks the rules first;
 ## this class only applies the change and announces it.
 
 signal combat_started(contest: Contest)
 signal combat_updated(contest: Contest)
+## A round's dice were rolled. The battle may continue (see Contest.is_over()).
 signal combat_resolved(outcomes: Array[CombatOutcome])
+## The battle is over: Contest.get_result() says how.
+signal combat_ended(contest: Contest)
+
+## A battle that hasn't been decided after this many rounds ends as a stalemate.
+const MAX_ROUNDS: int = 12
 
 enum CombatPhase {
 	INACTIVE,
@@ -98,12 +106,37 @@ func resolve_combat() -> void:
 
 	_remove_dead(attacker_outcomes, contest.get_lander(Contest.Side.ATTACKER))
 	_remove_dead(defender_outcomes, contest.get_lander(Contest.Side.DEFENDER))
-	_phase = CombatPhase.CLEANUP
 
 	var all_outcomes: Array[CombatOutcome] = []
 	all_outcomes.append_array(attacker_outcomes)
 	all_outcomes.append_array(defender_outcomes)
-	combat_resolved.emit(all_outcomes)
+	contest.set_last_outcomes(all_outcomes)
+
+	var attacker_left := not contest.get_available_units(Contest.Side.ATTACKER).is_empty()
+	var defender_left := not contest.get_available_units(Contest.Side.DEFENDER).is_empty()
+	if not defender_left:
+		contest.set_result(Contest.Result.ATTACKER_WON)
+	elif not attacker_left:
+		contest.set_result(Contest.Result.DEFENDER_WON)
+	elif contest.get_round() >= MAX_ROUNDS:
+		contest.set_result(Contest.Result.STALEMATE)
+
+	if contest.is_over():
+		combat_resolved.emit(all_outcomes)
+		_end_combat()
+	else:
+		contest.begin_next_round()
+		_phase = CombatPhase.SELECT
+		combat_resolved.emit(all_outcomes)
+		combat_updated.emit(contest)
+
+
+## The attacker calls the battle off; everyone stays where they are.
+func retreat() -> void:
+	if not is_in_progress():
+		return
+	get_contest().set_result(Contest.Result.RETREATED)
+	_end_combat()
 
 
 ## Both sides are choosing units and readying up.
@@ -111,7 +144,7 @@ func is_selecting() -> bool:
 	return _phase == CombatPhase.SELECT
 
 
-## A contest has started and not been resolved yet.
+## A battle has started and not ended yet.
 func is_in_progress() -> bool:
 	return _phase in [CombatPhase.START, CombatPhase.SELECT, CombatPhase.DAMAGE]
 #endregion
@@ -148,6 +181,15 @@ func set_max_abilities(side: int, value: int) -> void:
 
 
 #region Private
+func _end_combat() -> void:
+	_phase = CombatPhase.CLEANUP
+	for side in [Contest.Side.ATTACKER, Contest.Side.DEFENDER]:
+		var actor := get_contest().get_actor(side)
+		if actor != null:
+			actor.set_combat_side(-1)
+	combat_ended.emit(get_contest())
+
+
 ## Rolls damage for each unit and returns the outcomes sorted highest total first.
 func _roll_side(units: Array[UnitInstance]) -> Array[CombatOutcome]:
 	var outcomes: Array[CombatOutcome] = []

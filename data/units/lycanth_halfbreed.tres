@@ -3,6 +3,8 @@
 [ext_resource type="Resource" uid="uid://dmftxjfnr1n60" path="res://data/units/base_footsoldier.tres" id="1_lsrus"]
 [ext_resource type="Script" path="res://data/building/building_data.gd" id="2_ekh8c"]
 [ext_resource type="Script" path="res://data/units/unit_data.gd" id="2_t8ece"]
+[ext_resource type="Resource" uid="uid://ikctw3t6aoeq" path="res://data/building/castle_tower.tres" id="3_castle"]
+[ext_resource type="Resource" path="res://data/building/moon_den.tres" id="4_den"]
 
 [resource]
 resource_name = "Lycanth Halfbreed"
@@ -10,5 +12,5 @@ script = ExtResource("2_t8ece")
 base = ExtResource("1_lsrus")
 display_name = "Lycanth Halfbreed"
 unit_type = -1
-can_build = false
-buildables = Array[ExtResource("2_ekh8c")]([])
+can_build = true
+buildables = Array[ExtResource("2_ekh8c")]([ExtResource("3_castle"), ExtResource("4_den")])

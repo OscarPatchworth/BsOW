@@ -2,7 +2,9 @@
 class_name SimpleAI
 extends Actor
 
-## A simple opponent so a game can be play-tested alone. Its turn:
+## A simple opponent so a game can be play-tested alone. Setup: it drops its starting biomes
+## in a cluster away from everyone else, then builds its command tower on the best-connected one.
+## Its turn:
 ##   DUSTCLOUD_COLLAPSE  places a lander next to one of its own, heading towards the nearest enemy.
 ##   BUYING              buys a spawning building where it has none, then the best units it can afford.
 ##   COMBAT              attacks weaker neighbours one fight at a time (waiting for each to resolve),
@@ -10,6 +12,11 @@ extends Actor
 ##                       the nearest enemy, and ends its turn.
 ## In any combat it picks its strongest units and declares ready.
 ## Everything goes through request_action(), so it plays by exactly the same rules as the Player.
+##
+## Pacing: every action and decision is a queued step. Before each step the AI waits step_delay
+## seconds (so a human can follow its turn) and for the GravitySystem to settle (connections can
+## change while landers move). Steps queued in an earlier phase are dropped. With step_delay 0 and
+## a settled board nothing waits, so the turn runs straight through (tests use this).
 
 ## Attacks per turn, so a turn always ends.
 const MAX_ATTACKS_PER_TURN: int = 2
@@ -21,14 +28,57 @@ const MAX_UNITS_BOUGHT_PER_LANDER: int = 2
 const PLACEMENT_ANGLES: int = 12
 ## The new lander goes on one of this many spots closest to an enemy.
 const PLACEMENT_SHORTLIST: int = 3
+## Setup: how far from the middle of the board the AI starts, and how far apart its landers go.
+const SETUP_RADIUS: float = 8.0
+const SETUP_SPACING: float = 2.2
+
+## Seconds between the AI's actions. GameRoot sets it from MatchSettings.ai_step_delay.
+var step_delay: float = 0.6
+
+var _gravity_system: GravitySystem
+var _match_settings: MatchSettings
+var _steps: Array[Callable] = []
+var _step_tokens: Array[int] = []
+var _phase_token: int = 0
+var _is_running_steps: bool = false
 
 var _attacks_this_turn: int = 0
 var _attacked_landers: Array[Lander] = []
 var _placement_attempts: int = 0
+var _setup_biomes: Array[BiomeData] = []
+var _setup_centre := Vector3.ZERO
+
+
+func bind_gravity_system(gravity_system: GravitySystem) -> void:
+	_gravity_system = gravity_system
+
+
+func bind_match_settings(match_settings: MatchSettings) -> void:
+	_match_settings = match_settings
+
+
+## True while the AI still has steps to take (tests wait for this).
+func is_busy() -> bool:
+	return _is_running_steps or not _steps.is_empty()
 
 
 #region Virtual overrides
+func _take_setup() -> void:
+	_setup_biomes = _match_settings_biomes()
+	for i in _setup_biomes.size():
+		_queue_step(_place_setup_biome)
+	_queue_step(_place_command_tower)
+
+
+func _game_phase_changed(_phase: TurnManager.Phase) -> void:
+	_phase_token += 1  # Anything still queued from the previous phase is stale.
+
+
 func _take_phase(phase: TurnManager.Phase) -> void:
+	_queue_step(_do_phase.bind(phase))
+
+
+func _do_phase(phase: TurnManager.Phase) -> void:
 	match phase:
 		TurnManager.Phase.DUSTCLOUD_COLLAPSE:
 			_placement_attempts = 0
@@ -45,20 +95,20 @@ func _take_phase(phase: TurnManager.Phase) -> void:
 
 
 func _enter_combat(contest: Contest) -> void:
-	var side: int = get_combat_side()
-	var units := contest.get_lander(side).get_units().duplicate()
-	units.sort_custom(_is_stronger)
-	for i in mini(units.size(), _combat_manager.get_max_units(side)):
-		var select := Action.create(Action.Type.SELECT_COMBAT_UNIT)
-		select.set_units([units[i]] as Array[UnitInstance])
-		request_action(select)
-	request_action(Action.create(Action.Type.DECLARE_COMBAT_READY))
+	_queue_step(_select_and_ready.bind(contest))
 
 
 func _action_resolved(action: Action) -> void:
-	# A fight we started is over: decide what to do next this phase.
-	if action.get_type() == Action.Type.RESOLVE_COMBAT and _is_my_phase(TurnManager.Phase.COMBAT):
-		_continue_combat_phase()
+	match action.get_type():
+		Action.Type.RESOLVE_COMBAT:
+			var contest := _combat_manager.get_contest()
+			if _combat_manager.is_in_progress() and contest.is_involved(self):
+				_queue_step(_fight_next_round.bind(contest))
+			elif _is_my_phase(TurnManager.Phase.COMBAT):
+				_queue_step(_continue_combat_phase)  # Our battle is over: carry on with the turn.
+		Action.Type.RETREAT_COMBAT:
+			if _is_my_phase(TurnManager.Phase.COMBAT):
+				_queue_step(_continue_combat_phase)
 
 
 func _action_rejected(action: Action, reason: String) -> void:
@@ -66,10 +116,123 @@ func _action_rejected(action: Action, reason: String) -> void:
 	print("SimpleAI | %s rejected (%s)" % [Action.Type.find_key(action.get_type()), reason])
 	match action.get_type():
 		Action.Type.PLACE_LANDER:
-			_place_lander()
+			_queue_step(_place_lander)
+		Action.Type.PLACE_BIOME:
+			_setup_biomes.push_front(action.get_biome_data())
+			_queue_step(_place_setup_biome)
 		Action.Type.ATTACK:
 			if _is_my_phase(TurnManager.Phase.COMBAT):
-				_continue_combat_phase()
+				_queue_step(_continue_combat_phase)
+#endregion
+
+
+#region Steps
+## Sends `action` as its own paced step.
+func _send(action: Action) -> void:
+	_queue_step(request_action.bind(action))
+
+
+func _queue_step(step: Callable) -> void:
+	_steps.append(step)
+	_step_tokens.append(_phase_token)
+	_run_steps()
+
+
+func _run_steps() -> void:
+	if _is_running_steps:
+		return  # The running loop picks the new step up.
+	_is_running_steps = true
+	while not _steps.is_empty():
+		await _pause_before_step()
+		var step: Callable = _steps.pop_front()
+		var token: int = _step_tokens.pop_front()
+		if _is_out_of_game():
+			_steps.clear()
+			_step_tokens.clear()
+			break
+		if token == _phase_token:
+			step.call()
+	_is_running_steps = false
+
+
+func _is_out_of_game() -> bool:
+	return _turn_manager.get_game_state() == TurnManager.GameState.END or self not in _turn_manager.get_turn_order()
+
+
+## Waits step_delay, then for the board to settle. Returns at once when neither applies.
+func _pause_before_step() -> void:
+	if step_delay > 0.0:
+		await get_tree().create_timer(step_delay).timeout
+	if _gravity_system != null and not _gravity_system.is_settled():
+		await _gravity_system.board_settled
+#endregion
+
+
+#region Setup
+func _match_settings_biomes() -> Array[BiomeData]:
+	if _match_settings == null:
+		push_warning("SimpleAI | No MatchSettings bound; placing no starting landers")
+		return []
+	return _match_settings.pick_starting_biomes(get_species())
+
+
+## A spot well away from every lander already down (others may have started placing), so
+## gravity doesn't drag the starting clusters into each other.
+func _pick_setup_centre() -> Vector3:
+	var best := Vector3.ZERO
+	var best_distance := -1.0
+	var others: Array[Vector3] = []
+	for lander in _lander_manager.get_landers():
+		others.append(lander.get_board_position())
+	for i in 24:
+		var angle := randf() * TAU
+		var radius := SETUP_RADIUS * (1.0 if i % 2 == 0 else 1.6)
+		var candidate := Vector3(cos(angle), 0, sin(angle)) * radius
+		var distance := _distance_to_nearest(candidate, others) if not others.is_empty() else randf()
+		if distance > best_distance:
+			best = candidate
+			best_distance = distance
+	return best
+
+
+## Drops the next starting biome next to the ones already placed (or at the centre first).
+func _place_setup_biome() -> void:
+	if _setup_biomes.is_empty():
+		return
+	var mine := _lander_manager.get_setup_landers_of(self)
+	if mine.is_empty():
+		_setup_centre = _pick_setup_centre()  # Decided now, seeing whatever is already down.
+	var candidates: Array[Vector3] = []
+	if mine.is_empty() and _lander_manager.is_valid_lander_placement(_setup_centre):
+		candidates.append(_setup_centre)
+	for lander in mine:
+		candidates.append_array(_clear_spots_around(lander.get_board_position(), SETUP_SPACING))
+	if candidates.is_empty():
+		candidates.append_array(_clear_spots_around(_setup_centre, SETUP_SPACING * 2.0))
+	if candidates.is_empty():
+		push_warning("SimpleAI | Nowhere to place a starting lander")
+		return
+	# Keep the cluster tight: the spot closest to the centre.
+	candidates.sort_custom(func(a: Vector3, b: Vector3) -> bool:
+		return a.distance_squared_to(_setup_centre) < b.distance_squared_to(_setup_centre))
+	var place := Action.create(Action.Type.PLACE_BIOME)
+	place.set_position(candidates[0])
+	place.set_biome_data(_setup_biomes.pop_front())
+	request_action(place)
+
+
+## The command tower goes on the starting lander with the most connections (easiest to defend).
+func _place_command_tower() -> void:
+	var mine := _lander_manager.get_setup_landers_of(self)
+	if mine.is_empty():
+		push_warning("SimpleAI | No starting lander to build a command tower on")
+		return
+	mine.sort_custom(func(a: Lander, b: Lander) -> bool:
+		return _lander_manager.get_connected_landers(a).size() > _lander_manager.get_connected_landers(b).size())
+	var tower := Action.create(Action.Type.PLACE_BUILDING)
+	tower.set_target_lander(mine[0])
+	tower.set_building_data(get_species().get_command_tower())
+	request_action(tower)
 #endregion
 
 
@@ -81,7 +244,7 @@ func _place_lander() -> void:
 		return
 	var place := Action.create(Action.Type.PLACE_LANDER)
 	place.set_position(spot)
-	request_action(place)
+	_send(place)
 
 
 ## A clear spot connected to one of our landers, preferring the one closest to an enemy so the
@@ -148,23 +311,46 @@ func _buy() -> void:
 	# Purchases resolve after this step, so track what's left to spend here.
 	var budget := EconData.new()
 	budget.add(get_wallet())
-	for lander in _lander_manager.get_landers_owned_by(self):
-		if lander.has_building():
-			_buy_units(lander, budget)
-		else:
-			_buy_spawning_building(lander, budget)
+	# Units first (an army now), then at most one new building per turn with what's left
+	# (otherwise it puts a building on every new lander and never affords units).
+	var landers := _lander_manager.get_landers_owned_by(self)
+	# Shop where the strongest units are trained first (e.g. our race building), so the gold
+	# doesn't all go on basic units elsewhere.
+	var trainers := landers.filter(func(lander: Lander) -> bool: return lander.has_building())
+	trainers.sort_custom(func(a: Lander, b: Lander) -> bool: return _best_trainable_damage(a) > _best_trainable_damage(b))
+	for lander: Lander in trainers:
+		_buy_units(lander, budget)
+	for lander in landers:
+		if not lander.has_building() and _buy_spawning_building(lander, budget):
+			break
 
 
-func _buy_spawning_building(lander: Lander, budget: EconData) -> void:
+## Builds a spawning building, preferring a kind we don't own yet (e.g. our race's building,
+## which trains our advanced units).
+func _buy_spawning_building(lander: Lander, budget: EconData) -> bool:
+	var options: Array[BuildingData] = []
 	for purchasable in lander.get_purchasables(self):
 		var building_data := purchasable as BuildingData
 		if building_data == null or not building_data.can_spawn_units():
 			continue
 		if building_data.is_unique_building() or not budget.can_afford(building_data.get_cost()):
 			continue
-		budget.subtract(building_data.get_cost())
-		_request_purchase(lander, building_data)
-		return
+		options.append(building_data)
+	if options.is_empty():
+		return false
+	var owned := _owned_building_kinds()
+	options.sort_custom(func(a: BuildingData, b: BuildingData) -> bool: return a not in owned and b in owned)
+	budget.subtract(options[0].get_cost())
+	_request_purchase(lander, options[0])
+	return true
+
+
+func _owned_building_kinds() -> Array[BuildingData]:
+	var kinds: Array[BuildingData] = []
+	for lander in _lander_manager.get_landers_owned_by(self):
+		if lander.has_building():
+			kinds.append(lander.get_building().get_building_data())
+	return kinds
 
 
 func _buy_units(lander: Lander, budget: EconData) -> void:
@@ -184,11 +370,52 @@ func _buy_units(lander: Lander, budget: EconData) -> void:
 			bought += 1
 
 
+## Average damage of the strongest unit `lander` can train for us (0 if none).
+func _best_trainable_damage(lander: Lander) -> float:
+	var best := 0.0
+	for purchasable in lander.get_purchasables(self):
+		if purchasable is UnitData:
+			best = maxf(best, _average_damage((purchasable as UnitData).get_damage()))
+	return best
+
+
 func _request_purchase(lander: Lander, purchasable: Resource) -> void:
 	var purchase := Action.create(Action.Type.PURCHASE)
 	purchase.set_target_lander(lander)
 	purchase.set_purchasable(purchasable)
-	request_action(purchase)
+	_send(purchase)
+#endregion
+
+
+#region Battles
+## Tops up our selection with the strongest units still standing, then readies up.
+func _select_and_ready(contest: Contest) -> void:
+	var side := contest.get_side_of(self)
+	var selected := contest.get_units(side)
+	var available := contest.get_available_units(side).duplicate()
+	available.sort_custom(_is_stronger)
+	var room := _combat_manager.get_max_units(side) - selected.size()
+	for unit in available:
+		if room <= 0:
+			break
+		if unit in selected:
+			continue
+		var select := Action.create(Action.Type.SELECT_COMBAT_UNIT)
+		select.set_units([unit] as Array[UnitInstance])
+		_send(select)
+		room -= 1
+	_send(Action.create(Action.Type.DECLARE_COMBAT_READY))
+
+
+## A round is over and the battle goes on: keep fighting, or (as attacker) retreat when outnumbered.
+func _fight_next_round(contest: Contest) -> void:
+	var side := contest.get_side_of(self)
+	var ours := contest.get_available_units(side).size()
+	var theirs := contest.get_available_units(Contest.get_opposite_side(side)).size()
+	if side == Contest.Side.ATTACKER and ours < theirs:
+		_send(Action.create(Action.Type.RETREAT_COMBAT))
+	else:
+		_select_and_ready(contest)
 #endregion
 
 
@@ -229,7 +456,7 @@ func _try_attack() -> bool:
 	var attack := Action.create(Action.Type.ATTACK)
 	attack.set_source_lander(best_source)
 	attack.set_target_lander(best_target)
-	request_action(attack)
+	_send(attack)
 	return true
 
 
@@ -255,12 +482,22 @@ func _spread_units() -> void:
 			_request_move(source, advance_target, units, units.size() - 1, incoming)
 
 
+## An empty neighbour to claim: an undefended enemy lander (its building can be taken) first,
+## otherwise an empty neutral one nearest an enemy.
 func _pick_claim_target(source: Lander, incoming: Dictionary, enemy_positions: Array[Vector3]) -> Lander:
 	var best: Lander = null
 	for target in _lander_manager.get_connected_landers(source):
-		if target in incoming or target.get_owner_actor() != null or target.has_units():
+		if target in incoming or target.has_units():
 			continue
-		if best == null or _closer_to_enemy(target, best, enemy_positions):
+		var target_owner := target.get_owner_actor()
+		if target_owner == self:
+			continue
+		if best == null:
+			best = target
+			continue
+		var is_enemy := target_owner != null
+		var best_is_enemy := best.get_owner_actor() != null
+		if (is_enemy and not best_is_enemy) or (is_enemy == best_is_enemy and _closer_to_enemy(target, best, enemy_positions)):
 			best = target
 	return best
 
@@ -291,7 +528,19 @@ func _request_move(source: Lander, target: Lander, units: Array[UnitInstance], w
 	move.set_source_lander(source)
 	move.set_target_lander(target)
 	move.set_units(moving)
-	request_action(move)
+	if target.has_building() and target.get_building().get_owner_actor() != self:
+		move.set_building_fate(_choose_building_fate(target.get_building()))
+	_send(move)
+
+
+## Capture a building our species could build itself (we can use it); raze anything else.
+## Command towers can only be razed (and razing one knocks its owner out of the game).
+func _choose_building_fate(building: BuildingInstance) -> Action.BuildingFate:
+	if building.is_command_tower():
+		return Action.BuildingFate.RAZE
+	if building.get_building_data() in get_species().get_buildings():
+		return Action.BuildingFate.CAPTURE
+	return Action.BuildingFate.RAZE
 
 
 func _free_slots(lander: Lander, incoming: Dictionary) -> int:
@@ -312,7 +561,7 @@ func _flat(position: Vector3) -> Vector3:
 
 
 func _end_phase() -> void:
-	request_action(Action.create(Action.Type.PROGRESS_TURN))
+	_send(Action.create(Action.Type.PROGRESS_TURN))
 
 
 func _is_my_phase(phase: TurnManager.Phase) -> bool:

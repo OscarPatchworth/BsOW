@@ -19,10 +19,19 @@ enum Type {
 	DESELECT_COMBAT_UNIT,
 	DECLARE_COMBAT_READY,
 	WITHDRAW_COMBAT_READY,
+	RETREAT_COMBAT,
 	# System actions (only the game requests these)
 	FINISH_SETUP,
 	COLLECT_UPKEEP,
 	RESOLVE_COMBAT,
+	ELIMINATE_ACTOR,  ## `actor` lost their command tower and is out of the game.
+}
+
+## What happens to an enemy building when units move onto its undefended lander.
+enum BuildingFate {
+	NONE,
+	CAPTURE,  ## The building becomes the mover's.
+	RAZE,     ## The building is destroyed.
 }
 
 var _type: Type
@@ -36,6 +45,7 @@ var _unit_data: UnitData
 var _biome_data: BiomeData
 ## A BuildingData or UnitData chosen from the market.
 var _purchasable: Resource
+var _building_fate: BuildingFate = BuildingFate.NONE
 
 # Pipeline flags. Not hooked: they control how the action is processed, they aren't game state.
 var _is_system: bool = false
@@ -87,6 +97,7 @@ func to_debug_dictionary() -> Dictionary:
 		"unit_data": _unit_data.get_display_name() if _unit_data else "",
 		"biome_data": _biome_data.get_display_name() if _biome_data else "",
 		"purchasable": _purchasable.get("display_name") if _purchasable else "",
+		"building_fate": BuildingFate.find_key(_building_fate),
 	}
 #endregion
 
@@ -162,6 +173,14 @@ func get_biome_data() -> BiomeData:
 
 func set_biome_data(value: BiomeData) -> void:
 	_biome_data = AbilitySystem.resolve_set(self, &"biome_data", _biome_data, value)
+
+
+func get_building_fate() -> BuildingFate:
+	return AbilitySystem.resolve_get(self, &"building_fate", _building_fate)
+
+
+func set_building_fate(value: BuildingFate) -> void:
+	_building_fate = AbilitySystem.resolve_set(self, &"building_fate", _building_fate, value)
 
 
 func get_purchasable() -> Resource:

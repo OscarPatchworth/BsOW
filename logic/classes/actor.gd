@@ -24,6 +24,8 @@ var _combat_manager: CombatManager
 
 ## Which side of the current contest this actor is on, or -1 when not in combat.
 var _combat_side: int = -1
+## Shown on everything this actor owns (lander rings, HUD). View-only, so not hooked.
+var _color: Color = Color.WHITE
 
 
 #region Public API
@@ -58,6 +60,13 @@ func is_active_actor() -> bool:
 #endregion
 
 
+#region Setup
+## GameRoot calls this on every actor once they've all been added.
+func begin_setup() -> void:
+	_take_setup()
+#endregion
+
+
 #region Accessors
 func get_species() -> SpeciesData:
 	return AbilitySystem.resolve_get(self, &"species", _species)
@@ -73,6 +82,19 @@ func get_wallet() -> EconData:
 
 func set_wallet(value: EconData) -> void:
 	_wallet = AbilitySystem.resolve_set(self, &"wallet", _wallet, value)
+
+
+## The name shown to players. The local player overrides this ("You").
+func get_display_name() -> String:
+	return name
+
+
+func get_color() -> Color:
+	return _color
+
+
+func set_color(value: Color) -> void:
+	_color = value
 
 
 func get_combat_side() -> int:
@@ -111,6 +133,12 @@ func _on_combat_manager_combat_started(contest: Contest) -> void:
 
 
 #region Virtual
+## Override in subclasses: setup has started (every actor exists). Place the starting landers
+## (PLACE_BIOME) and then the command tower (PLACE_BUILDING) on one of them.
+func _take_setup() -> void:
+	pass
+
+
 ## Override in subclasses: called whenever the game phase changes, whoever's turn it is.
 func _game_phase_changed(_phase: TurnManager.Phase) -> void:
 	pass
